@@ -12,9 +12,22 @@
     background:#04060b;color:#93a4c4;font-family:'Segoe UI',system-ui,sans-serif;gap:14px;z-index:5;}
   #boot img{width:96px;animation:b 2s ease-in-out infinite}
   @keyframes b{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  /* Navigation belongs to the shell page, not the game — an embedded host
+     supplies its own, so this link never ships inside the mini-game. */
+  #back{position:fixed;top:12px;left:14px;z-index:6;display:flex;gap:7px;align-items:center;
+    background:rgba(8,13,24,.78);border:1px solid #2b3f66;color:#a9bad6;text-decoration:none;
+    padding:7px 14px;border-radius:20px;font:600 13px 'Segoe UI',system-ui,sans-serif;
+    backdrop-filter:blur(4px);transition:opacity .3s,background .14s,color .14s;}
+  #back:hover{background:#1d2b45;color:#fff;border-color:#5a7cb5;opacity:1 !important;}
+  #back img{width:18px;height:18px;object-fit:contain}
+  /* hide entirely during a run so it never overlaps the HUD; it returns on
+     every menu screen, and Esc gives you a way out mid-run */
+  #back.dim{opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
+  <a id="back" href="../index.html" title="Back to the CostBot Arcade">
+    <img src="../shared/assets/costbot.png" alt="">← Arcade</a>
   <div id="game"></div>
   <div id="boot"><img src="assets/costbot.png" alt=""><div>Loading the ledger…</div></div>
 
@@ -30,6 +43,10 @@
       onEvent(type, payload) {
         // Handy while iterating — watch the host-facing event stream in devtools.
         if (type !== 'ready') console.log('[WasteHunter]', type, payload);
+        // keep the Arcade link out of the way while a run is in progress
+        const back = document.getElementById('back');
+        if (back && type === 'run:start') back.classList.add('dim');
+        if (back && type === 'run:end') back.classList.remove('dim');
       },
       onComplete(result) {
         console.log('[WasteHunter] run complete', result);
