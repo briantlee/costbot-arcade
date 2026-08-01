@@ -20,7 +20,7 @@
  *            creditsEarned, timeSurvived, kills, level, weapons[],
  *            achievementsUnlocked[], meta }
  * ==========================================================================*/
-(function (global) {
+((global) => {
   'use strict';
 
   const C = global.WH_CONTENT;
@@ -49,7 +49,7 @@
     return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
   }
   function mulberry32(a) {
-    return function () {
+    return () => {
       a |= 0; a = (a + 0x6D2B79F5) | 0;
       let t = Math.imul(a ^ (a >>> 15), 1 | a);
       t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
@@ -78,11 +78,11 @@
       const raw = global.localStorage && localStorage.getItem(STORE_KEY);
       if (!raw) return defaultMeta();
       return Object.assign(defaultMeta(), JSON.parse(raw));
-    } catch (e) { return defaultMeta(); }
+    } catch { return defaultMeta(); }
   }
   function saveMeta(meta, persist) {
     if (!persist) return;
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(meta)); } catch (e) { /* private mode */ }
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(meta)); } catch { /* private mode */ }
   }
 
   // ===========================================================================
@@ -133,11 +133,11 @@
       coin: () => tone(1180, 0.07, 'sine', 0.09, 1720),
       hurt: () => tone(190, 0.24, 'sawtooth', 0.16, 70),
       nova: () => { tone(160, 0.3, 'sine', 0.16, 60); noise(0.22, 0.1, 500); },
-      level: () => { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 0.22, 'triangle', 0.13), i * 70)); },
+      level: () => { [523, 659, 784, 1046].forEach((f, i) => { setTimeout(() => tone(f, 0.22, 'triangle', 0.13), i * 70); }); },
       boss: () => { tone(90, 1.1, 'sawtooth', 0.2, 42); noise(0.9, 0.1, 260); },
-      win: () => { [523, 659, 784, 1046, 1318].forEach((f, i) => setTimeout(() => tone(f, 0.35, 'sine', 0.15), i * 110)); },
-      lose: () => { [440, 392, 330, 262].forEach((f, i) => setTimeout(() => tone(f, 0.4, 'triangle', 0.14), i * 150)); },
-      ach: () => { [880, 1174].forEach((f, i) => setTimeout(() => tone(f, 0.2, 'sine', 0.12), i * 90)); },
+      win: () => { [523, 659, 784, 1046, 1318].forEach((f, i) => { setTimeout(() => tone(f, 0.35, 'sine', 0.15), i * 110); }); },
+      lose: () => { [440, 392, 330, 262].forEach((f, i) => { setTimeout(() => tone(f, 0.4, 'triangle', 0.14), i * 150); }); },
+      ach: () => { [880, 1174].forEach((f, i) => { setTimeout(() => tone(f, 0.2, 'sine', 0.12), i * 90); }); },
       // exposed so the shared music sequencer can hang off the same master bus
       nodes() { const c = ensure(); return c ? { ctx: c, master } : null; },
       toggle() {
@@ -322,20 +322,19 @@
   // Instance
   // ===========================================================================
   function Instance(container, opts) {
-    const self = this;
     opts = opts || {};
     injectCSS();
 
     this.opts = opts;
     this.persist = opts.persist !== false;
     this.meta = opts.meta || loadMeta(this.persist);
-    this.onEvent = opts.onEvent || function () {};
-    this.onComplete = opts.onComplete || function () {};
+    this.onEvent = opts.onEvent || (() => {});
+    this.onComplete = opts.onComplete || (() => {});
     this.showShell = opts.showShell !== false;
     this.returnLabel = opts.returnLabel || 'Exit';
     this.audio = makeAudio();
     const MUSIC = global.ArcadeMusic || global.WHMusic;
-    this.music = MUSIC ? MUSIC.create(() => self.audio.nodes()) : null;
+    this.music = MUSIC ? MUSIC.create(() => this.audio.nodes()) : null;
     this._musicState = null;
     if (this.music) this.music.setTheme(this.meta.theme || 'synthwave');
     this.destroyed = false;
@@ -374,24 +373,24 @@
     this.keys = {};
     this.pointer = { x: 0, y: 0, down: false };
     this._onKeyDown = (e) => {
-      self.keys[e.key.toLowerCase()] = true;
+      this.keys[e.key.toLowerCase()] = true;
       if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(e.key.toLowerCase())) e.preventDefault();
-      if (e.key === 'Escape') self.togglePause();
-      if (e.key.toLowerCase() === 'm') self.toggleMute();
+      if (e.key === 'Escape') this.togglePause();
+      if (e.key.toLowerCase() === 'm') this.toggleMute();
     };
-    this._onKeyUp = (e) => { self.keys[e.key.toLowerCase()] = false; };
+    this._onKeyUp = (e) => { this.keys[e.key.toLowerCase()] = false; };
     this._onPointer = (e) => {
-      const r = self.canvas.getBoundingClientRect();
-      self.pointer.x = (e.clientX - r.left) / r.width * VW;
-      self.pointer.y = (e.clientY - r.top) / r.height * VH;
+      const r = this.canvas.getBoundingClientRect();
+      this.pointer.x = (e.clientX - r.left) / r.width * VW;
+      this.pointer.y = (e.clientY - r.top) / r.height * VH;
     };
     this._onDown = (e) => {
-      self.pointer.down = true; self._onPointer(e); self.audio.resume();
+      this.pointer.down = true; this._onPointer(e); this.audio.resume();
       // autoplay is blocked until a user gesture — re-apply the wanted track now
-      if (self.music && self._musicState) self.music.setState(self._musicState);
+      if (this.music && this._musicState) this.music.setState(this._musicState);
     };
-    this._onUp = () => { self.pointer.down = false; };
-    this._onBlur = () => { if (self.run && !self.run.over && !self.paused && !self.drafting) self.setPause(true); };
+    this._onUp = () => { this.pointer.down = false; };
+    this._onBlur = () => { if (this.run && !this.run.over && !this.paused && !this.drafting) this.setPause(true); };
 
     window.addEventListener('keydown', this._onKeyDown);
     window.addEventListener('keyup', this._onKeyUp);
@@ -404,10 +403,10 @@
     this._resize = () => {
       const r = container.getBoundingClientRect();
       const s = Math.min(r.width / VW, r.height / VH);
-      self.frame.style.transform = `scale(${s})`;
-      self.frame.style.left = ((r.width - VW * s) / 2) + 'px';
-      self.frame.style.top = ((r.height - VH * s) / 2) + 'px';
-      self.frame.style.position = 'absolute';
+      this.frame.style.transform = `scale(${s})`;
+      this.frame.style.left = ((r.width - VW * s) / 2) + 'px';
+      this.frame.style.top = ((r.height - VH * s) / 2) + 'px';
+      this.frame.style.position = 'absolute';
     };
     this._ro = new ResizeObserver(this._resize);
     this._ro.observe(container);
@@ -420,18 +419,18 @@
     this.toasts = [];
     this.lastT = performance.now();
     this._tick = (now) => {
-      if (self.destroyed) return;
-      let dt = (now - self.lastT) / 1000;
-      self.lastT = now;
+      if (this.destroyed) return;
+      let dt = (now - this.lastT) / 1000;
+      this.lastT = now;
       dt = Math.min(dt, 0.1);
-      if (self.run && !self.paused && !self.drafting && !self.run.over) {
+      if (this.run && !this.paused && !this.drafting && !this.run.over) {
         let steps = 0;
-        self.acc = (self.acc || 0) + dt;
-        while (self.acc >= 1 / 60 && steps < 5) { self.update(1 / 60); self.acc -= 1 / 60; steps++; }
-        if (steps >= 5) self.acc = 0;
+        this.acc = (this.acc || 0) + dt;
+        while (this.acc >= 1 / 60 && steps < 5) { this.update(1 / 60); this.acc -= 1 / 60; steps++; }
+        if (steps >= 5) this.acc = 0;
       }
-      self.render();
-      requestAnimationFrame(self._tick);
+      this.render();
+      requestAnimationFrame(this._tick);
     };
     requestAnimationFrame(this._tick);
 
@@ -487,7 +486,7 @@
   };
 
   Instance.prototype.screenTitle = function () {
-    const self = this, m = this.meta;
+    const m = this.meta;
     this.run = null;
     this.setMusic('menu');
     this.clearUI();
@@ -516,14 +515,14 @@
     this.ui.appendChild(el);
     el.addEventListener('click', (e) => {
       const th = e.target.closest('[data-theme]');
-      if (th) { self.audio.resume(); self.setTheme(th.dataset.theme); self.screenTitle(); return; }
+      if (th) { this.audio.resume(); this.setTheme(th.dataset.theme); this.screenTitle(); return; }
       const a = e.target.closest('[data-act]'); if (!a) return;
-      self.audio.resume();
+      this.audio.resume();
       const act = a.dataset.act;
-      if (act === 'play') self.screenStages();
-      else if (act === 'bay') self.screenBay();
-      else if (act === 'achs') self.screenAchievements();
-      else if (act === 'mute') { self.toggleMute(); self.screenTitle(); }
+      if (act === 'play') this.screenStages();
+      else if (act === 'bay') this.screenBay();
+      else if (act === 'achs') this.screenAchievements();
+      else if (act === 'mute') { this.toggleMute(); this.screenTitle(); }
     });
   };
 
@@ -554,15 +553,14 @@
   };
 
   Instance.prototype.screenStages = function () {
-    const self = this;
     this.clearUI();
     const cards = C.STAGES.map((s, i) => {
-      const unlocked = self.stageUnlocked(i);
-      const best = self.meta.best[s.id];
-      const cleared = self.meta.cleared[s.id];
+      const unlocked = this.stageUnlocked(i);
+      const best = this.meta.best[s.id];
+      const cleared = this.meta.cleared[s.id];
       return `<div class="wh-card ${unlocked ? '' : 'locked'}" data-stage="${s.id}" data-ok="${unlocked ? 1 : 0}">
         <span class="wh-badge ${cleared ? 'clear' : ''}">${cleared ? '✓ CLEARED' : unlocked ? mmss(s.duration) : '🔒 LOCKED'}</span>
-        <img src="${self.assetBase}${s.art}" alt="">
+        <img src="${this.assetBase}${s.art}" alt="">
         <div class="wh-card-b">
           <h3>${esc(s.name)}</h3>
           <p>${esc(s.subtitle)}</p>
@@ -587,19 +585,19 @@
       const card = e.target.closest('[data-stage]');
       if (card) {
         if (card.dataset.ok !== '1') return;
-        self.audio.resume();
-        self.startRun(card.dataset.stage, (Math.random() * 1e9) | 0);
+        this.audio.resume();
+        this.startRun(card.dataset.stage, (Math.random() * 1e9) | 0);
         return;
       }
       const a = e.target.closest('[data-act]'); if (!a) return;
-      if (a.dataset.act === 'back') self.screenTitle();
-      else if (a.dataset.act === 'daily') { self.audio.resume(); self.startRun(C.STAGES[0].id, dailySeed()); }
-      else if (a.dataset.act === 'mute') { self.toggleMute(); self.screenStages(); }
+      if (a.dataset.act === 'back') this.screenTitle();
+      else if (a.dataset.act === 'daily') { this.audio.resume(); this.startRun(C.STAGES[0].id, dailySeed()); }
+      else if (a.dataset.act === 'mute') { this.toggleMute(); this.screenStages(); }
     });
   };
 
   Instance.prototype.screenBay = function () {
-    const self = this, m = this.meta;
+    const m = this.meta;
     this.clearUI();
     const items = Object.entries(C.META_UPGRADES).map(([id, u]) => {
       const lvl = m.upgrades[id] || 0;
@@ -632,17 +630,17 @@
         const cost = u.cost(lvl);
         if (lvl < u.max && m.credits >= cost) {
           m.credits -= cost; m.upgrades[id] = lvl + 1;
-          saveMeta(m, self.persist); self.audio.coin(); self.screenBay();
+          saveMeta(m, this.persist); this.audio.coin(); this.screenBay();
         }
         return;
       }
       const a = e.target.closest('[data-act]');
-      if (a && a.dataset.act === 'back') self.screenTitle();
+      if (a && a.dataset.act === 'back') this.screenTitle();
     });
   };
 
   Instance.prototype.screenAchievements = function () {
-    const self = this, m = this.meta;
+    const m = this.meta;
     this.clearUI();
     const got = Object.keys(m.achievements).length;
     const list = C.ACHIEVEMENTS.map((a) => `
@@ -661,7 +659,7 @@
     this.ui.appendChild(el);
     el.addEventListener('click', (e) => {
       const a = e.target.closest('[data-act]');
-      if (a && a.dataset.act === 'back') self.screenTitle();
+      if (a && a.dataset.act === 'back') this.screenTitle();
     });
   };
 
@@ -783,7 +781,6 @@
   };
 
   Instance.prototype.screenResult = function (res) {
-    const self = this;
     const r = this.run, win = res.outcome === 'clear';
     this.setMusic('menu');
     const art = win ? (r.p.hp / r.p.maxHp < 0.15 ? 'still_did_it' : 'done') : 'beat_up';
@@ -817,11 +814,11 @@
     el.addEventListener('click', (e) => {
       const a = e.target.closest('[data-act]'); if (!a) return;
       const act = a.dataset.act;
-      if (act === 'again') self.startRun(r.stage.id, (Math.random() * 1e9) | 0);
-      else if (act === 'stages') self.screenStages();
+      if (act === 'again') this.startRun(r.stage.id, (Math.random() * 1e9) | 0);
+      else if (act === 'stages') this.screenStages();
       else if (act === 'exit') {
-        if (self.showShell) self.screenTitle();
-        else { self.clearUI(); self.emit('exit', self.lastResult); }
+        if (this.showShell) this.screenTitle();
+        else { this.clearUI(); this.emit('exit', this.lastResult); }
       }
     });
   };
@@ -834,7 +831,6 @@
     this.setPause(!this.paused);
   };
   Instance.prototype.setPause = function (on) {
-    const self = this;
     this.paused = on;
     if (!on) { this.clearUI(); return; }
     const r = this.run;
@@ -857,8 +853,8 @@
     this.ui.appendChild(el);
     el.addEventListener('click', (e) => {
       const a = e.target.closest('[data-act]'); if (!a) return;
-      if (a.dataset.act === 'resume') self.setPause(false);
-      else { self.paused = false; self.endRun('quit'); }
+      if (a.dataset.act === 'resume') this.setPause(false);
+      else { this.paused = false; this.endRun('quit'); }
     });
   };
 
@@ -877,7 +873,6 @@
   };
 
   Instance.prototype.toast = function (icon, name, desc) {
-    const self = this;
     let box = this.root.querySelector('.wh-toasts');
     if (!box) {
       box = document.createElement('div'); box.className = 'wh-toasts';
@@ -918,7 +913,7 @@
     });
     const picks = [];
     for (let i = 0; i < 3 && pool.length; i++) {
-      let total = pool.reduce((a, x) => a + x.weight, 0);
+      const total = pool.reduce((a, x) => a + x.weight, 0);
       let roll = r.rnd() * total, idx = 0;
       for (let j = 0; j < pool.length; j++) { roll -= pool[j].weight; if (roll <= 0) { idx = j; break; } }
       picks.push(pool.splice(idx, 1)[0]);
@@ -927,7 +922,7 @@
   };
 
   Instance.prototype.showDraft = function () {
-    const self = this, r = this.run;
+    const r = this.run;
     const picks = this.rollDraft();
     if (!picks.length) { this.drafting = false; return; }
     this.drafting = true;
@@ -960,8 +955,8 @@
     this.ui.appendChild(el);
     el.addEventListener('click', (e) => {
       const c = e.target.closest('[data-i]'); if (!c) return;
-      self.clearUI();
-      self.showTrivia(picks[+c.dataset.i]);
+      this.clearUI();
+      this.showTrivia(picks[+c.dataset.i]);
     });
   };
 
@@ -989,7 +984,8 @@
   Instance.prototype.pickQuestion = function (topic) {
     const r = this.run;
     r.asked = r.asked || new Set();
-    const seen = this.meta.seenQuestions || (this.meta.seenQuestions = {});
+    if (!this.meta.seenQuestions) this.meta.seenQuestions = {};
+    const seen = this.meta.seenQuestions;
     const indexed = C.TRIVIA.map((q, i) => ({ q, i, k: qKey(q) }));
     const fresh = indexed.filter((x) => !r.asked.has(x.i));
 
@@ -1299,7 +1295,7 @@
         }
       }
       // boss behaviours
-      if (e.isBoss) this.updateBoss(e, dt, d, dx, dy);
+      if (e.isBoss) this.updateBoss(e, dt);
 
       // contact damage — collected, then applied once through i-frames below
       if (d < e.r + p.radius) {
@@ -1336,7 +1332,11 @@
         if (b.hitSet && b.hitSet.has(e.id)) continue;
         if (dist2(b.x, b.y, e.x, e.y) < (e.r + b.r) * (e.r + b.r)) {
           this.hurtEnemy(e, b.dmg);
-          if (b.pierce > 0) { b.pierce--; (b.hitSet = b.hitSet || new Set()).add(e.id); }
+          if (b.pierce > 0) {
+            b.pierce--;
+            if (!b.hitSet) b.hitSet = new Set();
+            b.hitSet.add(e.id);
+          }
           else { dead = true; }
           break;
         }
@@ -1501,7 +1501,7 @@
     if (!type) {
       const avail = S.table.filter((x) => r.t >= x.from);
       if (!avail.length) return;
-      let total = avail.reduce((a, x) => a + x.weight, 0);
+      const total = avail.reduce((a, x) => a + x.weight, 0);
       let roll = r.rnd() * total;
       for (const x of avail) { roll -= x.weight; if (roll <= 0) { type = x.type; break; } }
       type = type || avail[0].type;
@@ -1515,10 +1515,15 @@
     this.addEnemy(type, def, x, y, S.hpScale(r.t));
   };
 
+  function nextEnemyId(r) {
+    r._eid = (r._eid || 0) + 1;
+    return r._eid;
+  }
+
   Instance.prototype.addEnemy = function (type, def, x, y, scale, sizeMul) {
     const r = this.run;
     const e = {
-      id: (r._eid = (r._eid || 0) + 1), type, def, x, y,
+      id: nextEnemyId(r), type, def, x, y,
       hp: def.hp * scale, maxHp: def.hp * scale,
       r: def.radius * (sizeMul || 1), sizeMul: sizeMul || 1,
       hitT: 0, slowMul: 1, slowT: 0, knockX: 0, knockY: 0,
@@ -1543,7 +1548,7 @@
     this.emit('run:boss', { boss: r.stage.boss, name: def.name });
   };
 
-  Instance.prototype.updateBoss = function (e, dt, d, dx, dy) {
+  Instance.prototype.updateBoss = function (e, dt) {
     const r = this.run, def = e.def;
     if (def.spawns) {
       e.scd = (e.scd || def.spawns.cd) - dt;
@@ -1615,8 +1620,7 @@
       this.shake(30);
       if (r.bossHitless) this.unlock('flawless_boss');
       r.boss = null;
-      const self = this;
-      setTimeout(() => { if (self.run && !self.run.over) self.endRun('clear'); }, 900);
+      setTimeout(() => { if (this.run && !this.run.over) this.endRun('clear'); }, 900);
     }
   };
 
@@ -2211,7 +2215,7 @@
       return new Instance(container, opts || {});
     },
     loadMeta: () => loadMeta(true),
-    resetMeta() { try { localStorage.removeItem(STORE_KEY); } catch (e) {} },
+    resetMeta() { try { localStorage.removeItem(STORE_KEY); } catch { /* private mode */ } },
     money, mmss,
   };
 

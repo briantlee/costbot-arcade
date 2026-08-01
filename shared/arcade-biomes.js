@@ -13,7 +13,7 @@
  * Adding a biome costs one palette entry plus one case in drawProp — all the
  * scenery is drawn procedurally, so no art is required.
  * ==========================================================================*/
-(function (global) {
+((global) => {
   'use strict';
   const TAU = Math.PI * 2;
 

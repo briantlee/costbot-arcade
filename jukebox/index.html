@@ -50,7 +50,7 @@
   <div class="tracks" id="tracks"></div>
 
   <div class="row">
-    <button class="plain" id="stop">■ Stop</button>
+    <button type="button" class="plain" id="stop">■ Stop</button>
     <label style="font-size:13px;color:#93a4c4">Volume <input type="range" id="vol" min="0" max="100" value="50"></label>
   </div>
 
@@ -93,14 +93,14 @@
         <p>${t.desc}</p>`;
       el.onclick = () => {
         music.playTrack(id);
-        document.querySelectorAll('.track').forEach((x) => x.classList.remove('on'));
+        document.querySelectorAll('.track').forEach((x) => { x.classList.remove('on'); });
         el.classList.add('on');
       };
       box.appendChild(el);
     });
     document.getElementById('stop').onclick = () => {
       music.stop();
-      document.querySelectorAll('.track').forEach((t) => t.classList.remove('on'));
+      document.querySelectorAll('.track').forEach((t) => { t.classList.remove('on'); });
     };
     document.getElementById('vol').oninput = (e) => music.setVolume(e.target.value / 100);
 

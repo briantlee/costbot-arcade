@@ -35,7 +35,15 @@ const server = http.createServer((req, res) => {
   const errors = [];
   const warnings = [];
   page.on('pageerror', (e) => errors.push('PAGEERROR: ' + e.message));
-  page.on('console', (m) => { if (m.type() === 'error') errors.push('CONSOLE: ' + m.text()); });
+  // ArcadeSync deliberately probes /api/me and disables itself when nothing answers,
+  // which is the normal path on static hosting — so that one 404 is expected, not a failure.
+  const EXPECTED_404 = /api\/me/;
+  page.on('console', (m) => {
+    if (m.type() !== 'error') return;
+    if (m.location() && EXPECTED_404.test(m.location().url || '')) return;
+    errors.push('CONSOLE: ' + m.text());
+  });
+  page.on('requestfailed', (r) => { if (!EXPECTED_404.test(r.url())) errors.push('REQFAIL: ' + r.url()); });
 
   const shot = async (name) => {
     await page.screenshot({ path: path.join(OUT, name + '.png') });
@@ -149,10 +157,6 @@ const server = http.createServer((req, res) => {
       g.pointer.down = true;
     }, 60);
   });
-  const stopAutopilot = () => page.evaluate(() => {
-    if (window.__ap) { clearInterval(window.__ap); window.__ap = null; }
-    if (window.game) window.game.pointer.down = false;
-  });
   await startAutopilot();
 
   // FULL=1 plays the entire stage on autopilot — slower, but the only way to
@@ -246,8 +250,8 @@ const server = http.createServer((req, res) => {
     const topics = {};
     C.TRIVIA.forEach((q) => { topics[q.topic] = (topics[q.topic] || 0) + 1; });
     const upgrades = [];
-    Object.entries(C.WEAPONS).forEach(([id, w]) => upgrades.push({ id, topic: w.topic }));
-    Object.entries(C.PASSIVES).forEach(([id, p]) => upgrades.push({ id, topic: p.topic }));
+    Object.entries(C.WEAPONS).forEach(([id, w]) => { upgrades.push({ id, topic: w.topic }); });
+    Object.entries(C.PASSIVES).forEach(([id, p]) => { upgrades.push({ id, topic: p.topic }); });
     const bad = C.TRIVIA.filter((q) => !q.q || !q.why || !Array.isArray(q.c) ||
       q.c.length < 2 || q.a == null || q.a < 0 || q.a >= q.c.length).map((q) => q.q);
     const byText = {};
@@ -294,8 +298,8 @@ const server = http.createServer((req, res) => {
   }
 
   console.log('\n' + (errors.length ? '❌ FAILURES:' : '✅ No console/page errors'));
-  errors.slice(0, 20).forEach((e) => console.log('   ' + e));
-  if (warnings.length) { console.log('⚠️  warnings:'); warnings.slice(0, 10).forEach((w) => console.log('   ' + w)); }
+  errors.slice(0, 20).forEach((e) => { console.log('   ' + e); });
+  if (warnings.length) { console.log('⚠️  warnings:'); warnings.slice(0, 10).forEach((w) => { console.log('   ' + w); }); }
 
   await browser.close();
   server.close();

@@ -9,7 +9,7 @@
  *   skills/optional/cost-optimizations/SKILL.md
  *   (Confluence PRODPLAT — AWS Cost Optimization Strategies)
  * ==========================================================================*/
-(function (global) {
+((global) => {
   'use strict';
 
   // ---------------------------------------------------------------------------
@@ -32,7 +32,7 @@
   //   lvl 1 => ~$960     lvl 6 => ~$22K     lvl 12 => ~$147K (cumulative)
   // ---------------------------------------------------------------------------
   const XP = {
-    forLevel: (lvl) => Math.round(55 + Math.pow(lvl, 2.2) * 9),
+    forLevel: (lvl) => Math.round(55 + lvl ** 2.2 * 9),
     perDollar: 1 / 15,    // a $120 Idle EC2 => 8 xp
   };
 
@@ -327,7 +327,7 @@
       name: 'Automation', icon: '⚙️', max: 5, topic: 'automation',
       blurb: '-8% weapon cooldowns.',
       fact: 'A saving that needs a human every month is not a saving. Lifecycle rules and log expiry run themselves.',
-      apply: (p, lvl) => { p.cdMult = Math.pow(0.92, lvl); },
+      apply: (p, lvl) => { p.cdMult = 0.92 ** lvl; },
     },
     finops_culture: {
       name: 'FinOps Culture', icon: '📊', max: 5, topic: 'visibility',
@@ -339,7 +339,7 @@
       name: 'Chargeback Armor', icon: '🪖', max: 5, topic: 'nonprod',
       blurb: '-9% damage taken.',
       fact: 'Nonprod costing >30% of prod is a red flag. Right-sizing it is low risk and often cuts 80–90%.',
-      apply: (p, lvl) => { p.dr = Math.pow(0.91, lvl); },
+      apply: (p, lvl) => { p.dr = 0.91 ** lvl; },
     },
   };
 

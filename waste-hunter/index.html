@@ -31,15 +31,22 @@
   <div id="game"></div>
   <div id="boot"><img src="assets/costbot.png" alt=""><div>Loading the ledger…</div></div>
 
+  <script src="../shared/arcade-sync.js"></script>
   <script src="../shared/arcade-music.js"></script>
   <script src="../shared/arcade-biomes.js"></script>
   <script src="wh-content.js"></script>
   <script src="wh-game.js"></script>
   <script>
     // Standalone shell: full menu, stage select, Bot Bay, localStorage progression.
-    const game = WasteHunter.mount('#game', {
+    // When the arcade is served by the aix-proto app there is also a server-side
+    // profile; ArcadeSync supplies it and stays silent on static hosting.
+    let game;
+    (async () => {
+    const session = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
+    game = WasteHunter.mount('#game', {
       showShell: true,
       persist: true,
+      meta: session.enabled && session.profile ? session.profile : undefined,
       onEvent(type, payload) {
         // Handy while iterating — watch the host-facing event stream in devtools.
         if (type !== 'ready') console.log('[WasteHunter]', type, payload);
@@ -50,15 +57,20 @@
       },
       onComplete(result) {
         console.log('[WasteHunter] run complete', result);
+        if (window.ArcadeSync) window.ArcadeSync.submit(result, game.meta);
       },
     });
+    window.game = game;
+    // progression can change outside a run (Bot Bay, theme) — keep it synced
+    if (session.enabled) {
+      setInterval(() => window.ArcadeSync.pushProfile(game.meta), 20000);
+    }
+    })();
     window.addEventListener('load', () => {
       const b = document.getElementById('boot');
       setTimeout(() => { b.style.transition = 'opacity .4s'; b.style.opacity = 0;
         setTimeout(() => b.remove(), 420); }, 300);
     });
-    // expose for console tinkering
-    window.game = game;
   </script>
 </body>
 </html>

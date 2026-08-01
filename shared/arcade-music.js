@@ -23,10 +23,10 @@
  *   music.setState('stage');      // resolves through the theme
  *   music.playTrack('overworld'); // audition one directly
  * ==========================================================================*/
-(function (global) {
+((global) => {
   'use strict';
 
-  const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
+  const mtof = (m) => 440 * 2 ** ((m - 69) / 12);
   const STEPS_PER_BAR = 16;   // 16th notes
   const BARS = 4;
   const TOTAL = STEPS_PER_BAR * BARS;
@@ -441,7 +441,7 @@
           if (out) out.gain.setTargetAtTime(volume * cfg.gain, ctx.currentTime, 0.15);
           step = 0;
         }
-        try { playStep(step, nextTime); } catch (e) { /* never let audio kill the frame */ }
+        try { playStep(step, nextTime); } catch { /* never let audio kill the frame */ }
         nextTime += 60 / cfg.bpm / 4;
         step = (step + 1) % TOTAL;
       }
