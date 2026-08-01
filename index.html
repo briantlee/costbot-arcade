@@ -20,6 +20,15 @@
     -webkit-background-clip:text;background-clip:text;color:transparent;
     text-shadow:0 8px 34px rgba(255,160,40,.2)}
   .tag{color:var(--muted);font-size:16px;margin:8px 0 0}
+  .greet{margin:16px auto 0;max-width:640px;display:none;align-items:center;gap:12px;
+    justify-content:center;background:linear-gradient(180deg,#16213a,#0f1728);
+    border:1px solid var(--line);border-radius:14px;padding:12px 20px;text-align:left}
+  .greet.on{display:flex}
+  .greet img{width:38px;height:38px;object-fit:contain;flex:0 0 auto}
+  .greet .hi{font-size:17px;font-weight:700}
+  .greet .hi b{color:var(--gold)}
+  .greet .stats{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .greet .stats b{color:var(--teal);font-variant-numeric:tabular-nums}
   .pill{display:inline-block;margin-top:14px;font-size:12px;letter-spacing:1.4px;font-weight:800;
     color:#0d1220;background:linear-gradient(180deg,#ffd76b,#f0a52c);padding:5px 14px;border-radius:20px}
 
@@ -62,6 +71,13 @@
     <h1>CostBot Arcade</h1>
     <p class="tag">FinOps, but you actually want to play it.</p>
     <div class="pill">CostBot™</div>
+    <div class="greet" id="greet">
+      <img src="shared/assets/costbot.png" alt="">
+      <div>
+        <div class="hi" id="greet-hi"></div>
+        <div class="stats" id="greet-stats"></div>
+      </div>
+    </div>
   </header>
 
   <h2 class="sec">Games</h2>
@@ -77,7 +93,7 @@
         <div class="meta">
           <span class="chip live">● Playable</span>
           <span class="chip">3 min runs</span>
-          <span class="chip">94 quiz questions</span>
+          <span class="chip">93 quiz questions</span>
         </div>
       </div>
     </a>
@@ -172,5 +188,34 @@
     <a href="https://deept.atlassian.net/browse/COSTMAN-3708">COSTMAN-3708</a>.
   </footer>
 </div>
+
+<script src="shared/arcade-sync.js"></script>
+<script>
+  // Greet the signed-in player. Identity comes from the platform (MyID at the
+  // front door), so on static hosting there is nobody to greet and the strip
+  // simply stays hidden.
+  (async () => {
+    const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
+    if (!s.enabled) return;
+    const first = (s.displayName || String(s.hubId || '').split('@')[0] || 'player')
+      .split(/[ .]/)[0]
+      .replace(/^./, (c) => c.toUpperCase());
+    const p = s.profile || {};
+    const money = (n) => '$' + Math.round(n || 0).toLocaleString('en-US');
+    const bits = [];
+    if (p.runs) bits.push(`<b>${p.runs}</b> run${p.runs === 1 ? '' : 's'}`);
+    if (p.lifetimeDollars) bits.push(`<b>${money(p.lifetimeDollars)}</b> saved`);
+    if (p.credits) bits.push(`<b>${Math.round(p.credits).toLocaleString()}</b> credits`);
+    const achievements = p.achievements ? Object.keys(p.achievements).length : 0;
+    if (achievements) bits.push(`<b>${achievements}</b> achievement${achievements === 1 ? '' : 's'}`);
+
+    document.getElementById('greet-hi').innerHTML =
+      (bits.length ? 'Welcome back, ' : 'Welcome, ') + '<b>' + first + '</b>';
+    document.getElementById('greet-stats').innerHTML = bits.length
+      ? bits.join(' &nbsp;·&nbsp; ') + (s.team ? ' &nbsp;·&nbsp; ' + s.team : '')
+      : 'Your progress saves to your profile and follows you between machines.';
+    document.getElementById('greet').classList.add('on');
+  })();
+</script>
 </body>
 </html>
