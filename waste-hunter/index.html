@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CostBot: Waste Hunter</title>
+<link rel="icon" href="assets/costbot.png">
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#04060b;overflow:hidden;}
+  #game{position:absolute;inset:0;}
+  #boot{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:#04060b;color:#93a4c4;font-family:'Segoe UI',system-ui,sans-serif;gap:14px;z-index:5;}
+  #boot img{width:96px;animation:b 2s ease-in-out infinite}
+  @keyframes b{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+</style>
+</head>
+<body>
+  <div id="game"></div>
+  <div id="boot"><img src="assets/costbot.png" alt=""><div>Loading the ledger…</div></div>
+
+  <script src="wh-content.js"></script>
+  <script src="wh-game.js"></script>
+  <script>
+    // Standalone shell: full menu, stage select, Bot Bay, localStorage progression.
+    const game = WasteHunter.mount('#game', {
+      showShell: true,
+      persist: true,
+      onEvent(type, payload) {
+        // Handy while iterating — watch the host-facing event stream in devtools.
+        if (type !== 'ready') console.log('[WasteHunter]', type, payload);
+      },
+      onComplete(result) {
+        console.log('[WasteHunter] run complete', result);
+      },
+    });
+    window.addEventListener('load', () => {
+      const b = document.getElementById('boot');
+      setTimeout(() => { b.style.transition = 'opacity .4s'; b.style.opacity = 0;
+        setTimeout(() => b.remove(), 420); }, 300);
+    });
+    // expose for console tinkering
+    window.game = game;
+  </script>
+</body>
+</html>
