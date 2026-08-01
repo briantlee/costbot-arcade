@@ -17,7 +17,8 @@ game later** — the mini-game owns one stage and hands a result back to the hos
 No build step, no dependencies, no server required.
 
 ```bash
-xdg-open index.html          # or double-click, or drag into a browser
+xdg-open ../index.html       # the Arcade landing page
+xdg-open index.html          # straight into Waste Hunter
 ```
 
 | File | What it is |
@@ -26,6 +27,8 @@ xdg-open index.html          # or double-click, or drag into a browser
 | `embed-example.html` | Fake "host game" showing the integration contract |
 | `wh-content.js` | **All balance, content, and trivia.** Tune the game here. |
 | `wh-game.js` | Engine — loop, systems, rendering, UI, host API |
+| `../shared/arcade-music.js` | **Shared** soundtrack engine (7 tracks, 5 themes) |
+| `../shared/arcade-biomes.js` | **Shared** arena palettes + procedural scenery |
 | `assets/` | CostBot sprite + panel art (copied from `internal/images/`) |
 | `smoketest.js` | Headless Playwright test — plays a run, answers trivia, screenshots |
 

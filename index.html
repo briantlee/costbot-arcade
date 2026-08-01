@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CostBot Arcade</title>
+<link rel="icon" href="shared/assets/costbot.png">
+<style>
+  :root{--gold:#f0a52c;--line:#2b3f66;--fg:#e8eef8;--muted:#93a4c4;--teal:#7fd6c4;}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#1a2744,#05070d 65%);
+    color:var(--fg);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;padding:40px 24px 60px;}
+  .wrap{max-width:1080px;margin:0 auto}
+  header{text-align:center;margin-bottom:8px}
+  header img{width:120px;filter:drop-shadow(0 12px 30px rgba(74,163,255,.45));
+    animation:bob 3s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  h1{font-size:56px;margin:10px 0 0;letter-spacing:-1.5px;
+    background:linear-gradient(180deg,#ffd76b,#ff9e2c 60%,#e07b1a);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 8px 34px rgba(255,160,40,.2)}
+  .tag{color:var(--muted);font-size:16px;margin:8px 0 0}
+  .pill{display:inline-block;margin-top:14px;font-size:12px;letter-spacing:1.4px;font-weight:800;
+    color:#0d1220;background:linear-gradient(180deg,#ffd76b,#f0a52c);padding:5px 14px;border-radius:20px}
+
+  h2.sec{font-size:13px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase;
+    margin:44px 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+  .card{background:linear-gradient(180deg,#151f36,#0d1421);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;display:flex;
+    flex-direction:column;transition:.16s;position:relative}
+  .card:hover{transform:translateY(-7px);border-color:var(--gold);
+    box-shadow:0 20px 44px rgba(0,0,0,.6)}
+  .card.soon{opacity:.5;pointer-events:none;filter:grayscale(.55)}
+  .art{height:132px;display:flex;align-items:center;justify-content:center;font-size:56px;
+    background:linear-gradient(135deg,#1d2b47,#101827);border-bottom:1px solid var(--line);
+    position:relative;overflow:hidden}
+  .art img{height:104px;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
+  .body{padding:16px 18px 18px}
+  .body h3{margin:0 0 5px;font-size:19px}
+  .body p{margin:0;font-size:13.5px;color:#a9bad6;line-height:1.55}
+  .meta{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+  .chip{font-size:11px;font-weight:700;letter-spacing:.5px;background:#1b2740;border:1px solid #33507f;
+    color:#a9bad6;padding:3px 9px;border-radius:20px}
+  .chip.live{background:#173a26;border-color:#3fa060;color:#8ff0ad}
+  .chip.tool{background:#1a2f3a;border-color:#3f7f96;color:#8fd8f0}
+  .badge{position:absolute;top:10px;right:10px;font-size:10.5px;font-weight:800;letter-spacing:1px;
+    background:rgba(6,10,18,.85);border:1px solid #3f5f96;padding:4px 10px;border-radius:20px}
+  .badge.soon{border-color:#6b5320;color:#ffd76b}
+
+  footer{margin-top:52px;text-align:center;color:#5d6d8a;font-size:12.5px;line-height:1.9}
+  footer code{background:#141d31;border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  footer a{color:var(--teal);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="shared/assets/costbot.png" alt="CostBot">
+    <h1>CostBot Arcade</h1>
+    <p class="tag">FinOps, but you actually want to play it.</p>
+    <div class="pill">CostBot™</div>
+  </header>
+
+  <h2 class="sec">Games</h2>
+  <div class="grid">
+
+    <a class="card" href="waste-hunter/index.html">
+      <span class="badge">PLAYABLE</span>
+      <div class="art"><img src="waste-hunter/assets/costbot.png" alt=""></div>
+      <div class="body">
+        <h3>Waste Hunter</h3>
+        <p>A roguelite survivor. Terminate idle EC2, orphaned volumes and zombie IPs;
+           every level-up quizzes you on a real AWS savings lever. Score is dollars saved.</p>
+        <div class="meta">
+          <span class="chip live">● Playable</span>
+          <span class="chip">3 min runs</span>
+          <span class="chip">94 quiz questions</span>
+        </div>
+      </div>
+    </a>
+
+    <div class="card soon">
+      <span class="badge soon">CONCEPT</span>
+      <div class="art">🧊</div>
+      <div class="body">
+        <h3>Rightsize Rush</h3>
+        <p>Bin-packing puzzler. Workload blocks fall; pack them into instances.
+           Empty space burns money every tick — Tetris, where the mechanic <em>is</em> rightsizing.</p>
+        <div class="meta"><span class="chip">Puzzle</span><span class="chip">Not started</span></div>
+      </div>
+    </div>
+
+    <div class="card soon">
+      <span class="badge soon">CONCEPT</span>
+      <div class="art">🃏</div>
+      <div class="body">
+        <h3>Deck of Discounts</h3>
+        <p>Deckbuilder. Savings Plans, Graviton migrations and lifecycle rules are your cards;
+           spend spikes are the enemies, with HP measured in dollars.</p>
+        <div class="meta"><span class="chip">Deckbuilder</span><span class="chip">Not started</span></div>
+      </div>
+    </div>
+
+    <div class="card soon">
+      <span class="badge soon">CONCEPT</span>
+      <div class="art">🏷️</div>
+      <div class="body">
+        <h3>Tag Trouble</h3>
+        <p>Match-3. Untagged resources rain down; match them to the right service to
+           tag them before the unallocated pile buries you.</p>
+        <div class="meta"><span class="chip">Casual</span><span class="chip">Not started</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <h2 class="sec">Tools</h2>
+  <div class="grid">
+
+    <a class="card" href="jukebox/index.html">
+      <span class="badge">OPEN</span>
+      <div class="art">🎵</div>
+      <div class="body">
+        <h3>Arcade Jukebox</h3>
+        <p>Audition the shared soundtrack. Seven procedurally synthesised tracks —
+           synthwave, industrial boss rock, a heroic march, an arena anthem and chamber
+           melancholy. No audio files anywhere.</p>
+        <div class="meta">
+          <span class="chip tool">Shared engine</span>
+          <span class="chip">7 tracks</span>
+          <span class="chip">5 themes</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="waste-hunter/embed-example.html">
+      <span class="badge">OPEN</span>
+      <div class="art">🔌</div>
+      <div class="body">
+        <h3>Embed Demo</h3>
+        <p>How a game mounts inside a host page and hands its result back — the contract
+           every arcade game implements so scores can pool into one wallet.</p>
+        <div class="meta"><span class="chip tool">Reference</span></div>
+      </div>
+    </a>
+
+  </div>
+
+  <footer>
+    Shared building blocks live in <code>arcade/shared/</code> —
+    <code>arcade-music.js</code> (soundtrack + themes) and
+    <code>arcade-biomes.js</code> (arena palettes + procedural scenery).<br>
+    A new game includes those two scripts and gets the whole audio-visual system for free.<br>
+    No build step, no dependencies. Tracked in
+    <a href="https://deept.atlassian.net/browse/COSTMAN-3708">COSTMAN-3708</a>.
+  </footer>
+</div>
+</body>
+</html>

@@ -69,6 +69,7 @@
     return {
       version: 1, credits: 0, lifetimeCredits: 0, lifetimeDollars: 0, runs: 0,
       quizCorrect: 0, upgrades: {}, achievements: {}, best: {}, cleared: {},
+      seenQuestions: {}, theme: 'synthwave',
     };
   }
   function loadMeta(persist) {
@@ -137,7 +138,15 @@
       win: () => { [523, 659, 784, 1046, 1318].forEach((f, i) => setTimeout(() => tone(f, 0.35, 'sine', 0.15), i * 110)); },
       lose: () => { [440, 392, 330, 262].forEach((f, i) => setTimeout(() => tone(f, 0.4, 'triangle', 0.14), i * 150)); },
       ach: () => { [880, 1174].forEach((f, i) => setTimeout(() => tone(f, 0.2, 'sine', 0.12), i * 90)); },
-      toggle() { muted = !muted; return muted; },
+      // exposed so the shared music sequencer can hang off the same master bus
+      nodes() { const c = ensure(); return c ? { ctx: c, master } : null; },
+      toggle() {
+        muted = !muted;
+        const c = ensure();
+        // gate the master bus, not just the sfx calls, so music mutes too
+        if (c && master) master.gain.setTargetAtTime(muted ? 0.0001 : 0.32, c.currentTime, 0.05);
+        return muted;
+      },
       get muted() { return muted; },
       resume() { const c = ensure(); if (c && c.state === 'suspended') c.resume(); },
     };
@@ -174,6 +183,12 @@
 .wh-btn.ghost{background:rgba(255,255,255,.05);border-color:#31456b;box-shadow:none;padding:9px 18px;font-size:14px;}
 .wh-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
 .wh-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.wh-themes{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px;align-items:center;}
+.wh-chip{background:rgba(255,255,255,.04);border:1px solid #31456b;color:#a9bad6;padding:7px 14px;
+  border-radius:20px;font-size:12.5px;font-weight:650;cursor:pointer;transition:.14s;font-family:inherit;}
+.wh-chip:hover{background:#22355c;color:#fff;border-color:#5a7cb5;}
+.wh-chip.on{background:linear-gradient(180deg,#f0a52c,#d4821a);border-color:#ffc866;color:#241403;}
+.wh-chip small{display:block;font-size:10px;font-weight:500;opacity:.75;margin-top:1px;}
 
 /* stage select */
 .wh-stages{display:flex;gap:18px;margin:26px 0 8px;}
@@ -319,6 +334,10 @@
     this.showShell = opts.showShell !== false;
     this.returnLabel = opts.returnLabel || 'Exit';
     this.audio = makeAudio();
+    const MUSIC = global.ArcadeMusic || global.WHMusic;
+    this.music = MUSIC ? MUSIC.create(() => self.audio.nodes()) : null;
+    this._musicState = null;
+    if (this.music) this.music.setTheme(this.meta.theme || 'synthwave');
     this.destroyed = false;
 
     // ---- DOM ----------------------------------------------------------------
@@ -341,9 +360,11 @@
     // ---- assets -------------------------------------------------------------
     this.assetBase = opts.assetBase || 'assets/';
     this.img = {};
+    // 'terminate_all' is swappable — drop your own assets/terminate_all.png in
+    // and the Terminate All pickup flashes it full-screen.
     ['costbot', 'inspire', 'lightbulb_moment', 'savings_found', 'automation_wizard',
       'beat_up', 'still_did_it', 'alert_mode', 'query_optimizer', 'research_mode',
-      'max_speed_clean', 'done', 'turtle_version'].forEach((k) => {
+      'max_speed_clean', 'done', 'turtle_version', 'terminate_all'].forEach((k) => {
         const im = new Image();
         im.src = this.assetBase + k + '.png';
         this.img[k] = im;
@@ -364,7 +385,11 @@
       self.pointer.x = (e.clientX - r.left) / r.width * VW;
       self.pointer.y = (e.clientY - r.top) / r.height * VH;
     };
-    this._onDown = (e) => { self.pointer.down = true; self._onPointer(e); self.audio.resume(); };
+    this._onDown = (e) => {
+      self.pointer.down = true; self._onPointer(e); self.audio.resume();
+      // autoplay is blocked until a user gesture — re-apply the wanted track now
+      if (self.music && self._musicState) self.music.setState(self._musicState);
+    };
     this._onUp = () => { self.pointer.down = false; };
     this._onBlur = () => { if (self.run && !self.run.over && !self.paused && !self.drafting) self.setPause(true); };
 
@@ -420,8 +445,16 @@
 
   Instance.prototype.emit = function (t, p) { try { this.onEvent(t, p || {}); } catch (e) { console.error(e); } };
 
+  Instance.prototype.setMusic = function (track) {
+    this._musicState = track;
+    if (this.music) this.music.setState(track);
+  };
+
   Instance.prototype.destroy = function () {
     this.destroyed = true;
+    if (this.music) this.music.stop();
+    if (this._quizCleanup) { this._quizCleanup(); this._quizCleanup = null; }
+    if (this._quizReveal) { clearTimeout(this._quizReveal); this._quizReveal = null; }
     if (this._quizCleanup) { this._quizCleanup(); this._quizCleanup = null; }
     if (this._quizReveal) { clearTimeout(this._quizReveal); this._quizReveal = null; }
     window.removeEventListener('keydown', this._onKeyDown);
@@ -456,6 +489,7 @@
   Instance.prototype.screenTitle = function () {
     const self = this, m = this.meta;
     this.run = null;
+    this.setMusic('menu');
     this.clearUI();
     const tip = C.TIPS[(Math.random() * C.TIPS.length) | 0];
     const el = document.createElement('div');
@@ -475,11 +509,14 @@
         <span>·</span><span>🎮 ${m.runs} runs</span>
         <span>·</span><span>📈 ${money(m.lifetimeDollars)} lifetime saved</span>
       </div>
+      <div class="wh-themes">${this.themeChips()}</div>
       <p class="wh-tip">💡 ${esc(tip)}</p>
       <div class="wh-seed">v${VERSION} &nbsp;·&nbsp; <span class="wh-kbd">WASD</span> move &nbsp;
         <span class="wh-kbd">Esc</span> pause &nbsp; <span class="wh-kbd">M</span> mute</div>`;
     this.ui.appendChild(el);
     el.addEventListener('click', (e) => {
+      const th = e.target.closest('[data-theme]');
+      if (th) { self.audio.resume(); self.setTheme(th.dataset.theme); self.screenTitle(); return; }
       const a = e.target.closest('[data-act]'); if (!a) return;
       self.audio.resume();
       const act = a.dataset.act;
@@ -488,6 +525,27 @@
       else if (act === 'achs') self.screenAchievements();
       else if (act === 'mute') { self.toggleMute(); self.screenTitle(); }
     });
+  };
+
+  // Theme = soundtrack + biome. Chips on the title screen so the pairing can be
+  // auditioned without editing code.
+  Instance.prototype.themeChips = function () {
+    const MUSIC = global.ArcadeMusic || global.WHMusic;
+    if (!MUSIC) return '';
+    const active = this.meta.theme || 'synthwave';
+    return '<span style="font-size:12px;color:#7e8fae;margin-right:2px">THEME</span>' +
+      Object.entries(MUSIC.THEMES).map(([id, t]) => {
+        const bio = global.ArcadeBiomes && global.ArcadeBiomes.get(t.biome);
+        return `<button class="wh-chip ${id === active ? 'on' : ''}" data-theme="${id}">
+          ${esc(t.label || id)}<small>${esc(bio ? bio.name : '')}</small></button>`;
+      }).join('');
+  };
+
+  Instance.prototype.setTheme = function (id) {
+    this.meta.theme = id;
+    saveMeta(this.meta, this.persist);
+    if (this.music) this.music.setTheme(id);
+    if (this.run) this.run.bio = this.biome(this.run.stage);
   };
 
   Instance.prototype.stageUnlocked = function (i) {
@@ -610,6 +668,16 @@
   // ===========================================================================
   // RUN LIFECYCLE
   // ===========================================================================
+  // A theme pairs a soundtrack with a biome (see arcade-biomes.js); the stage's
+  // own colours are the fallback when neither shared module is loaded.
+  Instance.prototype.biome = function (stage) {
+    const MUSIC = global.ArcadeMusic || global.WHMusic;
+    const t = MUSIC && MUSIC.THEMES[this.meta.theme || 'synthwave'];
+    if (global.ArcadeBiomes && t) return global.ArcadeBiomes.get(t.biome);
+    return { floor: stage.floor, grid: stage.grid, fog: stage.fog,
+             sky: null, props: 'racks', propAlpha: 0.55, density: 78 };
+  };
+
   Instance.prototype.startRun = function (stageId, seed) {
     const stage = C.STAGES.find((s) => s.id === stageId) || C.STAGES[0];
     const rnd = mulberry32(seed);
@@ -646,22 +714,17 @@
       startedAt: Date.now(),
       props: [],
     };
-    // scattered server racks so the floor reads as a datacenter, not a void
-    for (let i = 0; i < 78; i++) {
-      this.run.props.push({
-        x: 60 + rnd() * (WORLD_W - 120),
-        y: 60 + rnd() * (WORLD_H - 120),
-        w: 34 + rnd() * 26,
-        h: 54 + rnd() * 40,
-        leds: 3 + ((rnd() * 4) | 0),
-        hue: rnd(),
-      });
-    }
+    // scenery for the active biome, so the floor reads as a place not a void
+    this.run.bio = this.biome(stage);
+    this.run.props = global.ArcadeBiomes
+      ? global.ArcadeBiomes.generate(rnd, WORLD_W, WORLD_H, this.run.bio)
+      : [];
     // warm start
     const warm = up.headstart || 0;
     for (let i = 0; i < warm; i++) this.levelUpImmediate();
 
     this.paused = false; this.drafting = false;
+    this.setMusic('stage');
     this.clearUI();
     this.banner(stage.name, stage.subtitle, 3);
     this.emit('run:start', { stageId: stage.id, seed });
@@ -722,6 +785,7 @@
   Instance.prototype.screenResult = function (res) {
     const self = this;
     const r = this.run, win = res.outcome === 'clear';
+    this.setMusic('menu');
     const art = win ? (r.p.hp / r.p.maxHp < 0.15 ? 'still_did_it' : 'done') : 'beat_up';
     this.clearUI();
     const el = document.createElement('div');
@@ -914,15 +978,34 @@
   // ===========================================================================
   // TRIVIA — you must answer correctly to claim the upgrade you picked
   // ===========================================================================
+  // Stable id for a question, so "already seen" survives edits to the bank
+  // (array indices shift whenever questions are added).
+  function qKey(q) {
+    let h = 0;
+    for (let i = 0; i < q.q.length; i++) h = (h * 31 + q.q.charCodeAt(i)) | 0;
+    return (h >>> 0).toString(36);
+  }
+
   Instance.prototype.pickQuestion = function (topic) {
     const r = this.run;
     r.asked = r.asked || new Set();
-    const indexed = C.TRIVIA.map((q, i) => ({ q, i }));
-    let pool = indexed.filter((x) => !r.asked.has(x.i) && x.q.topic === topic);
-    if (!pool.length) pool = indexed.filter((x) => !r.asked.has(x.i));
-    if (!pool.length) { r.asked = new Set(); pool = indexed; }   // bank exhausted
+    const seen = this.meta.seenQuestions || (this.meta.seenQuestions = {});
+    const indexed = C.TRIVIA.map((q, i) => ({ q, i, k: qKey(q) }));
+    const fresh = indexed.filter((x) => !r.asked.has(x.i));
+
+    // Prefer on-topic questions never asked in ANY run, then on-topic repeats,
+    // then anything unseen. This is what stops the bank feeling repetitive.
+    const tiers = [
+      fresh.filter((x) => x.q.topic === topic && !seen[x.k]),
+      fresh.filter((x) => x.q.topic === topic),
+      fresh.filter((x) => !seen[x.k]),
+      fresh,
+      indexed,
+    ];
+    const pool = tiers.find((t) => t.length) || indexed;
     const sel = pool[(r.rnd() * pool.length) | 0];
     r.asked.add(sel.i);
+    seen[sel.k] = (seen[sel.k] || 0) + 1;
     return sel.q;
   };
 
@@ -1319,8 +1402,8 @@
           this.floater(p.x, p.y - 30, 'CUR REFRESH', '#7fd6c4');
         } else if (u.kind === 'nuke') {
           r.enemies.forEach((e) => { if (!e.isBoss) this.hurtEnemy(e, C.PICKUPS.nuke.dmg); });
-          this.shake(16); this.audio.nova();
-          this.floater(p.x, p.y - 30, 'TERMINATE ALL', '#ff9e2c');
+          this.shake(22); this.audio.nova();
+          r.flash = { life: 1.5, max: 1.5 };
         }
         this.audio.coin();
         r.pickups.splice(i, 1);
@@ -1339,6 +1422,7 @@
       f.life -= dt; f.y -= 34 * dt;
       if (f.life <= 0) r.floaters.splice(i, 1);
     }
+    if (r.flash) { r.flash.life -= dt; if (r.flash.life <= 0) r.flash = null; }
 
     // ---- level-up check (in case xp gained outside orb pickup) --------------
     if (p.xp >= p.xpNext && !this.drafting) { this.levelUpImmediate(); this.showDraft(); }
@@ -1452,6 +1536,7 @@
     e.isBoss = true; e.r = def.radius;
     r.boss = e;
     r.bossHitless = true;
+    this.setMusic('boss');
     this.banner(def.name, def.tagline, 4);
     this.audio.boss();
     this.shake(24);
@@ -1694,16 +1779,24 @@
     const oy = sh ? (Math.random() * 2 - 1) * sh : 0;
     const camX = r.cam.x + ox, camY = r.cam.y + oy;
 
-    // floor
-    ctx.fillStyle = S.floor; ctx.fillRect(0, 0, VW, VH);
+    // floor — the biome overrides the stage's own palette
+    const B = r.bio || { floor: S.floor, grid: S.grid, fog: S.fog, props: 'racks', propAlpha: 0.55 };
+    ctx.fillStyle = B.floor; ctx.fillRect(0, 0, VW, VH);
+    if (B.sky) {
+      const sg = ctx.createLinearGradient(0, 0, 0, VH);
+      sg.addColorStop(0, B.sky[0]); sg.addColorStop(1, B.sky[1]);
+      ctx.globalAlpha = 0.35; ctx.fillStyle = sg; ctx.fillRect(0, 0, VW, VH); ctx.globalAlpha = 1;
+    }
 
     // grid
-    ctx.strokeStyle = S.grid; ctx.lineWidth = 1;
-    const gs = 80;
-    ctx.beginPath();
-    for (let x = -(camX % gs); x < VW; x += gs) { ctx.moveTo(x | 0, 0); ctx.lineTo(x | 0, VH); }
-    for (let y = -(camY % gs); y < VH; y += gs) { ctx.moveTo(0, y | 0); ctx.lineTo(VW, y | 0); }
-    ctx.stroke();
+    if (B.grid) {
+      ctx.strokeStyle = B.grid; ctx.lineWidth = 1;
+      const gs = 80;
+      ctx.beginPath();
+      for (let x = -(camX % gs); x < VW; x += gs) { ctx.moveTo(x | 0, 0); ctx.lineTo(x | 0, VH); }
+      for (let y = -(camY % gs); y < VH; y += gs) { ctx.moveTo(0, y | 0); ctx.lineTo(VW, y | 0); }
+      ctx.stroke();
+    }
 
     // world border
     ctx.strokeStyle = '#f0a52c44'; ctx.lineWidth = 4;
@@ -1712,26 +1805,18 @@
     ctx.save();
     ctx.translate(-camX, -camY);
 
-    // floor props (server racks) — culled to the visible band, and held back
-    // visually so enemies stay the highest-contrast thing on screen
+    // scenery — culled to the visible band, held back so enemies stay the
+    // highest-contrast thing on screen
     const t = r.t;
-    ctx.globalAlpha = 0.55;
-    for (const pr of r.props) {
-      if (pr.x < camX - 90 || pr.x > camX + VW + 90 || pr.y < camY - 120 || pr.y > camY + VH + 120) continue;
-      ctx.fillStyle = 'rgba(0,0,0,.28)';
-      ctx.beginPath();
-      ctx.ellipse(pr.x, pr.y + pr.h / 2 + 3, pr.w * 0.55, pr.w * 0.2, 0, 0, TAU);
-      ctx.fill();
-      ctx.fillStyle = '#0d1522';
-      ctx.beginPath(); ctx.roundRect(pr.x - pr.w / 2, pr.y - pr.h / 2, pr.w, pr.h, 5); ctx.fill();
-      ctx.strokeStyle = S.grid; ctx.lineWidth = 1.5; ctx.stroke();
-      for (let l = 0; l < pr.leds; l++) {
-        const on = Math.sin(t * (1.4 + pr.hue * 2.6) + l * 1.9) > -0.2;
-        ctx.fillStyle = on ? (l % 2 ? '#2e8f6a' : '#2a6fa8') : '#1a2434';
-        ctx.fillRect(pr.x - pr.w / 2 + 6, pr.y - pr.h / 2 + 8 + l * 9, pr.w - 12, 3);
+    if (global.ArcadeBiomes) {
+      ctx.globalAlpha = B.propAlpha;
+      for (const pr of r.props) {
+        if (pr.x < camX - 120 || pr.x > camX + VW + 120 ||
+            pr.y < camY - 150 || pr.y > camY + VH + 150) continue;
+        global.ArcadeBiomes.drawProp(ctx, pr, B, t);
       }
+      ctx.globalAlpha = 1;
     }
-    ctx.globalAlpha = 1;
 
     // zones
     for (const z of r.zones) {
@@ -1863,10 +1948,53 @@
 
     // vignette
     const vg = ctx.createRadialGradient(VW / 2, VH / 2, VH * 0.32, VW / 2, VH / 2, VH * 0.85);
-    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, S.fog);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, (r.bio && r.bio.fog) || S.fog);
     ctx.fillStyle = vg; ctx.fillRect(0, 0, VW, VH);
 
+    this.drawFlash(ctx);
     this.drawHUD(ctx);
+  };
+
+  // Full-screen "TERMINATE ALL" blast. Uses assets/terminate_all.png when it
+  // exists; degrades to the text treatment alone when it does not.
+  Instance.prototype.drawFlash = function (ctx) {
+    const f = this.run.flash;
+    if (!f) return;
+    const a = clamp(f.life / f.max, 0, 1);
+    const progress = 1 - a;
+
+    ctx.fillStyle = `rgba(255,64,42,${0.40 * a})`;
+    ctx.fillRect(0, 0, VW, VH);
+
+    const img = this.img.terminate_all;
+    const hasImg = img && img.complete && img.naturalWidth > 0;
+    const pop = 0.82 + 0.18 * Math.min(1, progress * 7);
+    const shudder = a > 0.75 ? (Math.random() * 2 - 1) * 6 * a : 0;
+
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, a * 1.7);
+    ctx.translate(VW / 2 + shudder, VH / 2);
+    ctx.scale(pop, pop);
+
+    let textY = 0;
+    if (hasImg) {
+      const sc = Math.min(VW * 0.46 / img.naturalWidth, VH * 0.60 / img.naturalHeight);
+      const w = img.naturalWidth * sc, h = img.naturalHeight * sc;
+      ctx.shadowColor = '#ff3b3b'; ctx.shadowBlur = 46;
+      ctx.drawImage(img, -w / 2, -h / 2 - 34, w, h);
+      ctx.shadowBlur = 0;
+      textY = h / 2 + 6;
+    }
+
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = 'bold 62px "Segoe UI",system-ui,sans-serif';
+    ctx.lineWidth = 9; ctx.strokeStyle = 'rgba(0,0,0,.82)';
+    ctx.strokeText('TERMINATE ALL', 0, textY);
+    const g = ctx.createLinearGradient(0, textY - 32, 0, textY + 32);
+    g.addColorStop(0, '#fff3b0'); g.addColorStop(1, '#ff8c1a');
+    ctx.fillStyle = g;
+    ctx.fillText('TERMINATE ALL', 0, textY);
+    ctx.restore();
   };
 
   // ---------------------------------------------------------------------------

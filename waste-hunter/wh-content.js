@@ -48,7 +48,7 @@
   const TRIVIA_RULES = {
     mode: 'bonus',        // you always receive the upgrade you picked;
                           // a correct answer pays a cash bonus on top
-    timeLimit: 18,        // seconds; 0 disables the timer
+    timeLimit: 0,         // seconds; 0 = no timer, take as long as you like
     correctBonus: 5000,   // base dollars awarded for a correct answer
     streakStep: 0.5,      // each consecutive correct answer adds this multiplier
     streakCap: 3,         // ...up to this cap (so 3rd+ in a row pays 3x)
@@ -515,6 +515,169 @@
     { topic: 'elasticity', q: 'Over time, what should happen to an autoscaling group minimum size?',
       c: ['Grow it to be safe', 'Ratchet it down to follow real traffic history', 'Freeze it at launch value', 'Match it to max size'], a: 1,
       why: 'Use traffic history to reduce min-size over time. A stale min-size quietly pays for peak capacity 24/7.' },
+
+    // ======================= second wave ===================================
+    // --- graviton -----------------------------------------------------------
+    { topic: 'graviton', q: 'EMR on Graviton2 runs Spark for roughly…',
+      c: ['~35% lower cost and ~15% better performance', 'The same cost', '~5% lower cost', 'Twice the cost'], a: 0,
+      why: 'EMR Graviton2 is about 35% cheaper with ~15% better Spark performance. Pair it with Spot and gp3 storage.' },
+    { topic: 'graviton', q: 'ElastiCache on Graviton delivers up to what price/performance gain?',
+      c: ['~10%', '~25%', '~45%', '~90%'], a: 2,
+      why: 'Up to ~45% price/performance, and Graviton2 is the default for new ElastiCache nodes.' },
+    { topic: 'graviton', q: 'ElastiCache rows in the CUR have an empty instance-family column. Where do you get the node type?',
+      c: ['product_instance_type_family', 'Parse it out of line_item_usage_type', 'It is unavailable', 'From the resource ARN only'], a: 1,
+      why: 'Extract it from line_item_usage_type, which follows the pattern [region-]NodeUsage:cache.<family>.<size>.' },
+    { topic: 'graviton', q: 'Why exclude ProvisionedAMR and ServerlessAMR when profiling RDS instance families?',
+      c: ['They are Aurora capacity units, not instance types', 'They are always Graviton', 'They are free', 'They are nonprod only'], a: 0,
+      why: 'Those values are Aurora provisioned/serverless capacity units. Leaving them in pollutes the processor split.' },
+
+    // --- spot ---------------------------------------------------------------
+    { topic: 'spot', q: 'What is the standard way to reduce the blast radius of Spot interruptions?',
+      c: ['Buy an RI as backup', 'Diversify across instance pools', 'Use only one large instance', 'Disable autoscaling'], a: 1,
+      why: 'Spreading a Spot fleet across many instance types and AZs means one pool reclaiming capacity does not take the whole fleet.' },
+    { topic: 'spot', q: 'For EMR compute, the guidance is to prefer…',
+      c: ['On-demand Intel', 'Graviton and/or Spot', 'The largest instance available', 'Dedicated hosts'], a: 1,
+      why: 'EMR profiles should lean on Graviton and Spot — transient cluster work is exactly the fault-tolerant case Spot suits.' },
+    { topic: 'spot', q: 'Which container workload is safest to put on Spot?',
+      c: ['Stateless request workers', 'The primary state store', 'A singleton leader process', 'The service discovery layer'], a: 0,
+      why: 'Stateless, horizontally scalable workers can lose a node and reschedule. Singletons and state stores cannot.' },
+
+    // --- commitments --------------------------------------------------------
+    { topic: 'commitments', q: 'A 1-year OpenSearch Reserved Instance saves roughly…',
+      c: ['~10%', '~30%', '~55%', '~80%'], a: 1,
+      why: 'About 30%, the same ballpark as EC2, ElastiCache and RDS 1-year RIs.' },
+    { topic: 'commitments', q: 'Who actually purchases Reserved Instances at Disney?',
+      c: ['Each team, on its own card', 'Cost Management with Enterprise Tech and FinOps', 'AWS, automatically', 'Nobody — only Savings Plans are used'], a: 1,
+      why: 'RIs are managed centrally. Raise stable 12-month usage with #cost-management rather than buying them yourself.' },
+    { topic: 'commitments', q: 'Which service does ECDA exclude from its Databricks Savings Plan?',
+      c: ['EC2', 'S3', 'DynamoDB', 'Lambda'], a: 2,
+      why: 'ECDA excludes DynamoDB from DSP, so DynamoDB commitments have to be handled separately.' },
+
+    // --- storage ------------------------------------------------------------
+    { topic: 'storage', q: 'Moving an EBS volume from io1 to io2 gives you…',
+      c: ['Better durability at the same price point', 'Half the price, half the IOPS', 'Nothing at all', 'Cheaper storage but slower'], a: 0,
+      why: 'io2 offers better durability at the same price as io1, so it is a free upgrade worth flagging.' },
+    { topic: 'storage', q: 'Noncurrent S3 object versions exceed what share of storage before you should review versioning?',
+      c: ['1%', '10%', '50%', '90%'], a: 1,
+      why: 'Above ~10% of storage, use S3 Lens and add lifecycle rules to expire or tier the noncurrent versions.' },
+    { topic: 'storage', q: 'If a bucket uses KMS encryption, which setting reduces the KMS bill?',
+      c: ['Disable encryption', 'S3 Bucket Keys', 'Rotate keys more often', 'Switch to a customer-managed key'], a: 1,
+      why: 'S3 Bucket Keys cut the number of KMS requests dramatically for KMS-encrypted buckets.' },
+    { topic: 'storage', q: 'What is the catch when archiving EBS snapshots?',
+      c: ['Only one snapshot per volume can be archived', 'Archiving is instant to restore', 'Archives cost more than standard', 'Archived snapshots expire in 30 days'], a: 0,
+      why: 'You can only archive one snapshot per volume, so pick the one worth keeping before you archive.' },
+    { topic: 'storage', q: 'For EMR cluster storage, which volume type should you use?',
+      c: ['gp2', 'gp3', 'io1', 'st1'], a: 1,
+      why: 'Use gp3 rather than gp2 — cheaper per GB with independently configurable IOPS and throughput.' },
+    { topic: 'storage', q: 'Beyond lifecycle rules, which two habits reduce S3 cost at the application layer?',
+      c: ['Compress before upload and repack tiny objects', 'Upload more often and in smaller pieces', 'Duplicate across regions', 'Disable multipart uploads'], a: 0,
+      why: 'Compressing before upload and repacking many small objects cuts both stored bytes and per-request overhead.' },
+    { topic: 'storage', q: 'A high-volume replicated DynamoDB table is burning KMS cost. What is the lever?',
+      c: ['Turn off encryption', 'Use AWS owned keys instead of a CMK', 'Add more replicas', 'Switch to provisioned capacity'], a: 1,
+      why: 'For high-volume or replicated tables, AWS owned keys eliminate the KMS charge that a customer-managed key incurs.' },
+
+    // --- extended support ---------------------------------------------------
+    { topic: 'extended_support', q: 'Which CUR usage type signals an EKS cluster on an EOL Kubernetes version?',
+      c: ['AmazonEKS-Hours:extendedSupport', 'EKS-LegacyCluster', 'EKS:OldVersion', 'AmazonEKS-EOL'], a: 0,
+      why: 'AmazonEKS-Hours:extendedSupport. Upgrading the cluster version removes the surcharge entirely.' },
+    { topic: 'extended_support', q: 'Which of these services does NOT commonly carry an Extended Support surcharge?',
+      c: ['RDS', 'ElastiCache', 'OpenSearch', 'S3'], a: 3,
+      why: 'Extended Support applies to versioned engines — RDS, ElastiCache, EKS and OpenSearch. S3 has no engine version to age out.' },
+
+    // --- idle ---------------------------------------------------------------
+    { topic: 'idle', q: 'How do you confirm an ALB is genuinely idle before deleting it?',
+      c: ['Check the request count in Datadog', 'Assume it is idle if it is old', 'Look at the instance count', 'Check the ARN naming'], a: 0,
+      why: 'Check request count in Datadog. The fixed hourly ALB charge (~$0.0225/hr) is not optimizable any other way.' },
+    { topic: 'idle', q: 'Migrating a Kinesis stream from Provisioned to On-Demand eliminates which charge?',
+      c: ['ConsumerHour', 'shardHourStorage', 'PutRequest', 'Data transfer'], a: 1,
+      why: 'It removes per-shard storage cost. ConsumerHour still applies on On-Demand streams — ghosts keep billing until deregistered.' },
+    { topic: 'idle', q: 'What is the Unused Object Report for?',
+      c: ['Tracking RI expiry', 'Surfacing low-effort cost reduction candidates', 'Listing untagged accounts', 'Auditing IAM roles'], a: 1,
+      why: 'It is a standing list of unused resources — some of the lowest-effort savings available.' },
+    { topic: 'idle', q: 'Under KODA, what happens to retrieval cost if you drop EFO for standard consumers?',
+      c: ['It doubles', 'It becomes free', 'It stays the same', 'EFO cannot be dropped'], a: 1,
+      why: 'Standard (non-EFO) retrieval is free under KODA, which is why dropping unnecessary EFO registrations is the biggest KODA win.' },
+
+    // --- visibility ---------------------------------------------------------
+    { topic: 'visibility', q: 'Finout is the cost visibility platform for…',
+      c: ['Only EC2', 'DE&E cloud and software vendors', 'Legacy DMED accounts', 'Databricks alone'], a: 1,
+      why: 'Finout covers DE&E cloud and software vendor spend. Legacy DMED reporting lives in Looker.' },
+    { topic: 'visibility', q: 'ConsumerHour is more than half of a team Kinesis bill. What does that tell you?',
+      c: ['Throughput is the driver', 'Check for ghost consumers and evaluate KODA', 'They need more shards', 'Retention is too long'], a: 1,
+      why: 'ConsumerHour dominance points straight at EFO registrations — hunt ghosts, then model KODA, which removes the charge entirely.' },
+    { topic: 'visibility', q: 'Where do you go for a customised TCO or cost analysis help?',
+      c: ['#cost-management or an OCMT Jira', 'AWS Support only', 'The Looker admin', 'Open a PagerDuty incident'], a: 0,
+      why: 'The #cost-management channel or an OCMT Jira ticket. For AWS-side help there is also a dedicated Global Account Manager.' },
+    { topic: 'visibility', q: 'Under KODA, what is the per-region minimum you are billed for?',
+      c: ['No minimum', '25 MiB/s ingest and 25 MiB/s retrieval', '1 GB/day', '100 shards'], a: 1,
+      why: 'KODA carries a per-region floor of 25 MiB/s ingest plus 25 MiB/s retrieval — roughly $8.7K/month per account per region at EDP rates.' },
+    { topic: 'visibility', q: 'Why can KODA cost MORE for a high-EFO stream?',
+      c: ['It charges per shard', 'EFO retrieval reprices about 3x higher', 'It has no discount', 'It bills per consumer'], a: 1,
+      why: 'EFO retrieval goes from roughly $0.013/GB to $0.04/GB retail under KODA. Model per-stream before committing.' },
+
+    // --- tagging ------------------------------------------------------------
+    { topic: 'tagging', q: 'How do you isolate the EC2 and storage cost belonging to an EMR cluster?',
+      c: ['By account only', 'With tags', 'It cannot be separated', 'By region'], a: 1,
+      why: 'Tag the cluster so its EC2 and storage lines can be attributed, the same way autoscaling groups are isolated.' },
+    { topic: 'tagging', q: 'Yotascale, previously used for Mariner and Donki cost views, is now…',
+      c: ['The recommended tool', 'Decommissioned', 'Only for RDS', 'Renamed to Finout'], a: 1,
+      why: 'Yotascale is decommissioned. Mariner and Donki cost views come from the CUR and Datadog utilisation dashboards now.' },
+    { topic: 'tagging', q: 'What does tagging unlock beyond a tidy bill?',
+      c: ['Faster instances', 'Showback, so teams see and own their own spend', 'Automatic discounts', 'Longer log retention'], a: 1,
+      why: 'Tags drive allocation and showback. Once a team sees its own number, the waste tends to stop arriving.' },
+
+    // --- nonprod ------------------------------------------------------------
+    { topic: 'nonprod', q: 'Why is nonprod usually the best place to start right-sizing?',
+      c: ['It is the largest spend', 'Low risk, no production impact, high reward', 'AWS discounts it further', 'It is easier to tag'], a: 1,
+      why: 'Nonprod right-sizing carries no production risk and routinely returns 80-90%. It is the safest big win available.' },
+    { topic: 'nonprod', q: 'Which is the classic nonprod overprovisioning pattern?',
+      c: ['A QA DynamoDB table at prod RCU/WCU', 'A dev bucket with lifecycle rules', 'A staging Lambda with 128MB', 'A sandbox with no resources'], a: 0,
+      why: 'Teams copy the prod provisioning into QA and never revisit it — the same happens with ElastiCache node counts and RDS sizes.' },
+
+    // --- automation ---------------------------------------------------------
+    { topic: 'automation', q: 'What is Ballast?',
+      c: ['A cost dashboard', 'Tooling that auto-fixes non-compliant resources', 'An RI purchasing service', 'A Databricks cluster policy'], a: 1,
+      why: 'Ballast automatically remediates non-compliant resources across standardisation, security and cost.' },
+    { topic: 'automation', q: 'Besides moving to ARM, what reduces Lambda cost?',
+      c: ['Smaller deployment packages and dependencies', 'More memory always', 'Longer timeouts', 'More concurrent executions'], a: 0,
+      why: 'Trimming package size and dependencies cuts cold-start work; a right-sized memory profile is the other main lever.' },
+    { topic: 'automation', q: 'Which CloudWatch Logs cleanup is pure profit?',
+      c: ['Deleting log groups nothing writes to any more', 'Raising the retention period', 'Enabling more log streams', 'Adding subscription filters'], a: 0,
+      why: 'Orphaned log groups from decommissioned services keep billing for stored data. Delete them and set retention on the rest.' },
+    { topic: 'automation', q: 'PutRequest billing units in Kinesis are rounded to…',
+      c: ['1 KB', '25 KB', '1 MB', 'They are not rounded'], a: 1,
+      why: 'PutRequest bills in 25KB-rounded units, so actual ingested bytes can be 5-25x lower than the billed figure suggests.' },
+    { topic: 'automation', q: 'Which Kinesis charge does On-Demand Advantage (KODA) eliminate outright?',
+      c: ['Ingest per GB', 'ConsumerHour', 'Retrieval per GB', 'Data transfer'], a: 1,
+      why: 'KODA collapses billing to ingest + retrieval per GB, eliminating ConsumerHour, shardHourStorage and per-stream charges.' },
+
+    // --- elasticity ---------------------------------------------------------
+    { topic: 'elasticity', q: 'Which EFS throughput mode should you pick?',
+      c: ['Always Provisioned', 'Whichever of Bursting, Provisioned or Elastic matches the workload', 'Always Bursting', 'Throughput mode does not affect cost'], a: 1,
+      why: 'EFS offers Bursting, Provisioned and Elastic. Provisioned on a bursty workload is a common overspend.' },
+    { topic: 'elasticity', q: 'OpenSearch Serverless is aimed at which workload shape?',
+      c: ['Steady 24/7 high volume', 'Infrequent, intermittent or unpredictable', 'Anything with an RI', 'Batch only'], a: 1,
+      why: 'Serverless suits infrequent, intermittent or unpredictable usage where a provisioned domain sits idle.' },
+    { topic: 'elasticity', q: 'An RDS instance is only used during business hours. What is the lever?',
+      c: ['Buy a 3-year RI', 'Run it off-hours-stopped on a schedule', 'Add a read replica', 'Increase storage'], a: 1,
+      why: 'RDS off-hours scheduling for windows of known inactivity. Never buy commitments for capacity you could switch off.' },
+    { topic: 'elasticity', q: 'What is the prerequisite before an account can enable KODA?',
+      c: ['A 3-year commitment', 'Streams must already be in On-Demand mode', 'All EFO consumers removed', 'A dedicated region'], a: 1,
+      why: 'The path is Provisioned to On-Demand to KODA. On-Demand mode is the gate.' },
+
+    // --- rightsizing --------------------------------------------------------
+    { topic: 'rightsizing', q: 'For Donki and Janus (ECS), what do you tune?',
+      c: ['Memory and CPU reservations, from the utilisation dashboards', 'The load balancer', 'The AMI', 'Log retention'], a: 0,
+      why: 'Both have Datadog utilisation stats showing ECS memory and CPU. Overprovisioned container reservations are the usual finding.' },
+    { topic: 'rightsizing', q: 'Which dashboard drives Mariner (EKS) right-sizing?',
+      c: ['EKS Provisioning Analysis in Datadog', 'Cost Explorer', 'The Mariner console', 'S3 Storage Lens'], a: 0,
+      why: 'The EKS Provisioning Analysis dashboard shows request versus actual utilisation per namespace and service.' },
+    { topic: 'rightsizing', q: 'What is the ElastiCache read-replica lever?',
+      c: ['Add replicas to spread cost', 'Retire replicas beyond the failover minimum, or load-balance and downsize', 'Convert them to primaries', 'Nothing — replicas are free'], a: 1,
+      why: 'Keep what failover requires. Beyond that, either retire the extras or spread reads across them and shrink the node size.' },
+    { topic: 'rightsizing', q: 'Where should a spiky DynamoDB workload start before switching to on-demand?',
+      c: ['Straight to on-demand', 'Pre-warm in provisioned, then switch', 'Provisioned forever', 'Split into two tables'], a: 1,
+      why: 'Pre-warming in provisioned adds partitions that persist, so on-demand can then absorb spikes up to that level.' },
   ];
 
   // ---------------------------------------------------------------------------

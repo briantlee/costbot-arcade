@@ -9,13 +9,14 @@ const fs = require('fs');
 const path = require('path');
 
 const DIR = __dirname;
+const ROOT = path.resolve(DIR, '..');   // serve the arcade so ../shared/ resolves
 const OUT = path.join(DIR, 'shots');
 const PORT = 8791;
 
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.png': 'image/png', '.json': 'application/json' };
 
 const server = http.createServer((req, res) => {
-  let f = path.join(DIR, decodeURIComponent(req.url.split('?')[0]));
+  let f = path.join(ROOT, decodeURIComponent(req.url.split('?')[0]));
   if (f.endsWith('/')) f += 'index.html';
   fs.readFile(f, (err, data) => {
     if (err) { res.writeHead(404); res.end('nope'); return; }
@@ -98,7 +99,7 @@ const server = http.createServer((req, res) => {
   };
 
   console.log('\n▶ Loading title screen…');
-  await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'networkidle' });
+  await page.goto(`http://localhost:${PORT}/waste-hunter/index.html`, { waitUntil: 'networkidle' });
   await page.waitForTimeout(1200);
   await shot('01-title');
 
@@ -198,6 +199,11 @@ const server = http.createServer((req, res) => {
   console.log('  boss:', bossState.boss, '| enemies:', bossState.enemies);
   if (!bossState.boss) { errors.push('boss did not spawn'); }
 
+  console.log('▶ TERMINATE ALL flash…');
+  await page.evaluate(() => { window.game.run.flash = { life: 1.5, max: 1.5 }; });
+  await page.waitForTimeout(220);
+  await shot('08b-terminate-all');
+
   console.log('▶ Killing boss → stage clear…');
   await page.evaluate(() => { const b = window.game.run.boss; if (b) b.hp = -1; });
   await page.waitForTimeout(1200);
@@ -226,7 +232,7 @@ const server = http.createServer((req, res) => {
   await shot('12-achievements');
 
   console.log('▶ Host-embed demo…');
-  await page.goto(`http://localhost:${PORT}/embed-example.html`, { waitUntil: 'networkidle' });
+  await page.goto(`http://localhost:${PORT}/waste-hunter/embed-example.html`, { waitUntil: 'networkidle' });
   await page.waitForTimeout(700);
   await page.click('#stagebtns button');
   await page.waitForTimeout(2500);
@@ -244,16 +250,47 @@ const server = http.createServer((req, res) => {
     Object.entries(C.PASSIVES).forEach(([id, p]) => upgrades.push({ id, topic: p.topic }));
     const bad = C.TRIVIA.filter((q) => !q.q || !q.why || !Array.isArray(q.c) ||
       q.c.length < 2 || q.a == null || q.a < 0 || q.a >= q.c.length).map((q) => q.q);
-    return { total: C.TRIVIA.length, topics, upgrades, malformed: bad,
+    const byText = {};
+    C.TRIVIA.forEach((q) => { byText[q.q] = (byText[q.q] || 0) + 1; });
+    const dupes = Object.keys(byText).filter((k) => byText[k] > 1);
+    const dupChoices = C.TRIVIA.filter((q) => new Set(q.c).size !== q.c.length).map((q) => q.q);
+    return { total: C.TRIVIA.length, topics, upgrades, malformed: bad, dupes, dupChoices,
              missing: upgrades.filter((u) => !topics[u.topic]) };
   });
   console.log(`  ${content.total} questions across ${Object.keys(content.topics).length} topics`);
   console.log('  ' + Object.entries(content.topics).map(([k, v]) => `${k}:${v}`).join('  '));
   if (content.malformed.length) { errors.push('malformed questions: ' + content.malformed.join(' | ')); }
+  if (content.dupes.length) { errors.push('duplicate question prompts: ' + content.dupes.join(' | ')); }
+  if (content.dupChoices.length) { errors.push('duplicate choices within: ' + content.dupChoices.join(' | ')); }
+  if (!content.dupes.length && !content.dupChoices.length) console.log('  ✅ no duplicate prompts or choices');
   if (content.missing.length) {
     errors.push('upgrades with no questions: ' + content.missing.map((u) => `${u.id}(${u.topic})`).join(', '));
   } else {
     console.log('  ✅ every upgrade topic has questions');
+  }
+
+  const music = await page.evaluate(() => {
+    if (!window.ArcadeMusic) return { err: 'ArcadeMusic not loaded' };
+    if (!window.ArcadeBiomes) return { err: 'ArcadeBiomes not loaded' };
+    const g = window.game;
+    const bad = [];
+    Object.entries(ArcadeMusic.THEMES).forEach(([name, map]) => {
+      ['menu', 'stage', 'boss'].forEach((slot) => {
+        if (!map[slot] || !ArcadeMusic.TRACKS[map[slot]]) bad.push(`${name}.${slot}`);
+      });
+      if (!map.biome || !ArcadeBiomes.BIOMES[map.biome]) bad.push(`${name}.biome`);
+    });
+    return { tracks: Object.keys(ArcadeMusic.TRACKS), themes: Object.keys(ArcadeMusic.THEMES),
+             biomes: Object.keys(ArcadeBiomes.BIOMES), bad,
+             live: !!(g && g.music), track: g && g.music && g.music.track };
+  });
+  if (music.err) errors.push(music.err);
+  else {
+    console.log(`  tracks (${music.tracks.length}): ${music.tracks.join(', ')}`);
+    console.log(`  biomes (${music.biomes.length}): ${music.biomes.join(', ')}`);
+    console.log(`  themes (${music.themes.length}): ${music.themes.join(', ')} | attached: ${music.live}`);
+    if (music.bad.length) errors.push('themes with unresolved slots: ' + music.bad.join(', '));
+    else console.log('  ✅ every theme resolves menu/stage/boss + biome');
   }
 
   console.log('\n' + (errors.length ? '❌ FAILURES:' : '✅ No console/page errors'));
