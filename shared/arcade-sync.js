@@ -113,6 +113,17 @@
     }).catch(() => null);
   }
 
+  // Lets a player fix their own label — the escape hatch when nothing derivable
+  // is available and we would otherwise be stuck with an employee number.
+  function setDisplayName(name) {
+    if (!state.enabled || !name) return Promise.resolve(null);
+    state.displayName = name;
+    return req('profile', {
+      method: 'PUT',
+      body: JSON.stringify({ profile: state.profile || {}, displayName: name }),
+    }).catch(() => null);
+  }
+
   function boards() {
     if (!state.enabled) return Promise.resolve(null);
     return req('leaderboards').catch(() => null);
@@ -132,7 +143,7 @@
   });
 
   global.ArcadeSync = {
-    init, submit, pushProfile, boards,
+    init, submit, pushProfile, boards, setDisplayName,
     get state() { return state; },
     get enabled() { return state.enabled; },
   };

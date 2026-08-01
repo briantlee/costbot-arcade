@@ -29,6 +29,9 @@
   .greet .hi b{color:var(--gold)}
   .greet .stats{font-size:12.5px;color:var(--muted);margin-top:2px}
   .greet .stats b{color:var(--teal);font-variant-numeric:tabular-nums}
+  .namebtn{background:rgba(240,165,44,.14);border:1px solid #6b5320;color:var(--gold);
+    font:600 12.5px inherit;padding:3px 11px;border-radius:20px;cursor:pointer;margin-left:6px}
+  .namebtn:hover{background:rgba(240,165,44,.26)}
   .pill{display:inline-block;margin-top:14px;font-size:12px;letter-spacing:1.4px;font-weight:800;
     color:#0d1220;background:linear-gradient(180deg,#ffd76b,#f0a52c);padding:5px 14px;border-radius:20px}
 
@@ -197,9 +200,10 @@
   (async () => {
     const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
     if (!s.enabled) return;
-    const first = (s.displayName || String(s.hubId || '').split('@')[0] || 'player')
-      .split(/[ .]/)[0]
-      .replace(/^./, (c) => c.toUpperCase());
+    // The hub id is a PERNR, so it is never a fallback label — if we have no real
+    // name we greet without one and offer to set it.
+    const full = s.displayName || '';
+    const first = full ? full.split(/\s+/)[0] : '';
     const p = s.profile || {};
     const money = (n) => '$' + Math.round(n || 0).toLocaleString('en-US');
     const bits = [];
@@ -209,12 +213,26 @@
     const achievements = p.achievements ? Object.keys(p.achievements).length : 0;
     if (achievements) bits.push(`<b>${achievements}</b> achievement${achievements === 1 ? '' : 's'}`);
 
-    document.getElementById('greet-hi').innerHTML =
-      (bits.length ? 'Welcome back, ' : 'Welcome, ') + '<b>' + first + '</b>';
+    const esc = (t) => String(t).replace(/[&<>"]/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    document.getElementById('greet-hi').innerHTML = first
+      ? (bits.length ? 'Welcome back, ' : 'Welcome, ') + '<b>' + esc(first) + '</b>'
+      : 'Welcome<b></b> <button class="namebtn" id="setname">set your name</button>';
     document.getElementById('greet-stats').innerHTML = bits.length
       ? bits.join(' &nbsp;·&nbsp; ') + (s.team ? ' &nbsp;·&nbsp; ' + s.team : '')
       : 'Your progress saves to your profile and follows you between machines.';
     document.getElementById('greet').classList.add('on');
+
+    const btn = document.getElementById('setname');
+    if (btn) {
+      btn.onclick = async () => {
+        const v = prompt('Your name, as it should appear on the leaderboards:');
+        if (v && v.trim()) {
+          await window.ArcadeSync.setDisplayName(v.trim().slice(0, 80));
+          location.reload();
+        }
+      };
+    }
   })();
 </script>
 </body>

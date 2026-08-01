@@ -66,8 +66,13 @@
 <script>
   const money = (n) => '$' + Math.round(n).toLocaleString('en-US');
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  // hub ids are emails; show the local part so the board stays readable
-  const short = (p) => String(p).split('@')[0];
+  // Players are labelled by the name the server resolved. A bare hub id is a PERNR,
+  // so if one ever reaches a board show an anonymous handle rather than the number.
+  const short = (p) => {
+    const v = String(p || '');
+    if (/^\d{4,}$/.test(v)) return 'Player ' + v.slice(-4);
+    return v.split('@')[0];
+  };
 
   const STAGE_NAMES = {
     'ec2-graveyard': 'The EC2 Graveyard',
