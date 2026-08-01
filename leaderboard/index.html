@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CostBot Arcade — Leaderboards</title>
+<link rel="icon" href="../shared/assets/costbot.png">
+<style>
+  :root{--gold:#f0a52c;--line:#2b3f66;--panel:#131c30;--fg:#e8eef8;--muted:#93a4c4;--teal:#7fd6c4;--green:#6ee7a0;}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#1a2744,#05070d 65%);
+    color:var(--fg);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;padding:36px 20px 60px;}
+  .wrap{max-width:820px;margin:0 auto}
+  header{text-align:center;margin-bottom:22px}
+  header img{width:82px;filter:drop-shadow(0 10px 24px rgba(74,163,255,.45))}
+  h1{font-size:40px;margin:8px 0 4px;letter-spacing:-1px;
+    background:linear-gradient(180deg,#ffd76b,#ff9e2c);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:14px;margin:0}
+  .who{margin-top:10px;font-size:12.5px;color:var(--teal)}
+  .back{display:inline-block;margin-top:14px;color:var(--teal);font-size:13px;text-decoration:none;
+    border:1px solid var(--line);padding:6px 14px;border-radius:20px}
+  .back:hover{background:#1b2740;color:#fff}
+
+  .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:26px 0 16px}
+  .tab{background:rgba(255,255,255,.04);border:1px solid #31456b;color:#a9bad6;padding:8px 16px;
+    border-radius:20px;font-size:13px;font-weight:650;cursor:pointer;font-family:inherit;transition:.14s}
+  .tab:hover{background:#22355c;color:#fff}
+  .tab.on{background:linear-gradient(180deg,#f0a52c,#d4821a);border-color:#ffc866;color:#241403}
+
+  .panel{background:linear-gradient(180deg,#141d33,#0c1220);border:1px solid var(--line);
+    border-radius:14px;padding:6px 4px;box-shadow:0 16px 40px rgba(0,0,0,.45)}
+  .board-title{font-size:12px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;
+    padding:14px 18px 8px;font-weight:700}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:11px;letter-spacing:1px;color:#7e8fae;text-transform:uppercase;
+    padding:8px 18px;border-bottom:1px solid #1e2c47;font-weight:700}
+  td{padding:11px 18px;font-size:14.5px;border-bottom:1px solid #16223a}
+  tr:last-child td{border-bottom:none}
+  tr.me td{background:rgba(240,165,44,.08)}
+  tr.me .name{color:var(--gold);font-weight:700}
+  .rank{width:52px;color:#7e8fae;font-variant-numeric:tabular-nums;font-weight:700}
+  .rank.p1{color:#ffd76b}.rank.p2{color:#cfd8e6}.rank.p3{color:#d8a06a}
+  .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--green);font-weight:700}
+  .val.dim{color:var(--muted);font-weight:500;font-size:13px}
+  .empty{padding:34px 18px;text-align:center;color:#6b7c9a;font-size:14px;line-height:1.7}
+  .note{margin-top:18px;font-size:12.5px;color:#6b7c9a;text-align:center;line-height:1.7}
+  .note code{background:#141d31;border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="../shared/assets/costbot.png" alt="">
+    <h1>Leaderboards</h1>
+    <p class="sub">Savings realised across the CostBot Arcade.</p>
+    <div class="who" id="who"></div>
+    <a class="back" href="../index.html">← Back to the Arcade</a>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="panel" id="panel"><div class="empty">Loading…</div></div>
+  <p class="note" id="note"></p>
+</div>
+
+<script src="../shared/arcade-sync.js"></script>
+<script>
+  const money = (n) => '$' + Math.round(n).toLocaleString('en-US');
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  // hub ids are emails; show the local part so the board stays readable
+  const short = (p) => String(p).split('@')[0];
+
+  const STAGE_NAMES = {
+    'ec2-graveyard': 'The EC2 Graveyard',
+    'storage-sprawl': 'Storage Sprawl',
+    'the-ledger': "The Megabill's Ledger",
+  };
+
+  let data = null, me = null, tab = 'stages';
+
+  function rows(list, cols) {
+    if (!list || !list.length) return null;
+    const body = list.map((r, i) => {
+      const mine = me && r.player === me;
+      return `<tr class="${mine ? 'me' : ''}">
+        <td class="rank ${i < 3 ? 'p' + (i + 1) : ''}">${i + 1}</td>
+        <td class="name">${esc(short(r.player || r.team))}</td>
+        ${cols(r)}
+      </tr>`;
+    }).join('');
+    return body;
+  }
+
+  function table(title, head, list, cols) {
+    const body = rows(list, cols);
+    return `<div class="board-title">${esc(title)}</div>` + (body
+      ? `<table><thead><tr><th class="rank">#</th><th>Player</th>${head}</tr></thead><tbody>${body}</tbody></table>`
+      : `<div class="empty">No runs recorded yet.<br>Play a stage and you will be the first name here.</div>`);
+  }
+
+  function render() {
+    const panel = document.getElementById('panel');
+    if (!data) {
+      panel.innerHTML = `<div class="empty">
+        Leaderboards need the arcade app.<br>
+        This page is running from static hosting, which has no scores API —
+        open the arcade on aix-proto to see them.</div>`;
+      return;
+    }
+    if (tab === 'stages') {
+      const ids = Object.keys(data.stages || {});
+      panel.innerHTML = ids.length
+        ? ids.map((id) => table(STAGE_NAMES[id] || id, '<th style="text-align:right">Best run</th>',
+            data.stages[id], (r) => `<td class="val">${money(r.dollars)}</td>`)).join('')
+        : table('All-time best per stage', '', [], () => '');
+    } else if (tab === 'daily') {
+      panel.innerHTML = table(`Daily Bill — seed ${data.daily ? data.daily.key : '?'}`,
+        '<th style="text-align:right">Today’s best</th>',
+        data.daily && data.daily.rows, (r) => `<td class="val">${money(r.dollars)}</td>`);
+    } else if (tab === 'quiz') {
+      panel.innerHTML = table('Quiz accuracy — min 10 answers',
+        '<th style="text-align:right">Correct</th>', data.quiz,
+        (r) => `<td class="val">${r.pct}% <span class="val dim">(${r.correct}/${r.asked})</span></td>`);
+    } else {
+      panel.innerHTML = table('Team totals', '<th style="text-align:right">Total saved</th>',
+        data.teams, (r) => `<td class="val">${money(r.dollars)} <span class="val dim">· ${r.runs} runs</span></td>`);
+    }
+  }
+
+  const TABS = [
+    ['stages', '🏆 Per stage'],
+    ['daily', '📅 Daily Bill'],
+    ['quiz', '🎓 Quiz accuracy'],
+    ['teams', '👥 Teams'],
+  ];
+  const tabBox = document.getElementById('tabs');
+  TABS.forEach(([id, lbl]) => {
+    const b = document.createElement('button');
+    b.className = 'tab' + (id === tab ? ' on' : '');
+    b.textContent = lbl;
+    b.onclick = () => {
+      tab = id;
+      document.querySelectorAll('.tab').forEach((t) => { t.classList.remove('on'); });
+      b.classList.add('on');
+      render();
+    };
+    tabBox.appendChild(b);
+  });
+
+  (async () => {
+    const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
+    if (s.enabled) {
+      me = s.hubId;
+      document.getElementById('who').textContent =
+        'Signed in as ' + short(s.hubId) + (s.team ? ' · ' + s.team : '');
+      data = await window.ArcadeSync.boards();
+      document.getElementById('note').innerHTML = data && data.source === 'memory'
+        ? 'Running without a database — these standings are in-memory and reset when the app restarts.'
+        : 'Identity comes from MyID, so a score cannot be posted as somebody else.';
+    } else {
+      document.getElementById('note').innerHTML =
+        'Served statically, so there is no scores API here. The full arcade lives on aix-proto.';
+    }
+    render();
+  })();
+</script>
+</body>
+</html>
