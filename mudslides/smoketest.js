@@ -299,6 +299,41 @@ function check(name, ok, detail) {
   check('wipeout screen fits without scrolling', fits.scroll <= fits.view,
     `${fits.scroll} / ${fits.view}`);
 
+  // --- the arcade bank ------------------------------------------------------
+  // A run's tokens have to reach the arcade-wide bank. Two halves to that: the
+  // result must carry `tokensEarned` (the field every cabinet reports and the
+  // server's pool sums), and the local profile must carry `lifetimeTokens` (what
+  // the arcade page totals when there is no API).
+  const bank = await page.evaluate(async () => {
+    const g = window.game;
+    const seen = [];
+    const prevProfile = g.profile.totalTokens || 0;
+    const orig = g.onComplete;
+    g.onComplete = (r) => { seen.push(r); orig(r); };
+    g.start();
+    g.run.tokens = 250;
+    g.run.shields = 0;
+    g.run.invuln = 0;
+    g.crash(window.MS_CONTENT.OBSTACLES.bedrock, null);
+    await new Promise((r) => setTimeout(r, 900));
+    g.onComplete = orig;
+    const stored = JSON.parse(localStorage.getItem('costbot.mudslides.v1') || '{}');
+    return {
+      tokens: seen[0] && seen[0].tokens,
+      tokensEarned: seen[0] && seen[0].tokensEarned,
+      grew: (g.profile.totalTokens || 0) - prevProfile,
+      lifetime: g.profile.lifetimeTokens,
+      total: g.profile.totalTokens,
+      storedLifetime: stored.lifetimeTokens,
+    };
+  });
+  check('run reports tokensEarned for the arcade pool',
+    bank.tokensEarned === bank.tokens && bank.tokens === 250, JSON.stringify(bank));
+  check('run adds to the lifetime bank', bank.grew === 250, `+${bank.grew}`);
+  check('lifetimeTokens mirrors the running total',
+    bank.lifetime === bank.total && bank.storedLifetime === bank.total,
+    `${bank.storedLifetime} / ${bank.total}`);
+
   // --- the soundtrack -------------------------------------------------------
   const music = await page.evaluate(() => {
     const T = window.ArcadeMusic.TRACKS.mudslide;
@@ -326,6 +361,17 @@ function check(name, ok, detail) {
       return { k, ok: !!t.prog && !!t.bpm && (!t.lead || t.lead.length % 16 === 0) };
     }).filter((t) => !t.ok).map((t) => t.k));
   check('all tracks still well-formed', tracks.length === 0, tracks.join(','));
+
+  // Last, because it leaves the Mudslides page: the arcade screen has to show
+  // the bank the run above just fed, with no API in play.
+  await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(500);
+  const hub = await page.evaluate(() => ({
+    on: !!document.querySelector('#fund.on'),
+    total: Number((document.getElementById('fund-num').textContent || '0').replace(/,/g, '')),
+  }));
+  check('arcade screen shows the bank without an API', hub.on && hub.total >= 250,
+    `${hub.total} tokens`);
 
   check('no console errors', errors.length === 0, errors.slice(0, 4).join(' | '));
 

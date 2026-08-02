@@ -58,7 +58,8 @@
   }
 
   function defaultProfile() {
-    return { totalTokens: 0, best: 0, bestDistance: 0, runs: 0, achievements: {}, history: [] };
+    return { totalTokens: 0, lifetimeTokens: 0, best: 0, bestDistance: 0,
+      runs: 0, achievements: {}, history: [] };
   }
 
   function loadLocal() {
@@ -1157,6 +1158,9 @@
     const tokens = Math.floor(r.tokens);
 
     p.totalTokens = (p.totalTokens || 0) + tokens;
+    // `lifetimeTokens` is what every cabinet calls its running total, and what
+    // the arcade's bank sums when there is no API to ask. Same number.
+    p.lifetimeTokens = p.totalTokens;
     p.runs = (p.runs || 0) + 1;
     const best = tokens > (p.best || 0);
     if (best) p.best = tokens;
