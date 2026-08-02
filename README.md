@@ -12,7 +12,8 @@ games, you earn the tokens, it ships. One source tree, served two ways.
 arcade/
   index.html            landing page
   leaderboard/          all boards (needs the dynamic app)
-  usage/                who is playing, how often, how long (owner-gated)
+  usage/                who is playing, how often, how long (owner-gated: the
+                        page 404s and its API 403s for everyone else)
   jukebox/              audition the shared soundtrack
   waste-hunter/         the game
   mudslides/            the endless runner
