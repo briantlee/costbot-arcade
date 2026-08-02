@@ -23,9 +23,10 @@
   const VH = 648;
   const HORIZON = VH * 0.32;
   const FOCAL = 700;
-  const CAM_H = 163;
-  const CAM_BACK = 400;
+  const CAM_H = 218;
+  const CAM_BACK = 520;   // further back = more convergence = a narrower feel
   const SEG = 55; // road segment length in world units
+  const ROAD_HALF = 1.42; // road half-width, in lane widths
   const TAU = Math.PI * 2;
   const STORE_KEY = 'costbot.mudsliders.v1';
 
@@ -33,8 +34,22 @@
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
+  // Wet-mud palette, from the reference: churned brown, darker in the ruts,
+  // with a slick sheen where the water sits.
+  const MUD = {
+    dark: '#33220f', mid: '#452e18', light: '#573a20',
+    wet: 'rgba(150,120,86,.20)', rut: 'rgba(28,18,10,.42)',
+    splat: 'rgba(30,20,12,.5)', rock: '#6a6157', rockDark: '#4a443c',
+  };
+  const JUNGLE = ['#16301c', '#183420', '#24512c'];
+
   // Rolling hill profile. Two waves so the slope never feels periodic.
   const hill = (z) => Math.sin(z * 0.00085) * 150 + Math.sin(z * 0.00219) * 62;
+  // stable pseudo-random per world position — mud detail must not crawl
+  function noise(n) {
+    const x = Math.sin(n * 12.9898) * 43758.5453;
+    return x - Math.floor(x);
+  }
 
   function defaultProfile() {
     return { totalTokens: 0, modules: {}, best: 0, bestDistance: 0, runs: 0, achievements: {} };
@@ -75,7 +90,11 @@
 .ms-ui > *{pointer-events:auto;}
 .ms-screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
   justify-content:center;background:radial-gradient(ellipse at 50% 40%,rgba(24,16,10,.94),rgba(4,6,12,.985));
-  backdrop-filter:blur(3px);text-align:center;}
+  backdrop-filter:blur(3px);text-align:center;overflow-y:auto;padding:18px 20px;}
+/* the summary can outgrow the viewport; scroll it rather than clipping the buttons */
+.ms-screen > *{flex:0 0 auto;}
+.ms-screen::-webkit-scrollbar{width:8px}
+.ms-screen::-webkit-scrollbar-thumb{background:#4a3a28;border-radius:4px}
 .ms-title{font-size:56px;font-weight:800;margin:0;letter-spacing:-1.5px;
   background:linear-gradient(180deg,#ffd76b,#ff9e2c 60%,#c8631a);-webkit-background-clip:text;
   background-clip:text;color:transparent;}
@@ -89,18 +108,18 @@
 .ms-btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 #8a5410,0 12px 26px rgba(220,140,30,.4);}
 .ms-btn.ghost{background:rgba(255,255,255,.06);border-color:#4a3a28;color:#e0cdb4;box-shadow:none;
   padding:10px 20px;font-size:14px;}
-.ms-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:22px;}
+.ms-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:16px;}
 .ms-keys{margin-top:20px;font-size:13px;color:#8a7a68;}
 .ms-kbd{display:inline-block;background:#241a12;border:1px solid #4a3a28;border-bottom-width:2px;
   border-radius:5px;padding:1px 8px;font-family:ui-monospace,monospace;font-size:12px;color:#e0cdb4;margin:0 2px;}
 .ms-panel{background:linear-gradient(180deg,#1d1610,#0d0a07);border:1px solid #4a3a28;border-radius:16px;
-  padding:22px 28px;min-width:460px;box-shadow:0 24px 60px rgba(0,0,0,.6);margin-top:14px;}
+  padding:16px 26px;min-width:440px;box-shadow:0 24px 60px rgba(0,0,0,.6);margin-top:14px;}
 .ms-stat{display:flex;justify-content:space-between;padding:7px 0;font-size:14.5px;border-bottom:1px solid #2b2119;}
 .ms-stat:last-child{border-bottom:none;}
 .ms-stat b{color:#ffd76b;font-variant-numeric:tabular-nums;}
-.ms-big{font-size:46px;font-weight:800;color:#ffd76b;text-align:center;font-variant-numeric:tabular-nums;
+.ms-big{font-size:40px;font-weight:800;color:#ffd76b;text-align:center;font-variant-numeric:tabular-nums;
   text-shadow:0 4px 22px rgba(240,165,44,.3);margin:2px 0 4px;}
-.ms-build{margin-top:16px;width:100%;max-width:560px;}
+.ms-build{margin-top:12px;width:100%;max-width:560px;}
 .ms-build h4{margin:0 0 8px;font-size:12px;letter-spacing:1.4px;color:#a9927a;text-transform:uppercase;}
 .ms-bar{height:12px;background:#241a12;border:1px solid #4a3a28;border-radius:8px;overflow:hidden;}
 .ms-bar i{display:block;height:100%;background:linear-gradient(90deg,#7fd6c4,#ffd76b);transition:width .5s;}
@@ -290,7 +309,7 @@
   // ===========================================================================
   Game.prototype.clearUI = function () { this.ui.innerHTML = ''; };
 
-  Game.prototype.buildBar = function () {
+  Game.prototype.buildBar = function (compact) {
     const p = this.profile;
     const next = C.MODULES.find((m) => !(p.modules && p.modules[m.id]));
     const done = C.MODULES.filter((m) => p.modules && p.modules[m.id]).length;
@@ -302,15 +321,15 @@
         ? `<b>${esc(next.icon + ' ' + next.name)}</b> at ${next.cost.toLocaleString()} tokens
            · you have ${Math.floor(p.totalTokens).toLocaleString()}`
         : 'Every module built. The app runs itself.'}</div>
-      <div class="ms-mods">${C.MODULES.map((m) => `<span class="ms-mod ${
-        p.modules && p.modules[m.id] ? 'on' : ''}">${m.icon} ${esc(m.name)}</span>`).join('')}</div>
+      ${compact ? '' : `<div class="ms-mods">${C.MODULES.map((m) => `<span class="ms-mod ${
+        p.modules && p.modules[m.id] ? 'on' : ''}">${m.icon} ${esc(m.name)}</span>`).join('')}</div>`}
     </div>`;
   };
 
   Game.prototype.screenTitle = function () {
     this.run = null;
     this.clearUI();
-    if (this.music) this.music.setState('menu');
+    if (this.music) this.music.playTrack('menu');
     const tip = C.TIPS[(Math.random() * C.TIPS.length) | 0];
     const el = document.createElement('div');
     el.className = 'ms-screen';
@@ -335,13 +354,13 @@
 
   Game.prototype.screenOver = function (res) {
     this.clearUI();
-    if (this.music) this.music.setState('menu');
+    if (this.music) this.music.playTrack('menu');
     const el = document.createElement('div');
     el.className = 'ms-screen';
     el.innerHTML = `
-      <img class="ms-hero" style="animation:none;width:118px;border-radius:12px;object-fit:cover"
+      <img class="ms-hero" style="animation:none;width:92px;border-radius:12px;object-fit:cover"
            src="${this.assetBase}beat_up.png" alt="">
-      <h2 style="font-size:34px;margin:12px 0 2px;color:#ff8a8a">WIPEOUT</h2>
+      <h2 style="font-size:30px;margin:10px 0 2px;color:#ff8a8a">WIPEOUT</h2>
       <p class="ms-sub">${esc(res.cause)}</p>
       <div class="ms-panel">
         <div style="text-align:center;font-size:12px;color:#a9927a;letter-spacing:1.2px">TOKENS COLLECTED</div>
@@ -355,7 +374,7 @@
       ${res.unlocked.length ? `<div class="ms-unlock">🎉 Unlocked
         <b>${res.unlocked.map((m) => esc(m.icon + ' ' + m.name)).join(', ')}</b> —
         ${esc(res.unlocked.map((m) => m.perk).join(' · '))}</div>` : ''}
-      ${this.buildBar()}
+      ${this.buildBar(true)}
       <div class="ms-row">
         <button class="ms-btn" data-act="again">↻ Again</button>
         <button class="ms-btn ghost" data-act="menu">Menu</button>
@@ -388,7 +407,7 @@
   Game.prototype.start = function () {
     const pk = perks(this.profile);
     this.clearUI();
-    if (this.music) this.music.setState('stage');
+    if (this.music) this.music.playTrack('mudslide');
     this.run = {
       z: 0, speed: C.WORLD.startSpeed + pk.startSpeedBonus, topSpeed: 0,
       lane: 1, laneFrom: 1, laneT: 1,
@@ -776,13 +795,24 @@
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     // sky
-    const sky = ctx.createLinearGradient(0, 0, 0, HORIZON + 60);
-    sky.addColorStop(0, '#2b1d13');
-    sky.addColorStop(1, '#6b4526');
+    // overcast, rain-soaked jungle sky
+    const sky = ctx.createLinearGradient(0, 0, 0, HORIZON + 80);
+    sky.addColorStop(0, '#9aa3a0');
+    sky.addColorStop(0.55, '#7d8a83');
+    sky.addColorStop(1, '#4d5f4a');
     ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, VW, HORIZON + 60);
-    ctx.fillStyle = '#160f0a';
-    ctx.fillRect(0, HORIZON + 40, VW, VH - HORIZON - 40);
+    ctx.fillRect(0, 0, VW, HORIZON + 80);
+    // far hillside of jungle behind the horizon
+    ctx.fillStyle = '#2c4230';
+    ctx.beginPath();
+    ctx.moveTo(0, HORIZON + 22);
+    for (let x = 0; x <= VW; x += 40) {
+      ctx.lineTo(x, HORIZON - 26 + Math.sin(x * 0.011) * 16 + Math.sin(x * 0.031) * 9);
+    }
+    ctx.lineTo(VW, HORIZON + 40); ctx.lineTo(0, HORIZON + 40);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#1d3020';
+    ctx.fillRect(0, HORIZON + 26, VW, VH - HORIZON - 26);
 
     if (!r) { this.drawHaze(ctx); return; }
 
@@ -793,7 +823,7 @@
 
     // --- the hill: trapezoid strips from far to near ------------------------
     const startZ = Math.floor(camZ / SEG) * SEG;
-    const halfRoad = C.WORLD.laneWidth * 1.85;
+    const halfRoad = C.WORLD.laneWidth * ROAD_HALF;
     const chasms = r.objs.filter((o) => o.kind === 'obs' && o.def.kind === 'chasm');
     for (let i = Math.floor(C.WORLD.drawDistance / SEG); i >= 0; i--) {
       const z0 = startZ + i * SEG;
@@ -801,14 +831,18 @@
       const a = this.project(z0, camZ, 0, 0);
       const b = this.project(z1, camZ, 0, 0);
       if (!a || !b) continue;
-      const inChasm = chasms.some((c) => Math.abs(c.z - (z0 + SEG / 2)) < C.OBSTACLES.billing_gap.w / 2);
+      const seg = Math.floor(z0 / SEG);
+      const n = noise(seg);
       const wa = halfRoad * a.s, wb = halfRoad * b.s;
-      const dark = (Math.floor(z0 / SEG) % 2) === 0;
-      // shoulders
-      ctx.fillStyle = dark ? '#1d2a16' : '#22301a';
+
+      // jungle floor — a single tone with only a whisper of variation; the earlier
+      // 3-colour alternation banded into visible stripes at this segment length
+      ctx.fillStyle = seg % 2 ? JUNGLE[0] : JUNGLE[1];
       ctx.beginPath();
       ctx.moveTo(0, a.y); ctx.lineTo(VW, a.y); ctx.lineTo(VW, b.y); ctx.lineTo(0, b.y);
       ctx.closePath(); ctx.fill();
+
+      const inChasm = chasms.some((c) => Math.abs(c.z - (z0 + SEG / 2)) < C.OBSTACLES.billing_gap.w / 2);
       if (inChasm) {
         ctx.fillStyle = '#07090e';
         ctx.beginPath();
@@ -817,20 +851,75 @@
         ctx.closePath(); ctx.fill();
         continue;
       }
-      // mud
-      ctx.fillStyle = dark ? '#4a3421' : '#553c26';
+
+      // churned mud: three tones interleaved so the surface never looks flat
+      ctx.fillStyle = n < 0.36 ? MUD.dark : n < 0.72 ? MUD.mid : MUD.light;
       ctx.beginPath();
       ctx.moveTo(VW / 2 - wa, a.y); ctx.lineTo(VW / 2 + wa, a.y);
       ctx.lineTo(VW / 2 + wb, b.y); ctx.lineTo(VW / 2 - wb, b.y);
       ctx.closePath(); ctx.fill();
-      // lane grooves
-      if (dark) {
-        ctx.strokeStyle = 'rgba(255,220,180,.06)';
-        ctx.lineWidth = 1.5;
-        for (const lx of [-0.5, 0.5]) {
-          const xa = VW / 2 + lx * C.WORLD.laneWidth * a.s;
-          const xb = VW / 2 + lx * C.WORLD.laneWidth * b.s;
-          ctx.beginPath(); ctx.moveTo(xa, a.y); ctx.lineTo(xb, b.y); ctx.stroke();
+
+      // ruts gouged down the lane lines
+      ctx.strokeStyle = MUD.rut;
+      ctx.lineWidth = Math.max(1, 26 * a.s);
+      for (const lx of [-0.5, 0.5]) {
+        const xa = VW / 2 + lx * C.WORLD.laneWidth * a.s;
+        const xb = VW / 2 + lx * C.WORLD.laneWidth * b.s;
+        ctx.beginPath(); ctx.moveTo(xa, a.y); ctx.lineTo(xb, b.y); ctx.stroke();
+      }
+
+      // wet sheen where water pools, and splatter clods
+      if (a.s > 0.12) {
+        if (n > 0.62) {
+          ctx.fillStyle = MUD.wet;
+          const sw = wa * (0.3 + n * 0.4);
+          ctx.beginPath();
+          ctx.ellipse(VW / 2 + (n - 0.5) * wa, (a.y + b.y) / 2, sw, Math.max(1, (a.y - b.y) * 0.8), 0, 0, TAU);
+          ctx.fill();
+        }
+        const clods = 3;
+        for (let c = 0; c < clods; c++) {
+          const nn = noise(seg * 7 + c);
+          ctx.fillStyle = nn > 0.5 ? MUD.splat : MUD.dark;
+          const cx = VW / 2 + (nn * 2 - 1) * wa * 0.92;
+          ctx.beginPath();
+          ctx.ellipse(cx, a.y, 9 * a.s * (0.5 + nn), 4 * a.s * (0.5 + nn), 0, 0, TAU);
+          ctx.fill();
+        }
+        // ferns and palms crowding the shoulders
+        for (const side of [-1, 1]) {
+          const fn = noise(seg * 13 + (side > 0 ? 91 : 7));
+          if (fn < 0.42) continue;
+          const fx = VW / 2 + side * (wa * (1.06 + fn * 0.5));
+          const fh = (70 + fn * 120) * a.s;
+          const fw = (46 + fn * 60) * a.s;
+          if (fh < 3) continue;
+          ctx.fillStyle = fn > 0.8 ? '#2f5c34' : '#254a29';
+          // a few overlapping fronds fanning up and outward
+          for (let f = 0; f < 5; f++) {
+            const ang = -Math.PI / 2 + (f - 2) * 0.36 + side * 0.16;
+            ctx.beginPath();
+            ctx.moveTo(fx, a.y);
+            ctx.quadraticCurveTo(
+              fx + Math.cos(ang) * fw * 0.7, a.y + Math.sin(ang) * fh * 0.8,
+              fx + Math.cos(ang) * fw, a.y + Math.sin(ang) * fh,
+            );
+            ctx.lineTo(fx, a.y);
+            ctx.closePath(); ctx.fill();
+          }
+          ctx.fillStyle = '#1a3520';
+          ctx.beginPath();
+          ctx.ellipse(fx, a.y, fw * 0.16, fh * 0.07, 0, 0, TAU);
+          ctx.fill();
+        }
+
+        // embedded rocks near the shoulders
+        if (n > 0.83) {
+          const rx = VW / 2 + (n > 0.915 ? 1 : -1) * wa * (0.72 + n * 0.2);
+          ctx.fillStyle = MUD.rock;
+          ctx.beginPath(); ctx.ellipse(rx, a.y, 15 * a.s, 9 * a.s, 0, 0, TAU); ctx.fill();
+          ctx.fillStyle = MUD.rockDark;
+          ctx.beginPath(); ctx.ellipse(rx, a.y + 3 * a.s, 15 * a.s, 4 * a.s, 0, 0, TAU); ctx.fill();
         }
       }
     }
@@ -862,14 +951,31 @@
     }
 
     ctx.restore();
+    this.drawRain(ctx, r.topSpeed);
     this.drawHaze(ctx);
     this.drawHUD(ctx, r);
+  };
+
+  Game.prototype.drawRain = (ctx, speed) => {
+    const t = performance.now() / 1000;
+    ctx.strokeStyle = 'rgba(190,205,205,.20)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    for (let i = 0; i < 90; i++) {
+      const seed = i * 37.13;
+      const x = (noise(seed) * VW + t * 90) % VW;
+      const y = (noise(seed + 5) * VH + t * (620 + speed * 0.18)) % VH;
+      const len = 14 + noise(seed + 9) * 18;
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - 4, y + len);
+    }
+    ctx.stroke();
   };
 
   Game.prototype.drawHaze = (ctx) => {
     const g = ctx.createRadialGradient(VW / 2, VH * 0.45, VH * 0.3, VW / 2, VH * 0.5, VH * 0.95);
     g.addColorStop(0, 'rgba(0,0,0,0)');
-    g.addColorStop(1, 'rgba(12,7,4,.72)');
+    g.addColorStop(1, 'rgba(10,16,12,.70)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, VW, VH);
   };
@@ -955,26 +1061,34 @@
     const px = this.laneX(r);
     const pr = this.project(r.z, camZ, px, r.y);
     if (!pr) return;
-    const size = 128;
+    const size = 112 * pr.s;   // scale with the projection, like everything else
     const squash = r.sliding > 0 ? 0.55 : 1;
     ctx.save();
     // mud spray
     if (!r.jumping) {
-      for (let i = 0; i < 4; i++) {
+      // a proper rooster tail of mud, scaling with speed
+      const n = 10 + Math.floor(r.topSpeed / 260);
+      for (let i = 0; i < n; i++) {
         const a = Math.random() * TAU;
-        ctx.fillStyle = `rgba(90,64,40,${0.25 + Math.random() * 0.3})`;
+        const spread = 34 + Math.random() * 78;
+        ctx.fillStyle = `rgba(${58 + Math.random() * 40 | 0},${40 + Math.random() * 28 | 0},24,${0.3 + Math.random() * 0.45})`;
         ctx.beginPath();
-        ctx.arc(pr.x + Math.cos(a) * (30 + Math.random() * 46),
-          pr.y + 6 + Math.abs(Math.sin(a)) * 12, 3 + Math.random() * 6, 0, TAU);
+        ctx.arc(pr.x + Math.cos(a) * spread,
+          pr.y + 8 - Math.abs(Math.sin(a)) * (18 + Math.random() * 34),
+          2 + Math.random() * 8, 0, TAU);
         ctx.fill();
       }
+      // wet slick under the slide
+      ctx.fillStyle = 'rgba(120,96,66,.22)';
+      ctx.beginPath(); ctx.ellipse(pr.x, pr.y + 8, 78, 16, 0, 0, TAU); ctx.fill();
     }
     ctx.fillStyle = 'rgba(0,0,0,.45)';
     ctx.beginPath();
     ctx.ellipse(pr.x, pr.y + 4, 44, 13, 0, 0, TAU);
     ctx.fill();
 
-    ctx.translate(pr.x, pr.y - size * 0.42 * squash - r.y * 0.55);
+    // pr.y already carries the jump height (r.y went in as worldY) — do not add it twice
+    ctx.translate(pr.x, pr.y - size * 0.42 * squash);
     ctx.scale(1, squash);
     if (r.invuln > 0 && Math.floor(performance.now() / 90) % 2 === 0) ctx.globalAlpha = 0.5;
     // lean into the turn
@@ -983,6 +1097,17 @@
     ctx.shadowColor = 'rgba(255,170,80,.5)'; ctx.shadowBlur = 22;
     if (img.complete && img.naturalWidth) ctx.drawImage(img, -size / 2, -size / 2, size, size);
     else { ctx.fillStyle = '#4aa3ff'; ctx.beginPath(); ctx.arc(0, 0, 40, 0, TAU); ctx.fill(); }
+    ctx.shadowBlur = 0;
+    // caked-on mud — fixed positions so it reads as dirt, not noise
+    for (let i = 0; i < 9; i++) {
+      const nx = noise(i * 3.1) - 0.5;
+      const ny = noise(i * 7.7) - 0.5;
+      ctx.fillStyle = `rgba(${62 + (noise(i) * 30 | 0)},${44 + (noise(i + 2) * 20 | 0)},26,.72)`;
+      ctx.beginPath();
+      ctx.ellipse(nx * size * 0.66, ny * size * 0.6 + size * 0.08,
+        3 + noise(i + 4) * 7, 2 + noise(i + 6) * 5, noise(i) * TAU, 0, TAU);
+      ctx.fill();
+    }
     ctx.restore();
   };
 

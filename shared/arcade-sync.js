@@ -39,6 +39,7 @@
     team: null,
     authenticated: false,
     profile: null,         // server-side profile, when one exists
+    identity: null,        // {email, username} as the front door supplied them
   };
 
   async function req(path, opts) {
@@ -61,6 +62,7 @@
       state.team = me.team;
       state.authenticated = me.authenticated;
       state.profile = me.profile;
+      state.identity = me.identity || null;
 
       // First sign-in on a browser that already has local progress: adopt it so
       // nothing earned before the server existed is lost.

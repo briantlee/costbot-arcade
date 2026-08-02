@@ -29,7 +29,7 @@
   const mtof = (m) => 440 * 2 ** ((m - 69) / 12);
   const STEPS_PER_BAR = 16;   // 16th notes
   const BARS = 4;
-  const TOTAL = STEPS_PER_BAR * BARS;
+  const DEFAULT_BARS = BARS;   // a track may override with `bars`
   const _ = null;
 
   // ===========================================================================
@@ -46,8 +46,11 @@
                { root: 45, tones: [0, 3, 7] }, { root: 41, tones: [0, 4, 7] }],   // C G Am F
     anthem:   [{ root: 38, tones: [0, 4, 7] }, { root: 45, tones: [0, 4, 7] },
                { root: 47, tones: [0, 3, 7] }, { root: 43, tones: [0, 4, 7] }],   // D A Bm G
+    // 8 bars: Em Bm A G | Em C D B — the second half lifts, so the loop has shape
     downhill: [{ root: 40, tones: [0, 3, 7] }, { root: 47, tones: [0, 3, 7] },
-               { root: 45, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] }],   // Em Bm A G
+               { root: 45, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },
+               { root: 40, tones: [0, 3, 7] }, { root: 36, tones: [0, 4, 7] },
+               { root: 38, tones: [0, 4, 7] }, { root: 35, tones: [0, 4, 7] }],
     chamber:  [{ root: 38, tones: [0, 3, 7, 10, 14] },   // Dm9
                { root: 34, tones: [0, 4, 7, 11] },       // Bbmaj7
                { root: 31, tones: [0, 3, 7, 10] },       // Gm7
@@ -93,10 +96,16 @@
     ],
     // Relentless 16th runner line — meant to be felt more than followed.
     mudslide: [
+      // bars 1-4 — the hook
       76, _, 79, _, 83, _, 79, _, 76, _, 83, _, 79, _, 76, _,
       74, _, 78, _, 81, _, 78, _, 74, _, 81, _, 78, _, 74, _,
       73, _, 76, _, 81, _, 76, _, 73, _, 81, _, 76, _, 73, _,
       71, _, 74, _, 79, _, 74, _, 78, _, 79, _, 81, _, 83, _,
+      // bars 5-8 — answer it an octave up, then fall back down
+      88, _, _, 86, _, 83, _, _, 88, _, _, 91, _, 88, _, 83,
+      84, _, _, 81, _, 79, _, _, 84, _, _, 88, _, 84, _, 79,
+      86, _, 83, _, 79, _, 76, _, 74, _, 76, _, 79, _, 83, _,
+      83, _, 82, _, 79, _, 78, _, 76, _, 74, _, 71, _, 67, _,
     ],
     // Sparse, wistful chamber melody over extended minor harmony.
     chamber: [
@@ -159,8 +168,8 @@
     // ---- endless-runner drive for Mudsliders --------------------------------
     mudslide: {
       title: 'Mudslide', influence: 'Breakbeat runner', bpm: 174, key: 'E minor',
-      desc: 'Relentless 16ths, breakbeat kit and a saw lead. Built for an endless descent.',
-      prog: P.downhill, lead: L.mudslide, drums: 'break', pad: 'power',
+      desc: '8-bar loop: relentless 16ths, breakbeat kit, distorted lead that answers itself an octave up.',
+      prog: P.downhill, lead: L.mudslide, drums: 'break', pad: 'power', bars: 8,
       arpEvery: 1, bassEvery: 1, gain: 1.0, voices: { lead: 'dist' },
     },
 
@@ -470,7 +479,7 @@
         }
         try { playStep(step, nextTime); } catch { /* never let audio kill the frame */ }
         nextTime += 60 / cfg.bpm / 4;
-        step = (step + 1) % TOTAL;
+        step = (step + 1) % ((cfg.bars || DEFAULT_BARS) * STEPS_PER_BAR);
       }
       timer = setTimeout(tick, 25);
     }

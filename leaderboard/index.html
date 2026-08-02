@@ -165,9 +165,13 @@
       document.getElementById('who').textContent =
         'Signed in as ' + short(s.hubId) + (s.team ? ' · ' + s.team : '');
       data = await window.ArcadeSync.boards();
-      document.getElementById('note').innerHTML = data && data.source === 'memory'
-        ? 'Running without a database — these standings are in-memory and reset when the app restarts.'
-        : 'Identity comes from MyID, so a score cannot be posted as somebody else.';
+      const id = s.state && s.state.identity ? s.state.identity : null;
+      const diag = `identity from MyID → email: <b>${esc(String((id && id.email) || 'not supplied'))}</b>`
+        + ` · login: <b>${esc(String((id && id.username) || 'not supplied'))}</b>`
+        + ` · shown as: <b>${esc(short(s.displayName || s.hubId))}</b>`;
+      document.getElementById('note').innerHTML = (data && data.source === 'memory'
+        ? 'Running without a database — these standings are in-memory and reset when the app restarts.<br>'
+        : 'A score cannot be posted as somebody else.<br>') + diag;
     } else {
       document.getElementById('note').innerHTML =
         'Served statically, so there is no scores API here. The full arcade lives on aix-proto.';
