@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CostBot Arcade</title>
 <link rel="icon" href="shared/assets/costbot.png">
+<meta property="og:title" content="CostBot Arcade">
+<meta property="og:description" content="Play the games. Earn the tokens. Help CostBot ship.">
+<meta property="og:image" content="shared/assets/arcade-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   :root{--gold:#f0a52c;--line:#2b3f66;--fg:#e8eef8;--muted:#93a4c4;--teal:#7fd6c4;}
   *{box-sizing:border-box}
@@ -12,13 +16,14 @@
     color:var(--fg);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;padding:40px 24px 60px;}
   .wrap{max-width:1080px;margin:0 auto;position:relative}
   header{text-align:center;margin-bottom:8px}
-  header img{width:120px;filter:drop-shadow(0 12px 30px rgba(74,163,255,.45));
-    animation:bob 3s ease-in-out infinite}
-  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-  h1{font-size:56px;margin:10px 0 0;letter-spacing:-1.5px;
-    background:linear-gradient(180deg,#ffd76b,#ff9e2c 60%,#e07b1a);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    text-shadow:0 8px 34px rgba(255,160,40,.2)}
+  h1{margin:0}
+  /* Neon on a dark grid: screen-blend it so the artwork's background disappears
+     into the page instead of sitting on it as a rectangle. The asset is already
+     feathered at the edges, so the two together leave no seam. */
+  .logo{width:290px;max-width:78vw;display:block;margin:0 auto;mix-blend-mode:screen;
+    animation:glow 4s ease-in-out infinite}
+  @keyframes glow{0%,100%{filter:drop-shadow(0 0 16px rgba(120,90,255,.30))}
+    50%{filter:drop-shadow(0 0 26px rgba(90,200,255,.42))}}
   .tag{color:var(--muted);font-size:16px;margin:10px auto 0;max-width:620px;line-height:1.55}
   .hook{margin:9px 0 0;font-size:15.5px;font-weight:700;color:var(--teal);letter-spacing:.2px}
   .greet{margin:16px auto 0;max-width:640px;display:none;align-items:center;gap:12px;
@@ -41,7 +46,12 @@
     border-radius:13px;padding:11px 14px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
   .fund.on{display:block}
   .fund-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-  .fund-label{font-size:12px;font-weight:700;color:var(--fg);white-space:nowrap}
+  .fund-label{font-size:12px;font-weight:700;color:var(--fg);white-space:nowrap;
+    display:flex;align-items:center;gap:7px}
+  .tok{width:24px;height:24px;flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.6))}
+  /* the coin spins a half-turn whenever the fund repaints — a token dropping in */
+  .fund.paid .tok{animation:flip .9s ease}
+  @keyframes flip{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
   .fund-bar{height:7px;border-radius:5px;background:#0b1322;border:1px solid #23324f;
     margin:9px 0 5px;overflow:hidden}
   .fund-bar i{display:block;height:100%;border-radius:5px;
@@ -100,7 +110,8 @@
        banner, so it sits in the corner and costs the page no height. -->
   <div class="fund" id="fund" title="CostBot's build fund">
     <div class="fund-top">
-      <span class="fund-label">🤖 Build fund</span>
+      <span class="fund-label"><img class="tok" src="shared/assets/token-coin.png"
+        alt="">Build fund</span>
       <span class="ship" id="fund-ship">nothing shipped yet</span>
     </div>
     <div class="fund-bar"><i id="fund-fill" style="width:0%"></i></div>
@@ -108,8 +119,7 @@
   </div>
 
   <header>
-    <img src="shared/assets/costbot.png" alt="CostBot">
-    <h1>CostBot Arcade</h1>
+    <h1><img class="logo" src="shared/assets/arcade-logo-neon.png" alt="CostBot Arcade"></h1>
     <p class="tag">CostBot has a whole backlog of things it wants to build for the company,
        and nowhere near enough AI tokens to build them.</p>
     <p class="hook">Play the games. Earn the tokens. Help CostBot ship.</p>
@@ -223,7 +233,7 @@
         <p>All-time best per stage and quiz accuracy.</p>
         <div class="meta">
           <span class="chip tool">Live scores</span>
-          <span class="chip">3 boards</span>
+          <span class="chip">2 boards</span>
         </div>
       </div>
     </a>
@@ -238,6 +248,19 @@
         <div class="meta">
           <span class="chip tool">Shared engine</span>
           <span class="chip">8 tracks</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="usage/index.html" id="usage-card" style="display:none">
+      <span class="badge">OWNER</span>
+      <div class="art">📊</div>
+      <div class="body">
+        <h3>Usage</h3>
+        <p>Who is playing, how often, and for how long — visits, runs and minutes
+           per player across both cabinets.</p>
+        <div class="meta">
+          <span class="chip tool">Owner only</span>
         </div>
       </div>
     </a>
@@ -305,6 +328,9 @@
 
   (async () => {
     const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
+    // The Usage board is owner-gated server-side; showing the card to everyone
+    // would just be a link that 403s, so it stays hidden unless you can open it.
+    if (s.isAdmin) document.getElementById('usage-card').style.display = '';
     // No API here (static hosting), so there is nobody to greet — but the bank
     // still exists on this machine, and it is the whole point of playing.
     if (!s.enabled) {

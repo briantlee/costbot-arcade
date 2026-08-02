@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CostBot Arcade — Usage</title>
+<link rel="icon" href="../shared/assets/costbot.png">
+<style>
+  :root{--gold:#f0a52c;--line:#2b3f66;--fg:#e8eef8;--muted:#93a4c4;--teal:#7fd6c4;--green:#6ee7a0;}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#1a2744,#05070d 65%);
+    color:var(--fg);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;padding:36px 20px 60px;}
+  .wrap{max-width:1040px;margin:0 auto}
+  header{text-align:center;margin-bottom:20px}
+  header img{width:74px;filter:drop-shadow(0 10px 24px rgba(74,163,255,.45))}
+  h1{font-size:36px;margin:8px 0 4px;letter-spacing:-1px;
+    background:linear-gradient(180deg,#ffd76b,#ff9e2c);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:14px;margin:0}
+  .back{display:inline-block;margin-top:14px;color:var(--teal);font-size:13px;text-decoration:none;
+    border:1px solid var(--line);padding:6px 14px;border-radius:20px}
+  .back:hover{background:#1b2740;color:#fff}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:24px 0 18px}
+  .tile{background:linear-gradient(180deg,#141d33,#0c1220);border:1px solid var(--line);
+    border-radius:12px;padding:14px 16px}
+  .tile .n{font-size:26px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+  .tile .l{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-top:2px}
+
+  .panel{background:linear-gradient(180deg,#141d33,#0c1220);border:1px solid var(--line);
+    border-radius:14px;padding:6px 4px;box-shadow:0 16px 40px rgba(0,0,0,.45);overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:760px}
+  th{text-align:left;font-size:11px;letter-spacing:1px;color:#7e8fae;text-transform:uppercase;
+    padding:10px 14px;border-bottom:1px solid #1e2c47;font-weight:700;white-space:nowrap}
+  td{padding:11px 14px;font-size:14px;border-bottom:1px solid #16223a;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .name{font-weight:700}
+  .dim{color:var(--muted);font-size:12.5px}
+  .games{display:flex;gap:5px;flex-wrap:wrap}
+  .g{font-size:10.5px;font-weight:700;background:#1b2740;border:1px solid #33507f;color:#a9bad6;
+    padding:2px 7px;border-radius:20px}
+  .empty{padding:34px 18px;text-align:center;color:#6b7c9a;font-size:14px;line-height:1.7}
+  .note{margin-top:18px;font-size:12.5px;color:#6b7c9a;text-align:center;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="../shared/assets/costbot.png" alt="">
+    <h1>Arcade Usage</h1>
+    <p class="sub">Who is playing, how often, and for how long.</p>
+    <a class="back" href="../index.html">← Back to the Arcade</a>
+  </header>
+
+  <div class="tiles" id="tiles" style="display:none"></div>
+  <div class="panel" id="panel"><div class="empty">Loading…</div></div>
+  <p class="note" id="note"></p>
+</div>
+
+<script src="../shared/arcade-sync.js"></script>
+<script>
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const n = (v) => Math.round(v || 0).toLocaleString('en-US');
+  // Minutes read better than seconds everywhere here; hours once it gets silly.
+  const dur = (s) => {
+    s = Math.round(s || 0);
+    if (s < 60) return s + 's';
+    if (s < 3600) return Math.round(s / 60) + 'm';
+    return (s / 3600).toFixed(1) + 'h';
+  };
+  const when = (t) => {
+    if (!t) return '—';
+    const d = new Date(t), days = Math.floor((Date.now() - d.getTime()) / 86400000);
+    if (days === 0) return 'today';
+    if (days === 1) return 'yesterday';
+    if (days < 30) return days + 'd ago';
+    return d.toISOString().slice(0, 10);
+  };
+  const GAME_NAMES = { 'waste-hunter': 'Waste Hunter', mudslides: 'Mudslides', mudsliders: 'Mudslides' };
+
+  function render(d) {
+    const rows = d.players || [];
+    const panel = document.getElementById('panel');
+    if (!rows.length) {
+      panel.innerHTML = '<div class="empty">Nobody has played yet.</div>';
+      return;
+    }
+
+    const tot = rows.reduce((t, r) => ({
+      players: t.players + 1,
+      runs: t.runs + (r.runs || 0),
+      seconds: t.seconds + (r.seconds || 0),
+      visits: t.visits + (r.visits || 0),
+      tokens: t.tokens + (r.tokens || 0),
+    }), { players: 0, runs: 0, seconds: 0, visits: 0, tokens: 0 });
+
+    document.getElementById('tiles').innerHTML = [
+      [n(tot.players), 'Players'],
+      [n(tot.visits), 'Visits'],
+      [n(tot.runs), 'Runs played'],
+      [dur(tot.seconds), 'Time in game'],
+      [n(tot.tokens), 'Tokens earned'],
+    ].map(([v, l]) => `<div class="tile"><div class="n">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join('');
+    document.getElementById('tiles').style.display = '';
+
+    panel.innerHTML = `<table>
+      <thead><tr>
+        <th>Player</th><th class="num">Visits</th><th class="num">Runs</th>
+        <th class="num">Time in game</th><th class="num">In arcade</th>
+        <th>Games</th><th class="num">Quiz</th><th class="num">Tokens</th><th class="num">Last seen</th>
+      </tr></thead>
+      <tbody>${rows.map((r) => {
+        const games = Object.keys(r.games || {})
+          .sort((a, b) => r.games[b] - r.games[a])
+          .map((g) => `<span class="g">${esc(GAME_NAMES[g] || g)} ${r.games[g]}</span>`).join('');
+        const quiz = r.quiz_asked
+          ? Math.round((r.quiz_correct / r.quiz_asked) * 100) + '%'
+          : '—';
+        return `<tr>
+          <td class="name">${esc(r.player)}</td>
+          <td class="num">${n(r.visits)}</td>
+          <td class="num">${n(r.runs)}</td>
+          <td class="num">${dur(r.seconds)}</td>
+          <td class="num dim">${dur(r.in_app_s)}</td>
+          <td><div class="games">${games || '<span class="dim">—</span>'}</div></td>
+          <td class="num dim">${quiz}</td>
+          <td class="num">${n(r.tokens)}</td>
+          <td class="num dim">${when(r.last_seen)}</td>
+        </tr>`;
+      }).join('')}</tbody></table>`;
+
+    document.getElementById('note').textContent = d.store === 'memory'
+      ? 'Running without a database — these figures are in-memory and reset when the app restarts.'
+      : 'A visit is a page load; hits within 30 minutes count as one. "Time in game" is time inside runs; "in arcade" is time between first and last page load of a visit.';
+  }
+
+  (async () => {
+    const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
+    const panel = document.getElementById('panel');
+    if (!s.enabled) {
+      panel.innerHTML = `<div class="empty">Usage needs the arcade app.<br>
+        This page is running from static hosting, which has no API.</div>`;
+      return;
+    }
+    // The endpoint is owner-gated server-side; a 403 is the expected answer for
+    // everyone else, so say so plainly rather than showing a broken table.
+    const r = await fetch(new URL('api/admin/usage',
+      document.querySelector('script[src$="arcade-sync.js"]').src.replace(/shared\/arcade-sync\.js.*$/, '')).href,
+      { credentials: 'same-origin' });
+    if (r.status === 403) {
+      panel.innerHTML = '<div class="empty">This page is for the arcade owner.<br>Your play still counts toward the build fund.</div>';
+      return;
+    }
+    if (!r.ok) {
+      panel.innerHTML = `<div class="empty">Could not load usage (${r.status}).</div>`;
+      return;
+    }
+    render(await r.json());
+  })();
+</script>
+</body>
+</html>

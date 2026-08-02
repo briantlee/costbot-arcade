@@ -41,6 +41,7 @@
     profile: null,         // server-side profile, when one exists
     identity: null,        // {email, username} as the front door supplied them
     pool: null,            // {total, mine, players} — the shared AI token fund
+    isAdmin: false,        // may open the owner-only Usage board
   };
 
   async function req(path, opts) {
@@ -65,6 +66,7 @@
       state.profile = me.profile;
       state.identity = me.identity || null;
       state.pool = me.pool || null;
+      state.isAdmin = Boolean(me.isAdmin);
 
       // First sign-in on a browser that already has local progress: adopt it so
       // nothing earned before the server existed is lost.

@@ -729,7 +729,7 @@
       lane: 1, laneFrom: 1, laneT: 1,
       y: 0, vy: 0, jumping: false, sliding: 0,
       shields: pk.startShields, maxShields: pk.maxShields,
-      tokens: 0, nearMisses: 0, distance: 0,
+      tokens: 0, nearMisses: 0, distance: 0, t: 0,
       objs: [], fx: [], floats: [],
       spray: [], ripples: [], sprayAcc: 0, rippleAcc: 0, wasJumping: false,
       nextRowZ: C.DIFFICULTY.firstRowZ, nextPowerZ: C.DIFFICULTY.powerupEvery,
@@ -870,6 +870,7 @@
   Game.prototype.update = function (dt) {
     const r = this.run;
     const W = C.WORLD;
+    r.t += dt;                      // wall-clock of the run, for the usage rollup
 
     // speed
     const tarred = r.tarUntil > 0;
@@ -1204,6 +1205,7 @@
       // every cabinet reports its haul under the same name, so the arcade pool
       // can sum one field across all of them
       tokensEarned: tokens,
+      timeSurvived: Math.round(r.t),
       distance: r.distance,
       nearMisses: r.nearMisses,
       topSpeed: r.topSpeed,

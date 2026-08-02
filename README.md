@@ -11,7 +11,8 @@ games, you earn the tokens, it ships. One source tree, served two ways.
 ```
 arcade/
   index.html            landing page
-  leaderboard/          all three boards (needs the dynamic app)
+  leaderboard/          all boards (needs the dynamic app)
+  usage/                who is playing, how often, how long (owner-gated)
   jukebox/              audition the shared soundtrack
   waste-hunter/         the game
   mudslides/            the endless runner
@@ -48,7 +49,9 @@ npm run dev                     # ARCADE_PUBLIC defaults to ~/projects/costbot/a
 You get the whole arcade **plus the API** — profiles, score submission, live
 leaderboards. Edit anything under `arcade/` and just refresh; nothing to rebuild
 and nothing to copy. Without a database it falls back to an in-memory store, and
-all three leaderboards work against it, so you can exercise the full app offline.
+the leaderboards work against it, so you can exercise the full app offline.
+The Usage board is owner-gated on hub id; locally the viewer is `local-dev`, so run
+with `ARCADE_ADMIN_HUB_IDS=local-dev` to see it.
 
 Locally there is no MyID front door, so the viewer falls back to a stable
 `local-dev` identity. That is deliberate: it keeps the app exercisable without
