@@ -46,7 +46,9 @@
     game = WasteHunter.mount('#game', {
       showShell: true,
       persist: true,
-      meta: session.enabled && session.profile ? session.profile : undefined,
+      meta: session.enabled && window.ArcadeSync.gameProfile
+        ? window.ArcadeSync.gameProfile('waste-hunter') || undefined
+        : undefined,
       onEvent(type, payload) {
         // Handy while iterating — watch the host-facing event stream in devtools.
         if (type !== 'ready') console.log('[WasteHunter]', type, payload);
@@ -57,13 +59,16 @@
       },
       onComplete(result) {
         console.log('[WasteHunter] run complete', result);
-        if (window.ArcadeSync) window.ArcadeSync.submit(result, game.meta);
+        if (window.ArcadeSync && window.ArcadeSync.enabled) {
+          window.ArcadeSync.saveGame('waste-hunter', game.meta);
+          window.ArcadeSync.submit(result, null);
+        }
       },
     });
     window.game = game;
     // progression can change outside a run (Bot Bay, theme) — keep it synced
     if (session.enabled) {
-      setInterval(() => window.ArcadeSync.pushProfile(game.meta), 20000);
+      setInterval(() => window.ArcadeSync.saveGame('waste-hunter', game.meta), 20000);
     }
     })();
     window.addEventListener('load', () => {

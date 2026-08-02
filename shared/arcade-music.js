@@ -46,6 +46,8 @@
                { root: 45, tones: [0, 3, 7] }, { root: 41, tones: [0, 4, 7] }],   // C G Am F
     anthem:   [{ root: 38, tones: [0, 4, 7] }, { root: 45, tones: [0, 4, 7] },
                { root: 47, tones: [0, 3, 7] }, { root: 43, tones: [0, 4, 7] }],   // D A Bm G
+    downhill: [{ root: 40, tones: [0, 3, 7] }, { root: 47, tones: [0, 3, 7] },
+               { root: 45, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] }],   // Em Bm A G
     chamber:  [{ root: 38, tones: [0, 3, 7, 10, 14] },   // Dm9
                { root: 34, tones: [0, 4, 7, 11] },       // Bbmaj7
                { root: 31, tones: [0, 3, 7, 10] },       // Gm7
@@ -89,6 +91,13 @@
       74, _, 78, _, 81, _, 83, _, 81, _, _, 78, _, _, _, _,
       79, _, _, 76, _, 74, _, _, 78, _, _, _, 81, _, _, _,
     ],
+    // Relentless 16th runner line — meant to be felt more than followed.
+    mudslide: [
+      76, _, 79, _, 83, _, 79, _, 76, _, 83, _, 79, _, 76, _,
+      74, _, 78, _, 81, _, 78, _, 74, _, 81, _, 78, _, 74, _,
+      73, _, 76, _, 81, _, 76, _, 73, _, 81, _, 76, _, 73, _,
+      71, _, 74, _, 79, _, 74, _, 78, _, 79, _, 81, _, 83, _,
+    ],
     // Sparse, wistful chamber melody over extended minor harmony.
     chamber: [
       74, _, _, 77, _, 81, _, _, 79, _, 77, _, 74, _, _, _,
@@ -100,7 +109,7 @@
 
   // ===========================================================================
   // TRACKS
-  //   drums: 'four' | 'double' | 'march' | 'rock' | 'chamber' | false
+  //   drums: 'four' | 'double' | 'march' | 'rock' | 'chamber' | 'break' | false
   //   voices: which synth is used for lead / pad
   // ===========================================================================
   const TRACKS = {
@@ -147,6 +156,14 @@
       arpEvery: 4, bassEvery: 2, gain: 0.95, voices: { lead: 'brass' },
     },
 
+    // ---- endless-runner drive for Mudsliders --------------------------------
+    mudslide: {
+      title: 'Mudslide', influence: 'Breakbeat runner', bpm: 174, key: 'E minor',
+      desc: 'Relentless 16ths, breakbeat kit and a saw lead. Built for an endless descent.',
+      prog: P.downhill, lead: L.mudslide, drums: 'break', pad: 'power',
+      arpEvery: 1, bassEvery: 1, gain: 1.0, voices: { lead: 'dist' },
+    },
+
     // ---- influenced by Clair Obscur: Expedition 33 --------------------------
     expedition: {
       title: 'Depreciation', influence: 'Clair Obscur · Expedition 33', bpm: 108, key: 'D minor 9',
@@ -168,6 +185,8 @@
                   menu: 'expedition', stage: 'overworld',  boss: 'airbuster' },
     sonicboom:  { label: 'Invoice Boom',  biome: 'arena',
                   menu: 'menu',       stage: 'sonicboom',  boss: 'airbuster' },
+    mudslide:   { label: 'Mudslide',      biome: 'foundry',
+                  menu: 'menu',       stage: 'mudslide',   boss: 'airbuster' },
     expedition: { label: 'Depreciation',  biome: 'dusk',
                   menu: 'expedition', stage: 'expedition', boss: 'boss' },
   };
@@ -394,6 +413,14 @@
           if (inBar === 0 || inBar === 8) kick(t, false);
           if (inBar === 4 || inBar === 12) snare(t);
           if (inBar === 3 || inBar === 11) snare(t, true);   // flam pickup
+          if (bar === 0 && inBar === 0) crash(t);
+          break;
+        case 'break':
+          if (inBar === 0 || inBar === 10) kick(t, true);
+          if (inBar === 6) kick(t, false);
+          if (inBar === 4 || inBar === 12) snare(t);
+          if (inBar === 7 || inBar === 15) snare(t, true);   // ghost notes
+          hat(t, inBar === 14, inBar % 4 === 0);
           if (bar === 0 && inBar === 0) crash(t);
           break;
         case 'chamber':

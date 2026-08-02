@@ -124,6 +124,32 @@
     }).catch(() => null);
   }
 
+  // ---- per-game profile slices --------------------------------------------
+  // The server stores ONE profile blob per player. With more than one game in the
+  // arcade that has to be namespaced, or the games overwrite each other. Older
+  // blobs are a bare Waste Hunter profile, so those migrate on first read.
+  function migrate(raw) {
+    if (!raw || typeof raw !== 'object') return { games: {} };
+    if (raw.games) return raw;
+    // a legacy top-level Waste Hunter meta
+    const looksLikeWH = 'credits' in raw || 'achievements' in raw || 'cleared' in raw;
+    return { games: looksLikeWH ? { 'waste-hunter': raw } : {} };
+  }
+
+  function gameProfile(id) {
+    const p = migrate(state.profile);
+    return (p.games && p.games[id]) || null;
+  }
+
+  function saveGame(id, data) {
+    if (!state.enabled || !data) return;
+    const p = migrate(state.profile);
+    p.games = p.games || {};
+    p.games[id] = data;
+    state.profile = p;
+    pushProfile(p, true);
+  }
+
   function boards() {
     if (!state.enabled) return Promise.resolve(null);
     return req('leaderboards').catch(() => null);
@@ -143,7 +169,7 @@
   });
 
   global.ArcadeSync = {
-    init, submit, pushProfile, boards, setDisplayName,
+    init, submit, pushProfile, boards, setDisplayName, gameProfile, saveGame,
     get state() { return state; },
     get enabled() { return state.enabled; },
   };

@@ -74,10 +74,17 @@
     return v.split('@')[0];
   };
 
+  // boards are keyed "<game>/<stage>"
+  const GAME_NAMES = { 'waste-hunter': 'Waste Hunter', mudsliders: 'Mudsliders' };
   const STAGE_NAMES = {
     'ec2-graveyard': 'The EC2 Graveyard',
     'storage-sprawl': 'Storage Sprawl',
     'the-ledger': "The Megabill's Ledger",
+    endless: 'Endless Descent',
+  };
+  const boardTitle = (key) => {
+    const [g, st] = String(key).includes('/') ? key.split('/') : ['waste-hunter', key];
+    return `${GAME_NAMES[g] || g} — ${STAGE_NAMES[st] || st}`;
   };
 
   let data = null, me = null, tab = 'stages';
@@ -114,7 +121,7 @@
     if (tab === 'stages') {
       const ids = Object.keys(data.stages || {});
       panel.innerHTML = ids.length
-        ? ids.map((id) => table(STAGE_NAMES[id] || id, '<th style="text-align:right">Best run</th>',
+        ? ids.map((id) => table(boardTitle(id), '<th style="text-align:right">Best run</th>',
             data.stages[id], (r) => `<td class="val">${money(r.dollars)}</td>`)).join('')
         : table('All-time best per stage', '', [], () => '');
     } else if (tab === 'daily') {
