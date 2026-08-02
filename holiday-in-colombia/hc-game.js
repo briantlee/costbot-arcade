@@ -116,7 +116,6 @@
   // Ends of the rarity scale, for the perfect-cast weighting below.
   const RAREST = Math.min(...C.FISH.concat(C.JUNK).map((f) => f.rarity));
   const COMMONEST = Math.max(...C.FISH.concat(C.JUNK).map((f) => f.rarity));
-  const byId = (id) => ALL_CATCHES().find((f) => f.id === id) || null;
 
   // Palette: the lake from the artwork — green hills, a blue-green surface,
   // and water that goes cold and dark fast.
@@ -689,8 +688,9 @@
       bite: () => { tone(880, 0.09, 'triangle', 0.26, 1180);
         tone(1180, 0.11, 'triangle', 0.24, 1560, 0.11); noise(0.08, 1800, 0.1); },
       hook: () => { noise(0.12, 1200, 0.12); tone(420, 0.14, 'square', 0.16, 760); },
-      clean: () => { [784, 1046, 1318].forEach((f, i) =>
-        tone(f, 0.16, 'triangle', 0.2, null, i * 0.05)); },
+      clean: () => { [784, 1046, 1318].forEach((f, i) => {
+        tone(f, 0.16, 'triangle', 0.2, null, i * 0.05);
+      }); },
       spook: () => tone(300, 0.16, 'sawtooth', 0.12, 130),
       // a soft tick per reel revolution while you are holding line
       reel: () => noise(0.035, 3200, 0.02),
@@ -710,8 +710,9 @@
       junk: () => { noise(0.14, 420, 0.22, true); tone(150, 0.26, 'square', 0.12, 80); },
       lost: () => { noise(0.1, 600, 0.2, true); tone(340, 0.4, 'sawtooth', 0.16, 110); },
       buy: () => { tone(660, 0.1, 'triangle', 0.18); tone(990, 0.12, 'sine', 0.14, null, 0.07); },
-      right: () => { [660, 880, 1320].forEach((f, i) =>
-        tone(f, 0.16, 'triangle', 0.18, null, i * 0.05)); },
+      right: () => { [660, 880, 1320].forEach((f, i) => {
+        tone(f, 0.16, 'triangle', 0.18, null, i * 0.05);
+      }); },
       wrong: () => tone(220, 0.28, 'sawtooth', 0.14, 110),
       day: () => tone(590, 0.2, 'sine', 0.1, 880),
       toggle() {
@@ -1243,7 +1244,7 @@
     else if (r.phase === 'show') this.nextCast();
   };
 
-  Game.prototype.release = function () { /* reel handles hold state in update() */ };
+  Game.prototype.release = () => { /* reel handles hold state in update() */ };
 
   Game.prototype.doCast = function () {
     const r = this.run;
@@ -1277,7 +1278,7 @@
     this.ripples.push({ x: this.lureX(), y: WATER_Y, r: 4, life: 1 });
   };
 
-  Game.prototype.zoneCentre = function (zone) {
+  Game.prototype.zoneCentre = (zone) => {
     const ix = C.CAST.zones.indexOf(zone);
     const from = ix > 0 ? C.CAST.zones[ix - 1].to : 0;
     return (from + zone.to) / 2;
@@ -1736,7 +1737,7 @@
   // AMBIENT LAKE LIFE — purely decorative, but it is what makes the deep water
   // look worth casting into.
   // ---------------------------------------------------------------------------
-  Game.prototype.makeAmbient = function (spread) {
+  Game.prototype.makeAmbient = (spread) => {
     const band = (Math.random() * C.BANDS.length) | 0;
     const b = C.BANDS[band];
     return {
@@ -1837,7 +1838,7 @@
       vg.addColorStop(1, shade(color, 0.7));
       ctx.fillStyle = vg;
       ctx.beginPath(); ctx.moveTo(0, WATER_Y);
-      pts.forEach((p) => ctx.lineTo(p[0], p[1]));
+      pts.forEach((p) => { ctx.lineTo(p[0], p[1]); });
       ctx.lineTo(VW, WATER_Y); ctx.closePath(); ctx.fill();
 
       // cold shadow pooling on the away-from-sun side
@@ -1868,7 +1869,7 @@
       // all wide, low-alpha, low-frequency shading.
       ctx.save();
       ctx.beginPath(); ctx.moveTo(0, WATER_Y);
-      pts.forEach((p) => ctx.lineTo(p[0], p[1]));
+      pts.forEach((p) => { ctx.lineTo(p[0], p[1]); });
       ctx.lineTo(VW, WATER_Y); ctx.closePath();
       ctx.clip();
 
@@ -1913,7 +1914,9 @@
       ctx.strokeStyle = 'rgba(246,252,255,.85)';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
-      pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1] + 3) : ctx.moveTo(p[0], p[1] + 3)));
+      pts.forEach((p, i) => {
+        if (i) ctx.lineTo(p[0], p[1] + 3); else ctx.moveTo(p[0], p[1] + 3);
+      });
       ctx.stroke();
 
       ctx.globalAlpha = 1;
@@ -1924,7 +1927,7 @@
       hg.addColorStop(1, `rgba(230,244,244,${haze})`);
       ctx.fillStyle = hg;
       ctx.beginPath(); ctx.moveTo(0, WATER_Y);
-      pts.forEach((p) => ctx.lineTo(p[0], p[1]));
+      pts.forEach((p) => { ctx.lineTo(p[0], p[1]); });
       ctx.lineTo(VW, WATER_Y); ctx.closePath(); ctx.fill();
     };
     ridge(WATER_Y - 76, 138, RIDGE[0], 0.52, 0.0034, 0.6, 0.10, 0);
@@ -2115,7 +2118,7 @@
   };
 
   // A fish is an ellipse and a triangle. At these sizes nothing more reads.
-  Game.prototype.drawFish = function (ctx, x, y, size, dir, color) {
+  Game.prototype.drawFish = (ctx, x, y, size, dir, color) => {
     ctx.save();
     ctx.translate(x, y); ctx.scale(dir, 1);
     ctx.fillStyle = color;
@@ -2553,7 +2556,7 @@
     }
   };
 
-  Game.prototype.drawPrompt = function (ctx, text) {
+  Game.prototype.drawPrompt = (ctx, text) => {
     ctx.font = "800 15px 'Segoe UI',system-ui,sans-serif";
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.letterSpacing = '1.6px';
