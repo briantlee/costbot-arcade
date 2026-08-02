@@ -40,31 +40,34 @@
   .namebtn:hover{background:rgba(240,165,44,.26)}
   /* The communal haul. Every cabinet feeds this one number. A corner readout
      rather than a banner: it is a running total you glance at, and the page has
-     better uses for its vertical space. */
-  .fund{display:none;position:absolute;top:0;right:0;width:236px;text-align:left;
+     better uses for its vertical space. The coin is the point, so it gets room. */
+  .fund{display:none;position:absolute;top:0;right:0;width:296px;text-align:left;
     background:linear-gradient(180deg,#16213a,#0f1728);border:1px solid var(--line);
-    border-radius:13px;padding:11px 14px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
-  .fund.on{display:block}
-  .fund-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-  .fund-label{font-size:12px;font-weight:700;color:var(--fg);white-space:nowrap;
-    display:flex;align-items:center;gap:7px}
-  .tok{width:24px;height:24px;flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.6))}
-  /* the coin spins a half-turn whenever the fund repaints — a token dropping in */
+    border-radius:15px;padding:13px 16px;box-shadow:0 10px 28px rgba(0,0,0,.4);
+    align-items:center;gap:14px}
+  .fund.on{display:flex}
+  .tok{width:56px;height:56px;flex:0 0 auto;filter:drop-shadow(0 3px 9px rgba(0,0,0,.6))}
+  /* the coin turns over whenever the fund repaints — a token dropping in */
   .fund.paid .tok{animation:flip .9s ease}
   @keyframes flip{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+  .fund-body{flex:1 1 auto;min-width:0}
+  .fund-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .fund-label{font-size:12.5px;font-weight:700;color:var(--fg);white-space:nowrap}
   .fund-bar{height:7px;border-radius:5px;background:#0b1322;border:1px solid #23324f;
-    margin:9px 0 5px;overflow:hidden}
+    margin:8px 0 5px;overflow:hidden}
   .fund-bar i{display:block;height:100%;border-radius:5px;
     background:linear-gradient(90deg,#7fd6c4,#f0a52c);transition:width .7s ease}
   .fund-nums{display:flex;gap:5px;align-items:baseline;font-size:11.5px;color:#5d6d8a}
-  .fund-nums b{color:var(--gold);font-size:13px;font-variant-numeric:tabular-nums}
+  .fund-nums b{color:var(--gold);font-size:14px;font-variant-numeric:tabular-nums}
+  /* Only shown once something HAS shipped — "nothing shipped yet" was both a
+     tautology next to a 0 and too wide for the row. */
   .ship{font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
-    background:#173a26;border:1px solid #3fa060;color:#8ff0ad;padding:2px 7px;
+    background:#173a26;border:1px solid #3fa060;color:#8ff0ad;padding:2px 8px;
     border-radius:20px;white-space:nowrap}
-  .ship b{color:#c7f5da}
+  .ship[hidden]{display:none}
   /* Nothing to tuck into on a narrow screen — let it sit above the header. */
   @media (max-width:900px){
-    .fund{position:static;width:auto;max-width:420px;margin:0 auto 18px}
+    .fund{position:static;width:auto;max-width:430px;margin:0 auto 18px}
   }
 
   .pill{display:inline-block;margin-top:14px;font-size:12px;letter-spacing:1.4px;font-weight:800;
@@ -99,7 +102,7 @@
   .badge.soon{border-color:#6b5320;color:#ffd76b}
 
   footer{margin-top:52px;text-align:center;color:#5d6d8a;font-size:12.5px;line-height:1.9}
-  footer code{background:#141d31;border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  .foot-logo{width:190px;max-width:60vw;display:block;margin:0 auto 4px;mix-blend-mode:screen}
   footer a{color:var(--teal);text-decoration:none}
   footer a:hover{text-decoration:underline}
 </style>
@@ -109,13 +112,15 @@
   <!-- Out of the header's vertical flow: the fund is a persistent readout, not a
        banner, so it sits in the corner and costs the page no height. -->
   <div class="fund" id="fund" title="CostBot's build fund">
-    <div class="fund-top">
-      <span class="fund-label"><img class="tok" src="shared/assets/token-coin.png"
-        alt="">Build fund</span>
-      <span class="ship" id="fund-ship">nothing shipped yet</span>
+    <img class="tok" src="shared/assets/token-coin.png" alt="">
+    <div class="fund-body">
+      <div class="fund-top">
+        <span class="fund-label">Build fund</span>
+        <span class="ship" id="fund-ship" hidden></span>
+      </div>
+      <div class="fund-bar"><i id="fund-fill" style="width:0%"></i></div>
+      <div class="fund-nums"><b id="fund-num">0</b><span>/ 0 tokens</span></div>
     </div>
-    <div class="fund-bar"><i id="fund-fill" style="width:0%"></i></div>
-    <div class="fund-nums"><b id="fund-num">0</b><span>/ 0 tokens</span></div>
   </div>
 
   <header>
@@ -252,28 +257,12 @@
       </div>
     </a>
 
-    <a class="card" href="usage/index.html" id="usage-card" style="display:none">
-      <span class="badge">OWNER</span>
-      <div class="art">📊</div>
-      <div class="body">
-        <h3>Usage</h3>
-        <p>Who is playing, how often, and for how long — visits, runs and minutes
-           per player across both cabinets.</p>
-        <div class="meta">
-          <span class="chip tool">Owner only</span>
-        </div>
-      </div>
-    </a>
-
   </div>
 
   <footer>
-    Shared building blocks live in <code>arcade/shared/</code> —
-    <code>arcade-music.js</code> (soundtrack + themes) and
-    <code>arcade-biomes.js</code> (arena palettes + procedural scenery).<br>
-    A new game includes those two scripts and gets the whole audio-visual system for free.<br>
-    No build step, no dependencies. Tracked in
-    <a href="https://deept.atlassian.net/browse/COSTMAN-3708">COSTMAN-3708</a>.
+    <img class="foot-logo" src="shared/assets/insert-coin.png" alt="CostBot Arcade">
+    <div>Contact: <a href="https://teams.microsoft.com/l/channel/19%3Acb00bd9aeaee4dfbb6970327add0f002%40thread.tacv2/cost-management-support?groupId=e000d429-7805-4467-b427-48b679c1062e"
+      target="_blank" rel="noopener">Cost Management</a></div>
   </footer>
 </div>
 
@@ -317,9 +306,9 @@
       '/ ' + numFmt(SHIP_COST) + ' tokens';
     document.getElementById('fund-fill').style.width =
       Math.max(1.5, (toward / SHIP_COST) * 100) + '%';
-    document.getElementById('fund-ship').innerHTML = shipped
-      ? `<b>${numFmt(shipped)}</b> shipped`
-      : 'nothing shipped yet';
+    const tally = document.getElementById('fund-ship');
+    tally.innerHTML = shipped ? `<b>${numFmt(shipped)}</b> shipped` : '';
+    tally.hidden = !shipped;
     // The card is too small for a sentence, but the context still matters — it
     // becomes the hover tooltip rather than being thrown away.
     document.getElementById('fund').title = sub.replace(/<[^>]+>/g, '');
@@ -328,9 +317,6 @@
 
   (async () => {
     const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
-    // The Usage board is owner-gated server-side; showing the card to everyone
-    // would just be a link that 403s, so it stays hidden unless you can open it.
-    if (s.isAdmin) document.getElementById('usage-card').style.display = '';
     // No API here (static hosting), so there is nobody to greet — but the bank
     // still exists on this machine, and it is the whole point of playing.
     if (!s.enabled) {
