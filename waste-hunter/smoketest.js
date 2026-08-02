@@ -278,6 +278,38 @@ const server = http.createServer((req, res) => {
   console.log('  mounted inside host:', await page.evaluate(() => !!(window.game && window.game.run)));
 
   // content sanity: every upgrade topic must have questions behind it
+  // End-screen art rotates by outcome. A win must never show the battered bot and
+  // a loss must never show a victory lap, so the pools have to stay disjoint.
+  console.log('\n▶ End-screen art…');
+  const art = await page.evaluate(() => {
+    const g = window.game, C = WH_CONTENT;
+    const seq = { win: [], loss: [], narrow: [] };
+    for (let i = 0; i < 40; i++) {
+      for (const pool of ['win', 'loss', 'narrow']) seq[pool].push(g.pickArt(pool));
+    }
+    const uniq = (a) => [...new Set(a)];
+    const b2b = (a) => a.some((v, i) => i > 0 && v === a[i - 1]);
+    return {
+      win: uniq(seq.win).length, winPool: C.END_ART.win.length,
+      loss: uniq(seq.loss).length, lossPool: C.END_ART.loss.length,
+      narrow: uniq(seq.narrow),
+      repeats: b2b(seq.win) || b2b(seq.loss),
+      overlap: C.END_ART.win.filter((x) => C.END_ART.loss.includes(x)),
+      missing: [...C.END_ART.win, ...C.END_ART.loss, ...C.END_ART.narrow]
+        .filter((n) => !(g.img[n] && g.img[n].naturalWidth > 0)),
+    };
+  });
+  const artOk = art.win === art.winPool && art.loss === art.lossPool
+    && art.narrow.length === 1 && !art.repeats && !art.overlap.length && !art.missing.length;
+  console.log(`  win ${art.win}/${art.winPool} · loss ${art.loss}/${art.lossPool}`
+    + ` · narrow ${art.narrow.join(',')} · back-to-back ${art.repeats}`);
+  if (!artOk) {
+    errors.push('END ART: ' + JSON.stringify(art));
+    console.log('  ❌ end-screen art rotation');
+  } else {
+    console.log('  ✅ every image rotates, pools disjoint, all decode');
+  }
+
   console.log('\n▶ Content check…');
   const content = await page.evaluate(() => {
     const C = WH_CONTENT;

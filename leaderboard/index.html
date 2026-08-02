@@ -77,12 +77,13 @@
   // `mudsliders` is the pre-rename key — any board rows still under it belong to
   // the same game, so they render with the same name rather than a raw slug.
   const GAME_NAMES = { 'waste-hunter': 'Waste Hunter', mudslides: 'Mudslides',
-    mudsliders: 'Mudslides' };
+    mudsliders: 'Mudslides', 'holiday-in-colombia': 'Holiday in Colombia' };
   const STAGE_NAMES = {
     'ec2-graveyard': 'The EC2 Graveyard',
     'storage-sprawl': 'Storage Sprawl',
     'the-ledger': "The Megabill's Ledger",
     endless: 'Endless Descent',
+    lake: 'The Lake',
   };
   const boardTitle = (key) => {
     const [g, st] = String(key).includes('/') ? key.split('/') : ['waste-hunter', key];
@@ -126,16 +127,14 @@
         ? ids.map((id) => table(boardTitle(id), '<th style="text-align:right">Best run</th>',
             data.stages[id], (r) => `<td class="val">${money(r.dollars)}</td>`)).join('')
         : table('All-time best per stage', '', [], () => '');
-    } else if (tab === 'quiz') {
-      panel.innerHTML = table('Quiz accuracy — min 10 answers',
-        '<th style="text-align:right">Correct</th>', data.quiz,
-        (r) => `<td class="val">${r.pct}% <span class="val dim">(${r.correct}/${r.asked})</span></td>`);
     }
   }
 
+  // Quiz accuracy used to be a second board here. It ranked how well people
+  // answered trivia, which is not what anyone comes to a leaderboard for, and it
+  // sat oddly next to a board about money saved.
   const TABS = [
     ['stages', '🏆 Per stage'],
-    ['quiz', '🎓 Quiz accuracy'],
   ];
   const tabBox = document.getElementById('tabs');
   TABS.forEach(([id, lbl]) => {

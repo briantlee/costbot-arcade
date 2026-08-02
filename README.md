@@ -22,6 +22,11 @@ arcade/
   mudsliders/           redirect stub — the game's old name, old URL
   shared/
     assets/             art used by the landing page itself (CostBot, CostBotLand)
+                        the token coin ships in three sizes — pick the one that
+                        covers your display size at 2x and no bigger:
+                        token-coin-64.png   inline coins and canvas HUD (≤32px)
+                        token-coin-128.png  the landing page's .tok (56px)
+                        token-coin.png      512px master, regenerate the rest from it
     arcade-music.js     soundtrack engine — 8 tracks, 6 themes
     arcade-biomes.js    arena palettes + procedural scenery
     arcade-sync.js      optional bridge to a server profile

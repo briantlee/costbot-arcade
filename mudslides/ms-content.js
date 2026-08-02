@@ -72,9 +72,15 @@
     // same 24x24 outline, still mirrored by the Iconify API.
     { id: 'azure', name: 'Azure', color: '#0078D4',
       path: 'M22.379 23.343a1.62 1.62 0 0 0 1.536-2.14v.002L17.35 1.76A1.62 1.62 0 0 0 15.816.657H8.184A1.62 1.62 0 0 0 6.65 1.76L.086 21.204a1.62 1.62 0 0 0 1.536 2.139h4.741a1.62 1.62 0 0 0 1.535-1.103l.977-2.892l4.947 3.675c.28.208.618.32.966.32m-3.084-12.531l3.624 10.739a.54.54 0 0 1-.51.713v-.001h-.03a.54.54 0 0 1-.322-.106l-9.287-6.9h4.853m6.313 7.006c.116-.326.13-.694.007-1.058L9.79 1.76l-.007-.02h6.034a.54.54 0 0 1 .512.366l6.562 19.445a.54.54 0 0 1-.338.684' },
-    // Conviva publish no mark in any icon set, so this one falls back to the
-    // monogram badge the sign painter draws for any vendor without a path.
-    { id: 'conviva', name: 'Conviva', color: '#F5A623', path: null },
+    // Conviva ship no mark in any public icon set, so this is a drawn stand-in
+    // in their brand orange: concentric rings, which is at least on-theme for a
+    // company whose product is measuring concurrent streams.
+    { id: 'conviva', name: 'Conviva', color: '#F5A623', path: 'M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 3.6a8.4 8.4 0 110 16.8 8.4 8.4 0 010-16.8zm0 2.4a6 6 0 100 12 6 6 0 000-12zm0 2.4a3.6 3.6 0 110 7.2 3.6 3.6 0 010-7.2z' },
+    // Fastly and Anthropic are not in the icon set the rest of this file inlines
+    // from, so these two are DRAWN approximations in the correct brand colour —
+    // Fastly's flame and Claude's radiating burst — not the official artwork.
+    { id: 'fastly', name: 'Fastly', color: '#FF282D', path: 'M12 1.2c2.4 3.1 3.3 5.5 2.6 7.9 1-.6 1.8-1.6 2.2-2.9 2.4 2.6 3.6 5.4 3.6 8.2 0 4.7-3.7 8.4-8.4 8.4S3.6 19.1 3.6 14.4 c0-3.8 2.1-6.9 4.6-9.4 .5 1.4 1.2 2.4 2.1 3C9.4 5.7 10.2 3.3 12 1.2ZM12 12c1.3 1.7 1.9 3 1.9 4.2 0 1.6-1.3 2.9-2.9 2.9s-2.9-1.3-2.9-2.9c0-1.5.9-2.8 2.1-3.9.3.7.7 1.2 1.2 1.5-.2-.7 0-1.4.6-1.8Z' },
+    { id: 'claude', name: 'Claude', color: '#D97757', path: 'M11.53 10L12.95 5.43L12 1.4L11.05 5.43L12.47 10ZM12.59 10.03L16.11 6.78L17.3 2.82L14.46 5.83L13.41 10.51ZM13.49 10.59L18.17 9.54L21.18 6.7L17.22 7.89L13.97 11.41ZM14 11.53L18.57 12.95L22.6 12L18.57 11.05L14 12.47ZM13.97 12.59L17.22 16.11L21.18 17.3L18.17 14.46L13.49 13.41ZM13.41 13.49L14.46 18.17L17.3 21.18L16.11 17.22L12.59 13.97ZM12.47 14L11.05 18.57L12 22.6L12.95 18.57L11.53 14ZM11.41 13.97L7.89 17.22L6.7 21.18L9.54 18.17L10.59 13.49ZM10.51 13.41L5.83 14.46L2.82 17.3L6.78 16.11L10.03 12.59ZM10 12.47L5.43 11.05L1.4 12L5.43 12.95L10 11.53ZM10.03 11.41L6.78 7.89L2.82 6.7L5.83 9.54L10.51 10.59ZM10.59 10.51L9.54 5.83L6.7 2.82L7.89 6.78L11.41 10.03ZM12 12m-2.4 0a2.4 2.4 0 104.8 0a2.4 2.4 0 10-4.8 0' },
   ];
 
   // ---------------------------------------------------------------------------

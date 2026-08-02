@@ -19,6 +19,13 @@
   'use strict';
 
   const C = global.MS_CONTENT;
+
+  // The arcade's shared purse — tokens are earned in any cabinet and spent in
+  // any cabinet. Absent only if the script failed to load, in which case the
+  // game still runs; it just cannot pay out.
+  const NO_WALLET = { tokens: 0, earn: () => 0, spend: () => false, bank: () => 0,
+    init: () => ({}), onChange: () => () => {} };
+  const wallet = () => global.ArcadeWallet || NO_WALLET;
   const VW = 1152;
   const VH = 648;
   // Camera height and horizon are a pair. Raising CAM_H alone looks down harder
@@ -136,6 +143,9 @@
   padding:16px 26px;min-width:440px;box-shadow:0 24px 60px rgba(0,0,0,.6);margin-top:14px;}
 .ms-stat{display:flex;justify-content:space-between;padding:5px 0;font-size:14.5px;border-bottom:1px solid #2b2119;}
 .ms-stat:last-child{border-bottom:none;}
+/* the arcade token, shared art — the same coin in every cabinet */
+.ms-coin{width:15px;height:15px;vertical-align:-3px;margin-right:5px;}
+.ms-coin.lg{width:22px;height:22px;vertical-align:-5px;margin-right:6px;}
 .ms-stat b{color:#ffd76b;font-variant-numeric:tabular-nums;}
 .ms-hint{color:#7d6b58;font-size:11.5px;font-style:normal;margin-left:6px;}
 .ms-big{font-size:40px;font-weight:800;color:#ffd76b;text-align:center;font-variant-numeric:tabular-nums;
@@ -230,13 +240,17 @@
     this.ui = root.querySelector('.ms-ui');
 
     this.img = {};
+    // The arcade token — shared art, so the currency looks the same in every
+    // cabinet. It lives beside the other shared assets, not in either game's pile.
+    this.img.coin = new Image();
+    this.img.coin.src = '../shared/assets/token-coin-64.png';
     ['costbot', 'inspire', 'max_speed_clean'].forEach((k) => {
       const im = new Image();
       im.src = this.assetBase + k + '.png';
       this.img[k] = im;
     });
     // Mudslides' own art lives next to the game, not in Waste Hunter's asset pile.
-    ['mudslide'].forEach((k) => {
+    ['mudslide', 'slider'].forEach((k) => {
       const im = new Image();
       im.src = this.spriteBase + k + '.png';
       this.img[k] = im;
@@ -416,7 +430,7 @@
     const total = Math.floor(p.totalTokens || 0);
     return `<div class="ms-bank">
       <div class="ms-bank-row">
-        <span><b>${total.toLocaleString()}</b> tokens collected all-time</span>
+        <span><img class="ms-coin" src="../shared/assets/token-coin-64.png" alt=""><b>${total.toLocaleString()}</b> tokens collected all-time</span>
         <span class="ms-bank-sep"></span>
         <span>best run <b>${Math.floor(p.best || 0).toLocaleString()}</b></span>
         <span class="ms-bank-sep"></span>
@@ -668,7 +682,14 @@
   // Rotated at random rather than cycled: a cycle is predictable enough that the
   // third one stops registering.
   const WIPEOUT_SHOTS = ['wipeout.jpg', 'wipeout-surgery.jpg', 'wipeout-megabill.jpg'];
-  const pickShot = () => WIPEOUT_SHOTS[(Math.random() * WIPEOUT_SHOTS.length) | 0];
+  let lastShot = null;
+  // Never the same shot twice running. Pure random over three pictures repeats
+  // about a third of the time, which reads as "it isn't rotating".
+  const pickShot = () => {
+    const choices = WIPEOUT_SHOTS.filter((s) => s !== lastShot);
+    lastShot = choices[(Math.random() * choices.length) | 0];
+    return lastShot;
+  };
 
   Game.prototype.screenOver = function (res) {
     this.clearUI();
@@ -1169,11 +1190,13 @@
     const tokens = Math.floor(r.tokens);
 
     p.totalTokens = (p.totalTokens || 0) + tokens;
+    // Into the shared arcade purse. Banking into the build fund is a choice the
+    // player makes on the hub, not something a run does on their behalf.
+    wallet().earn(tokens, 'mudslides');
     // `lifetimeTokens` is what every cabinet calls its running total. `banked` is
     // what the arcade's build fund counts — there is nothing to spend tokens on
     // here, so on this hill everything you collect is banked by definition.
     p.lifetimeTokens = p.totalTokens;
-    p.banked = p.totalTokens;
     p.runs = (p.runs || 0) + 1;
     const best = tokens > (p.best || 0);
     if (best) p.best = tokens;
@@ -1874,7 +1897,11 @@
     if (r.invuln > 0 && Math.floor(performance.now() / 90) % 2 === 0) ctx.globalAlpha = 0.5;
     // lean into the turn
     ctx.rotate(((r.lane - 1) - (this.laneX(r) / C.WORLD.laneWidth)) * -0.55);
-    const img = this.img.costbot;
+    // Seen from behind, which is the only view that makes sense with the camera
+    // sitting over his shoulder. Falls back to the front-facing arcade CostBot if
+    // the sprite has not decoded yet.
+    const img = (this.img.slider.complete && this.img.slider.naturalWidth)
+      ? this.img.slider : this.img.costbot;
     ctx.shadowColor = 'rgba(255,170,80,.5)'; ctx.shadowBlur = 22;
     if (img.complete && img.naturalWidth) ctx.drawImage(img, -size / 2, -size / 2, size, size);
     else { ctx.fillStyle = '#4aa3ff'; ctx.beginPath(); ctx.arc(0, 0, 40, 0, TAU); ctx.fill(); }
@@ -1903,7 +1930,10 @@
     ctx.fillStyle = '#a9927a'; ctx.font = '11px "Segoe UI",system-ui,sans-serif';
     ctx.fillText('TOKENS', 18, 9);
     ctx.fillStyle = '#ffd76b'; ctx.font = 'bold 25px ui-monospace,monospace';
-    ctx.fillText(Math.floor(r.tokens).toLocaleString(), 18, 22);
+    const coin = this.img.coin;
+    const coinOn = coin && coin.complete && coin.naturalWidth;
+    if (coinOn) ctx.drawImage(coin, 18, 21, 22, 22);
+    ctx.fillText(Math.floor(r.tokens).toLocaleString(), coinOn ? 46 : 18, 22);
 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#a9927a'; ctx.font = '11px "Segoe UI",system-ui,sans-serif';

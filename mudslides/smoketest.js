@@ -76,6 +76,15 @@ function check(name, ok, detail) {
   });
   check('title screen shows the glass', !!heroGlass && heroGlass.w > 0);
 
+  // The player sprite is a rear view drawn behind the camera's shoulder. If it
+  // fails to decode the bot silently falls back to the front-facing arcade art,
+  // which looks almost right and would never be noticed.
+  const slider = await page.evaluate(() => {
+    const im = window.game.img.slider;
+    return { complete: im.complete, w: im.naturalWidth, src: im.src };
+  });
+  check('rear-view slider sprite loads', slider.complete && slider.w > 0, slider.src);
+
   // --- drive a run ---------------------------------------------------------
   await page.evaluate(() => window.game.start());
   await page.waitForTimeout(1400);
@@ -330,6 +339,17 @@ function check(name, ok, detail) {
     return loaded;
   });
   check('all wipeout shots rotate in', shots.length === 3, `${shots.length} distinct`);
+  const norepeat = await page.evaluate(() => {
+    const g = window.game;
+    const seq = [];
+    for (let i = 0; i < 60; i++) {
+      g.screenOver({ cause: 'x', tokens: 1, distance: 1, nearMisses: 0,
+        topSpeed: 1, dollars: 1, best: false });
+      seq.push(document.querySelector('.ms-wipe').getAttribute('src'));
+    }
+    return seq.some((v, i) => i > 0 && v === seq[i - 1]);
+  });
+  check('wipeout shot never repeats back to back', !norepeat);
   check('every wipeout shot decodes', shots.every((s) => s.ok),
     shots.filter((s) => !s.ok).map((s) => s.src).join(','));
   // The screen is a scroll container by design (an unlock banner can push it
@@ -413,9 +433,19 @@ function check(name, ok, detail) {
   check('all tracks still well-formed', tracks.length === 0, tracks.join(','));
 
   // Last, because it leaves the Mudslides page: the arcade screen has to show
-  // the bank the run above just fed, with no API in play.
+  // the build fund, with no API in play. Tokens from a run now land in the
+  // SHARED purse rather than being auto-banked, so bank them first — that is
+  // the player's own two-step, and this proves both halves of it.
   await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(400);
+  const purse = await page.evaluate(() => {
+    const W = window.ArcadeWallet;
+    const onHand = W.tokens;          // whatever the run above paid in
+    W.earn(Math.max(0, 250 - onHand), 'mudslides');
+    W.bank();                          // the player's choice, made explicitly
+    return { banked: W.banked, tokens: W.tokens };
+  });
+  await page.waitForTimeout(300);
   // fund-num is progress toward the NEXT product, not the lifetime total — the
   // tally carries the rest, so the bank has to be read back from both.
   const hub = await page.evaluate(() => {
@@ -429,6 +459,8 @@ function check(name, ok, detail) {
     };
   });
   const bankTotal = hub.shipped * 10000 + hub.toward;
+  check('a run pays the shared purse, and banking moves it to the fund',
+    purse.tokens === 0 && purse.banked >= 250, `${purse.banked} banked, purse empty`);
   check('arcade screen shows the bank without an API', hub.on && bankTotal >= 250,
     `${bankTotal} tokens (${hub.shipped} shipped + ${hub.toward})`);
   check('the bank ships a product every 10,000 tokens',

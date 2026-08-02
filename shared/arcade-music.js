@@ -57,6 +57,18 @@
                { root: 36, tones: [0, 4, 7] }, { root: 35, tones: [0, 4, 7] },
                { root: 40, tones: [0, 3, 7] }, { root: 43, tones: [0, 4, 7] },
                { root: 38, tones: [0, 4, 7] }, { root: 35, tones: [0, 4, 7] }],
+    // Eight bars of warm F major with jazz sevenths — I vi ii V | I iii IV V.
+    // Major throughout and it resolves home every eight bars, which is what
+    // makes it cheerful rather than wistful. The sevenths and ninths are what
+    // stop it from sounding like a nursery rhyme.
+    lagoon:   [{ root: 41, tones: [0, 4, 7, 11] },   // Fmaj7
+               { root: 38, tones: [0, 3, 7, 10] },   // Dm7
+               { root: 43, tones: [0, 3, 7, 10] },   // Gm7
+               { root: 36, tones: [0, 4, 7, 10] },   // C7
+               { root: 41, tones: [0, 4, 7, 11] },   // Fmaj7
+               { root: 45, tones: [0, 3, 7, 10] },   // Am7
+               { root: 46, tones: [0, 4, 7, 11] },   // Bbmaj7
+               { root: 36, tones: [0, 4, 7, 10] }],  // C7
     chamber:  [{ root: 38, tones: [0, 3, 7, 10, 14] },   // Dm9
                { root: 34, tones: [0, 4, 7, 11] },       // Bbmaj7
                { root: 31, tones: [0, 3, 7, 10] },       // Gm7
@@ -67,6 +79,29 @@
   // LEAD LINES  (one slot per 16th step; 64 steps = 4 bars)
   // ===========================================================================
   const L = {
+    // "Nothing Doing" — a bossa head. Three notes a bar, all of them late, all
+    // of them falling: the melody never hurries and never lands on the beat,
+    // which is the entire trick to sounding lazy without sounding slow. Bars
+    // 1-4 walk down and bars 5-8 answer an octave up, so it reads as a verse
+    // and a chorus rather than a loop.
+    lagoon: [
+      // Fmaj7 — C A F, entering on the "and" of 2
+      _, _, _, _, 72, _, _, 69, _, _, 65, _, _, _, _, _,
+      // Dm7 — the same shape, one step up the scale
+      _, _, _, _, 74, _, _, 72, _, _, 69, _, _, _, _, _,
+      // Gm7 — and again, lower
+      _, _, _, _, 70, _, _, 69, _, _, 67, _, _, _, _, _,
+      // C7 — the phrase turns and climbs back
+      _, _, 67, _, 69, _, 70, _, 72, _, _, _, _, _, _, _,
+      // Fmaj7 — the answer, an octave up
+      _, _, _, _, 77, _, _, 76, _, _, 72, _, _, _, _, _,
+      // Am7
+      _, _, _, _, 76, _, _, 72, _, _, 69, _, _, _, _, _,
+      // Bbmaj7 — the one bar that reaches
+      _, _, 70, _, 72, _, 74, _, 77, _, _, _, _, _, _, _,
+      // C7 — down, then the leading tone home to F
+      _, _, _, _, 74, _, 72, _, 70, _, _, _, 76, _, _, _,
+    ],
     stage: [
       76, _, _, 72, _, 74, _, _, 72, _, 69, _, _, _, 67, _,
       69, _, _, 72, _, 69, _, _, 65, _, _, _, 67, _, _, _,
@@ -196,6 +231,20 @@
     },
 
     // ---- influenced by Clair Obscur: Expedition 33 --------------------------
+    lagoon: {
+      title: 'Nothing Doing', influence: 'Bossa nova', bpm: 76, key: 'F major 7',
+      desc: 'Lake bossa. Brushed clave, warm sevenths and a melody that is never in a hurry.',
+      prog: P.lagoon, lead: L.lagoon, drums: 'bossa', pad: 'strings',
+      arpEvery: 4, bassEvery: 8, gain: 0.68, bars: 8,
+      voices: { lead: 'piano', arp: 'piano' },
+    },
+    boathouse: {
+      title: 'Nothing Doing (dock)', influence: 'Bossa nova', bpm: 76, key: 'F major 7',
+      desc: 'The same tune with the kit put away — pad, piano and nothing else.',
+      prog: P.lagoon, lead: L.lagoon, drums: false, pad: 'strings',
+      arpEvery: 8, bassEvery: 0, gain: 0.60, bars: 8,
+      voices: { lead: 'piano', arp: 'piano' },
+    },
     expedition: {
       title: 'Depreciation', influence: 'Clair Obscur · Expedition 33', bpm: 108, key: 'D minor 9',
       desc: 'French chamber drive. Rolling 16th piano over extended harmony, strings, soft pulse.',
@@ -220,6 +269,10 @@
                   menu: 'menu',       stage: 'mudslide',   boss: 'airbuster' },
     expedition: { label: 'Depreciation',  biome: 'dusk',
                   menu: 'expedition', stage: 'expedition', boss: 'boss' },
+    // Fishing has no boss, so all three slots stay in the same key — the kit
+    // arriving when you push off from the dock is the only change.
+    lagoon:     { label: 'Lake Bossa',     biome: 'field',
+                  menu: 'boathouse',  stage: 'lagoon',     boss: 'lagoon' },
   };
 
   function create(getNodes) {
@@ -474,6 +527,16 @@
         case 'chamber':
           if (inBar === 0 || inBar === 8) kick(t, false);
           if (inBar === 4 || inBar === 12) snare(t, true);
+          break;
+        case 'bossa':
+          // Soft surdo on 1 and 3, a shaker in 8ths, and the two-bar bossa
+          // clave tapped on the rim. The clave is what makes it lazy rather
+          // than merely slow — nothing lands where a rock beat would put it.
+          if (inBar === 0 || inBar === 8) kick(t, false);
+          if (inBar % 2 === 0) hat(t, false, false);
+          if (bar % 2 === 0
+            ? (inBar === 0 || inBar === 6 || inBar === 12)
+            : (inBar === 2 || inBar === 8)) snare(t, true);
           break;
         case 'rock':
           if (inBar === 0 || inBar === 8 || inBar === 11) kick(t, false);

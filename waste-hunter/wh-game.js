@@ -24,6 +24,13 @@
   'use strict';
 
   const C = global.WH_CONTENT;
+
+  // The arcade's shared purse — tokens are earned in any cabinet and spent in
+  // any cabinet. Absent only if the script failed to load, in which case the
+  // game still runs; it just cannot pay out.
+  const NO_WALLET = { tokens: 0, earn: () => 0, spend: () => false, bank: () => 0,
+    init: () => ({}), onChange: () => () => {} };
+  const wallet = () => global.ArcadeWallet || NO_WALLET;
   const VERSION = '0.1.0';
   const VW = 1152, VH = 648;                  // logical viewport
   const WORLD_W = 2600, WORLD_H = 1750;
@@ -273,6 +280,9 @@
   padding:24px 30px;min-width:470px;box-shadow:0 24px 60px rgba(0,0,0,.6);}
 .wh-stat{display:flex;justify-content:space-between;padding:7px 0;font-size:14.5px;border-bottom:1px solid #1e2c47;}
 .wh-stat:last-child{border-bottom:none;}
+/* the arcade token, shared art — the same coin in every cabinet */
+.wh-coin{width:15px;height:15px;vertical-align:-3px;margin-right:5px;}
+.wh-coin.lg{width:22px;height:22px;vertical-align:-5px;margin-right:6px;}
 .wh-stat.nb{border-bottom:none;padding-bottom:2px;}
 .wh-kills{padding:0 0 7px 16px;border-bottom:1px solid #1e2c47;}
 .wh-kill{display:flex;justify-content:space-between;padding:2.5px 0;font-size:13px;color:#8ea1c2;}
@@ -558,7 +568,7 @@
         <button class="wh-btn" data-act="achs">🏆  Achievements</button>
       </div>
       <div class="wh-row" style="margin-top:20px;font-size:13.5px;color:#93a4c4">
-        <span>🪙 <b style="color:#ffd76b">${m.tokens.toLocaleString()}</b> tokens</span>
+        <span><img class="wh-coin" src="../shared/assets/token-coin-64.png" alt=""><b style="color:#ffd76b">${wallet().tokens.toLocaleString()}</b> tokens</span>
         <span>·</span><span>🎮 ${m.runs} runs</span>
         <span>·</span><span>📈 ${money(m.lifetimeDollars)} lifetime saved</span>
       </div>
@@ -781,7 +791,7 @@
         <div class="d">${esc(u.blurb(lvl + (maxed ? 0 : 1)))}</div>
         <div class="pips">${pips}</div>
         <button class="wh-buy" data-buy="${id}" ${maxed || m.tokens < cost ? 'disabled' : ''}>
-          ${maxed ? 'MAXED' : '🪙 ' + cost.toLocaleString()}</button>
+          ${maxed ? 'MAXED' : '<img class="wh-coin" src="../shared/assets/token-coin-64.png" alt="">' + cost.toLocaleString()}</button>
       </div>`;
     }).join('');
     const el = document.createElement('div');
@@ -789,7 +799,7 @@
     el.innerHTML = `<div class="wh-scroll">
       <h2 style="font-size:30px;margin:0">🛠️ Bot Bay</h2>
       <p class="wh-sub">Spend tokens on yourself, or bank them for CostBot. Not both.</p>
-      <div style="font-size:19px;margin-top:12px">🪙 <b style="color:#ffd76b">${m.tokens.toLocaleString()}</b> AI tokens on hand</div>
+      <div style="font-size:19px;margin-top:12px"><img class="wh-coin lg" src="../shared/assets/token-coin-64.png" alt=""><b style="color:#ffd76b">${wallet().tokens.toLocaleString()}</b> AI tokens on hand</div>
       <div class="wh-bank">
         <div class="wh-bank-t">🤖 CostBot's build fund</div>
         <div class="wh-bank-d">Banked tokens leave your balance for good and go to the
@@ -812,7 +822,7 @@
         const want = bank.dataset.bank === 'all' ? m.tokens : Number(bank.dataset.bank);
         const give = Math.min(m.tokens, want);
         if (give > 0) {
-          m.tokens -= give;
+          if (!wallet().spend(give)) return;
           m.banked = (m.banked || 0) + give;
           saveMeta(m, this.persist);
           this.audio.coin();
@@ -827,7 +837,8 @@
         const lvl = m.upgrades[id] || 0;
         const cost = u.cost(lvl);
         if (lvl < u.max && m.tokens >= cost) {
-          m.tokens -= cost; m.upgrades[id] = lvl + 1;
+          if (!wallet().spend(cost)) return;
+          m.upgrades[id] = lvl + 1;
           saveMeta(m, this.persist); this.audio.coin(); this.screenBay();
         }
         return;
@@ -939,13 +950,17 @@
     const m = this.meta;
     const interest = 1 + 0.08 * (m.upgrades.interest || 0);
     const clearBonus = outcome === 'clear' ? 1.5 : 1;
-    const tokens = Math.round((r.dollars / 1000) * interest * clearBonus);
+    // $500 saved = 1 token, doubled from the original $1,000. Measured against
+    // the other cabinets, Waste Hunter was paying roughly half what fishing and
+    // Mudslides do per minute for strictly harder play, which made the game with
+    // the most actual FinOps content in it the worst way to earn.
+    const tokens = Math.round((r.dollars / 500) * interest * clearBonus);
 
     // Three ledgers, one currency. `tokens` is the spendable Bot Bay balance;
     // `lifetimeTokens` only ever goes up and records what you earned; `banked` is
     // what you deliberately gave to CostBot's build fund instead of spending on
     // yourself, and that is the only one the fund counts.
-    m.tokens += tokens;
+    wallet().earn(tokens, 'waste-hunter');
     m.lifetimeTokens += tokens;
     m.lifetimeDollars += r.dollars;
     m.runs += 1;
@@ -995,11 +1010,28 @@
       .join('');
   }
 
+  // Never the same picture twice running. Pure random over a small pool repeats
+  // often enough that it reads as "no rotation at all" — which is exactly how it
+  // looked before there was any.
+  const lastArt = {};
+  function pickArt(pool) {
+    const list = C.END_ART[pool] || C.END_ART.loss;
+    if (list.length === 1) return list[0];
+    const choices = list.filter((n) => n !== lastArt[pool]);
+    const pick = choices[(Math.random() * choices.length) | 0];
+    lastArt[pool] = pick;
+    return pick;
+  }
+
+  Instance.prototype.pickArt = (pool) => pickArt(pool);   // exposed for the suite
+
   Instance.prototype.screenResult = function (res) {
     const r = this.run, win = res.outcome === 'clear';
     const kills = killBreakdown(res);
     this.setMusic('menu');
-    const art = win ? (r.p.hp / r.p.maxHp < 0.15 ? 'still_did_it' : 'done') : 'beat_up';
+    const art = pickArt(win
+      ? (r.p.hp / r.p.maxHp < 0.15 ? 'narrow' : 'win')
+      : 'loss');
     this.clearUI();
     const el = document.createElement('div');
     el.className = 'wh-screen';
@@ -1018,7 +1050,7 @@
         <div class="wh-stat"><span>⭐ Level reached</span><b>${res.level}</b></div>
         <div class="wh-stat"><span>🎓 Quiz answers</span><b>${res.quizCorrect} / ${res.quizCorrect + res.quizWrong}${
           res.quizWrong === 0 && res.quizCorrect > 0 ? ' <span style="color:#6ee7a0">perfect</span>' : ''}</b></div>
-        <div class="wh-stat"><span>🪙 AI tokens banked${win ? ' <span style="color:#6ee7a0">(×1.5 clear bonus)</span>' : ''}</span>
+        <div class="wh-stat"><span><img class="wh-coin" src="../shared/assets/token-coin-64.png" alt="">AI tokens banked${win ? ' <span style="color:#6ee7a0">(×1.5 clear bonus)</span>' : ''}</span>
           <b>+${res.tokensEarned.toLocaleString()}</b></div>
         <div class="wh-stat"><span style="color:#7fd6c4">🤖 Into CostBot's build fund</span>
           <b style="color:#7fd6c4">${(res.meta.lifetimeTokens || 0).toLocaleString()} all-time</b></div>
