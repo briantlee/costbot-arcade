@@ -185,7 +185,7 @@
       arpEvery: 4, bassEvery: 2, gain: 0.95, voices: { lead: 'brass' },
     },
 
-    // ---- endless-runner drive for Mudsliders --------------------------------
+    // ---- endless-runner drive for Mudslides ---------------------------------
     mudslide: {
       title: 'Mudslide', influence: 'Breakbeat runner', bpm: 174, key: 'E minor',
       desc: '16-bar song, ~22s: hook, answer, a two-bar breakdown, then the hook '

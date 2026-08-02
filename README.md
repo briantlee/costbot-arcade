@@ -1,6 +1,7 @@
 # CostBot Arcade
 
-FinOps mini-games starring CostBot. One source tree, served two ways.
+CostBot wants to build things for the company and needs AI tokens to do it. You play
+games, you earn the tokens, it ships. One source tree, served two ways.
 
 | | Where | What it gives you |
 |---|---|---|
@@ -10,12 +11,14 @@ FinOps mini-games starring CostBot. One source tree, served two ways.
 ```
 arcade/
   index.html            landing page
-  leaderboard/          all four boards (needs the dynamic app)
+  leaderboard/          all three boards (needs the dynamic app)
   jukebox/              audition the shared soundtrack
   waste-hunter/         the game
-  mudsliders/           the endless runner
-    assets/             its own art (the Mudslide glass — sled, shield, card)
+  mudslides/            the endless runner
+    assets/             its own art (the Mudslide glass, the wipeout shot)
+  mudsliders/           redirect stub — the game's old name, old URL
   shared/
+    assets/             art used by the landing page itself (CostBot, CostBotLand)
     arcade-music.js     soundtrack engine — 8 tracks, 6 themes
     arcade-biomes.js    arena palettes + procedural scenery
     arcade-sync.js      optional bridge to a server profile
@@ -45,7 +48,7 @@ npm run dev                     # ARCADE_PUBLIC defaults to ~/projects/costbot/a
 You get the whole arcade **plus the API** — profiles, score submission, live
 leaderboards. Edit anything under `arcade/` and just refresh; nothing to rebuild
 and nothing to copy. Without a database it falls back to an in-memory store, and
-all four leaderboards work against it, so you can exercise the full app offline.
+all three leaderboards work against it, so you can exercise the full app offline.
 
 Locally there is no MyID front door, so the viewer falls back to a stable
 `local-dev` identity. That is deliberate: it keeps the app exercisable without
@@ -68,18 +71,29 @@ the console is the expected, healthy path here.
 ```bash
 cd arcade/waste-hunter && node smoketest.js      # ~90s: full game suite
 FULL=1 node smoketest.js                         # plays a whole stage; use for pacing work
-cd arcade/mudsliders && node smoketest.js        # ~15s: runner suite
+cd arcade/mudslides && node smoketest.js         # ~15s: runner suite
 cd ~/aix-proto/examples/costbot-arcade && npm test
 ```
 
 The Waste Hunter suite drives a real headless run, answers the quiz from the content
-bank, forces the boss and stage-clear paths, walks every menu, checks that every theme
-resolves its tracks and biome, and fails on any console error.
+bank, forces the boss and stage-clear paths, walks every menu including How to Play
+(asserting its bestiary covers every enemy, boss and pickup the balance data defines),
+checks that every theme resolves its tracks and biome, and fails on any console error.
 
-The Mudsliders suite drives a run, checks the mud spray and wake are emitting, verifies
-the Mudslide power-up banks a shield, forces a wipeout, and validates the soundtrack's
-shape (bar counts, note range, break/fill bars) for every track — the music engine is
-shared, so a change made for one game has to keep the others well-formed.
+Mudslides also has a per-game leaderboard — distance, near misses, top speed and
+tokens, sortable by column. That needs three columns the shared arcade board never
+had, so `runs` gained `distance` / `near_misses` / `top_speed` (additive migration,
+existing rows carry zeros) and the app serves `GET /api/leaderboards/<game>`, one
+ranked list per metric. **The client and the app have to deploy together**; against
+an older app the endpoint 404s, the fetch fails and the board silently falls back to
+your own local run history, which is also what static hosting always shows.
+
+The Mudslides suite drives a run, checks the mud spray and wake are emitting, verifies
+the Mudslide power-up banks a shield, walks the how-to-play screen (asserting it lists
+every token and power-up the balance data actually defines), forces a wipeout and checks
+it names the vendor that caused it, and validates the soundtrack's shape (bar counts,
+note range, break/fill bars) for every track — the music engine is shared, so a change
+made for one game has to keep the others well-formed.
 
 Both write screenshots to their own `shots/`, which is gitignored and excluded from
 the app image.

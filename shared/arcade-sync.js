@@ -40,6 +40,7 @@
     authenticated: false,
     profile: null,         // server-side profile, when one exists
     identity: null,        // {email, username} as the front door supplied them
+    pool: null,            // {total, mine, players} — the shared AI token fund
   };
 
   async function req(path, opts) {
@@ -63,6 +64,7 @@
       state.authenticated = me.authenticated;
       state.profile = me.profile;
       state.identity = me.identity || null;
+      state.pool = me.pool || null;
 
       // First sign-in on a browser that already has local progress: adopt it so
       // nothing earned before the server existed is lost.
@@ -134,7 +136,8 @@
     if (!raw || typeof raw !== 'object') return { games: {} };
     if (raw.games) return raw;
     // a legacy top-level Waste Hunter meta
-    const looksLikeWH = 'credits' in raw || 'achievements' in raw || 'cleared' in raw;
+    const looksLikeWH = 'tokens' in raw || 'credits' in raw   // 'credits' = pre-rename saves
+      || 'achievements' in raw || 'cleared' in raw;
     return { games: looksLikeWH ? { 'waste-hunter': raw } : {} };
   }
 
@@ -157,6 +160,13 @@
     return req('leaderboards').catch(() => null);
   }
 
+  // One game's own metrics, ranked per metric — the arcade board only speaks
+  // dollars, which cannot express distance or top speed.
+  function gameBoards(game) {
+    if (!state.enabled || !game) return Promise.resolve(null);
+    return req('leaderboards/' + encodeURIComponent(game)).catch(() => null);
+  }
+
   // Last-chance flush when the tab goes away, so Bot Bay purchases and theme
   // changes made outside a run are not lost.
   global.addEventListener('pagehide', () => {
@@ -171,7 +181,7 @@
   });
 
   global.ArcadeSync = {
-    init, submit, pushProfile, boards, setDisplayName, gameProfile, saveGame,
+    init, submit, pushProfile, boards, gameBoards, setDisplayName, gameProfile, saveGame,
     get state() { return state; },
     get enabled() { return state.enabled; },
   };

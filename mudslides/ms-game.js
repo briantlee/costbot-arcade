@@ -1,10 +1,10 @@
 /* ============================================================================
- * CostBot Mudsliders — ENGINE
+ * CostBot Mudslides — ENGINE
  * ----------------------------------------------------------------------------
  * Behind-the-back pseudo-3D endless runner. No 3D engine: the hill is a stack
  * of projected trapezoids and every object is a sprite scaled by its distance.
  *
- *   Mudsliders.mount(container, { onComplete, onEvent, profile })
+ *   Mudslides.mount(container, { onComplete, onEvent, profile })
  *
  * Projection. The camera sits camBack behind CostBot at camH above the slope,
  * looking down it. For anything at world distance z:
@@ -21,14 +21,20 @@
   const C = global.MS_CONTENT;
   const VW = 1152;
   const VH = 648;
-  const HORIZON = VH * 0.32;
+  // Camera height and horizon are a pair. Raising CAM_H alone looks down harder
+  // but also pushes the whole road — and CostBot with it — toward the bottom of
+  // the frame, so the horizon comes up by the same amount the bot would have
+  // dropped (CAM_H delta x the scale at CAM_BACK). Net effect: more road surface
+  // and less sky, with the player parked where they already were.
+  const HORIZON = VH * 0.253;
   const FOCAL = 700;
-  const CAM_H = 218;
+  const CAM_H = 253;
   const CAM_BACK = 520;   // further back = more convergence = a narrower feel
   const SEG = 55; // road segment length in world units
   const ROAD_HALF = 1.42; // road half-width, in lane widths
   const TAU = Math.PI * 2;
-  const STORE_KEY = 'costbot.mudsliders.v1';
+  const STORE_KEY = 'costbot.mudslides.v1';
+  const STORE_KEY_OLD = 'costbot.mudsliders.v1';   // the name before the rename
 
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
@@ -52,32 +58,36 @@
   }
 
   function defaultProfile() {
-    return { totalTokens: 0, modules: {}, best: 0, bestDistance: 0, runs: 0, achievements: {} };
+    return { totalTokens: 0, best: 0, bestDistance: 0, runs: 0, achievements: {}, history: [] };
   }
 
   function loadLocal() {
     try {
-      const raw = localStorage.getItem(STORE_KEY);
+      // Read the old key once for anyone who played before the rename; the next
+      // save writes it back under the new one and the old copy is dropped.
+      const raw = localStorage.getItem(STORE_KEY) || localStorage.getItem(STORE_KEY_OLD);
       return raw ? Object.assign(defaultProfile(), JSON.parse(raw)) : defaultProfile();
     } catch {
       return defaultProfile();
     }
   }
   function saveLocal(p) {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(p)); } catch { /* private mode */ }
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(p));
+      localStorage.removeItem(STORE_KEY_OLD);
+    } catch { /* private mode */ }
   }
 
-  // --- perks unlocked by the build ------------------------------------------
-  function perks(profile) {
-    const has = (id) => Boolean(profile.modules && profile.modules[id]);
+  // Everything a run needs from outside itself. This used to be earned by
+  // building app modules; the premise is now simply to collect tokens, so these
+  // are flat and the same for everybody.
+  function perks() {
     return {
-      startShields: has('ingest') ? 1 : 0,
-      maxShields: has('commitments') ? 3 : 1,
-      pickupMul: has('explorer') ? 1.25 : 1,
-      crateBias: has('tagging') ? 0.7 : 1,
-      earlyWarn: has('anomaly'),
-      tokenMul: has('chargeback') ? 1.15 : 1,
-      startSpeedBonus: has('autopilot') ? 380 : 0,
+      startShields: C.WORLD.startShields,
+      maxShields: C.WORLD.maxShields,
+      pickupMul: 1,
+      tokenMul: 1,
+      startSpeedBonus: 0,
     };
   }
 
@@ -107,6 +117,10 @@
 .ms-glass{width:90px;animation:ms-tilt 2.4s ease-in-out infinite .3s;
   filter:drop-shadow(0 10px 20px rgba(0,0,0,.6));}
 @keyframes ms-tilt{0%,100%{transform:translateY(4px) rotate(7deg)}50%{transform:translateY(-6px) rotate(-5deg)}}
+/* the wipeout shot — a photo tile, so it gets a frame rather than a drop shadow */
+/* 186px is the largest that keeps the whole result screen inside the viewport */
+.ms-wipe{width:186px;border-radius:14px;border:1px solid #4a3a28;display:block;
+  box-shadow:0 18px 44px rgba(0,0,0,.65);}
 .ms-btn{background:linear-gradient(180deg,#f0a52c,#d4821a);border:1px solid #ffc866;color:#241403;
   padding:14px 34px;border-radius:11px;font-size:17px;font-weight:750;cursor:pointer;font-family:inherit;
   box-shadow:0 4px 0 #8a5410,0 8px 20px rgba(220,140,30,.3);transition:.14s;}
@@ -119,23 +133,61 @@
   border-radius:5px;padding:1px 8px;font-family:ui-monospace,monospace;font-size:12px;color:#e0cdb4;margin:0 2px;}
 .ms-panel{background:linear-gradient(180deg,#1d1610,#0d0a07);border:1px solid #4a3a28;border-radius:16px;
   padding:16px 26px;min-width:440px;box-shadow:0 24px 60px rgba(0,0,0,.6);margin-top:14px;}
-.ms-stat{display:flex;justify-content:space-between;padding:7px 0;font-size:14.5px;border-bottom:1px solid #2b2119;}
+.ms-stat{display:flex;justify-content:space-between;padding:5px 0;font-size:14.5px;border-bottom:1px solid #2b2119;}
 .ms-stat:last-child{border-bottom:none;}
 .ms-stat b{color:#ffd76b;font-variant-numeric:tabular-nums;}
+.ms-hint{color:#7d6b58;font-size:11.5px;font-style:normal;margin-left:6px;}
 .ms-big{font-size:40px;font-weight:800;color:#ffd76b;text-align:center;font-variant-numeric:tabular-nums;
   text-shadow:0 4px 22px rgba(240,165,44,.3);margin:2px 0 4px;}
-.ms-build{margin-top:12px;width:100%;max-width:560px;}
-.ms-build h4{margin:0 0 8px;font-size:12px;letter-spacing:1.4px;color:#a9927a;text-transform:uppercase;}
-.ms-bar{height:12px;background:#241a12;border:1px solid #4a3a28;border-radius:8px;overflow:hidden;}
-.ms-bar i{display:block;height:100%;background:linear-gradient(90deg,#7fd6c4,#ffd76b);transition:width .5s;}
-.ms-next{font-size:12.5px;color:#a9927a;margin-top:7px;}
-.ms-next b{color:#7fd6c4;}
-.ms-mods{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:12px;}
-.ms-mod{background:#1a1310;border:1px solid #33261c;border-radius:20px;padding:5px 12px;font-size:12px;
-  color:#6b5a48;display:flex;gap:6px;align-items:center;}
-.ms-mod.on{border-color:#6ee7a0;background:#12241a;color:#8ff0ad;}
-.ms-unlock{margin-top:14px;background:rgba(110,231,160,.1);border:1px solid #2e7d4f;border-radius:12px;
-  padding:12px 16px;font-size:14px;color:#c7f5da;animation:ms-pop .4s cubic-bezier(.2,1.4,.4,1);}
+.ms-blurb{max-width:620px;margin:10px 0 0;font-size:14px;line-height:1.6;color:#8d7a66;}
+.ms-bank{margin-top:14px;background:linear-gradient(180deg,#1d1610,#0d0a07);border:1px solid #4a3a28;
+  border-radius:12px;padding:9px 20px;}
+.ms-bank-row{display:flex;gap:12px;align-items:center;font-size:13.5px;color:#a9927a;}
+.ms-bank-row b{color:#ffd76b;font-variant-numeric:tabular-nums;}
+.ms-bank-sep{width:1px;height:14px;background:#4a3a28;}
+/* --- how to play --- */
+.ms-brief-title{font-size:27px;margin:0;color:#ffd76b;font-weight:800;letter-spacing:-.5px;}
+.ms-brief{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;max-width:960px;margin-top:10px;
+  text-align:left;align-items:start;}
+.ms-brief section{background:linear-gradient(180deg,#1a1410,#0c0906);border:1px solid #3a2d20;
+  border-radius:13px;padding:11px 15px;}
+.ms-brief h4{margin:0 0 8px;font-size:11.5px;letter-spacing:1.4px;color:#f0a52c;text-transform:uppercase;}
+.ms-brief p{margin:0 0 7px;font-size:13px;line-height:1.55;color:#bda88f;}
+.ms-brief p:last-child{margin-bottom:0;}
+.ms-brief-row{display:flex;gap:9px;align-items:baseline;font-size:13px;line-height:1.5;
+  color:#bda88f;margin-bottom:5px;}
+.ms-brief-row b{color:#e8dcc8;}
+.ms-brief-row i{color:#8a7a68;font-size:12px;}
+.ms-dot{flex:0 0 auto;width:11px;height:11px;border-radius:50%;transform:translateY(1px);}
+.ms-pico{flex:0 0 auto;width:22px;height:22px;border:1px solid;border-radius:6px;display:inline-flex;
+  align-items:center;justify-content:center;font-size:12px;background:#120d09;}
+.ms-fine{font-size:12px !important;color:#8a7a68 !important;margin-top:8px !important;}
+/* --- achievements --- */
+.ms-achs{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px;max-width:800px;margin-top:14px;
+  text-align:left;}
+.ms-ach{display:flex;gap:11px;align-items:center;background:#140f0b;border:1px solid #2e241a;
+  border-radius:11px;padding:9px 13px;opacity:.55;}
+.ms-ach.on{opacity:1;border-color:#6ee7a0;background:linear-gradient(180deg,#13251a,#0d1410);}
+.ms-ach-i{font-size:21px;flex:0 0 auto;filter:grayscale(1);}
+.ms-ach.on .ms-ach-i{filter:none;}
+.ms-ach b{display:block;font-size:13.5px;color:#e8dcc8;}
+.ms-ach.on b{color:#8ff0ad;}
+.ms-ach i{display:block;font-size:11.5px;color:#8a7a68;font-style:normal;margin-top:1px;}
+/* --- leaderboard --- */
+.ms-board{margin-top:12px;width:100%;max-width:820px;background:linear-gradient(180deg,#1a1410,#0c0906);
+  border:1px solid #3a2d20;border-radius:13px;overflow:hidden;}
+.ms-board table{width:100%;border-collapse:collapse;}
+.ms-board th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a7a68;font-weight:700;
+  padding:9px 14px;border-bottom:1px solid #2e241a;text-align:left;}
+.ms-board th.n{text-align:right;cursor:pointer;user-select:none;}
+.ms-board th.n:hover{color:#ffd76b;}
+.ms-board th.on{color:#f0a52c;}
+.ms-board td{padding:8px 14px;font-size:13.5px;border-bottom:1px solid #1e1811;color:#bda88f;}
+.ms-board td.n{text-align:right;font-variant-numeric:tabular-nums;}
+.ms-board td.on{color:#ffd76b;font-weight:700;}
+.ms-board td.r,.ms-board th.r{width:44px;color:#7d6b58;font-weight:700;}
+.ms-board tr:last-child td{border-bottom:none;}
+.ms-board-empty{text-align:center !important;color:#7d6b58 !important;padding:26px 14px !important;}
 @keyframes ms-pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
 .ms-toasts{position:absolute;top:70px;right:16px;display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
 .ms-toast{background:linear-gradient(180deg,#2a2312,#191308);border:1px solid #f0a52c;border-radius:10px;
@@ -177,12 +229,12 @@
     this.ui = root.querySelector('.ms-ui');
 
     this.img = {};
-    ['costbot', 'beat_up', 'inspire', 'max_speed_clean'].forEach((k) => {
+    ['costbot', 'inspire', 'max_speed_clean'].forEach((k) => {
       const im = new Image();
       im.src = this.assetBase + k + '.png';
       this.img[k] = im;
     });
-    // Mudsliders' own art lives next to the game, not in Waste Hunter's asset pile.
+    // Mudslides' own art lives next to the game, not in Waste Hunter's asset pile.
     ['mudslide'].forEach((k) => {
       const im = new Image();
       im.src = this.spriteBase + k + '.png';
@@ -356,20 +408,19 @@
   // ===========================================================================
   Game.prototype.clearUI = function () { this.ui.innerHTML = ''; };
 
-  Game.prototype.buildBar = function (compact) {
+  // Your lifetime haul. There is no build to finish any more — the tokens
+  // themselves are the point, here and in every other cabinet.
+  Game.prototype.bank = function () {
     const p = this.profile;
-    const next = C.MODULES.find((m) => !(p.modules && p.modules[m.id]));
-    const done = C.MODULES.filter((m) => p.modules && p.modules[m.id]).length;
-    const pct = next ? clamp((p.totalTokens / next.cost) * 100, 0, 100) : 100;
-    return `<div class="ms-build">
-      <h4>The Ultimate FinOps App — ${done}/${C.MODULES.length} modules</h4>
-      <div class="ms-bar"><i style="width:${pct}%"></i></div>
-      <div class="ms-next">${next
-        ? `<b>${esc(next.icon + ' ' + next.name)}</b> at ${next.cost.toLocaleString()} tokens
-           · you have ${Math.floor(p.totalTokens).toLocaleString()}`
-        : 'Every module built. The app runs itself.'}</div>
-      ${compact ? '' : `<div class="ms-mods">${C.MODULES.map((m) => `<span class="ms-mod ${
-        p.modules && p.modules[m.id] ? 'on' : ''}">${m.icon} ${esc(m.name)}</span>`).join('')}</div>`}
+    const total = Math.floor(p.totalTokens || 0);
+    return `<div class="ms-bank">
+      <div class="ms-bank-row">
+        <span><b>${total.toLocaleString()}</b> tokens collected all-time</span>
+        <span class="ms-bank-sep"></span>
+        <span>best run <b>${Math.floor(p.best || 0).toLocaleString()}</b></span>
+        <span class="ms-bank-sep"></span>
+        <span><b>${(p.runs || 0).toLocaleString()}</b> ${p.runs === 1 ? 'run' : 'runs'}</span>
+      </div>
     </div>`;
   };
 
@@ -385,21 +436,231 @@
         <img class="ms-hero" src="${this.assetBase}costbot.png" alt="">
         <img class="ms-glass" src="${this.spriteBase}mudslide.png" alt="">
       </div>
-      <h1 class="ms-title">CostBot Mudsliders</h1>
-      <p class="ms-sub">Slide the hill. Collect the tokens. Build the app.</p>
-      ${this.buildBar()}
-      <div class="ms-row"><button class="ms-btn" data-act="go">▶ Drop In</button></div>
+      <h1 class="ms-title">CostBot Mudslides</h1>
+      <p class="ms-sub">Slide the hill. Collect the tokens. Enjoy the mudslides.</p>
+      <p class="ms-blurb">The arcade runs on AI tokens, and the hill is where they
+         wash down. Every vendor on the megabill has planted a sign in the mud.</p>
+      ${this.bank()}
+      <div class="ms-row">
+        <button class="ms-btn" data-act="go">▶ Drop In</button>
+        <button class="ms-btn ghost" data-act="how">How to play</button>
+        <button class="ms-btn ghost" data-act="achievements">🏅 Achievements</button>
+        <button class="ms-btn ghost" data-act="board">📊 Leaderboard</button>
+      </div>
       <div class="ms-keys">
         <span class="ms-kbd">← →</span> switch lane &nbsp;
         <span class="ms-kbd">↑ / Space</span> jump &nbsp;
         <span class="ms-kbd">↓</span> slide &nbsp;
         <span class="ms-kbd">M</span> mute
       </div>
-      <p class="ms-sub" style="font-size:13px;font-style:italic;margin-top:16px">💡 ${esc(tip)}</p>`;
+      <p class="ms-sub" style="font-size:13px;font-style:italic;margin-top:14px">💡 ${esc(tip)}</p>`;
     this.ui.appendChild(el);
     el.addEventListener('click', (e) => {
       if (e.target.closest('[data-act="go"]')) { this.audio.resume(); this.start(); }
+      else if (e.target.closest('[data-act="how"]')) this.screenBriefing();
+      else if (e.target.closest('[data-act="achievements"]')) this.screenAchievements();
+      else if (e.target.closest('[data-act="board"]')) this.screenBoard();
     });
+  };
+
+  // ---------------------------------------------------------------------------
+  // HOW TO PLAY. The prose comes from C.BRIEFING; every table on this screen is
+  // generated from the balance data, so it cannot describe a game we do not ship.
+  // ---------------------------------------------------------------------------
+  Game.prototype.screenBriefing = function () {
+    const B = C.BRIEFING;
+    const el = document.createElement('div');
+    this.clearUI();
+    el.className = 'ms-screen';
+
+    const tokens = Object.keys(C.TOKENS).map((k) => {
+      const t = C.TOKENS[k];
+      return `<div class="ms-brief-row">
+        <i class="ms-dot" style="background:${t.color};box-shadow:0 0 10px ${t.glow}"></i>
+        <span><b>${esc(t.name)}</b> — ${t.value} ${t.value === 1 ? 'token' : 'tokens'}${
+        t.streakBonus ? `, in trails; clear one for +${t.streakBonus}` : ''}</span>
+      </div>`;
+    }).join('');
+
+    const hazards = B.hazards.map((h) => {
+      const names = Object.keys(C.OBSTACLES)
+        .filter((k) => C.OBSTACLES[k].kind === h.kind && !C.OBSTACLES[k].vendor)
+        .map((k) => C.OBSTACLES[k].name);
+      return `<div class="ms-brief-row">
+        <span class="ms-kbd">${h.key}</span>
+        <span><b>${esc(h.label)}</b> — ${esc(h.note)}${
+        names.length ? ` <i>(${names.map(esc).join(', ')})</i>` : ''}</span>
+      </div>`;
+    }).join('');
+
+    const powers = Object.keys(C.POWERUPS).map((k) => {
+      const p = C.POWERUPS[k];
+      return `<div class="ms-brief-row">
+        <span class="ms-pico" style="border-color:${p.color}">${p.icon}</span>
+        <span><b style="color:${p.color}">${esc(p.name)}</b> — ${esc(p.blurb)}</span>
+      </div>`;
+    }).join('');
+
+    el.innerHTML = `
+      <h2 class="ms-brief-title">How to play</h2>
+      <div class="ms-brief">
+        <section>
+          <h4>Why the hill</h4>
+          ${B.story.map((p) => `<p>${esc(p)}</p>`).join('')}
+        </section>
+        <section>
+          <h4>Tokens — the score</h4>
+          ${tokens}
+          <p class="ms-fine">You also earn a token every ${C.SCORING.distanceTokensPer}m survived,
+             +${C.SCORING.nearMissTokens} for each near miss, and double on every pickup
+             above ${C.SCORING.speedBonusAt} speed. Tokens bank to the arcade even when you crash.</p>
+        </section>
+        <section>
+          <h4>What is in the way</h4>
+          ${hazards}
+          <p class="ms-fine">The signs are the real megabill: ${
+        C.VENDORS.slice(0, 5).map((v) => esc(v.name)).join(', ')} and more.
+             Whichever one gets you is named on the wipeout screen.</p>
+        </section>
+        <section>
+          <h4>Power-ups</h4>
+          ${powers}
+          <p class="ms-fine">Drinking a Mudslide gives you a shield — it absorbs one
+             wipeout and keeps the run alive. They stack ${C.WORLD.maxShields} high.</p>
+        </section>
+      </div>
+      <div class="ms-row">
+        <button class="ms-btn" data-act="go">▶ Drop In</button>
+        <button class="ms-btn ghost" data-act="menu">Back</button>
+      </div>`;
+    this.ui.appendChild(el);
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('[data-act="go"]')) { this.audio.resume(); this.start(); }
+      else if (e.target.closest('[data-act="menu"]')) this.screenTitle();
+    });
+  };
+
+  // ---------------------------------------------------------------------------
+  // ACHIEVEMENTS. Earned ones light up; the rest stay legible so they read as
+  // goals rather than blanks.
+  // ---------------------------------------------------------------------------
+  Game.prototype.screenAchievements = function () {
+    const got = this.profile.achievements || {};
+    const done = C.ACHIEVEMENTS.filter((a) => got[a.id]).length;
+    const el = document.createElement('div');
+    this.clearUI();
+    el.className = 'ms-screen';
+    el.innerHTML = `
+      <h2 class="ms-brief-title">Achievements</h2>
+      <p class="ms-sub">${done} of ${C.ACHIEVEMENTS.length} earned</p>
+      <div class="ms-achs">
+        ${C.ACHIEVEMENTS.map((a) => `<div class="ms-ach ${got[a.id] ? 'on' : ''}">
+          <span class="ms-ach-i">${got[a.id] ? a.icon : '🔒'}</span>
+          <span>
+            <b>${esc(a.name)}</b>
+            <i>${esc(a.desc)}</i>
+          </span>
+        </div>`).join('')}
+      </div>
+      <div class="ms-row">
+        <button class="ms-btn" data-act="go">▶ Drop In</button>
+        <button class="ms-btn ghost" data-act="menu">Back</button>
+      </div>`;
+    this.ui.appendChild(el);
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('[data-act="go"]')) { this.audio.resume(); this.start(); }
+      else if (e.target.closest('[data-act="menu"]')) this.screenTitle();
+    });
+  };
+
+  // ---------------------------------------------------------------------------
+  // LEADERBOARD. Four metrics, one sortable table, click a column to rank by it.
+  //
+  // Two sources, same shape. On the dynamic app the server ranks every player's
+  // best on each metric; on static hosting there is no API, so it falls back to
+  // your own run history — which is also all there is to show before anyone
+  // else has played.
+  // ---------------------------------------------------------------------------
+  const BOARD_COLS = [
+    { key: 'tokens', label: 'Tokens' },
+    { key: 'distance', label: 'Distance', unit: 'm' },
+    { key: 'nearMisses', label: 'Near misses' },
+    { key: 'topSpeed', label: 'Top speed' },
+  ];
+
+  Game.prototype.screenBoard = function (sortBy) {
+    const sort = sortBy || this._boardSort || 'tokens';
+    this._boardSort = sort;
+    const el = document.createElement('div');
+    this.clearUI();
+    el.className = 'ms-screen';
+    el.innerHTML = `<h2 class="ms-brief-title">Leaderboard</h2>
+      <p class="ms-sub">Loading…</p>`;
+    this.ui.appendChild(el);
+
+    const render = (rows, who, note) => {
+      rows = rows.slice().sort((a, b) => (b[sort] || 0) - (a[sort] || 0));
+      el.innerHTML = `
+        <h2 class="ms-brief-title">Leaderboard</h2>
+        <p class="ms-sub">${esc(note)}</p>
+        <div class="ms-board">
+          <table>
+            <thead><tr>
+              <th class="r">#</th><th>${esc(who)}</th>
+              ${BOARD_COLS.map((c) => `<th class="n ${c.key === sort ? 'on' : ''}"
+                data-sort="${c.key}">${esc(c.label)}${c.key === sort ? ' ▾' : ''}</th>`).join('')}
+            </tr></thead>
+            <tbody>${rows.length ? rows.map((r, i) => `<tr>
+              <td class="r">${i + 1}</td>
+              <td>${esc(r.who)}</td>
+              ${BOARD_COLS.map((c) => `<td class="n ${c.key === sort ? 'on' : ''}">${
+                (r[c.key] || 0).toLocaleString()}${c.unit ? ' ' + c.unit : ''}</td>`).join('')}
+            </tr>`).join('') : `<tr><td colspan="6" class="ms-board-empty">
+              No runs yet. Drop in and you are the first name here.</td></tr>`}</tbody>
+          </table>
+        </div>
+        <div class="ms-row">
+          <button class="ms-btn" data-act="go">▶ Drop In</button>
+          <button class="ms-btn ghost" data-act="menu">Back</button>
+        </div>`;
+    };
+
+    el.addEventListener('click', (e) => {
+      const th = e.target.closest('[data-sort]');
+      if (th) { this.screenBoard(th.dataset.sort); return; }
+      if (e.target.closest('[data-act="go"]')) { this.audio.resume(); this.start(); }
+      else if (e.target.closest('[data-act="menu"]')) this.screenTitle();
+    });
+
+    const local = () => {
+      const hist = (this.profile.history || []).map((h, i) => ({
+        who: new Date(h.t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+          + (i === 0 ? ' · latest' : ''),
+        tokens: h.tokens, distance: h.distance,
+        nearMisses: h.nearMisses, topSpeed: h.topSpeed,
+      }));
+      render(hist, 'Your runs', 'Your own runs — sign in on the arcade app to rank against everyone.');
+    };
+
+    const sync = global.ArcadeSync;
+    if (!sync || !sync.enabled || !sync.gameBoards) { local(); return; }
+    sync.gameBoards('mudslides').then((data) => {
+      if (this.destroyed) return;
+      if (!data || !data.metrics) { local(); return; }
+      // The server ranks each metric independently; fold them into one row per
+      // player so a single table can be sorted by any column.
+      const byPlayer = new Map();
+      for (const key of Object.keys(data.metrics)) {
+        for (const row of data.metrics[key] || []) {
+          const p = byPlayer.get(row.player) || { who: row.player };
+          p[key] = Math.max(p[key] || 0, row.value);
+          byPlayer.set(row.player, p);
+        }
+      }
+      const rows = [...byPlayer.values()];
+      if (!rows.length) { local(); return; }
+      render(rows, 'Player', 'Everyone’s best on each metric. Click a column to sort.');
+    }).catch(local);
   };
 
   Game.prototype.screenOver = function (res) {
@@ -408,9 +669,9 @@
     const el = document.createElement('div');
     el.className = 'ms-screen';
     el.innerHTML = `
-      <img class="ms-hero" style="animation:none;width:92px;border-radius:12px;object-fit:cover"
-           src="${this.assetBase}beat_up.png" alt="">
-      <h2 style="font-size:30px;margin:10px 0 2px;color:#ff8a8a">WIPEOUT</h2>
+      <img class="ms-wipe" src="${this.spriteBase}wipeout.jpg"
+           alt="CostBot face-down in the mud, drink still upright">
+      <h2 style="font-size:30px;margin:8px 0 2px;color:#ff8a8a">WIPEOUT</h2>
       <p class="ms-sub">${esc(res.cause)}</p>
       <div class="ms-panel">
         <div style="text-align:center;font-size:12px;color:#a9927a;letter-spacing:1.2px">TOKENS COLLECTED</div>
@@ -418,15 +679,12 @@
         <div class="ms-stat"><span>📏 Distance</span><b>${res.distance.toLocaleString()} m</b></div>
         <div class="ms-stat"><span>🌬️ Near misses</span><b>${res.nearMisses}</b></div>
         <div class="ms-stat"><span>⚡ Top speed</span><b>${Math.round(res.topSpeed)}</b></div>
-        <div class="ms-stat"><span>💰 Banked to the arcade</span><b>$${res.dollars.toLocaleString()}</b></div>
         ${res.best ? '<div class="ms-stat"><span>🏅 New personal best</span><b>yes</b></div>' : ''}
       </div>
-      ${res.unlocked.length ? `<div class="ms-unlock">🎉 Unlocked
-        <b>${res.unlocked.map((m) => esc(m.icon + ' ' + m.name)).join(', ')}</b> —
-        ${esc(res.unlocked.map((m) => m.perk).join(' · '))}</div>` : ''}
-      ${this.buildBar(true)}
+      ${this.bank()}
       <div class="ms-row">
         <button class="ms-btn" data-act="again">↻ Again</button>
+        <button class="ms-btn ghost" data-act="board">📊 Leaderboard</button>
         <button class="ms-btn ghost" data-act="menu">Menu</button>
       </div>`;
     this.ui.appendChild(el);
@@ -434,6 +692,7 @@
       const a = e.target.closest('[data-act]');
       if (!a) return;
       if (a.dataset.act === 'again') this.start();
+      else if (a.dataset.act === 'board') this.screenBoard();
       else this.screenTitle();
     });
   };
@@ -455,7 +714,7 @@
   // RUN
   // ===========================================================================
   Game.prototype.start = function () {
-    const pk = perks(this.profile);
+    const pk = perks();
     this.clearUI();
     if (this.music) this.music.playTrack('mudslide');
     this.run = {
@@ -508,6 +767,15 @@
   };
 
   // --- spawning --------------------------------------------------------------
+  // A vendor obstacle picks its brand here, once, so the sign you read at 2,000
+  // metres is the same one the wipeout screen blames.
+  Game.prototype.makeObstacle = function (type, lane, atZ) {
+    const def = C.OBSTACLES[type];
+    const o = { kind: 'obs', type, def, lane, z: atZ, hit: false, passed: false };
+    if (def.vendor) o.vendor = C.VENDORS[(Math.random() * C.VENDORS.length) | 0];
+    return o;
+  };
+
   Game.prototype.spawnRow = function (atZ) {
     const r = this.run;
     const m = r.distance;
@@ -538,14 +806,10 @@
     const blockers = avail.filter((x) => C.OBSTACLES[x.type].kind === 'block');
     const pick = (pool) => {
       if (!pool.length) return null;
-      const total = pool.reduce((a, x) => {
-        const bias = x.type === 'untagged_crate' ? r.perks.crateBias : 1;
-        return a + x.weight * bias;
-      }, 0);
+      const total = pool.reduce((a, x) => a + x.weight, 0);
       let roll = Math.random() * total;
       for (const x of pool) {
-        const bias = x.type === 'untagged_crate' ? r.perks.crateBias : 1;
-        roll -= x.weight * bias;
+        roll -= x.weight;
         if (roll <= 0) return x.type;
       }
       return pool[pool.length - 1].type;
@@ -556,7 +820,7 @@
     if (blockers.length && Math.random() < 0.8) {
       const lane = lanes.splice((Math.random() * lanes.length) | 0, 1)[0];
       const type = pick(blockers);
-      r.objs.push({ kind: 'obs', type, def: C.OBSTACLES[type], lane, z: atZ, hit: false, passed: false });
+      r.objs.push(this.makeObstacle(type, lane, atZ));
       used.push(lane);
     }
     // passable hazards elsewhere — density climbs with distance
@@ -565,10 +829,7 @@
       if (Math.random() > 0.55) continue;
       const lane = lanes.splice((Math.random() * lanes.length) | 0, 1)[0];
       const type = pick(passable);
-      r.objs.push({
-        kind: 'obs', type, def: C.OBSTACLES[type], lane, z: atZ,
-        hit: false, passed: false,
-      });
+      r.objs.push(this.makeObstacle(type, lane, atZ));
       used.push(lane);
     }
 
@@ -718,7 +979,7 @@
             this.float(px, 'TAR PIT', '#8a6a3f');
             continue;
           }
-          if (!survived) { o.hit = true; this.crash(o.def); }
+          if (!survived) { o.hit = true; this.crash(o.def, o); }
           else o.hit = true;
         }
       }
@@ -853,7 +1114,15 @@
     this.emit('run:power', { id });
   };
 
-  Game.prototype.crash = function (def) {
+  // "CostBot's fun was interrupted by the Datadog Contract." Every hazard names
+  // itself; the vendor ones name the brand on the sign that actually got you.
+  Game.prototype.causeOf = (def, o) => {
+    let noun = def.cause || 'something expensive';
+    if (o && o.vendor) noun = noun.replace('{vendor}', o.vendor.name);
+    return `CostBot's fun was interrupted by ${noun}.`;
+  };
+
+  Game.prototype.crash = function (def, o) {
     const r = this.run;
     if (r.invuln > 0) return;
     if (r.shields > 0) {
@@ -862,11 +1131,11 @@
       r.invuln = C.WORLD.crashGrace;
       r.shake = 16;
       this.audio.shield();
-      this.float(this.laneX(r), '🛡️ SHIELD USED', '#6ee7a0');
+      this.float(this.laneX(r), '🥤 MUDSLIDE USED', '#e0b877');
       return;
     }
     r.over = true;
-    r.cause = def.blurb || 'You hit something expensive.';
+    r.cause = this.causeOf(def, o);
     r.shake = 26;
     this.audio.crash();
     this.finish();
@@ -893,37 +1162,42 @@
     if (best) p.best = tokens;
     if (r.distance > (p.bestDistance || 0)) p.bestDistance = r.distance;
     this.unlock('ms_first');
+    if (p.totalTokens >= 10000) this.unlock('ms_10k');
 
-    // module unlocks are cumulative against lifetime tokens
-    const unlocked = [];
-    p.modules = p.modules || {};
-    for (const m of C.MODULES) {
-      if (!p.modules[m.id] && p.totalTokens >= m.cost) {
-        p.modules[m.id] = Date.now();
-        unlocked.push(m);
-      }
-    }
-    if (C.MODULES.every((m) => p.modules[m.id])) this.unlock('ms_built');
+    // Local run history. The server board only exists on the dynamic app, so
+    // without this the leaderboard would be empty on static hosting — and this
+    // is also what "your runs" is ranked from when nobody else has played.
+    p.history = (p.history || []);
+    p.history.unshift({
+      t: Date.now(),
+      tokens,
+      distance: r.distance,
+      nearMisses: r.nearMisses,
+      topSpeed: Math.round(r.topSpeed),
+    });
+    p.history = p.history.slice(0, C.SCORING.historyKept);
 
     saveLocal(p);
 
     const dollars = tokens * C.DOLLARS_PER_TOKEN;
     const res = {
-      game: 'mudsliders',
+      game: 'mudslides',
       stageId: 'endless',
       outcome: 'death',
       tokens,
+      // every cabinet reports its haul under the same name, so the arcade pool
+      // can sum one field across all of them
+      tokensEarned: tokens,
       distance: r.distance,
       nearMisses: r.nearMisses,
       topSpeed: r.topSpeed,
       dollarsSaved: dollars,
       dollars,
-      level: Object.keys(p.modules).length,
+      level: 1,
       kills: 0,
       quizCorrect: 0,
       quizWrong: 0,
       best,
-      unlocked,
       cause: r.cause,
       profile: p,
     };
@@ -1043,6 +1317,16 @@
           ctx.ellipse(cx, a.y, 9 * a.s * (0.5 + nn), 4 * a.s * (0.5 + nn), 0, 0, TAU);
           ctx.fill();
         }
+        // Trees stand off the shoulder, behind the ferns. They are drawn in the
+        // same far-to-near strip pass, so a nearer strip's ground never paints
+        // over a farther tree — the depth sorting comes free from the loop order.
+        for (const side of [-1, 1]) {
+          const tn = noise(seg * 3.7 + (side > 0 ? 61 : 23));
+          if (tn < 0.86) continue;                       // roughly one every 7 strips
+          const tx = VW / 2 + side * wa * (1.5 + tn * 1.3);
+          if (tx < -260 || tx > VW + 260) continue;      // swept past the edge
+          this.drawTree(ctx, tx, a.y, a.s, tn, side);
+        }
         // ferns and palms crowding the shoulders
         for (const side of [-1, 1]) {
           const fn = noise(seg * 13 + (side > 0 ? 91 : 7));
@@ -1116,6 +1400,59 @@
     this.drawRain(ctx, r.topSpeed);
     this.drawHaze(ctx);
     this.drawHUD(ctx, r);
+  };
+
+  // Two species, picked by the same stable noise that placed the tree, so a given
+  // spot on the hill always grows the same thing however often you slide past it.
+  Game.prototype.drawTree = (ctx, x, y, s, n) => {
+    const v = noise(n * 911.7);              // size + species, decoupled from placement
+    const h = (300 + v * 430) * s;
+    if (h < 7) return;
+    const lean = (v - 0.5) * 0.3;
+    const topX = x + Math.sin(lean) * h * 0.34;
+    const topY = y - h;
+    const tw = Math.max(0.8, h * 0.042);
+
+    ctx.fillStyle = 'rgba(0,0,0,.35)';
+    ctx.beginPath(); ctx.ellipse(x, y, tw * 2.8, tw, 0, 0, TAU); ctx.fill();
+
+    // trunk — tapered and slightly curved, never a rectangle
+    ctx.fillStyle = v > 0.5 ? '#31251a' : '#271d14';
+    ctx.beginPath();
+    ctx.moveTo(x - tw, y);
+    ctx.quadraticCurveTo(x + (topX - x) * 0.35, y - h * 0.55, topX - tw * 0.38, topY);
+    ctx.lineTo(topX + tw * 0.38, topY);
+    ctx.quadraticCurveTo(x + tw + (topX - x) * 0.35, y - h * 0.55, x + tw, y);
+    ctx.closePath(); ctx.fill();
+
+    if (v > 0.5) {
+      // palm: fronds arcing off the crown and drooping at the tips
+      const fl = h * 0.5;
+      for (let f = 0; f < 7; f++) {
+        const ang = -Math.PI / 2 + (f - 3) * 0.46;
+        const ex = topX + Math.cos(ang) * fl;
+        const ey = topY + Math.sin(ang) * fl * 0.55 + fl * 0.26;
+        ctx.fillStyle = f % 2 ? '#1f4526' : '#173520';
+        ctx.beginPath();
+        ctx.moveTo(topX, topY);
+        ctx.quadraticCurveTo(topX + Math.cos(ang) * fl * 0.6, topY + Math.sin(ang) * fl * 0.75,
+          ex, ey);
+        ctx.quadraticCurveTo(topX + Math.cos(ang) * fl * 0.5, topY + Math.sin(ang) * fl * 0.42,
+          topX, topY);
+        ctx.closePath(); ctx.fill();
+      }
+    } else {
+      // broadleaf: a clump of overlapping canopy blobs
+      const cw = h * 0.4;
+      for (let c = 0; c < 5; c++) {
+        const cn = noise(v * 100 + c * 7.3);
+        ctx.fillStyle = c % 2 ? '#1c3f25' : '#142f1b';
+        ctx.beginPath();
+        ctx.ellipse(topX + (cn - 0.5) * cw * 1.35, topY + h * 0.1 + (cn - 0.5) * cw * 0.55,
+          cw * (0.5 + cn * 0.45), cw * (0.38 + cn * 0.3), 0, 0, TAU);
+        ctx.fill();
+      }
+    }
   };
 
   Game.prototype.drawRain = (ctx, speed) => {
@@ -1275,41 +1612,178 @@
     ctx.restore();
   };
 
-  Game.prototype.drawObstacle = (ctx, o, pr, r) => {
+  // Vendor marks are single-path 24x24 outlines, so Path2D draws them straight
+  // onto the canvas at any scale — no image assets, nothing to preload, crisp
+  // from the horizon to your face. Cached per vendor because parsing the path
+  // on every frame would be silly.
+  Game.prototype.vendorIcon = function (v) {
+    if (!v || !v.path) return null;
+    if (!this._icons) this._icons = {};
+    if (!(v.id in this._icons)) {
+      try { this._icons[v.id] = new Path2D(v.path); } catch { this._icons[v.id] = null; }
+    }
+    return this._icons[v.id];
+  };
+
+  // Draw a 24x24 icon path centred on (x, y) at `size` pixels. A vendor with no
+  // published mark gets a monogram badge instead — every sign carries something,
+  // so none of them ever reads as unfinished art.
+  Game.prototype.drawVendorMark = function (ctx, v, x, y, size) {
+    if (!v || size < 5) return false;
+    const p = this.vendorIcon(v);
+    ctx.save();
+    if (p) {
+      ctx.translate(x, y);
+      ctx.scale(size / 24, size / 24);
+      ctx.translate(-12, -12);
+      ctx.fillStyle = v.color;
+      ctx.fill(p);
+    } else {
+      const r = size * 0.46;
+      ctx.fillStyle = v.color;
+      ctx.beginPath();
+      ctx.roundRect(x - r, y - r, r * 2, r * 2, r * 0.42);
+      ctx.fill();
+      ctx.fillStyle = '#0d1119';
+      ctx.font = `800 ${size * 0.62}px 'Segoe UI',system-ui,sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(v.name[0].toUpperCase(), x, y + size * 0.03);
+    }
+    ctx.restore();
+    return true;
+  };
+
+  Game.prototype.drawObstacle = function (ctx, o, pr, r) {
     const d = o.def;
     const w = d.w * pr.s;
     const h = d.h * pr.s;
     if (w < 2) return;
-    const baseY = pr.y;
-    const warn = r.perks.earlyWarn && o.z - r.z < 1600 && o.z - r.z > 900;
 
     ctx.save();
     // ground shadow
     ctx.fillStyle = 'rgba(0,0,0,.4)';
-    ctx.beginPath(); ctx.ellipse(pr.x, baseY, w * 0.5, w * 0.14, 0, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(pr.x, pr.y, w * 0.5, w * 0.14, 0, 0, TAU); ctx.fill();
+
+    if (d.art === 'rock') this.drawRock(ctx, o, pr, w, h);
+    else if (d.art === 'gantry') this.drawGantry(ctx, o, pr, w, h);
+    else if (d.art === 'sign') this.drawSign(ctx, o, pr, w, h);
+    else this.drawSlab(ctx, o, pr, w, h);
+    ctx.restore();
+  };
+
+  // Bedrock. A lumpy dome rather than a box — the silhouette is the only thing
+  // you can read at speed, so it has to say "rock" instantly.
+  Game.prototype.drawRock = (ctx, o, pr, w, h) => {
+    const seed = Math.floor(o.z * 0.017);
+    const N = 11;
+    ctx.beginPath();
+    for (let i = 0; i <= N; i++) {
+      const t = (i / N) * Math.PI;
+      const rr = 0.8 + noise(seed + i * 3.1) * 0.32;
+      const x = pr.x - Math.cos(t) * w * 0.5 * rr;
+      const y = pr.y - Math.sin(t) * h * rr;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = o.def.color;
+    ctx.fill();
+    ctx.strokeStyle = o.def.accent;
+    ctx.lineWidth = Math.max(1, 2 * pr.s);
+    ctx.stroke();
+    // a lit facet up top and a crevice, so it reads as stone and not a blob
+    ctx.fillStyle = 'rgba(255,255,255,.14)';
+    ctx.beginPath();
+    ctx.ellipse(pr.x - w * 0.14, pr.y - h * 0.62, w * 0.2, h * 0.22, -0.4, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.35)';
+    ctx.lineWidth = Math.max(1, 2.4 * pr.s);
+    ctx.beginPath();
+    ctx.moveTo(pr.x + w * 0.06, pr.y);
+    ctx.lineTo(pr.x + w * 0.16, pr.y - h * 0.52);
+    ctx.lineTo(pr.x + w * 0.3, pr.y - h * 0.7);
+    ctx.stroke();
+    // half-sunk in the mud
+    ctx.fillStyle = 'rgba(40,27,15,.55)';
+    ctx.beginPath();
+    ctx.ellipse(pr.x, pr.y, w * 0.5, h * 0.1, 0, 0, TAU);
+    ctx.fill();
+  };
+
+  // A vendor's contract, planted in the lane on two posts.
+  Game.prototype.drawSign = function (ctx, o, pr, w, h) {
+    const d = o.def;
+    const v = o.vendor;
+    const bh = h * 0.72;
+    const top = pr.y - h;
+    const pw = Math.max(1.2, w * 0.06);
+
+    ctx.fillStyle = '#3a2e22';
+    for (const s of [-1, 1]) ctx.fillRect(pr.x + s * w * 0.28 - pw / 2, pr.y - h * 0.34, pw, h * 0.34);
 
     ctx.fillStyle = d.color;
-    ctx.strokeStyle = warn ? '#ffd76b' : d.accent;
-    ctx.lineWidth = Math.max(1.5, 3 * pr.s);
+    ctx.strokeStyle = v ? v.color : d.accent;
+    ctx.lineWidth = Math.max(1.5, 3.5 * pr.s);
     ctx.beginPath();
-    ctx.roundRect(pr.x - w / 2, baseY - h, w, h, Math.min(14 * pr.s, h * 0.3));
+    ctx.roundRect(pr.x - w / 2, top, w, bh, Math.min(12 * pr.s, bh * 0.18));
     ctx.fill(); ctx.stroke();
 
-    // a slide-under hazard is drawn raised, so the gap beneath reads instantly
-    if (d.kind === 'slide') {
-      ctx.clearRect(pr.x - w / 2 - 2, baseY - h * 0.42, w + 4, h * 0.42);
+    this.signFace(ctx, v, pr.x, top, w, bh);
+  };
+
+  // The renewal: a banner overhead on two legs, with daylight underneath.
+  Game.prototype.drawGantry = function (ctx, o, pr, w, h) {
+    const d = o.def;
+    const v = o.vendor;
+    const bh = h * 0.44;
+    const top = pr.y - h;
+    const pw = Math.max(1.4, w * 0.055);
+
+    ctx.fillStyle = '#3a2e22';
+    for (const s of [-1, 1]) {
+      ctx.fillRect(pr.x + s * (w * 0.5 - pw) - pw / 2, top + bh, pw, h - bh);
     }
-    if (w > 26) {
-      ctx.font = `${Math.min(w * 0.4, h * 0.7)}px serif`;
+    ctx.fillStyle = d.color;
+    ctx.strokeStyle = v ? v.color : d.accent;
+    ctx.lineWidth = Math.max(1.5, 3.5 * pr.s);
+    ctx.beginPath();
+    ctx.roundRect(pr.x - w / 2, top, w, bh, Math.min(9 * pr.s, bh * 0.22));
+    ctx.fill(); ctx.stroke();
+
+    this.signFace(ctx, v, pr.x, top, w, bh);
+  };
+
+  // Shared face for both sign shapes: the mark if we have one, the wordmark
+  // either way — a logo alone is unreadable by the time it is big enough to hit.
+  // Mark and name sit as one block centred on the board.
+  Game.prototype.signFace = function (ctx, v, cx, top, w, bh) {
+    if (!v || w < 34) return;
+    ctx.textAlign = 'center';
+    const iconSize = Math.min(bh * 0.5, w * 0.36);
+    const drew = this.drawVendorMark(ctx, v, cx, top + bh * 0.33, iconSize);
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = v.color;
+    const nameSize = Math.min(w * 0.17, bh * 0.3);
+    // maxWidth keeps a long wordmark inside the board — "Databricks" at sign
+    // width would otherwise run off both edges
+    ctx.font = `700 ${nameSize}px 'Segoe UI',system-ui,sans-serif`;
+    ctx.fillText(v.name, cx, top + bh * (drew ? 0.74 : 0.5), w * 0.86);
+  };
+
+  // Everything else — the tar slick — keeps the plain slab treatment.
+  Game.prototype.drawSlab = (ctx, o, pr, w, h) => {
+    const d = o.def;
+    ctx.fillStyle = d.color;
+    ctx.strokeStyle = d.accent;
+    ctx.lineWidth = Math.max(1.5, 3 * pr.s);
+    ctx.beginPath();
+    ctx.roundRect(pr.x - w / 2, pr.y - h, w, h, Math.min(14 * pr.s, h * 0.3));
+    ctx.fill(); ctx.stroke();
+    if (w > 26 && d.glyph) {
+      ctx.font = `${Math.min(w * 0.4, h * 1.4)}px serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(d.glyph, pr.x, baseY - h * (d.kind === 'slide' ? 0.72 : 0.5));
+      ctx.fillText(d.glyph, pr.x, pr.y - h * 0.5);
     }
-    if (warn) {
-      ctx.strokeStyle = 'rgba(255,215,107,.7)';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(pr.x - w * 0.62, baseY - h * 1.2, w * 1.24, h * 1.3);
-    }
-    ctx.restore();
   };
 
   Game.prototype.drawBot = function (ctx, r, camZ) {
@@ -1380,7 +1854,7 @@
     ctx.restore();
   };
 
-  Game.prototype.drawHUD = (ctx, r) => {
+  Game.prototype.drawHUD = function (ctx, r) {
     ctx.textBaseline = 'top';
     ctx.fillStyle = 'rgba(8,6,4,.72)';
     ctx.fillRect(0, 0, VW, 56);
@@ -1406,10 +1880,17 @@
     ctx.font = 'bold 25px ui-monospace,monospace';
     ctx.fillText(String(Math.round(r.topSpeed)), VW - 18, 22);
 
-    // shields
+    // Shields in hand. They are Mudslides now, so show the glass rather than a
+    // shield glyph — the HUD should look like the thing you picked up.
+    const glass = this.img.mudslide;
     for (let i = 0; i < r.shields; i++) {
-      ctx.font = '20px serif'; ctx.textAlign = 'left';
-      ctx.fillText('🛡️', 18 + i * 26, VH - 40);
+      const x = 18 + i * 30;
+      if (glass && glass.complete && glass.naturalWidth) {
+        ctx.drawImage(glass, x, VH - 50, 28, 28);
+      } else {
+        ctx.font = '20px serif'; ctx.textAlign = 'left';
+        ctx.fillText('🥤', x, VH - 40);
+      }
     }
     // active powers
     const act = Object.keys(r.power);
@@ -1428,10 +1909,10 @@
   };
 
   // ===========================================================================
-  global.Mudsliders = {
+  global.Mudslides = {
     mount(container, opts) {
       if (typeof container === 'string') container = document.querySelector(container);
-      if (!container) throw new Error('Mudsliders.mount: container not found');
+      if (!container) throw new Error('Mudslides.mount: container not found');
       return new Game(container, opts || {});
     },
     CONTENT: C,

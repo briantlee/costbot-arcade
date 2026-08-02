@@ -681,7 +681,7 @@
   ];
 
   // ---------------------------------------------------------------------------
-  // PERMANENT META UPGRADES (bought with Cost Avoidance Credits between runs)
+  // PERMANENT META UPGRADES (bought with AI tokens between runs)
   // ---------------------------------------------------------------------------
   const META_UPGRADES = {
     chassis: {
@@ -716,7 +716,7 @@
     },
     interest: {
       name: 'Compounding Interest', icon: '💹', max: 5,
-      blurb: (l) => `+${l * 8}% credits banked per run`,
+      blurb: (l) => `+${l * 8}% tokens banked per run`,
       cost: (l) => 300 + l * 320,
       apply: () => {},
     },
@@ -756,7 +756,7 @@
     { id: 'zero_unattached', name: 'Zero Unattached', icon: '💾', desc: 'Destroy 50 Orphaned EBS in one run.' },
     { id: 'full_house', name: 'Full Toolchain', icon: '🧰', desc: 'Carry 6 weapons at once.' },
     { id: 'flawless_boss', name: 'Untouchable', icon: '✨', desc: 'Beat a boss without taking a hit.' },
-    { id: 'bank_100k', name: 'Treasury', icon: '🏛️', desc: 'Bank 100,000 credits lifetime.' },
+    { id: 'bank_100k', name: 'Treasury', icon: '🏛️', desc: 'Bank 100,000 AI tokens lifetime.' },
     { id: 'quiz_5', name: 'Certified', icon: '📗', desc: 'Answer 5 quiz questions correctly in one run.' },
     { id: 'quiz_perfect', name: 'Well Read', icon: '🎓', desc: 'Clear a stage without missing a question.' },
     { id: 'quiz_25', name: 'Practitioner', icon: '🧠', desc: 'Answer 25 questions correctly, lifetime.' },
@@ -778,8 +778,40 @@
     'Buy FinOps Certification in the Bot Bay to strike wrong answers off every quiz.',
   ];
 
+  // ---------------------------------------------------------------------------
+  // HOW TO PLAY
+  //   Prose only. Every table on the briefing screen — the bestiary, the pickups,
+  //   the numbers — is generated from the data above, so this can never end up
+  //   describing a game we do not actually ship.
+  // ---------------------------------------------------------------------------
+  const BRIEFING = {
+    story: [
+      'CostBot wants to build things for the company, and building costs AI tokens. ' +
+      'The cloud bill is where it goes to find them.',
+      'Everything chasing you on the floor is real waste — an instance nobody turned ' +
+      'off, a volume whose instance died two years ago, a GPU node running at 3%. ' +
+      'Terminate it and the money it was burning becomes your score.',
+    ],
+    loop: [
+      { icon: '🎯', label: 'Survive the stage clock',
+        note: 'Waste spawns faster the longer you last. Weapons fire on their own — you only position.' },
+      { icon: '💵', label: 'Collect the green $ orbs',
+        note: 'They are your score and your XP at the same time. Dollars saved is the number that ranks you.' },
+      { icon: '⭐', label: 'Level up, pick 1 of 3',
+        note: 'Every upgrade is a real FinOps lever — Graviton, Spot, Savings Plans, lifecycle rules.' },
+      { icon: '🎓', label: 'Answer the quiz for a cash bonus',
+        note: 'One question on the lever you just took. You keep the upgrade either way.' },
+      { icon: '💀', label: 'Kill the boss',
+        note: 'It arrives when the clock hits zero. Clearing the stage unlocks the next one and pays a token bonus.' },
+    ],
+    // trait flags on an enemy -> how the bestiary should label them
+    traits: {
+      elite: 'Elite', flees: 'Runs away', ranged: 'Shoots back', splits: 'Splits on death',
+    },
+  };
+
   global.WH_CONTENT = {
     PLAYER, XP, CONTACT, TRIVIA_RULES, TRIVIA, ENEMIES, BOSSES, STAGES,
-    WEAPONS, PASSIVES, META_UPGRADES, PICKUPS, ACHIEVEMENTS, TIPS,
+    WEAPONS, PASSIVES, META_UPGRADES, PICKUPS, ACHIEVEMENTS, TIPS, BRIEFING,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

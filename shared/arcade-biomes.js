@@ -28,10 +28,12 @@
       floor: '#1b3a20', grid: '#27512e', fog: 'rgba(10,26,14,0.55)',
       sky: ['#2c5a34', '#12291a'], props: 'field', propAlpha: 0.9, density: 110,
     },
+    // Cool steel, not rust: the browns read as dirt, so the metal now comes from
+    // a blue-grey base and orange survives only where something is actually hot.
     foundry: {
       id: 'foundry', name: 'Scrap Foundry',
-      floor: '#1b1210', grid: '#3a2318', fog: 'rgba(26,9,5,0.66)',
-      sky: ['#3a1c12', '#120806'], props: 'foundry', propAlpha: 0.85, density: 92,
+      floor: '#181c21', grid: '#39434f', fog: 'rgba(15,18,23,0.62)',
+      sky: ['#414a55', '#0d0f13'], props: 'foundry', propAlpha: 0.9, density: 92,
     },
     arena: {
       id: 'arena', name: 'Sunset Arena',
@@ -112,20 +114,35 @@
 
       case 'foundry': {
         shadow(pr.w * 0.55, pr.w * 0.2, pr.h / 2 + 3);
-        if (pr.kind < 0.45) {                        // barrel
-          ctx.fillStyle = '#2a1a14';
+        if (pr.kind < 0.45) {                        // steel drum
+          // a hard specular band down one side is what sells "cylinder of metal"
+          const bg = ctx.createLinearGradient(pr.x - pr.w / 2, 0, pr.x + pr.w / 2, 0);
+          bg.addColorStop(0, '#20262e'); bg.addColorStop(0.28, '#5d6875');
+          bg.addColorStop(0.42, '#93a0ae'); bg.addColorStop(0.62, '#4d5661');
+          bg.addColorStop(1, '#1b2028');
+          ctx.fillStyle = bg;
           ctx.beginPath(); ctx.roundRect(pr.x - pr.w / 2, pr.y - pr.h / 2, pr.w, pr.h, 6); ctx.fill();
-          ctx.strokeStyle = '#7a4526'; ctx.lineWidth = 2; ctx.stroke();
-          ctx.fillStyle = '#c85a1e';
+          ctx.strokeStyle = '#0f1319'; ctx.lineWidth = 2; ctx.stroke();
+          // rolled hoops top and bottom
+          ctx.fillStyle = 'rgba(190,203,216,0.30)';
+          ctx.fillRect(pr.x - pr.w / 2, pr.y - pr.h * 0.34, pr.w, 2.5);
+          ctx.fillRect(pr.x - pr.w / 2, pr.y + pr.h * 0.28, pr.w, 2.5);
+          // the one warm note: something molten still in the drum
+          ctx.fillStyle = '#d2621f';
           ctx.fillRect(pr.x - pr.w / 2, pr.y - pr.h * 0.14, pr.w, pr.h * 0.1);
         } else if (pr.kind < 0.8) {                  // pipe run
-          ctx.fillStyle = '#241813';
+          const pg = ctx.createLinearGradient(0, pr.y - pr.h * 0.22, 0, pr.y + pr.h * 0.22);
+          pg.addColorStop(0, '#2b323b'); pg.addColorStop(0.26, '#8894a2');
+          pg.addColorStop(0.5, '#5a6470'); pg.addColorStop(1, '#191e25');
+          ctx.fillStyle = pg;
           ctx.beginPath(); ctx.roundRect(pr.x - pr.w * 0.7, pr.y - pr.h * 0.22, pr.w * 1.4, pr.h * 0.44, 8); ctx.fill();
-          ctx.strokeStyle = '#6b3d22'; ctx.lineWidth = 2; ctx.stroke();
-          for (let i = 0; i < 4; i++) {
-            ctx.fillStyle = '#4a2a18';
-            ctx.beginPath();
-            ctx.arc(pr.x - pr.w * 0.5 + i * pr.w * 0.34, pr.y, 2.6, 0, TAU); ctx.fill();
+          ctx.strokeStyle = '#10151b'; ctx.lineWidth = 2; ctx.stroke();
+          for (let i = 0; i < 4; i++) {              // bolted flanges
+            const bx = pr.x - pr.w * 0.5 + i * pr.w * 0.34;
+            ctx.fillStyle = '#9aa7b5';
+            ctx.beginPath(); ctx.arc(bx, pr.y, 2.9, 0, TAU); ctx.fill();
+            ctx.fillStyle = '#2c333c';
+            ctx.beginPath(); ctx.arc(bx, pr.y, 1.3, 0, TAU); ctx.fill();
           }
         } else {                                      // molten vent
           const pulse = 0.55 + 0.45 * Math.sin(t * 2.4 + pr.hue * 7);

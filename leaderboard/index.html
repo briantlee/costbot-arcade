@@ -75,7 +75,10 @@
   };
 
   // boards are keyed "<game>/<stage>"
-  const GAME_NAMES = { 'waste-hunter': 'Waste Hunter', mudsliders: 'Mudsliders' };
+  // `mudsliders` is the pre-rename key — any board rows still under it belong to
+  // the same game, so they render with the same name rather than a raw slug.
+  const GAME_NAMES = { 'waste-hunter': 'Waste Hunter', mudslides: 'Mudslides',
+    mudsliders: 'Mudslides' };
   const STAGE_NAMES = {
     'ec2-graveyard': 'The EC2 Graveyard',
     'storage-sprawl': 'Storage Sprawl',
@@ -124,10 +127,6 @@
         ? ids.map((id) => table(boardTitle(id), '<th style="text-align:right">Best run</th>',
             data.stages[id], (r) => `<td class="val">${money(r.dollars)}</td>`)).join('')
         : table('All-time best per stage', '', [], () => '');
-    } else if (tab === 'daily') {
-      panel.innerHTML = table(`Daily Bill — seed ${data.daily ? data.daily.key : '?'}`,
-        '<th style="text-align:right">Today’s best</th>',
-        data.daily && data.daily.rows, (r) => `<td class="val">${money(r.dollars)}</td>`);
     } else if (tab === 'quiz') {
       panel.innerHTML = table('Quiz accuracy — min 10 answers',
         '<th style="text-align:right">Correct</th>', data.quiz,
@@ -140,7 +139,6 @@
 
   const TABS = [
     ['stages', '🏆 Per stage'],
-    ['daily', '📅 Daily Bill'],
     ['quiz', '🎓 Quiz accuracy'],
     ['teams', '👥 Teams'],
   ];

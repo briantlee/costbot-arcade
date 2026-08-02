@@ -5,7 +5,7 @@
  *
  *   const game = WasteHunter.mount(el, {
  *     stageId: 'ec2-graveyard',   // omit + showShell:true for the built-in shell
- *     seed: 20260801,             // optional; deterministic runs ("Daily Bill")
+ *     seed: 20260801,             // optional; deterministic runs (same seed = same board)
  *     showShell: false,           // false = drop straight into one stage
  *     persist: true,              // localStorage meta progression
  *     meta: hostMetaObject,       // optional: host owns the save data instead
@@ -17,7 +17,7 @@
  *   game.destroy();
  *
  * result = { outcome:'clear'|'death'|'quit', stageId, seed, dollarsSaved,
- *            creditsEarned, timeSurvived, kills, level, weapons[],
+ *            tokensEarned, timeSurvived, kills, level, weapons[],
  *            achievementsUnlocked[], meta }
  * ==========================================================================*/
 ((global) => {
@@ -56,10 +56,6 @@
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
   }
-  function dailySeed() {
-    const d = new Date();
-    return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-  }
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   // ===========================================================================
@@ -67,17 +63,32 @@
   // ===========================================================================
   function defaultMeta() {
     return {
-      version: 1, credits: 0, lifetimeCredits: 0, lifetimeDollars: 0, runs: 0,
+      version: 2, tokens: 0, lifetimeTokens: 0, lifetimeDollars: 0, runs: 0,
       quizCorrect: 0, upgrades: {}, achievements: {}, best: {}, cleared: {},
       seenQuestions: {}, theme: 'synthwave',
     };
+  }
+  // v1 called the currency "Cost Avoidance Credits". The arcade now runs on one
+  // currency — AI tokens — so old saves carry their balance over 1:1 rather than
+  // waking up broke.
+  function migrateMeta(m) {
+    if (m && m.credits !== undefined && m.tokens === undefined) {
+      m.tokens = m.credits;
+      m.lifetimeTokens = m.lifetimeCredits || m.credits;
+      delete m.credits; delete m.lifetimeCredits;
+      m.version = 2;
+    }
+    return m;
   }
   function loadMeta(persist) {
     if (!persist) return defaultMeta();
     try {
       const raw = global.localStorage && localStorage.getItem(STORE_KEY);
       if (!raw) return defaultMeta();
-      return Object.assign(defaultMeta(), JSON.parse(raw));
+      const m = Object.assign(defaultMeta(), migrateMeta(JSON.parse(raw)));
+      // a theme this cabinet no longer offers would leave the picker with nothing lit
+      if (m.theme === 'mudslide') m.theme = 'synthwave';
+      return m;
     } catch { return defaultMeta(); }
   }
   function saveMeta(meta, persist) {
@@ -262,6 +273,10 @@
   padding:24px 30px;min-width:470px;box-shadow:0 24px 60px rgba(0,0,0,.6);}
 .wh-stat{display:flex;justify-content:space-between;padding:7px 0;font-size:14.5px;border-bottom:1px solid #1e2c47;}
 .wh-stat:last-child{border-bottom:none;}
+.wh-stat.nb{border-bottom:none;padding-bottom:2px;}
+.wh-kills{padding:0 0 7px 16px;border-bottom:1px solid #1e2c47;}
+.wh-kill{display:flex;justify-content:space-between;padding:2.5px 0;font-size:13px;color:#8ea1c2;}
+.wh-kill b{font-variant-numeric:tabular-nums;color:#cddaf0;font-size:13px;font-weight:700;}
 .wh-stat b{font-variant-numeric:tabular-nums;color:#ffd76b;font-size:15.5px;}
 .wh-big{font-size:46px;font-weight:800;color:#6ee7a0;text-align:center;font-variant-numeric:tabular-nums;
   text-shadow:0 4px 22px rgba(80,230,150,.28);margin:2px 0 4px;}
@@ -286,6 +301,31 @@
 .wh-ach .ic{font-size:21px;}
 .wh-ach .n{font-size:12.5px;font-weight:700;}
 .wh-ach .d{font-size:10.5px;color:#8c9dbd;line-height:1.35;}
+
+/* how to play + bestiary */
+.wh-brief{max-width:860px;text-align:left;display:flex;flex-direction:column;gap:20px;margin-top:4px;}
+.wh-brief section{background:#111a2c;border:1px solid #22314c;border-radius:13px;padding:15px 18px;}
+.wh-brief h4{margin:0 0 10px;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:#7fd6c4;}
+.wh-brief p{margin:0 0 8px;font-size:13.5px;line-height:1.6;color:#b9c6dd;}
+.wh-brief p:last-child{margin-bottom:0;}
+.wh-fine{font-size:12px;color:#7e8fae;line-height:1.55;margin-top:10px;font-style:italic;}
+.wh-fine b{color:#ffd76b;font-style:normal;}
+.wh-step{display:flex;gap:11px;align-items:flex-start;padding:6px 0;}
+.wh-step .ic{font-size:19px;width:26px;flex:0 0 auto;text-align:center;}
+.wh-step .n{font-size:13.5px;font-weight:700;color:#dce7f8;}
+.wh-step .d{font-size:12px;color:#8c9dbd;line-height:1.45;}
+.wh-best{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
+.wh-be{display:flex;gap:11px;align-items:flex-start;background:#131c30;border:1px solid #24344f;
+  border-radius:10px;padding:10px 12px;}
+.wh-be.boss{border-color:#7a3038;background:#1c1216;grid-column:1 / -1;}
+.wh-be .g{font-size:21px;width:36px;height:36px;border-radius:9px;flex:0 0 auto;display:flex;
+  align-items:center;justify-content:center;border:1px solid;}
+.wh-be .n{font-size:13.5px;font-weight:700;}
+.wh-be .b{font-size:11.5px;color:#8c9dbd;line-height:1.45;margin-top:1px;}
+.wh-be .s{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:6px;font-size:10.5px;color:#7e8fae;}
+.wh-be .s b{color:#ffd76b;font-variant-numeric:tabular-nums;}
+.wh-tag{font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:1px 7px;
+  border-radius:20px;background:#1b2740;border:1px solid #35496e;color:#a9bad6;}
 
 /* toasts */
 .wh-toasts{position:absolute;top:74px;right:16px;display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
@@ -500,11 +540,12 @@
       <p class="wh-sub">Terminate the waste. Bank the savings. Repeat.</p>
       <div class="wh-row" style="margin-top:30px">
         <button class="wh-btn primary" data-act="play">▶  Play</button>
+        <button class="wh-btn" data-act="how">📖  How to Play</button>
         <button class="wh-btn" data-act="bay">🛠️  Bot Bay</button>
         <button class="wh-btn" data-act="achs">🏆  Achievements</button>
       </div>
       <div class="wh-row" style="margin-top:20px;font-size:13.5px;color:#93a4c4">
-        <span>💰 <b style="color:#ffd76b">${m.credits.toLocaleString()}</b> credits</span>
+        <span>🪙 <b style="color:#ffd76b">${m.tokens.toLocaleString()}</b> tokens</span>
         <span>·</span><span>🎮 ${m.runs} runs</span>
         <span>·</span><span>📈 ${money(m.lifetimeDollars)} lifetime saved</span>
       </div>
@@ -520,24 +561,141 @@
       this.audio.resume();
       const act = a.dataset.act;
       if (act === 'play') this.screenStages();
+      else if (act === 'how') this.screenBriefing();
       else if (act === 'bay') this.screenBay();
       else if (act === 'achs') this.screenAchievements();
       else if (act === 'mute') { this.toggleMute(); this.screenTitle(); }
     });
   };
 
+  // ===========================================================================
+  // HOW TO PLAY — prose lives in C.BRIEFING; the bestiary and the pickup list are
+  // generated from the balance data, so the screen cannot drift from the game.
+  // ===========================================================================
+  function bestiaryCard(def, isBoss) {
+    const traits = Object.keys(C.BRIEFING.traits)
+      .filter((k) => def[k])
+      .map((k) => `<span class="wh-tag">${esc(C.BRIEFING.traits[k])}</span>`);
+    if (isBoss && def.spawns) {
+      const spawn = C.ENEMIES[def.spawns.type];
+      if (spawn) traits.push(`<span class="wh-tag">Summons ${esc(spawn.name)}</span>`);
+    }
+    if (isBoss && def.radial) traits.push('<span class="wh-tag">Bullet rings</span>');
+    return `<div class="wh-be${isBoss ? ' boss' : ''}">
+      <span class="g" style="border-color:${def.accent};background:${def.color}33;
+        color:${def.accent}">${def.glyph}</span>
+      <div>
+        <div class="n" style="color:${def.accent}">${esc(def.name)}</div>
+        <div class="b">${esc(def.blurb || def.tagline || '')}</div>
+        <div class="s"><span><b>${def.hp.toLocaleString()}</b> HP</span>
+          <span>·</span><span>drops <b>${moneyExact(def.value)}</b></span>
+          ${traits.join('')}</div>
+      </div>
+    </div>`;
+  }
+
+  Instance.prototype.screenBriefing = function () {
+    const B = C.BRIEFING;
+    this.clearUI();
+    const el = document.createElement('div');
+    el.className = 'wh-screen';
+
+    const steps = B.loop.map((s) => `<div class="wh-step"><span class="ic">${s.icon}</span>
+      <div><div class="n">${esc(s.label)}</div><div class="d">${esc(s.note)}</div></div></div>`).join('');
+
+    // weakest first, so the list reads as an escalation
+    const mobs = Object.keys(C.ENEMIES)
+      .sort((a, b) => C.ENEMIES[a].value - C.ENEMIES[b].value)
+      .map((k) => bestiaryCard(C.ENEMIES[k], false)).join('');
+    const bosses = Object.keys(C.BOSSES)
+      .sort((a, b) => C.BOSSES[a].value - C.BOSSES[b].value)
+      .map((k) => bestiaryCard(C.BOSSES[k], true)).join('');
+
+    const pickups = Object.keys(C.PICKUPS).map((k) => {
+      const p = C.PICKUPS[k];
+      const what = p.heal ? `restores ${p.heal} HP`
+        : p.dmg ? `${p.dmg} damage to everything on screen`
+          : 'pulls every orb on the floor to you';
+      return `<div class="wh-step"><span class="ic">${p.icon}</span>
+        <div><div class="n">${esc(p.name)}</div>
+        <div class="d">${what} · drops from about ${(p.chance * 100).toFixed(1)}% of kills</div></div></div>`;
+    }).join('');
+
+    const T = C.TRIVIA_RULES;
+    el.innerHTML = `
+      ${this.corner()}
+      <div class="wh-scroll">
+        <h2 style="font-size:30px;margin:0">📖 How to Play</h2>
+        <p class="wh-sub">Terminate the waste. Bank the savings. Repeat.</p>
+        <div class="wh-brief">
+          <section>
+            <h4>Why you are down here</h4>
+            ${B.story.map((p) => `<p>${esc(p)}</p>`).join('')}
+          </section>
+          <section>
+            <h4>How a run works</h4>
+            ${steps}
+            <p class="wh-fine">Stages run <b>${mmss(C.STAGES[0].duration)}</b>. A correct quiz answer
+               pays <b>${moneyExact(T.correctBonus)}</b>, rising to <b>×${T.streakCap}</b> on a streak${
+      T.timeLimit ? `, on a <b>${T.timeLimit}s</b> timer` : ' — and there is no timer, so think it through'}.
+               Tokens banked = dollars ÷ 1,000, <b>×1.5</b> if you clear.</p>
+          </section>
+          <section>
+            <h4>Bestiary — ${Object.keys(C.ENEMIES).length} kinds of waste</h4>
+            <div class="wh-best">${mobs}</div>
+            <p class="wh-fine">Everything drops what it was costing you. The Anomaly is worth
+               <b>${moneyExact(C.ENEMIES.anomaly.value)}</b> and will run from you — chase it.</p>
+          </section>
+          <section>
+            <h4>Bosses</h4>
+            <div class="wh-best">${bosses}</div>
+            <p class="wh-fine">One waits at the end of every stage. Kill it to clear.</p>
+          </section>
+          <section>
+            <h4>Pickups</h4>
+            ${pickups}
+          </section>
+          <section>
+            <h4>Controls</h4>
+            <p><span class="wh-kbd">WASD</span> or <span class="wh-kbd">↑←↓→</span> to move —
+               or just hold the mouse button and steer. <span class="wh-kbd">Esc</span> pause,
+               <span class="wh-kbd">M</span> mute. On a quiz, <span class="wh-kbd">1</span>–<span
+               class="wh-kbd">4</span> or <span class="wh-kbd">A</span>–<span class="wh-kbd">D</span>.</p>
+          </section>
+        </div>
+        <div class="wh-row" style="margin-top:22px">
+          <button class="wh-btn primary" data-act="play">▶  Play</button>
+          <button class="wh-btn ghost" data-act="back">← Back</button>
+        </div>
+      </div>`;
+    this.ui.appendChild(el);
+    el.addEventListener('click', (e) => {
+      const a = e.target.closest('[data-act]'); if (!a) return;
+      this.audio.resume();
+      if (a.dataset.act === 'play') this.screenStages();
+      else if (a.dataset.act === 'back') this.screenTitle();
+      else if (a.dataset.act === 'mute') { this.toggleMute(); this.screenBriefing(); }
+    });
+  };
+
   // Theme = soundtrack + biome. Chips on the title screen so the pairing can be
   // auditioned without editing code.
+  // 'mudslide' is Mudslides' own theme and stays in the shared engine for it —
+  // it just does not belong in this cabinet's picker.
+  const THEMES_HIDDEN = ['mudslide'];
+
   Instance.prototype.themeChips = function () {
     const MUSIC = global.ArcadeMusic || global.WHMusic;
     if (!MUSIC) return '';
     const active = this.meta.theme || 'synthwave';
     return '<span style="font-size:12px;color:#7e8fae;margin-right:2px">THEME</span>' +
-      Object.entries(MUSIC.THEMES).map(([id, t]) => {
-        const bio = global.ArcadeBiomes && global.ArcadeBiomes.get(t.biome);
-        return `<button class="wh-chip ${id === active ? 'on' : ''}" data-theme="${id}">
-          ${esc(t.label || id)}<small>${esc(bio ? bio.name : '')}</small></button>`;
-      }).join('');
+      Object.entries(MUSIC.THEMES)
+        .filter(([id]) => !THEMES_HIDDEN.includes(id))
+        .map(([id, t]) => {
+          const bio = global.ArcadeBiomes && global.ArcadeBiomes.get(t.biome);
+          return `<button class="wh-chip ${id === active ? 'on' : ''}" data-theme="${id}">
+            ${esc(t.label || id)}<small>${esc(bio ? bio.name : '')}</small></button>`;
+        }).join('');
   };
 
   Instance.prototype.setTheme = function (id) {
@@ -577,9 +735,7 @@
       <div class="wh-stages">${cards}</div>
       <div class="wh-row" style="margin-top:18px">
         <button class="wh-btn ghost" data-act="back">← Back</button>
-        <button class="wh-btn ghost" data-act="daily">📅 Daily Bill (shared seed)</button>
-      </div>
-      <div class="wh-seed">Daily seed: ${dailySeed()}</div>`;
+      </div>`;
     this.ui.appendChild(el);
     el.addEventListener('click', (e) => {
       const card = e.target.closest('[data-stage]');
@@ -591,7 +747,6 @@
       }
       const a = e.target.closest('[data-act]'); if (!a) return;
       if (a.dataset.act === 'back') this.screenTitle();
-      else if (a.dataset.act === 'daily') { this.audio.resume(); this.startRun(C.STAGES[0].id, dailySeed()); }
       else if (a.dataset.act === 'mute') { this.toggleMute(); this.screenStages(); }
     });
   };
@@ -608,8 +763,8 @@
         <div class="t">${u.icon} ${esc(u.name)}</div>
         <div class="d">${esc(u.blurb(lvl + (maxed ? 0 : 1)))}</div>
         <div class="pips">${pips}</div>
-        <button class="wh-buy" data-buy="${id}" ${maxed || m.credits < cost ? 'disabled' : ''}>
-          ${maxed ? 'MAXED' : '💰 ' + cost.toLocaleString()}</button>
+        <button class="wh-buy" data-buy="${id}" ${maxed || m.tokens < cost ? 'disabled' : ''}>
+          ${maxed ? 'MAXED' : '🪙 ' + cost.toLocaleString()}</button>
       </div>`;
     }).join('');
     const el = document.createElement('div');
@@ -617,7 +772,7 @@
     el.innerHTML = `<div class="wh-scroll">
       <h2 style="font-size:30px;margin:0">🛠️ Bot Bay</h2>
       <p class="wh-sub">Permanent upgrades. They apply to every future run.</p>
-      <div style="font-size:19px;margin-top:12px">💰 <b style="color:#ffd76b">${m.credits.toLocaleString()}</b> Cost Avoidance Credits</div>
+      <div style="font-size:19px;margin-top:12px">🪙 <b style="color:#ffd76b">${m.tokens.toLocaleString()}</b> AI tokens on hand</div>
       <div class="wh-shop">${items}</div>
       <button class="wh-btn ghost" data-act="back">← Back</button>
     </div>`;
@@ -628,8 +783,8 @@
         const id = b.dataset.buy, u = C.META_UPGRADES[id];
         const lvl = m.upgrades[id] || 0;
         const cost = u.cost(lvl);
-        if (lvl < u.max && m.credits >= cost) {
-          m.credits -= cost; m.upgrades[id] = lvl + 1;
+        if (lvl < u.max && m.tokens >= cost) {
+          m.tokens -= cost; m.upgrades[id] = lvl + 1;
           saveMeta(m, this.persist); this.audio.coin(); this.screenBay();
         }
         return;
@@ -704,7 +859,7 @@
       cam: { x: 0, y: 0, shake: 0 },
       spawnAcc: 0, eliteT: 0,
       boss: null, bossQueued: false, bossHitless: true,
-      dollars: 0, kills: 0, combo: 0, comboT: 0,
+      dollars: 0, kills: 0, killsByType: {}, combo: 0, comboT: 0,
       cooldowns: {}, orbAngle: 0, scanAngle: 0,
       stats: { anomalies: 0, ebs: 0, hits: 0, quizCorrect: 0, quizWrong: 0 },
       unlocked: [],
@@ -741,10 +896,12 @@
     const m = this.meta;
     const interest = 1 + 0.08 * (m.upgrades.interest || 0);
     const clearBonus = outcome === 'clear' ? 1.5 : 1;
-    const credits = Math.round((r.dollars / 1000) * interest * clearBonus);
+    const tokens = Math.round((r.dollars / 1000) * interest * clearBonus);
 
-    m.credits += credits;
-    m.lifetimeCredits += credits;
+    // Two ledgers, one currency: `tokens` is the spendable Bot Bay balance,
+    // `lifetimeTokens` only ever goes up and is what the arcade pool counts.
+    m.tokens += tokens;
+    m.lifetimeTokens += tokens;
     m.lifetimeDollars += r.dollars;
     m.runs += 1;
     if (!m.best[r.stage.id] || r.dollars > m.best[r.stage.id]) m.best[r.stage.id] = Math.round(r.dollars);
@@ -754,7 +911,7 @@
     if (r.dollars >= 10000) this.unlock('savings_10k');
     if (r.dollars >= 100000) this.unlock('savings_100k');
     if (r.dollars >= 1000000) this.unlock('savings_1m');
-    if (m.lifetimeCredits >= 100000) this.unlock('bank_100k');
+    if (m.lifetimeTokens >= 100000) this.unlock('bank_100k');
     if (outcome === 'clear') {
       this.unlock('clear_' + r.stage.id);
       if (!r.p.passives.auto_scaling) this.unlock('turtle');
@@ -767,8 +924,9 @@
 
     const result = {
       outcome, stageId: r.stage.id, seed: r.seed,
-      dollarsSaved: Math.round(r.dollars), creditsEarned: credits,
-      timeSurvived: Math.round(r.t), kills: r.kills, level: r.p.level,
+      dollarsSaved: Math.round(r.dollars), tokensEarned: tokens,
+      timeSurvived: Math.round(r.t), kills: r.kills,
+      killsByType: Object.assign({}, r.killsByType), level: r.p.level,
       quizCorrect: r.stats.quizCorrect, quizWrong: r.stats.quizWrong,
       weapons: Object.entries(r.p.weapons).map(([k, v]) => ({ id: k, name: C.WEAPONS[k].name, level: v })),
       achievementsUnlocked: r.unlocked.slice(),
@@ -780,8 +938,21 @@
     this.screenResult(result);
   };
 
+  // What did you actually kill? The single kill count says "482" and means
+  // nothing; the breakdown is the part that reads like a FinOps win report.
+  function killBreakdown(res) {
+    return Object.keys(res.killsByType || {})
+      .map((id) => ({ def: C.ENEMIES[id] || C.BOSSES[id], n: res.killsByType[id] }))
+      .filter((x) => x.def)
+      .sort((a, b) => b.n - a.n)
+      .map((x) => `<div class="wh-kill"><span>${x.def.glyph} ${esc(x.def.name)}</span>` +
+                  `<b>${x.n.toLocaleString()}</b></div>`)
+      .join('');
+  }
+
   Instance.prototype.screenResult = function (res) {
     const r = this.run, win = res.outcome === 'clear';
+    const kills = killBreakdown(res);
     this.setMusic('menu');
     const art = win ? (r.p.hp / r.p.maxHp < 0.15 ? 'still_did_it' : 'done') : 'beat_up';
     this.clearUI();
@@ -797,12 +968,15 @@
         <div style="text-align:center;font-size:12.5px;color:#93a4c4;letter-spacing:1.2px">SAVINGS REALIZED</div>
         <div class="wh-big">${moneyExact(res.dollarsSaved)}</div>
         <div class="wh-stat"><span>⏱️ Time survived</span><b>${mmss(res.timeSurvived)}</b></div>
-        <div class="wh-stat"><span>💀 Resources terminated</span><b>${res.kills}</b></div>
+        <div class="wh-stat${kills ? ' nb' : ''}"><span>💀 Resources terminated</span><b>${res.kills.toLocaleString()}</b></div>
+        ${kills ? `<div class="wh-kills">${kills}</div>` : ''}
         <div class="wh-stat"><span>⭐ Level reached</span><b>${res.level}</b></div>
         <div class="wh-stat"><span>🎓 Quiz answers</span><b>${res.quizCorrect} / ${res.quizCorrect + res.quizWrong}${
           res.quizWrong === 0 && res.quizCorrect > 0 ? ' <span style="color:#6ee7a0">perfect</span>' : ''}</b></div>
-        <div class="wh-stat"><span>💰 Credits banked${win ? ' <span style="color:#6ee7a0">(×1.5 clear bonus)</span>' : ''}</span>
-          <b>+${res.creditsEarned.toLocaleString()}</b></div>
+        <div class="wh-stat"><span>🪙 AI tokens banked${win ? ' <span style="color:#6ee7a0">(×1.5 clear bonus)</span>' : ''}</span>
+          <b>+${res.tokensEarned.toLocaleString()}</b></div>
+        <div class="wh-stat"><span style="color:#7fd6c4">🤖 Into CostBot's build fund</span>
+          <b style="color:#7fd6c4">${(res.meta.lifetimeTokens || 0).toLocaleString()} all-time</b></div>
         ${res.achievementsUnlocked.length ? `<div class="wh-stat"><span>🏆 New achievements</span><b>${res.achievementsUnlocked.length}</b></div>` : ''}
       </div>
       <div class="wh-row" style="margin-top:20px">
@@ -1579,6 +1753,10 @@
     const r = this.run, e = r.enemies[idx];
     r.enemies.splice(idx, 1);
     r.kills++;
+    // Bosses all share the type 'boss', so key them by the stage's boss id — the
+    // recap wants "IDLE SPRAWL PRIME ×1", not a line that just says "boss".
+    const kkey = e.isBoss ? r.stage.boss : e.type;
+    r.killsByType[kkey] = (r.killsByType[kkey] || 0) + 1;
     this.audio.kill();
     this.unlock('first_blood');
 

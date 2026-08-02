@@ -117,8 +117,8 @@ const server = http.createServer((req, res) => {
   await shot('02-stages');
 
   console.log('▶ Starting stage 1…');
-  // Daily Bill uses a fixed seed, so pacing runs are comparable to each other.
-  await page.click('[data-act="daily"]');
+  // Drive the run off a fixed seed so pacing runs stay comparable to each other.
+  await page.evaluate(() => window.game.startRun('ec2-graveyard', 20260801));
   await page.waitForTimeout(1000);
   await shot('03-intro-banner');
 
@@ -234,6 +234,40 @@ const server = http.createServer((req, res) => {
   await page.click('[data-act="achs"]');
   await page.waitForTimeout(400);
   await shot('12-achievements');
+
+  // --- how to play ----------------------------------------------------------
+  // The bestiary is generated from the balance data, so assert it actually
+  // covers it — a new enemy that never reaches this screen is the failure mode.
+  console.log('▶ How to Play…');
+  await page.click('[data-act="back"]');
+  await page.waitForTimeout(300);
+  await page.click('[data-act="how"]');
+  await page.waitForTimeout(400);
+  await shot('12b-how-to-play');
+  const brief = await page.evaluate(() => {
+    const C = window.WH_CONTENT;
+    const txt = document.querySelector('.wh-brief').innerText;
+    return {
+      sections: document.querySelectorAll('.wh-brief section').length,
+      cards: document.querySelectorAll('.wh-be').length,
+      mobs: Object.values(C.ENEMIES).filter((e) => txt.includes(e.name)).length,
+      mobsTotal: Object.keys(C.ENEMIES).length,
+      bosses: Object.values(C.BOSSES).filter((e) => txt.includes(e.name)).length,
+      bossesTotal: Object.keys(C.BOSSES).length,
+      pickups: Object.values(C.PICKUPS).filter((x) => txt.includes(x.name)).length,
+      pickupsTotal: Object.keys(C.PICKUPS).length,
+      junk: /undefined|NaN|\[object/.test(txt),
+    };
+  });
+  console.log(`  bestiary: ${brief.mobs}/${brief.mobsTotal} enemies, ` +
+    `${brief.bosses}/${brief.bossesTotal} bosses, ${brief.pickups}/${brief.pickupsTotal} pickups ` +
+    `· ${brief.sections} sections`);
+  if (brief.mobs !== brief.mobsTotal) errors.push('briefing omits an enemy');
+  if (brief.bosses !== brief.bossesTotal) errors.push('briefing omits a boss');
+  if (brief.pickups !== brief.pickupsTotal) errors.push('briefing omits a pickup');
+  if (brief.junk) errors.push('briefing rendered undefined/NaN');
+  await page.click('[data-act="back"]');
+  await page.waitForTimeout(300);
 
   console.log('▶ Host-embed demo…');
   await page.goto(`http://localhost:${PORT}/waste-hunter/embed-example.html`, { waitUntil: 'networkidle' });

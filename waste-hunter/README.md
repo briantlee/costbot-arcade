@@ -23,7 +23,7 @@ xdg-open index.html          # straight into Waste Hunter
 
 | File | What it is |
 |---|---|
-| `index.html` | Standalone game — title, stage select, Bot Bay, achievements |
+| `index.html` | Standalone game — title, how-to-play, stage select, Bot Bay, achievements |
 | `embed-example.html` | Fake "host game" showing the integration contract |
 | `wh-content.js` | **All balance, content, and trivia.** Tune the game here. |
 | `wh-game.js` | Engine — loop, systems, rendering, UI, host API |
@@ -49,8 +49,10 @@ On a quiz, press `1`–`4` or `A`–`D`. Weapons fire automatically — you only
    keep the upgrade and get the correct answer with an explanation. Any key or
    click skips the explanation once you've read it.
 5. **The boss spawns when the clock hits zero.** Kill it to clear the stage.
-6. **Bank Cost Avoidance Credits** (dollars ÷ 1000, ×1.5 on a clear) and spend
-   them in the **Bot Bay** on permanent upgrades that persist across runs.
+6. **Bank AI tokens** (dollars ÷ 1000, ×1.5 on a clear) and spend them in the
+   **Bot Bay** on permanent upgrades that persist across runs. Spending draws
+   down your balance; the lifetime total keeps counting and is what feeds the
+   arcade's shared build fund.
 
 Clearing a stage unlocks the next one.
 
@@ -85,7 +87,9 @@ Choice order is shuffled every time, so answer position is never memorable.
   strikes wrong answers off every quiz
 - **19 achievements** — including *Well Read* (clear a stage without missing a
   question) and *Practitioner* (25 correct answers lifetime)
-- **Daily Bill** — a shared daily seed so everyone plays the identical board
+- **Run recap** — every resource type you terminated, broken out by name
+- **How to Play** — the run loop, pickups, controls and a **bestiary** of every
+  enemy and boss, all generated from `wh-content.js` so it cannot drift
 
 ---
 
@@ -97,7 +101,7 @@ The host picks the stage, the mini-game runs it, and the result comes back.
 const game = WasteHunter.mount('#some-container', {
   stageId: 'ec2-graveyard',   // which stage to run
   showShell: false,           // no title/stage-select — the host owns navigation
-  seed: 20260801,             // optional: deterministic run (shared "Daily Bill")
+  seed: 20260801,             // optional: deterministic run (same seed = same board)
   persist: true,              // localStorage meta; false = fully sandboxed
   returnLabel: 'Return to HQ',
 
@@ -121,9 +125,10 @@ game.destroy();   // unmount cleanly
   outcome: 'clear' | 'death' | 'quit',
   stageId, seed,
   dollarsSaved: 214340,
-  creditsEarned: 321,
+  tokensEarned: 321,
   timeSurvived: 181,
   kills: 786,
+  killsByType: { idle_ec2: 512, orphan_ebs: 141, idle_sprawl: 1, … },
   level: 13,
   quizCorrect: 9, quizWrong: 3,
   weapons: [{ id, name, level }, ...],
@@ -194,10 +199,10 @@ Boots headless Chromium, plays on autopilot, **answers the quiz by looking the
 correct choice up in the content bank** (which also verifies the shuffle/render
 path), deliberately misses ~1 in 4, forces the boss and stage-clear paths, walks
 every menu, exercises the embed demo, checks that every upgrade topic has
-questions behind it, and fails on any console error.
+questions behind it, asserts the How to Play bestiary lists every enemy, boss and
+pickup the balance data defines, and fails on any console error.
 
-`FULL=1` plays a whole stage on the fixed Daily Bill seed and prints the pacing
-curve:
+`FULL=1` plays a whole stage on a fixed seed and prints the pacing curve:
 
 ```
 t=22.2s   lvl=2   enemies=4    $6,680     quiz=1/1
