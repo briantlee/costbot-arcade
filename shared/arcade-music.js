@@ -46,10 +46,16 @@
                { root: 45, tones: [0, 3, 7] }, { root: 41, tones: [0, 4, 7] }],   // C G Am F
     anthem:   [{ root: 38, tones: [0, 4, 7] }, { root: 45, tones: [0, 4, 7] },
                { root: 47, tones: [0, 3, 7] }, { root: 43, tones: [0, 4, 7] }],   // D A Bm G
-    // 8 bars: Em Bm A G | Em C D B — the second half lifts, so the loop has shape
-    downhill: [{ root: 40, tones: [0, 3, 7] }, { root: 47, tones: [0, 3, 7] },
-               { root: 45, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },
+    // 16 bars in E minor, in four four-bar sections, so the loop is a song and
+    // not a vamp:  A  Em C G D  |  A' Em C D B  |  B  Am Em C B  |  C  Em G D B
+    // The B section is where the drums drop out; the last bar is the fill back in.
+    downhill: [{ root: 40, tones: [0, 3, 7] }, { root: 36, tones: [0, 4, 7] },
+               { root: 43, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] },
                { root: 40, tones: [0, 3, 7] }, { root: 36, tones: [0, 4, 7] },
+               { root: 38, tones: [0, 4, 7] }, { root: 35, tones: [0, 4, 7] },
+               { root: 33, tones: [0, 3, 7] }, { root: 40, tones: [0, 3, 7] },
+               { root: 36, tones: [0, 4, 7] }, { root: 35, tones: [0, 4, 7] },
+               { root: 40, tones: [0, 3, 7] }, { root: 43, tones: [0, 4, 7] },
                { root: 38, tones: [0, 4, 7] }, { root: 35, tones: [0, 4, 7] }],
     chamber:  [{ root: 38, tones: [0, 3, 7, 10, 14] },   // Dm9
                { root: 34, tones: [0, 4, 7, 11] },       // Bbmaj7
@@ -94,18 +100,32 @@
       74, _, 78, _, 81, _, 83, _, 81, _, _, 78, _, _, _, _,
       79, _, _, 76, _, 74, _, _, 78, _, _, _, 81, _, _, _,
     ],
-    // Relentless 16th runner line — meant to be felt more than followed.
+    // 16 bars in E minor. A syncopated hook rather than a wall of 16ths — the
+    // sequencer already runs 16th bass and arp underneath, so the lead is what
+    // has to be singable. A: hook. A': hook answered, ending on the dominant.
+    // B: drums drop, the line floats up. C: the hook an octave up, then a
+    // headlong descending run back into bar 1.
     mudslide: [
-      // bars 1-4 — the hook
-      76, _, 79, _, 83, _, 79, _, 76, _, 83, _, 79, _, 76, _,
-      74, _, 78, _, 81, _, 78, _, 74, _, 81, _, 78, _, 74, _,
-      73, _, 76, _, 81, _, 76, _, 73, _, 81, _, 76, _, 73, _,
-      71, _, 74, _, 79, _, 74, _, 78, _, 79, _, 81, _, 83, _,
-      // bars 5-8 — answer it an octave up, then fall back down
-      88, _, _, 86, _, 83, _, _, 88, _, _, 91, _, 88, _, 83,
-      84, _, _, 81, _, 79, _, _, 84, _, _, 88, _, 84, _, 79,
-      86, _, 83, _, 79, _, 76, _, 74, _, 76, _, 79, _, 83, _,
-      83, _, 82, _, 79, _, 78, _, 76, _, 74, _, 71, _, 67, _,
+      // -- A ------------------------------------------------------------------
+      76, _, _, 76, _, 79, _, _, 83, _, _, 81, _, _, 79, _,
+      76, _, _, _, _, 72, _, 74, _, _, 76, _, _, _, _, _,
+      74, _, _, 74, _, 71, _, _, 74, _, _, 79, _, _, 78, _,
+      76, _, _, _, _, 78, _, _, 81, _, _, _, _, _, _, _,
+      // -- A' -----------------------------------------------------------------
+      76, _, _, 76, _, 79, _, _, 83, _, _, 86, _, _, 83, _,
+      84, _, _, _, _, 81, _, 79, _, _, 76, _, _, _, _, _,
+      78, _, _, 78, _, 81, _, _, 86, _, _, 85, _, _, 83, _,
+      83, _, _, 82, _, 78, _, _, 75, _, _, _, 74, _, _, _,
+      // -- B (the kit drops out here) -----------------------------------------
+      _, _, 81, _, _, _, 84, _, _, _, 88, _, _, _, _, _,
+      _, _, 79, _, _, _, 83, _, _, _, 88, _, _, _, 91, _,
+      88, _, _, 84, _, 81, _, _, 79, _, _, 76, _, _, 74, _,
+      75, _, _, 78, _, 83, _, _, 87, _, _, _, 90, _, _, _,
+      // -- C ------------------------------------------------------------------
+      88, _, _, 88, _, 91, _, _, 95, _, _, 93, _, _, 91, _,
+      88, _, _, _, _, 86, _, 83, _, _, 86, _, _, _, 88, _,
+      90, _, _, 90, _, 86, _, _, 83, _, _, 81, _, _, 78, _,
+      83, _, 82, _, 81, _, 79, _, 78, _, 76, _, 75, _, 74, _,
     ],
     // Sparse, wistful chamber melody over extended minor harmony.
     chamber: [
@@ -168,8 +188,10 @@
     // ---- endless-runner drive for Mudsliders --------------------------------
     mudslide: {
       title: 'Mudslide', influence: 'Breakbeat runner', bpm: 174, key: 'E minor',
-      desc: '8-bar loop: relentless 16ths, breakbeat kit, distorted lead that answers itself an octave up.',
-      prog: P.downhill, lead: L.mudslide, drums: 'break', pad: 'power', bars: 8,
+      desc: '16-bar song, ~22s: hook, answer, a two-bar breakdown, then the hook '
+          + 'an octave up and a snare fill back to the top.',
+      prog: P.downhill, lead: L.mudslide, drums: 'break', pad: 'power', bars: 16,
+      breakBars: [8, 9], fillBar: 15, crashBars: [8, 12],   // bar 0 crashes via the kit
       arpEvery: 1, bassEvery: 1, gain: 1.0, voices: { lead: 'dist' },
     },
 
@@ -402,9 +424,26 @@
       const stepDur = 60 / cfg.bpm / 4;
       const v = cfg.voices || {};
 
+      // A long loop needs shape, not just length. `breakBars` drops the kit and
+      // the bass for a bar or two so the loop breathes; `fillBar` runs a snare
+      // crescendo into the next section; `crashBars` marks the downbeats that
+      // start one. All three are optional — a track that omits them behaves
+      // exactly as it did before.
+      const quiet = cfg.breakBars ? cfg.breakBars.indexOf(bar) !== -1 : false;
+      const filling = cfg.fillBar === bar;
+
       if (cfg.pad && inBar === 0) padChord(t, chord, stepDur * STEPS_PER_BAR * 0.98, cfg.pad);
 
-      switch (cfg.drums) {
+      if (quiet) {
+        // keep the pulse alive with an open hat on the backbeat, nothing more
+        if (inBar === 4 || inBar === 12) hat(t, true, false);
+      } else if (filling) {
+        if (inBar === 0 || inBar === 8) kick(t, true);
+        // accelerating roll: 8ths, then 16ths, getting louder into the loop point
+        if (inBar < 8 ? inBar % 4 === 0 : inBar % 2 === 0) snare(t, inBar < 8);
+        if (inBar >= 12) snare(t, false);
+        hat(t, false, inBar % 4 === 0);
+      } else switch (cfg.drums) {
         case 'four':
           if (inBar % 4 === 0) kick(t, false);
           if (inBar === 14) kick(t, false);
@@ -445,7 +484,9 @@
         default: break;
       }
 
-      if (cfg.bassEvery && i % cfg.bassEvery === 0) {
+      if (inBar === 0 && cfg.crashBars && cfg.crashBars.indexOf(bar) !== -1) crash(t);
+
+      if (cfg.bassEvery && !quiet && i % cfg.bassEvery === 0) {
         const oct = (inBar % 8 === 4) ? 12 : 0;
         bass(t, chord.root + oct, stepDur * cfg.bassEvery * 0.92);
       }

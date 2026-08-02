@@ -13,8 +13,10 @@ arcade/
   leaderboard/          all four boards (needs the dynamic app)
   jukebox/              audition the shared soundtrack
   waste-hunter/         the game
+  mudsliders/           the endless runner
+    assets/             its own art (the Mudslide glass — sled, shield, card)
   shared/
-    arcade-music.js     soundtrack engine — 7 tracks, 5 themes
+    arcade-music.js     soundtrack engine — 8 tracks, 6 themes
     arcade-biomes.js    arena palettes + procedural scenery
     arcade-sync.js      optional bridge to a server profile
   tools/
@@ -66,12 +68,21 @@ the console is the expected, healthy path here.
 ```bash
 cd arcade/waste-hunter && node smoketest.js      # ~90s: full game suite
 FULL=1 node smoketest.js                         # plays a whole stage; use for pacing work
+cd arcade/mudsliders && node smoketest.js        # ~15s: runner suite
 cd ~/aix-proto/examples/costbot-arcade && npm test
 ```
 
-The game suite drives a real headless run, answers the quiz from the content bank,
-forces the boss and stage-clear paths, walks every menu, checks that every theme
+The Waste Hunter suite drives a real headless run, answers the quiz from the content
+bank, forces the boss and stage-clear paths, walks every menu, checks that every theme
 resolves its tracks and biome, and fails on any console error.
+
+The Mudsliders suite drives a run, checks the mud spray and wake are emitting, verifies
+the Mudslide power-up banks a shield, forces a wipeout, and validates the soundtrack's
+shape (bar counts, note range, break/fill bars) for every track — the music engine is
+shared, so a change made for one game has to keep the others well-formed.
+
+Both write screenshots to their own `shots/`, which is gitignored and excluded from
+the app image.
 
 ### Before you deploy
 

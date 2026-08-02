@@ -97,22 +97,29 @@
   // ---------------------------------------------------------------------------
   // POWER-UPS — every one is a real cost lever
   // ---------------------------------------------------------------------------
+  // `weight` is the relative chance of this one turning up at a power-up slot.
+  // `sprite` names an image in assets/ to draw instead of the icon glyph.
   const POWERUPS = {
-    batch: { name: 'Batch API', icon: '📦', dur: 8, color: '#7fd6c4',
+    batch: { name: 'Batch API', icon: '📦', dur: 8, color: '#7fd6c4', weight: 20,
       blurb: 'Double tokens, everything slows down.',
       fact: 'Batch processing trades latency for roughly half the price.' },
-    cache: { name: 'Prompt Cache', icon: '🧲', dur: 9, color: '#a06bff',
+    cache: { name: 'Prompt Cache', icon: '🧲', dur: 9, color: '#a06bff', weight: 20,
       blurb: 'Pulls every token on the hill toward you.',
       fact: 'Cached input tokens cost a fraction of fresh ones.' },
-    graviton: { name: 'Graviton Skates', icon: '⚡', dur: 7, color: '#ffd76b',
+    graviton: { name: 'Graviton Skates', icon: '⚡', dur: 7, color: '#ffd76b', weight: 20,
       blurb: 'Faster, and you jump further.',
       fact: 'Graviton: ~20% better price-performance than x86.' },
-    reserved: { name: 'RI Shield', icon: '🛡️', dur: 0, color: '#6ee7a0',
+    reserved: { name: 'RI Shield', icon: '🛡️', dur: 0, color: '#6ee7a0', weight: 16,
       blurb: 'Absorbs one crash. Stacks up to three.',
       fact: 'A commitment protects you against one bad month.' },
-    spot: { name: 'Spot Burst', icon: '🚀', dur: 6, color: '#ff9e2c',
+    spot: { name: 'Spot Burst', icon: '🚀', dur: 6, color: '#ff9e2c', weight: 20,
       blurb: 'Huge speed burst — but Spot can be reclaimed.',
       fact: 'Up to 90% off, if you can tolerate interruption.' },
+    // The drink the hill is named after. Rarer than the RI, same job: one free crash.
+    mudslide: { name: 'The Mudslide', icon: '🥤', sprite: 'mudslide', dur: 0,
+      color: '#e0b877', weight: 11,
+      blurb: 'One free wipeout. Drink up.',
+      fact: 'Cheapest insurance on the hill. Also the tastiest.' },
   };
 
   // ---------------------------------------------------------------------------
@@ -154,7 +161,7 @@
   };
 
   const ACHIEVEMENTS = [
-    { id: 'ms_first', name: 'First Descent', icon: '🛷', desc: 'Finish your first run.' },
+    { id: 'ms_first', name: 'First Descent', icon: '🥤', desc: 'Finish your first run.' },
     { id: 'ms_1k', name: 'Token Economy', icon: '🪙', desc: 'Collect 1,000 tokens in one run.' },
     { id: 'ms_2km', name: 'Long Hauler', icon: '📏', desc: 'Survive 2,000 metres.' },
     { id: 'ms_nearmiss', name: 'Paper Thin', icon: '🌬️', desc: '25 near misses in one run.' },
@@ -170,6 +177,8 @@
     'A near miss pays. Dodging early pays nothing.',
     'Spot Burst is the fastest way down, and the fastest way into a crate.',
     'Tokens you collect are banked toward the app even when you crash.',
+    'The Mudslide itself is a shield. Grab the glass, keep the run.',
+    'Land a jump in deep mud and the whole hill notices.',
   ];
 
   global.MS_CONTENT = {

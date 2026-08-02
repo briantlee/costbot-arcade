@@ -102,6 +102,11 @@
 .ms-hero{width:132px;animation:ms-bob 2.4s ease-in-out infinite;
   filter:drop-shadow(0 12px 26px rgba(255,150,60,.4));}
 @keyframes ms-bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-10px) rotate(4deg)}}
+/* CostBot riding the drink the hill is named after */
+.ms-heroes{display:flex;align-items:flex-end;justify-content:center;gap:2px;}
+.ms-glass{width:90px;animation:ms-tilt 2.4s ease-in-out infinite .3s;
+  filter:drop-shadow(0 10px 20px rgba(0,0,0,.6));}
+@keyframes ms-tilt{0%,100%{transform:translateY(4px) rotate(7deg)}50%{transform:translateY(-6px) rotate(-5deg)}}
 .ms-btn{background:linear-gradient(180deg,#f0a52c,#d4821a);border:1px solid #ffc866;color:#241403;
   padding:14px 34px;border-radius:11px;font-size:17px;font-weight:750;cursor:pointer;font-family:inherit;
   box-shadow:0 4px 0 #8a5410,0 8px 20px rgba(220,140,30,.3);transition:.14s;}
@@ -153,6 +158,7 @@
     this.onComplete = this.opts.onComplete || (() => {});
     this.onEvent = this.opts.onEvent || (() => {});
     this.assetBase = this.opts.assetBase || '../waste-hunter/assets/';
+    this.spriteBase = this.opts.spriteBase || 'assets/';
     this.profile = Object.assign(defaultProfile(), this.opts.profile || loadLocal());
     this.destroyed = false;
     this.toasts = [];
@@ -174,6 +180,12 @@
     ['costbot', 'beat_up', 'inspire', 'max_speed_clean'].forEach((k) => {
       const im = new Image();
       im.src = this.assetBase + k + '.png';
+      this.img[k] = im;
+    });
+    // Mudsliders' own art lives next to the game, not in Waste Hunter's asset pile.
+    ['mudslide'].forEach((k) => {
+      const im = new Image();
+      im.src = this.spriteBase + k + '.png';
       this.img[k] = im;
     });
 
@@ -260,30 +272,65 @@
       master.connect(ctx.destination);
       return ctx;
     }
-    function tone(f, d, type, v, to) {
+    function tone(f, d, type, v, to, at) {
       if (muted) return;
       const c = ensure(); if (!c) return;
       if (c.state === 'suspended') c.resume();
+      const t0 = c.currentTime + (at || 0);
       const o = c.createOscillator(), g = c.createGain();
       o.type = type || 'square';
-      o.frequency.setValueAtTime(f, c.currentTime);
-      if (to) o.frequency.exponentialRampToValueAtTime(Math.max(20, to), c.currentTime + d);
-      g.gain.setValueAtTime(0.0001, c.currentTime);
-      g.gain.exponentialRampToValueAtTime(v || 0.16, c.currentTime + 0.006);
-      g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + d);
-      o.connect(g); g.connect(master); o.start(); o.stop(c.currentTime + d + 0.02);
+      o.frequency.setValueAtTime(f, t0);
+      if (to) o.frequency.exponentialRampToValueAtTime(Math.max(20, to), t0 + d);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(v || 0.16, t0 + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + d + 0.02);
     }
+    // short filtered-noise transient — gives a pickup a physical "tick" so it
+    // cuts through the music instead of sitting behind it
+    function tick(v, hp, d) {
+      if (muted) return;
+      const c = ensure(); if (!c) return;
+      const n = Math.max(1, Math.floor(c.sampleRate * (d || 0.05)));
+      const b = c.createBuffer(1, n, c.sampleRate);
+      const ch = b.getChannelData(0);
+      for (let i = 0; i < n; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / n) ** 2;
+      const s = c.createBufferSource(); s.buffer = b;
+      const f = c.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp || 3800;
+      const g = c.createGain(); g.gain.value = v;
+      s.connect(f); f.connect(g); g.connect(master); s.start();
+    }
+    // A coin ladder: consecutive pickups climb the scale and reset when you go
+    // quiet, so a good line through a token trail sounds like a run of wins.
+    const LADDER = [0, 2, 4, 7, 9, 12, 14, 16, 19];
+    let chain = 0, chainAt = 0;
     return {
       nodes() { const c = ensure(); return c ? { ctx: c, master } : null; },
-      token: () => tone(1180, 0.05, 'sine', 0.07, 1620),
-      big: () => tone(760, 0.12, 'triangle', 0.12, 1240),
+      token() {
+        const now = performance.now();
+        chain = now - chainAt < 900 ? Math.min(chain + 1, LADDER.length - 1) : 0;
+        chainAt = now;
+        const f = 1046.5 * 2 ** (LADDER[chain] / 12);
+        tick(0.14, 5200, 0.035);
+        tone(f, 0.10, 'triangle', 0.30, f * 1.5);           // body
+        tone(f * 2, 0.085, 'sine', 0.20, f * 3);            // sparkle on top
+        tone(f * 1.5, 0.07, 'sine', 0.11, f * 2.25, 0.035); // a fifth, a hair late
+      },
+      big: () => { tick(0.2, 3200, 0.08); tone(760, 0.16, 'triangle', 0.3, 1240);
+        tone(1140, 0.2, 'sine', 0.2, 1900, 0.05); },
       jump: () => tone(420, 0.14, 'square', 0.07, 780),
       slide: () => tone(300, 0.16, 'sawtooth', 0.06, 160),
-      power: () => { [660, 880, 1180].forEach((f, i) => {
-        setTimeout(() => tone(f, 0.16, 'triangle', 0.11), i * 60);
+      power: () => { [660, 880, 1180, 1560].forEach((f, i) => {
+        tone(f, 0.18, 'triangle', 0.2, null, i * 0.055);
+        tone(f * 2, 0.12, 'sine', 0.09, null, i * 0.055);
       }); },
-      crash: () => { tone(180, 0.5, 'sawtooth', 0.2, 50); },
+      // the glass: a wet gulp, then the shield ring
+      drink: () => { tick(0.14, 900, 0.12); tone(240, 0.16, 'sine', 0.22, 520);
+        [784, 1046, 1568].forEach((f, i) => tone(f, 0.3, 'triangle', 0.16, null, 0.14 + i * 0.06)); },
+      // a wipeout still has to land harder than a coin does
+      crash: () => { tick(0.22, 600, 0.3); tone(180, 0.5, 'sawtooth', 0.28, 50); },
       shield: () => tone(520, 0.3, 'sine', 0.14, 900),
+      splash: (v) => tick(0.07 * (v || 1), 1400, 0.16),
       toggle() {
         muted = !muted;
         const c = ensure();
@@ -334,7 +381,10 @@
     const el = document.createElement('div');
     el.className = 'ms-screen';
     el.innerHTML = `
-      <img class="ms-hero" src="${this.assetBase}costbot.png" alt="">
+      <div class="ms-heroes">
+        <img class="ms-hero" src="${this.assetBase}costbot.png" alt="">
+        <img class="ms-glass" src="${this.spriteBase}mudslide.png" alt="">
+      </div>
       <h1 class="ms-title">CostBot Mudsliders</h1>
       <p class="ms-sub">Slide the hill. Collect the tokens. Build the app.</p>
       ${this.buildBar()}
@@ -415,6 +465,7 @@
       shields: pk.startShields, maxShields: pk.maxShields,
       tokens: 0, nearMisses: 0, distance: 0,
       objs: [], fx: [], floats: [],
+      spray: [], ripples: [], sprayAcc: 0, rippleAcc: 0, wasJumping: false,
       nextRowZ: C.DIFFICULTY.firstRowZ, nextPowerZ: C.DIFFICULTY.powerupEvery,
       power: {}, tarUntil: 0, invuln: 0,
       shake: 0, over: false, cause: '', perks: pk,
@@ -537,7 +588,13 @@
 
   Game.prototype.spawnPower = function (atZ) {
     const keys = Object.keys(C.POWERUPS);
-    const id = keys[(Math.random() * keys.length) | 0];
+    const total = keys.reduce((a, k) => a + (C.POWERUPS[k].weight || 1), 0);
+    let roll = Math.random() * total;
+    let id = keys[keys.length - 1];
+    for (const k of keys) {
+      roll -= C.POWERUPS[k].weight || 1;
+      if (roll <= 0) { id = k; break; }
+    }
     this.run.objs.push({ kind: 'pow', id, lane: (Math.random() * 3) | 0, z: atZ, got: false });
   };
 
@@ -673,6 +730,8 @@
       if (f.life <= 0) r.floats.splice(i, 1);
     }
 
+    this.updateSpray(dt, eff);
+
     if (r.distance >= 1000 && r.shields === r.perks.startShields && !r.usedShield) this.unlock('ms_nohit');
     if (r.distance >= 2000) this.unlock('ms_2km');
     if (r.tokens >= 1000) this.unlock('ms_1k');
@@ -682,13 +741,111 @@
     this.run.floats.push({ x, text, color, life: 1.0, max: 1.0, y: 0 });
   };
 
+  // ===========================================================================
+  // MUD SPRAY
+  // ---------------------------------------------------------------------------
+  // The bot sits at a near-fixed spot on the canvas, so the splash is simulated
+  // in screen pixels — cheaper than a projected 3D particle field, and easier to
+  // tune. The wake ripples are the exception: those are anchored in the world so
+  // they rush away with the road instead of sliding around under the player.
+  // ===========================================================================
+  // mostly dark clods, with a few wet highlights mixed in
+  const DROP_TONES = ['#5a3d21', '#4a3218', '#3c2814', '#6b4a28', '#7d5a33', '#9c7b4e'];
+  const MAX_DROPS = 420;
+
+  Game.prototype.botScreen = function () {
+    const r = this.run;
+    return this.project(r.z, r.z - CAM_BACK, this.laneX(r), r.y);
+  };
+
+  Game.prototype.drop = function (pr, sp, ang, size, life) {
+    const r = this.run;
+    if (r.spray.length >= MAX_DROPS) return;
+    r.spray.push({
+      x: pr.x + (Math.random() * 2 - 1) * 40 * pr.s,
+      y: pr.y + (4 + Math.random() * 8) * pr.s,
+      vx: Math.cos(ang) * sp,
+      vy: Math.sin(ang) * sp,
+      rad: size,
+      life, max: life,
+      col: DROP_TONES[(Math.random() * DROP_TONES.length) | 0],
+      front: Math.random() < 0.42,
+    });
+  };
+
+  Game.prototype.burst = function (n, power) {
+    const r = this.run;
+    const pr = this.botScreen();
+    if (!pr) return;
+    for (let i = 0; i < n; i++) {
+      const ang = -Math.PI / 2 + (Math.random() * 2 - 1) * 1.5;
+      this.drop(pr, (170 + Math.random() * 480) * power, ang,
+        2 + Math.random() * 7 * power, 0.32 + Math.random() * 0.5);
+    }
+    r.ripples.push({ z: r.z - 20, x: this.laneX(r), t: 0, max: 0.7, big: 1.1 + power });
+  };
+
+  Game.prototype.updateSpray = function (dt, speed) {
+    const r = this.run;
+    const pr = this.botScreen();
+
+    // coming down out of a jump throws a proper sheet of it
+    if (r.wasJumping && !r.jumping) { this.burst(38, 1.9); this.audio.splash(1.5); }
+    r.wasJumping = r.jumping;
+
+    if (pr && !r.jumping) {
+      const fast = clamp(speed / C.WORLD.maxSpeed, 0, 1);
+      const sliding = r.sliding > 0;
+      // a hard lane cut digs an edge in, and that is what really throws mud
+      const cut = clamp(Math.abs((r.lane - 1) * C.WORLD.laneWidth - this.laneX(r))
+        / C.WORLD.laneWidth, 0, 1);
+      const dir = (r.lane - 1) - this.laneX(r) / C.WORLD.laneWidth;
+      r.sprayAcc += (90 + fast * 210 + cut * 230 + (sliding ? 120 : 0)) * dt;
+      while (r.sprayAcc >= 1) {
+        r.sprayAcc -= 1;
+        // mud leaves on the outside of the turn; straight-lining, it goes both ways
+        const lean = cut > 0.06 ? -Math.sign(dir) : (Math.random() < 0.5 ? -1 : 1);
+        const ang = -Math.PI / 2 + lean * (0.5 + Math.random() * (sliding ? 0.95 : 0.7));
+        this.drop(pr, (210 + Math.random() * 430) * (0.55 + fast * 0.9), ang,
+          1.4 + Math.random() * (sliding ? 6 : 4.6), 0.3 + Math.random() * 0.5);
+      }
+      r.rippleAcc += dt;
+      const every = sliding ? 0.028 : 0.05;
+      while (r.rippleAcc >= every) {
+        r.rippleAcc -= every;
+        r.ripples.push({ z: r.z - 20, x: this.laneX(r), t: 0, max: 0.55, big: sliding ? 1.5 : 1 });
+      }
+    }
+
+    const G = 1050;   // screen px/s² — tuned for hang time, not for realism
+    for (let i = r.spray.length - 1; i >= 0; i--) {
+      const p = r.spray[i];
+      p.life -= dt;
+      p.vy += G * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      if (p.life <= 0 || p.y > VH + 30) r.spray.splice(i, 1);
+    }
+    for (let i = r.ripples.length - 1; i >= 0; i--) {
+      const w = r.ripples[i];
+      w.t += dt;
+      if (w.t >= w.max || w.z < r.z - CAM_BACK + 30) r.ripples.splice(i, 1);
+    }
+  };
+
   Game.prototype.takePower = function (id) {
     const r = this.run;
     const def = C.POWERUPS[id];
-    this.audio.power();
-    if (id === 'reserved') {
+    // dur 0 means it is not a timed effect — it banks a shield instead
+    const isShield = def.dur === 0;
+    if (id === 'mudslide') this.audio.drink(); else this.audio.power();
+    if (isShield) {
+      const before = r.shields;
       r.shields = Math.min(r.maxShields, r.shields + 1);
-      this.toast(`${def.icon} ${def.name} — ${r.shields} held`);
+      if (id === 'mudslide') this.burst(60, 1.5);
+      this.toast(r.shields > before
+        ? `${def.icon} ${def.name} — ${r.shields} held`
+        : `${def.icon} ${def.name} — already full`);
     } else {
       r.power[id] = def.dur;
       this.toast(`${def.icon} ${def.name} — ${def.blurb}`);
@@ -924,17 +1081,22 @@
       }
     }
 
+    this.drawFlow(ctx, camZ);
+    this.drawRipples(ctx, r, camZ);
+
     // --- objects, far to near -----------------------------------------------
     const sorted = r.objs.slice().sort((o1, o2) => o2.z - o1.z);
     for (const o of sorted) {
       const pr = this.project(o.z, camZ, (o.lane - 1) * C.WORLD.laneWidth, 0);
       if (!pr || pr.s > 4) continue;
       if (o.kind === 'tok' && !o.got) this.drawToken(ctx, o, pr);
-      else if (o.kind === 'pow' && !o.got) this.drawPower(ctx, o, pr);
+      else if (o.kind === 'pow' && !o.got) this.drawPower(ctx, o, pr, this.img);
       else if (o.kind === 'obs' && o.def.kind !== 'chasm') this.drawObstacle(ctx, o, pr, r);
     }
 
+    this.drawSpray(ctx, r, false);
     this.drawBot(ctx, r, camZ);
+    this.drawSpray(ctx, r, true);
 
     // floats
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -972,6 +1134,81 @@
     ctx.stroke();
   };
 
+  // The hill is a moving slurry, not a texture: sheets of wet mud creep downhill
+  // slower than the player, so you feel yourself overtaking the flow. Each sheet
+  // is anchored to a world-space grid cell and fades in and out across its cycle,
+  // which is what keeps it from popping when it wraps.
+  Game.prototype.drawFlow = function (ctx, camZ) {
+    const CYCLE = 460;
+    const phase = ((performance.now() / 1000 * 205) % CYCLE) / CYCLE;
+    const fade = Math.sin(phase * Math.PI);
+    const half = C.WORLD.laneWidth * ROAD_HALF;
+    const base0 = Math.floor(camZ / CYCLE) * CYCLE;
+    const steps = Math.ceil(C.WORLD.drawDistance / CYCLE);
+    for (let k = 1; k <= steps; k++) {
+      const base = base0 + k * CYCLE;
+      for (let j = 0; j < 3; j++) {
+        const na = noise(base * 0.017 + j * 11.3);
+        const nb = noise(base * 0.031 + j * 5.7);
+        const pr = this.project(base - phase * CYCLE + na * 110, camZ,
+          (nb * 2 - 1) * half * 0.9, 0);
+        if (!pr || pr.s > 2.4) continue;
+        const w = (96 + na * 150) * pr.s;   // long and shallow — a streak, not a puddle
+        const h = (13 + nb * 19) * pr.s;
+        if (w < 2.5) continue;
+        ctx.globalAlpha = fade * 0.32 * clamp(pr.s * 3.5, 0, 1);
+        ctx.fillStyle = na > 0.5 ? MUD.light : MUD.mid;
+        ctx.beginPath(); ctx.ellipse(pr.x, pr.y, w, h, 0, 0, TAU); ctx.fill();
+        // a bright lip on the downhill edge — that is what reads as *wet*
+        ctx.globalAlpha *= 0.85;
+        ctx.fillStyle = 'rgba(206,180,140,.55)';
+        ctx.beginPath();
+        ctx.ellipse(pr.x, pr.y + h * 0.55, w * 0.7, h * 0.28, 0, 0, TAU);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  };
+
+  Game.prototype.drawRipples = function (ctx, r, camZ) {
+    for (const w of r.ripples) {
+      const pr = this.project(w.z, camZ, w.x, 0);
+      if (!pr) continue;
+      const k = clamp(w.t / w.max, 0, 1);
+      const rad = (30 + k * 112) * w.big * pr.s;
+      if (rad < 1.5) continue;
+      // a shallow trench of churned mud...
+      ctx.globalAlpha = (1 - k) * 0.26;
+      ctx.fillStyle = MUD.dark;
+      ctx.beginPath(); ctx.ellipse(pr.x, pr.y, rad * 0.86, rad * 0.24, 0, 0, TAU); ctx.fill();
+      // ...with a wet rim on the near edge only. A closed ring reads as a crop
+      // circle; half of one reads as a wave the player just pushed out.
+      ctx.globalAlpha = (1 - k) * 0.3;
+      ctx.strokeStyle = 'rgba(190,164,126,.9)';
+      ctx.lineWidth = Math.max(1, 3.2 * pr.s * (1 - k));
+      ctx.beginPath();
+      ctx.ellipse(pr.x, pr.y, rad, rad * 0.28, 0, Math.PI * 0.12, Math.PI * 0.88);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  };
+
+  Game.prototype.drawSpray = (ctx, r, front) => {
+    for (const p of r.spray) {
+      if (p.front !== front) continue;
+      const a = clamp(p.life / p.max, 0, 1);
+      const sp = Math.hypot(p.vx, p.vy);
+      ctx.globalAlpha = Math.min(1, a * 1.3) * 0.9;
+      ctx.fillStyle = p.col;
+      ctx.beginPath();
+      // stretch each clod along its own travel, so fast mud reads as a streak
+      ctx.ellipse(p.x, p.y, p.rad * (1 + sp / 1300), p.rad,
+        Math.atan2(p.vy, p.vx), 0, TAU);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  };
+
   Game.prototype.drawHaze = (ctx) => {
     const g = ctx.createRadialGradient(VW / 2, VH * 0.45, VH * 0.3, VW / 2, VH * 0.5, VH * 0.95);
     g.addColorStop(0, 'rgba(0,0,0,0)');
@@ -998,7 +1235,7 @@
     }
   };
 
-  Game.prototype.drawPower = (ctx, o, pr) => {
+  Game.prototype.drawPower = (ctx, o, pr, img) => {
     const def = C.POWERUPS[o.id];
     const s = 46 * pr.s;
     if (s < 3) return;
@@ -1007,6 +1244,24 @@
     ctx.save();
     ctx.translate(pr.x, y);
     ctx.rotate(Math.sin(spin) * 0.25);
+
+    // an art-backed power-up draws its own sprite over a halo, no crate around it
+    const art = def.sprite && img && img[def.sprite];
+    if (art && art.complete && art.naturalWidth) {
+      const g = ctx.createRadialGradient(0, 0, 0, 0, 0, s * 1.35);
+      g.addColorStop(0, 'rgba(240,205,140,.6)');
+      g.addColorStop(0.55, 'rgba(224,184,119,.22)');
+      g.addColorStop(1, 'rgba(224,184,119,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(0, 0, s * 1.35, 0, TAU); ctx.fill();
+      const d = s * 2;
+      ctx.shadowColor = def.color; ctx.shadowBlur = 18 * Math.min(1, pr.s);
+      ctx.drawImage(art, -d / 2, -d / 2, d, d);
+      ctx.shadowBlur = 0;
+      ctx.restore();
+      return;
+    }
+
     ctx.fillStyle = 'rgba(10,14,20,.7)';
     ctx.strokeStyle = def.color; ctx.lineWidth = Math.max(1.5, 3 * pr.s);
     ctx.shadowColor = def.color; ctx.shadowBlur = 20 * Math.min(1, pr.s);
@@ -1064,23 +1319,37 @@
     const size = 112 * pr.s;   // scale with the projection, like everything else
     const squash = r.sliding > 0 ? 0.55 : 1;
     ctx.save();
-    // mud spray
+    // The wake: two sheets of mud peeling off either side, the way a body sliding
+    // through wet slurry pushes it up and out. The loose clods come from the
+    // particle system; this is the continuous part of it.
     if (!r.jumping) {
-      // a proper rooster tail of mud, scaling with speed
-      const n = 10 + Math.floor(r.topSpeed / 260);
-      for (let i = 0; i < n; i++) {
-        const a = Math.random() * TAU;
-        const spread = 34 + Math.random() * 78;
-        ctx.fillStyle = `rgba(${58 + Math.random() * 40 | 0},${40 + Math.random() * 28 | 0},24,${0.3 + Math.random() * 0.45})`;
-        ctx.beginPath();
-        ctx.arc(pr.x + Math.cos(a) * spread,
-          pr.y + 8 - Math.abs(Math.sin(a)) * (18 + Math.random() * 34),
-          2 + Math.random() * 8, 0, TAU);
-        ctx.fill();
+      const t = performance.now() / 1000;
+      const fast = clamp(r.topSpeed / C.WORLD.maxSpeed, 0.25, 1);
+      // everything here is a fraction of the bot's own drawn size, so the wake
+      // stays in proportion however the projection scales
+      const S = size * (r.sliding > 0 ? 1.14 : 1);
+      // Each sheet is a run of overlapping clods rather than one smooth shape —
+      // a clean crescent reads as a wing, a lumpy one reads as thrown mud.
+      const LOBES = 8;
+      for (const side of [-1, 1]) {
+        const len = S * (0.62 + fast * 0.34);
+        const rise = S * (0.3 + fast * 0.18);
+        for (let i = 0; i < LOBES; i++) {
+          const u = (i + 0.6) / LOBES;
+          const wob = Math.sin(t * 13 + i * 1.7 + (side > 0 ? 2.1 : 0)) * S * 0.035;
+          const bx = pr.x + side * len * u;
+          const by = pr.y + S * 0.1 - rise * (0.12 + 0.88 * u ** 0.6) + wob;
+          const rr = S * (0.15 - 0.09 * u) * (0.82 + noise(i * 5.3 + side) * 0.5);
+          if (rr < 1) continue;
+          ctx.fillStyle = i % 2 ? 'rgba(66,46,26,.7)' : 'rgba(92,70,44,.62)';
+          ctx.beginPath();
+          ctx.ellipse(bx, by, rr * 1.45, rr, side * 0.5, 0, TAU);
+          ctx.fill();
+        }
       }
       // wet slick under the slide
-      ctx.fillStyle = 'rgba(120,96,66,.22)';
-      ctx.beginPath(); ctx.ellipse(pr.x, pr.y + 8, 78, 16, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(150,122,86,.18)';
+      ctx.beginPath(); ctx.ellipse(pr.x, pr.y + 8, S * 0.56, S * 0.11, 0, 0, TAU); ctx.fill();
     }
     ctx.fillStyle = 'rgba(0,0,0,.45)';
     ctx.beginPath();

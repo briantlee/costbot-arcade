@@ -49,6 +49,9 @@
     background:linear-gradient(135deg,#1d2b47,#101827);border-bottom:1px solid var(--line);
     position:relative;overflow:hidden}
   .art img{height:104px;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
+  /* the Mudslide glass wants a muddy hillside behind it, not the blue datacentre wash */
+  .art-mud{background:linear-gradient(135deg,#4a3420,#1a120a)}
+  .art-mud img{height:120px}
   .body{padding:16px 18px 18px}
   .body h3{margin:0 0 5px;font-size:19px}
   .body p{margin:0;font-size:13.5px;color:#a9bad6;line-height:1.55}
@@ -103,7 +106,7 @@
 
     <a class="card" href="mudsliders/index.html">
       <span class="badge">PLAYABLE</span>
-      <div class="art">🛷</div>
+      <div class="art art-mud"><img src="mudsliders/assets/mudslide.png" alt=""></div>
       <div class="body">
         <h3>Mudsliders</h3>
         <p>Endless downhill runner. CostBot slides a muddy hill collecting AI tokens to
