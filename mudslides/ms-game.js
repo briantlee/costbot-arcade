@@ -379,7 +379,7 @@
       }); },
       // the glass: a wet gulp, then the shield ring
       drink: () => { tick(0.14, 900, 0.12); tone(240, 0.16, 'sine', 0.22, 520);
-        [784, 1046, 1568].forEach((f, i) => tone(f, 0.3, 'triangle', 0.16, null, 0.14 + i * 0.06)); },
+        [784, 1046, 1568].forEach((f, i) => { tone(f, 0.3, 'triangle', 0.16, null, 0.14 + i * 0.06); }); },
       // a wipeout still has to land harder than a coin does
       crash: () => { tick(0.22, 600, 0.3); tone(180, 0.5, 'sawtooth', 0.28, 50); },
       shield: () => tone(520, 0.3, 'sine', 0.14, 900),
@@ -770,7 +770,7 @@
   // --- spawning --------------------------------------------------------------
   // A vendor obstacle picks its brand here, once, so the sign you read at 2,000
   // metres is the same one the wipeout screen blames.
-  Game.prototype.makeObstacle = function (type, lane, atZ) {
+  Game.prototype.makeObstacle = (type, lane, atZ) => {
     const def = C.OBSTACLES[type];
     const o = { kind: 'obs', type, def, lane, z: atZ, hit: false, passed: false };
     if (def.vendor) o.vendor = C.VENDORS[(Math.random() * C.VENDORS.length) | 0];
@@ -1379,7 +1379,7 @@
       if (!pr || pr.s > 4) continue;
       if (o.kind === 'tok' && !o.got) this.drawToken(ctx, o, pr);
       else if (o.kind === 'pow' && !o.got) this.drawPower(ctx, o, pr, this.img);
-      else if (o.kind === 'obs' && o.def.kind !== 'chasm') this.drawObstacle(ctx, o, pr, r);
+      else if (o.kind === 'obs' && o.def.kind !== 'chasm') this.drawObstacle(ctx, o, pr);
     }
 
     this.drawSpray(ctx, r, false);
@@ -1658,7 +1658,7 @@
     return true;
   };
 
-  Game.prototype.drawObstacle = function (ctx, o, pr, r) {
+  Game.prototype.drawObstacle = function (ctx, o, pr) {
     const d = o.def;
     const w = d.w * pr.s;
     const h = d.h * pr.s;
