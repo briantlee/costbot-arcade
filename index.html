@@ -74,9 +74,6 @@
     background:linear-gradient(135deg,#1d2b47,#101827);border-bottom:1px solid var(--line);
     position:relative;overflow:hidden}
   .art img{height:104px;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
-  /* the Mudslide glass wants a muddy hillside behind it, not the blue datacentre wash */
-  .art-mud{background:linear-gradient(135deg,#4a3420,#1a120a)}
-  .art-mud img{height:120px}
   /* CostBotLand's art is a whole scene, not a sprite — let it fill the frame */
   .art-scene img{height:100%;width:100%;object-fit:cover;filter:none}
   .body{padding:16px 18px 18px}
@@ -130,7 +127,7 @@
 
     <a class="card" href="waste-hunter/index.html">
       <span class="badge">PLAYABLE</span>
-      <div class="art"><img src="waste-hunter/assets/cb_t1000.png" alt=""></div>
+      <div class="art art-scene"><img src="shared/assets/robocost.jpg" alt=""></div>
       <div class="body">
         <h3>Waste Hunter</h3>
         <p>A roguelite survivor. Terminate idle EC2, orphaned volumes and zombie IPs;
@@ -144,7 +141,7 @@
 
     <a class="card" href="mudslides/index.html">
       <span class="badge">PLAYABLE</span>
-      <div class="art art-mud"><img src="mudslides/assets/mudslide.png" alt=""></div>
+      <div class="art art-scene"><img src="shared/assets/costbot-mudslide.jpg" alt=""></div>
       <div class="body">
         <h3>Mudslides</h3>
         <p>Endless downhill runner. CostBot slides a muddy hill collecting AI tokens —
@@ -223,8 +220,7 @@
       <div class="art">🏆</div>
       <div class="body">
         <h3>Leaderboards</h3>
-        <p>All-time best per stage and quiz accuracy. Identity comes from
-           MyID, so a score cannot be posted as somebody else.</p>
+        <p>All-time best per stage and quiz accuracy.</p>
         <div class="meta">
           <span class="chip tool">Live scores</span>
           <span class="chip">3 boards</span>
@@ -270,15 +266,15 @@
     'costbot.wastehunter.v1',
     'costbot.mudslides.v1',
   ];
+  // Only BANKED tokens count. A token spent on a Bot Bay upgrade is a token
+  // CostBot never got, which is the whole point of the choice.
   function localBank() {
     let tokens = 0;
     for (const key of LOCAL_GAMES) {
       try {
         const raw = localStorage.getItem(key);
         if (!raw) continue;
-        const m = JSON.parse(raw);
-        // `totalTokens` is Mudslides' older name for the same running total
-        tokens += Number(m.lifetimeTokens || m.totalTokens || 0) || 0;
+        tokens += Number(JSON.parse(raw).banked || 0) || 0;
       } catch { /* unreadable or private mode — just skip that cabinet */ }
     }
     return tokens;

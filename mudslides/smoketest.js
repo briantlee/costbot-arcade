@@ -310,6 +310,28 @@ function check(name, ok, detail) {
     return el ? { w: el.naturalWidth, h: el.naturalHeight, src: el.src } : null;
   });
   check('wipeout photo loads', !!wipe && wipe.w > 0, wipe && `${wipe.w}x${wipe.h}`);
+
+  // The screen rotates between several shots. Every one has to decode — a typo in
+  // any filename is otherwise invisible until that one happens to come up.
+  const shots = await page.evaluate(async () => {
+    const g = window.game;
+    const seen = new Set();
+    for (let i = 0; i < 200; i++) {
+      g.screenOver({ cause: 'x', tokens: 1, distance: 1, nearMisses: 0,
+        topSpeed: 1, dollars: 1, best: false });
+      seen.add(document.querySelector('.ms-wipe').getAttribute('src'));
+    }
+    const loaded = await Promise.all([...seen].map((src) => new Promise((res) => {
+      const im = new Image();
+      im.onload = () => res({ src, ok: im.naturalWidth > 0 });
+      im.onerror = () => res({ src, ok: false });
+      im.src = src;
+    })));
+    return loaded;
+  });
+  check('all wipeout shots rotate in', shots.length === 3, `${shots.length} distinct`);
+  check('every wipeout shot decodes', shots.every((s) => s.ok),
+    shots.filter((s) => !s.ok).map((s) => s.src).join(','));
   // The screen is a scroll container by design (an unlock banner can push it
   // over), but the ordinary result — stats, build bar, buttons — has to be
   // readable without scrolling, which a too-large photo silently breaks.

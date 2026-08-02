@@ -162,15 +162,9 @@
       document.getElementById('who').textContent =
         'Signed in as ' + short(s.displayName || s.hubId);
       data = await window.ArcadeSync.boards();
-      // The front door strips the email before it reaches the app, so ask MyID
-      // directly — /whoami is same-origin and answers for the signed-in caller.
-      const who = (await window.ArcadeSync.identity()).myid;
-      const diag = `identity from MyID → email: <b>${esc(String((who && who.email) || 'not supplied'))}</b>`
-        + ` · namespace: <b>${esc(String((who && who.namespace) || 'not supplied'))}</b>`
-        + ` · shown as: <b>${esc(short(s.displayName || s.hubId))}</b>`;
-      document.getElementById('note').innerHTML = (data && data.source === 'memory'
-        ? 'Running without a database — these standings are in-memory and reset when the app restarts.<br>'
-        : 'A score cannot be posted as somebody else.<br>') + diag;
+      document.getElementById('note').innerHTML = data && data.source === 'memory'
+        ? 'Running without a database — these standings are in-memory and reset when the app restarts.'
+        : '';
     } else {
       document.getElementById('note').innerHTML =
         'Served statically, so there is no scores API here. The full arcade lives on aix-proto.';

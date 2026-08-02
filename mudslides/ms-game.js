@@ -58,7 +58,7 @@
   }
 
   function defaultProfile() {
-    return { totalTokens: 0, lifetimeTokens: 0, best: 0, bestDistance: 0,
+    return { totalTokens: 0, lifetimeTokens: 0, banked: 0, best: 0, bestDistance: 0,
       runs: 0, achievements: {}, history: [] };
   }
 
@@ -664,14 +664,20 @@
     }).catch(local);
   };
 
+  // A wipeout screen you will see hundreds of times wants more than one picture.
+  // Rotated at random rather than cycled: a cycle is predictable enough that the
+  // third one stops registering.
+  const WIPEOUT_SHOTS = ['wipeout.jpg', 'wipeout-surgery.jpg', 'wipeout-megabill.jpg'];
+  const pickShot = () => WIPEOUT_SHOTS[(Math.random() * WIPEOUT_SHOTS.length) | 0];
+
   Game.prototype.screenOver = function (res) {
     this.clearUI();
     if (this.music) this.music.playTrack('menu');
     const el = document.createElement('div');
     el.className = 'ms-screen';
     el.innerHTML = `
-      <img class="ms-wipe" src="${this.spriteBase}wipeout.jpg"
-           alt="CostBot face-down in the mud, drink still upright">
+      <img class="ms-wipe" src="${this.spriteBase}${pickShot()}"
+           alt="CostBot, not having his best run">
       <h2 style="font-size:30px;margin:8px 0 2px;color:#ff8a8a">WIPEOUT</h2>
       <p class="ms-sub">${esc(res.cause)}</p>
       <div class="ms-panel">
@@ -1162,9 +1168,11 @@
     const tokens = Math.floor(r.tokens);
 
     p.totalTokens = (p.totalTokens || 0) + tokens;
-    // `lifetimeTokens` is what every cabinet calls its running total, and what
-    // the arcade's bank sums when there is no API to ask. Same number.
+    // `lifetimeTokens` is what every cabinet calls its running total. `banked` is
+    // what the arcade's build fund counts — there is nothing to spend tokens on
+    // here, so on this hill everything you collect is banked by definition.
     p.lifetimeTokens = p.totalTokens;
+    p.banked = p.totalTokens;
     p.runs = (p.runs || 0) + 1;
     const best = tokens > (p.best || 0);
     if (best) p.best = tokens;

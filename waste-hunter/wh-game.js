@@ -63,7 +63,7 @@
   // ===========================================================================
   function defaultMeta() {
     return {
-      version: 2, tokens: 0, lifetimeTokens: 0, lifetimeDollars: 0, runs: 0,
+      version: 2, tokens: 0, lifetimeTokens: 0, banked: 0, lifetimeDollars: 0, runs: 0,
       quizCorrect: 0, upgrades: {}, achievements: {}, best: {}, cleared: {},
       seenQuestions: {}, theme: 'synthwave',
     };
@@ -283,6 +283,19 @@
 
 /* bot bay */
 .wh-shop{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0;max-width:760px;}
+/* Banking is the counterweight to the shop below it, so it reads as the other
+   thing you can do with a balance rather than a footnote to buying. */
+.wh-bank{margin:14px 0 0;max-width:760px;text-align:left;border:1px solid #2e7d4f;
+  border-radius:14px;padding:13px 16px;background:linear-gradient(180deg,#12241a,#0b1410);}
+.wh-bank-t{font-size:14px;font-weight:750;color:#8ff0ad;}
+.wh-bank-d{font-size:12.5px;color:#9ab8a6;line-height:1.55;margin-top:4px;}
+.wh-bank-d b{color:#c7f5da;font-variant-numeric:tabular-nums;}
+.wh-bank-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.wh-bankbtn{background:#12291d;border:1px solid #3fa060;color:#8ff0ad;border-radius:9px;
+  padding:7px 13px;font:700 12.5px inherit;cursor:pointer;font-variant-numeric:tabular-nums;}
+.wh-bankbtn:hover:not(:disabled){background:#1a3a28;color:#c7f5da;}
+.wh-bankbtn.all{background:#173a26;border-color:#6ee7a0;}
+.wh-bankbtn:disabled{opacity:.38;cursor:default;}
 .wh-item{background:#131c30;border:1px solid #2b3f66;border-radius:11px;padding:13px;text-align:left;}
 .wh-item .t{font-size:14.5px;font-weight:700;margin-bottom:3px;}
 .wh-item .d{font-size:12px;color:#8c9dbd;margin-bottom:9px;min-height:30px;line-height:1.4;}
@@ -751,6 +764,10 @@
     });
   };
 
+  // Preset banking amounts. Small enough that a first-timer can give something,
+  // large enough that a stacked balance does not need twenty clicks.
+  const BANK_STEPS = [250, 1000, 5000];
+
   Instance.prototype.screenBay = function () {
     const m = this.meta;
     this.clearUI();
@@ -771,13 +788,39 @@
     el.className = 'wh-screen';
     el.innerHTML = `<div class="wh-scroll">
       <h2 style="font-size:30px;margin:0">🛠️ Bot Bay</h2>
-      <p class="wh-sub">Permanent upgrades. They apply to every future run.</p>
+      <p class="wh-sub">Spend tokens on yourself, or bank them for CostBot. Not both.</p>
       <div style="font-size:19px;margin-top:12px">🪙 <b style="color:#ffd76b">${m.tokens.toLocaleString()}</b> AI tokens on hand</div>
+      <div class="wh-bank">
+        <div class="wh-bank-t">🤖 CostBot's build fund</div>
+        <div class="wh-bank-d">Banked tokens leave your balance for good and go to the
+          arcade's fund — every 10,000 banked ships another product.
+          You have banked <b>${(m.banked || 0).toLocaleString()}</b> so far.</div>
+        <div class="wh-bank-row">
+          ${BANK_STEPS.map((n) => `<button class="wh-bankbtn" data-bank="${n}"
+            ${m.tokens < n ? 'disabled' : ''}>🏦 ${n.toLocaleString()}</button>`).join('')}
+          <button class="wh-bankbtn all" data-bank="all" ${m.tokens < 1 ? 'disabled' : ''}>
+            🏦 Bank all</button>
+        </div>
+      </div>
       <div class="wh-shop">${items}</div>
       <button class="wh-btn ghost" data-act="back">← Back</button>
     </div>`;
     this.ui.appendChild(el);
     el.addEventListener('click', (e) => {
+      const bank = e.target.closest('[data-bank]');
+      if (bank) {
+        const want = bank.dataset.bank === 'all' ? m.tokens : Number(bank.dataset.bank);
+        const give = Math.min(m.tokens, want);
+        if (give > 0) {
+          m.tokens -= give;
+          m.banked = (m.banked || 0) + give;
+          saveMeta(m, this.persist);
+          this.audio.coin();
+          if (m.banked >= 10000) this.unlock('banker');
+          this.screenBay();
+        }
+        return;
+      }
       const b = e.target.closest('[data-buy]');
       if (b) {
         const id = b.dataset.buy, u = C.META_UPGRADES[id];
@@ -898,8 +941,10 @@
     const clearBonus = outcome === 'clear' ? 1.5 : 1;
     const tokens = Math.round((r.dollars / 1000) * interest * clearBonus);
 
-    // Two ledgers, one currency: `tokens` is the spendable Bot Bay balance,
-    // `lifetimeTokens` only ever goes up and is what the arcade pool counts.
+    // Three ledgers, one currency. `tokens` is the spendable Bot Bay balance;
+    // `lifetimeTokens` only ever goes up and records what you earned; `banked` is
+    // what you deliberately gave to CostBot's build fund instead of spending on
+    // yourself, and that is the only one the fund counts.
     m.tokens += tokens;
     m.lifetimeTokens += tokens;
     m.lifetimeDollars += r.dollars;

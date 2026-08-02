@@ -756,7 +756,9 @@
     { id: 'zero_unattached', name: 'Zero Unattached', icon: '💾', desc: 'Destroy 50 Orphaned EBS in one run.' },
     { id: 'full_house', name: 'Full Toolchain', icon: '🧰', desc: 'Carry 6 weapons at once.' },
     { id: 'flawless_boss', name: 'Untouchable', icon: '✨', desc: 'Beat a boss without taking a hit.' },
-    { id: 'bank_100k', name: 'Treasury', icon: '🏛️', desc: 'Bank 100,000 AI tokens lifetime.' },
+    { id: 'bank_100k', name: 'Treasury', icon: '🏛️', desc: 'Earn 100,000 AI tokens lifetime.' },
+    { id: 'banker', name: 'Patron', icon: '🏦',
+      desc: 'Bank 10,000 tokens into CostBot\'s build fund.' },
     { id: 'quiz_5', name: 'Certified', icon: '📗', desc: 'Answer 5 quiz questions correctly in one run.' },
     { id: 'quiz_perfect', name: 'Well Read', icon: '🎓', desc: 'Clear a stage without missing a question.' },
     { id: 'quiz_25', name: 'Practitioner', icon: '🧠', desc: 'Answer 25 questions correctly, lifetime.' },
@@ -803,6 +805,10 @@
         note: 'One question on the lever you just took. You keep the upgrade either way.' },
       { icon: '💀', label: 'Kill the boss',
         note: 'It arrives when the clock hits zero. Clearing the stage unlocks the next one and pays a token bonus.' },
+      { icon: '🪙', label: 'Spend the tokens, or bank them',
+        note: 'Dollars saved convert to AI tokens at the end of a run. In the Bot Bay they buy permanent '
+          + 'upgrades — or you bank them into CostBot\'s build fund instead, where every 10,000 ships '
+          + 'another product. A token can do one or the other, never both.' },
     ],
     // trait flags on an enemy -> how the bestiary should label them
     traits: {
