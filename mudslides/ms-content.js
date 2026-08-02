@@ -89,29 +89,54 @@
   // with the vendor's own name, so you always find out which contract got you.
   // ---------------------------------------------------------------------------
   const OBSTACLES = {
-    bedrock: { name: 'Bedrock', kind: 'jump', art: 'rock', color: '#6a6157', accent: '#8d8377',
-      w: 250, h: 108, blurb: 'A boulder of Bedrock. Jump it.',
-      cause: 'a boulder of Bedrock' },
-    bedrock_slab: { name: 'Bedrock Slab', kind: 'jump', art: 'rock', color: '#5d5449', accent: '#837a6e',
+    bedrock: { name: 'AWS Bedrock', kind: 'jump', art: 'rock', color: '#6a6157', accent: '#8d8377',
+      w: 250, h: 108, blurb: 'A boulder of AWS Bedrock. Jump it.',
+      causes: ['a boulder of AWS Bedrock',
+        'an unbudgeted boulder of AWS Bedrock',
+        'AWS Bedrock, straight to the shins'] },
+    bedrock_slab: { name: 'AWS Bedrock Slab', kind: 'jump', art: 'rock',
+      color: '#5d5449', accent: '#837a6e',
       w: 300, h: 76, blurb: 'Wider, lower, still solid.',
-      cause: 'a slab of Bedrock' },
+      causes: ['a slab of AWS Bedrock',
+        'a wide, flat slab of AWS Bedrock',
+        'inference charges the size of a rock'] },
     vendor_board: { name: 'Contract', kind: 'block', art: 'sign', vendor: true,
       color: '#20283a', accent: '#7d8ba8',
       w: 210, h: 210, blurb: 'Signed, sealed, in your way.',
-      cause: 'the {vendor} Contract' },
+      causes: null },   // vendor obstacles draw from VENDOR_CAUSES
     vendor_gantry: { name: 'Renewal', kind: 'slide', art: 'gantry', vendor: true,
       color: '#20283a', accent: '#7d8ba8',
       w: 330, h: 150, blurb: 'Overhead and unavoidable. Get under it.',
-      cause: 'the {vendor} Renewal' },
+      causes: null },
     support_tar: { name: 'Extended Support Tar', kind: 'tar', art: 'tar', glyph: '🛢️',
       color: '#4b3b2f', accent: '#8a6a3f',
       w: 300, h: 40, slow: 0.45, dur: 1.1, blurb: 'Year 3 fees. Everything slows down.',
-      cause: 'Extended Support tar' },
+      causes: ['Extended Support tar',
+        'year-three support fees, thick as tar',
+        'a support tier nobody remembered renewing out of'] },
     billing_gap: { name: 'Billing Gap', kind: 'chasm', art: 'chasm', glyph: '🕳️',
       color: '#0a0d14', accent: '#2b3f66',
       w: 340, h: 0, blurb: 'Month-end close. Mind the gap.',
-      cause: 'the month-end Billing Gap' },
+      causes: ['the month-end Billing Gap',
+        'a hole where the month-end close should be',
+        'three days of missing CUR'] },
   };
+
+  // Every vendor sign can end a run in more than one way. `{vendor}` is filled
+  // with the name on the sign, so the same Datadog board reads differently each
+  // time and the wipeout screen stops sounding like a template.
+  const VENDOR_CAUSES = [
+    'the {vendor} Contract',
+    'the {vendor} Renewal',
+    'a cost spike in the {vendor} spend',
+    'an issue in the {vendor} cost pipeline',
+    'an unbudgeted {vendor} true-up',
+    'a {vendor} invoice nobody had seen before',
+    '{vendor} usage that grew while nobody was looking',
+    'a {vendor} commitment that came due',
+    'the {vendor} line on the megabill',
+    'a surprise tier change in {vendor}',
+  ];
 
   // What can appear, and from what distance travelled (metres) it starts.
   const SPAWN_TABLE = [
@@ -226,7 +251,7 @@
   };
 
   global.MS_CONTENT = {
-    WORLD, TOKENS, DOLLARS_PER_TOKEN, VENDORS, OBSTACLES, SPAWN_TABLE, DIFFICULTY,
+    WORLD, TOKENS, DOLLARS_PER_TOKEN, VENDORS, OBSTACLES, VENDOR_CAUSES, SPAWN_TABLE, DIFFICULTY,
     POWERUPS, SCORING, ACHIEVEMENTS, TIPS, BRIEFING,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

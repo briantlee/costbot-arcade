@@ -98,7 +98,7 @@
       const mine = me && r.player === me;
       return `<tr class="${mine ? 'me' : ''}">
         <td class="rank ${i < 3 ? 'p' + (i + 1) : ''}">${i + 1}</td>
-        <td class="name">${esc(short(r.player || r.team))}</td>
+        <td class="name">${esc(short(r.player))}</td>
         ${cols(r)}
       </tr>`;
     }).join('');
@@ -131,16 +131,12 @@
       panel.innerHTML = table('Quiz accuracy — min 10 answers',
         '<th style="text-align:right">Correct</th>', data.quiz,
         (r) => `<td class="val">${r.pct}% <span class="val dim">(${r.correct}/${r.asked})</span></td>`);
-    } else {
-      panel.innerHTML = table('Team totals', '<th style="text-align:right">Total saved</th>',
-        data.teams, (r) => `<td class="val">${money(r.dollars)} <span class="val dim">· ${r.runs} runs</span></td>`);
     }
   }
 
   const TABS = [
     ['stages', '🏆 Per stage'],
     ['quiz', '🎓 Quiz accuracy'],
-    ['teams', '👥 Teams'],
   ];
   const tabBox = document.getElementById('tabs');
   TABS.forEach(([id, lbl]) => {
@@ -159,13 +155,18 @@
   (async () => {
     const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
     if (s.enabled) {
-      me = s.hubId;
+      // boards label rows with the resolved name, so match on that — comparing
+      // against the raw hub id never hit and your own row was never highlighted
+      me = s.displayName || s.hubId;
+      // prefer the resolved name — the hub id is a PERNR and reads as nobody
       document.getElementById('who').textContent =
-        'Signed in as ' + short(s.hubId) + (s.team ? ' · ' + s.team : '');
+        'Signed in as ' + short(s.displayName || s.hubId);
       data = await window.ArcadeSync.boards();
-      const id = s.state && s.state.identity ? s.state.identity : null;
-      const diag = `identity from MyID → email: <b>${esc(String((id && id.email) || 'not supplied'))}</b>`
-        + ` · login: <b>${esc(String((id && id.username) || 'not supplied'))}</b>`
+      // The front door strips the email before it reaches the app, so ask MyID
+      // directly — /whoami is same-origin and answers for the signed-in caller.
+      const who = (await window.ArcadeSync.identity()).myid;
+      const diag = `identity from MyID → email: <b>${esc(String((who && who.email) || 'not supplied'))}</b>`
+        + ` · namespace: <b>${esc(String((who && who.namespace) || 'not supplied'))}</b>`
         + ` · shown as: <b>${esc(short(s.displayName || s.hubId))}</b>`;
       document.getElementById('note').innerHTML = (data && data.source === 'memory'
         ? 'Running without a database — these standings are in-memory and reset when the app restarts.<br>'

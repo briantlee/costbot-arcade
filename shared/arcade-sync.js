@@ -75,10 +75,86 @@
           pushProfile(local, true);
         }
       }
+
+      // A name the player set themselves always wins — only ever fill a blank.
+      if (!state.displayName) await adoptFrontDoorName();
     } catch {
       state.enabled = false;   // static hosting, offline, or API down — stay quiet
     }
     return state;
+  }
+
+  // ---- the email the front door will not forward ----------------------------
+  // A hub id is a PERNR: correct as a key, useless as a label. The server cannot do
+  // better on its own — the front door forwards ONLY x-aix-hub-id and x-aix-groups
+  // downstream and deliberately strips x-aix-email before it reaches an app, so
+  // nameFromEmail() there has nothing to work with in production and the boards fall
+  // back to an employee number.
+  //
+  // The BROWSER can still ask. /whoami lives at the control-plane origin root — the
+  // same origin serving this page — so the MyID session cookie rides along and it
+  // answers with the caller's OWN identity and nobody else's.
+  //
+  // We send back the derived NAME, through the same path as the "set your name"
+  // button, and deliberately NOT the raw address: a client-supplied email persisted
+  // into an `email` column would look verified without being verified, and the
+  // platform uses email as a share-by-email match key. A display name is
+  // self-asserted either way, and scores stay keyed to the verified hub id.
+  function nameFromEmail(email) {
+    const local = String(email || '').split('@')[0];
+    if (!local) return null;
+    const parts = local.split(/[._-]+/)
+      .filter((w) => w && !/^\d+$/.test(w))
+      .map((w) => w.replace(/\d+$/, ''))      // drop a trailing "lee2" disambiguator
+      .filter(Boolean);
+    if (!parts.length) return null;
+    return parts.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  }
+
+  let whoamiOnce = null;
+  function whoami() {
+    // Cached: init() needs it only when the name is blank, but a page that wants to
+    // SHOW the identity can ask any time without a second round trip.
+    if (whoamiOnce) return whoamiOnce;
+    whoamiOnce = (async () => {
+      try {
+        const r = await fetch(new URL('/whoami', global.location.origin).href, {
+          credentials: 'same-origin',
+          headers: { accept: 'application/json' },
+        });
+        if (!r.ok) return null;               // 401 unauthenticated, 404 static host
+        return await r.json();
+      } catch {
+        return null;                          // no control plane here — stay quiet
+      }
+    })();
+    return whoamiOnce;
+  }
+
+  // What MyID actually knows about the viewer: {hubId, email, namespace, groups}.
+  // Lazy on purpose — a game never needs it, so it stays off the run's critical path.
+  async function identity() {
+    const who = await whoami();
+    if (who && who.email) {
+      state.identity = {
+        email: who.email,
+        username: (state.identity && state.identity.username) || who.namespace || null,
+      };
+    }
+    return { front_door: state.identity, myid: who };
+  }
+
+  async function adoptFrontDoorName() {
+    const who = await whoami();
+    if (!who || !who.email) return;
+    state.identity = {
+      email: who.email,
+      username: (state.identity && state.identity.username) || null,
+    };
+    const name = nameFromEmail(who.email) || who.namespace || null;
+    if (!name) return;
+    state.displayName = name;
+    await setDisplayName(name);               // persists, so this runs once per player
   }
 
   function readLocalProfile() {
@@ -182,6 +258,7 @@
 
   global.ArcadeSync = {
     init, submit, pushProfile, boards, gameBoards, setDisplayName, gameProfile, saveGame,
+    identity,
     get state() { return state; },
     get enabled() { return state.enabled; },
   };

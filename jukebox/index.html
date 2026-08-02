@@ -25,7 +25,6 @@
   .track h3{margin:8px 0 4px;font-size:18px}
   .track .bpm{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:#7fd6c4;text-transform:uppercase}
   .track p{margin:6px 0 0;font-size:12.5px;color:#a9bad6;line-height:1.45}
-  .track .inf{font-size:11.5px;color:var(--gold);font-weight:650;margin-bottom:2px}
   .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center}
   button.plain{background:#1d3358;border:1px solid #3f5f96;color:#dce7f8;padding:10px 20px;border-radius:9px;
     font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
@@ -44,7 +43,7 @@
   <img class="bot" src="../shared/assets/costbot.png" alt="">
   <h1>CostBot Arcade Jukebox</h1>
   <p class="sub">Shared soundtrack engine for every game in the arcade. Synthesised live in WebAudio —
-     no audio files.<br>Original compositions written in the style of each influence.</p>
+     no audio files. Every track is an original composition.</p>
   <a class="back" href="../index.html">← Back to the Arcade</a>
 
   <div class="tracks" id="tracks"></div>
@@ -89,7 +88,6 @@
       el.innerHTML = `<div class="ic">${ICONS[id] || '🎵'}</div>
         <div class="bpm">${t.bpm} BPM · ${t.key}</div>
         <h3>${t.title}</h3>
-        <div class="inf">${t.influence}</div>
         <p>${t.desc}</p>`;
       el.onclick = () => {
         music.playTrack(id);

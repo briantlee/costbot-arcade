@@ -1115,10 +1115,14 @@
     this.emit('run:power', { id });
   };
 
-  // "CostBot's fun was interrupted by the Datadog Contract." Every hazard names
-  // itself; the vendor ones name the brand on the sign that actually got you.
+  // "CostBot's fun was interrupted by a cost spike in the Datadog spend."
+  // Every hazard can phrase itself several ways; the vendor ones draw from the
+  // shared pool and fill in the brand on the sign that actually got you.
   Game.prototype.causeOf = (def, o) => {
-    let noun = def.cause || 'something expensive';
+    const pool = (o && o.vendor ? C.VENDOR_CAUSES : def.causes) || [];
+    let noun = pool.length
+      ? pool[(Math.random() * pool.length) | 0]
+      : 'something expensive';
     if (o && o.vendor) noun = noun.replace('{vendor}', o.vendor.name);
     return `CostBot's fun was interrupted by ${noun}.`;
   };
@@ -1712,6 +1716,26 @@
     ctx.beginPath();
     ctx.ellipse(pr.x, pr.y, w * 0.5, h * 0.1, 0, 0, TAU);
     ctx.fill();
+
+    // A quarry stamp, chiselled rather than printed — light edge under a dark
+    // face. Only once the rock is big enough for it to be legible; at distance
+    // it would just be grey mush on a grey rock.
+    if (w > 96) {
+      ctx.save();
+      ctx.translate(pr.x, pr.y - h * 0.4);
+      ctx.rotate(-0.07);
+      ctx.font = `800 ${Math.min(w * 0.09, h * 0.2)}px 'Segoe UI',system-ui,sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      // The dome's silhouette narrows toward the top and each rock is lumped by
+      // noise, so keep well inside the nominal width or the stamp hangs off it.
+      const fit = w * 0.58;
+      ctx.fillStyle = 'rgba(255,255,255,.11)';
+      ctx.fillText('AWS BEDROCK', 0, Math.max(1, h * 0.014), fit);
+      ctx.fillStyle = 'rgba(26,18,10,.38)';
+      ctx.fillText('AWS BEDROCK', 0, 0, fit);
+      ctx.restore();
+    }
   };
 
   // A vendor's contract, planted in the lane on two posts.

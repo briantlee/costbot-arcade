@@ -10,7 +10,7 @@
   *{box-sizing:border-box}
   body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#1a2744,#05070d 65%);
     color:var(--fg);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;padding:40px 24px 60px;}
-  .wrap{max-width:1080px;margin:0 auto}
+  .wrap{max-width:1080px;margin:0 auto;position:relative}
   header{text-align:center;margin-bottom:8px}
   header img{width:120px;filter:drop-shadow(0 12px 30px rgba(74,163,255,.45));
     animation:bob 3s ease-in-out infinite}
@@ -33,20 +33,29 @@
   .namebtn{background:rgba(240,165,44,.14);border:1px solid #6b5320;color:var(--gold);
     font:600 12.5px inherit;padding:3px 11px;border-radius:20px;cursor:pointer;margin-left:6px}
   .namebtn:hover{background:rgba(240,165,44,.26)}
-  /* The communal haul. Every cabinet feeds this one number. */
-  .fund{display:none;margin:14px auto 0;max-width:640px;text-align:left;
+  /* The communal haul. Every cabinet feeds this one number. A corner readout
+     rather than a banner: it is a running total you glance at, and the page has
+     better uses for its vertical space. */
+  .fund{display:none;position:absolute;top:0;right:0;width:236px;text-align:left;
     background:linear-gradient(180deg,#16213a,#0f1728);border:1px solid var(--line);
-    border-radius:14px;padding:13px 18px}
+    border-radius:13px;padding:11px 14px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
   .fund.on{display:block}
-  .fund-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
-    font-size:13.5px;font-weight:700}
-  .fund-top b{color:var(--gold);font-variant-numeric:tabular-nums}
-  .fund-bar{height:9px;border-radius:6px;background:#0b1322;border:1px solid #23324f;
-    margin:9px 0 6px;overflow:hidden}
-  .fund-bar i{display:block;height:100%;border-radius:6px;
+  .fund-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .fund-label{font-size:12px;font-weight:700;color:var(--fg);white-space:nowrap}
+  .fund-bar{height:7px;border-radius:5px;background:#0b1322;border:1px solid #23324f;
+    margin:9px 0 5px;overflow:hidden}
+  .fund-bar i{display:block;height:100%;border-radius:5px;
     background:linear-gradient(90deg,#7fd6c4,#f0a52c);transition:width .7s ease}
-  .fund-sub{font-size:12px;color:var(--muted)}
-  .fund-sub b{color:var(--teal);font-variant-numeric:tabular-nums}
+  .fund-nums{display:flex;gap:5px;align-items:baseline;font-size:11.5px;color:#5d6d8a}
+  .fund-nums b{color:var(--gold);font-size:13px;font-variant-numeric:tabular-nums}
+  .ship{font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+    background:#173a26;border:1px solid #3fa060;color:#8ff0ad;padding:2px 7px;
+    border-radius:20px;white-space:nowrap}
+  .ship b{color:#c7f5da}
+  /* Nothing to tuck into on a narrow screen — let it sit above the header. */
+  @media (max-width:900px){
+    .fund{position:static;width:auto;max-width:420px;margin:0 auto 18px}
+  }
 
   .pill{display:inline-block;margin-top:14px;font-size:12px;letter-spacing:1.4px;font-weight:800;
     color:#0d1220;background:linear-gradient(180deg,#ffd76b,#f0a52c);padding:5px 14px;border-radius:20px}
@@ -90,25 +99,29 @@
 </head>
 <body>
 <div class="wrap">
+  <!-- Out of the header's vertical flow: the fund is a persistent readout, not a
+       banner, so it sits in the corner and costs the page no height. -->
+  <div class="fund" id="fund" title="CostBot's build fund">
+    <div class="fund-top">
+      <span class="fund-label">🤖 Build fund</span>
+      <span class="ship" id="fund-ship">nothing shipped yet</span>
+    </div>
+    <div class="fund-bar"><i id="fund-fill" style="width:0%"></i></div>
+    <div class="fund-nums"><b id="fund-num">0</b><span>/ 0 tokens</span></div>
+  </div>
+
   <header>
     <img src="shared/assets/costbot.png" alt="CostBot">
     <h1>CostBot Arcade</h1>
     <p class="tag">CostBot has a whole backlog of things it wants to build for the company,
        and nowhere near enough AI tokens to build them.</p>
     <p class="hook">Play the games. Earn the tokens. Help CostBot ship.</p>
-    <div class="pill">CostBot™</div>
     <div class="greet" id="greet">
       <img src="shared/assets/costbot.png" alt="">
       <div>
         <div class="hi" id="greet-hi"></div>
         <div class="stats" id="greet-stats"></div>
       </div>
-    </div>
-    <div class="fund" id="fund">
-      <div class="fund-top"><span>🤖 CostBot's build fund</span>
-        <span><b id="fund-num">0</b> <span style="color:#5d6d8a">/ 0 tokens</span></span></div>
-      <div class="fund-bar"><i id="fund-fill" style="width:0%"></i></div>
-      <div class="fund-sub" id="fund-sub"></div>
     </div>
   </header>
 
@@ -140,7 +153,6 @@
         <div class="meta">
           <span class="chip live">● Playable</span>
           <span class="chip">Endless</span>
-          <span class="chip">9 vendors want a word</span>
         </div>
       </div>
     </a>
@@ -211,7 +223,7 @@
       <div class="art">🏆</div>
       <div class="body">
         <h3>Leaderboards</h3>
-        <p>All-time best per stage, quiz accuracy and team totals. Identity comes from
+        <p>All-time best per stage and quiz accuracy. Identity comes from
            MyID, so a score cannot be posted as somebody else.</p>
         <div class="meta">
           <span class="chip tool">Live scores</span>
@@ -225,25 +237,12 @@
       <div class="art">🎵</div>
       <div class="body">
         <h3>Arcade Jukebox</h3>
-        <p>Audition the shared soundtrack. Seven procedurally synthesised tracks —
-           synthwave, industrial boss rock, a heroic march, an arena anthem and chamber
-           melancholy. No audio files anywhere.</p>
+        <p>Audition the shared soundtrack. Every track is synthesised in the browser
+           at runtime — no audio files anywhere.</p>
         <div class="meta">
           <span class="chip tool">Shared engine</span>
-          <span class="chip">7 tracks</span>
-          <span class="chip">5 themes</span>
+          <span class="chip">8 tracks</span>
         </div>
-      </div>
-    </a>
-
-    <a class="card" href="waste-hunter/embed-example.html">
-      <span class="badge">OPEN</span>
-      <div class="art">🔌</div>
-      <div class="body">
-        <h3>Embed Demo</h3>
-        <p>How a game mounts inside a host page and hands its result back — the contract
-           every arcade game implements so scores can pool into one wallet.</p>
-        <div class="meta"><span class="chip tool">Reference</span></div>
       </div>
     </a>
 
@@ -286,15 +285,25 @@
   }
 
   const numFmt = (n) => Math.round(n || 0).toLocaleString('en-US');
-  const TIERS = [10e3, 50e3, 100e3, 250e3, 500e3, 1e6, 2.5e6, 5e6, 10e6, 25e6, 50e6];
+
+  // Every SHIP_COST tokens buys CostBot one shipped product. The bar tracks the
+  // one being built now and resets when it lands, so the fund never pegs at 100%
+  // and there is always a next thing — the tally is what keeps score long-term.
+  const SHIP_COST = 10000;
   function paintFund(total, sub) {
-    const goal = TIERS.find((t) => t > total) || Math.ceil(total / 1e6 + 1) * 1e6;
-    document.getElementById('fund-num').textContent = numFmt(total);
+    const shipped = Math.floor(total / SHIP_COST);
+    const toward = total % SHIP_COST;
+    document.getElementById('fund-num').textContent = numFmt(toward);
     document.getElementById('fund-num').nextElementSibling.textContent =
-      '/ ' + numFmt(goal) + ' tokens';
+      '/ ' + numFmt(SHIP_COST) + ' tokens';
     document.getElementById('fund-fill').style.width =
-      Math.max(1.5, Math.min(100, (total / goal) * 100)) + '%';
-    document.getElementById('fund-sub').innerHTML = sub;
+      Math.max(1.5, (toward / SHIP_COST) * 100) + '%';
+    document.getElementById('fund-ship').innerHTML = shipped
+      ? `<b>${numFmt(shipped)}</b> shipped`
+      : 'nothing shipped yet';
+    // The card is too small for a sentence, but the context still matters — it
+    // becomes the hover tooltip rather than being thrown away.
+    document.getElementById('fund').title = sub.replace(/<[^>]+>/g, '');
     document.getElementById('fund').classList.add('on');
   }
 
@@ -305,8 +314,8 @@
     if (!s.enabled) {
       const mine = localBank();
       paintFund(mine, mine
-        ? 'Banked on this machine. Sign in on the arcade app to pool yours '
-          + 'with everyone else\'s.'
+        ? 'Banked on this machine — every 10,000 tokens ships another product. '
+          + 'Sign in on the arcade app to pool yours with everyone else\'s.'
         : 'Nobody has banked a token on this machine yet. Be the first.');
       return;
     }
@@ -343,15 +352,15 @@
       ? (bits.length ? 'Welcome back, ' : 'Welcome, ') + '<b>' + esc(first) + '</b>'
       : 'Welcome<b></b> <button class="namebtn" id="setname">set your name</button>';
     document.getElementById('greet-stats').innerHTML = bits.length
-      ? bits.join(' &nbsp;·&nbsp; ') + (s.team ? ' &nbsp;·&nbsp; ' + s.team : '')
+      ? bits.join(' &nbsp;·&nbsp; ')
       : 'Your progress saves to your profile and follows you between machines.';
     document.getElementById('greet').classList.add('on');
 
     // The goal is the next milestone above the current haul rather than a fixed
     // number, so the bar always means something and never sits pegged at 100%.
     paintFund(pool.total, pool.total
-      ? `Pooled from every cabinet by <b>${num(pool.players)}</b> `
-        + `player${pool.players === 1 ? '' : 's'}`
+      ? `Every 10,000 tokens ships another product. Pooled from every cabinet by `
+        + `<b>${num(pool.players)}</b> player${pool.players === 1 ? '' : 's'}`
         + (pool.mine ? ` &nbsp;·&nbsp; your share <b>${num(pool.mine)}</b>` : '')
       : 'Nobody has banked a token yet. Be the first.');
 

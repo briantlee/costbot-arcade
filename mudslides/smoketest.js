@@ -274,7 +274,35 @@ function check(name, ok, detail) {
   check('arcade leaderboard row is gone from the results', noArcadeBoard);
   const cause = await page.evaluate(() => document.querySelector('.ms-screen .ms-sub').textContent.trim());
   check('wipeout names the vendor that got you',
-    cause === "CostBot's fun was interrupted by the Datadog Contract.", cause);
+    /^CostBot's fun was interrupted by .*Datadog.*\.$/.test(cause), cause);
+
+  // The same hazard has to be able to phrase itself more than one way, and a
+  // vendor line must never ship with the {vendor} placeholder still in it.
+  const phrasing = await page.evaluate(() => {
+    const g = window.game;
+    const C = window.MS_CONTENT;
+    const dd = C.VENDORS.find((v) => v.id === 'datadog');
+    const seen = new Set();
+    for (let i = 0; i < 300; i++) {
+      seen.add(g.causeOf(C.OBSTACLES.vendor_board, { vendor: dd }));
+    }
+    const rock = new Set();
+    for (let i = 0; i < 300; i++) rock.add(g.causeOf(C.OBSTACLES.bedrock, null));
+    return {
+      vendorVariants: seen.size,
+      vendorPool: C.VENDOR_CAUSES.length,
+      leftovers: [...seen, ...rock].filter((t) => t.includes('{vendor}')).length,
+      allNameVendor: [...seen].every((t) => t.includes('Datadog')),
+      rockVariants: rock.size,
+      rockSaysAws: [...rock].every((t) => /AWS Bedrock|inference charges/.test(t)),
+    };
+  });
+  check('vendor wipeouts vary', phrasing.vendorVariants === phrasing.vendorPool,
+    `${phrasing.vendorVariants}/${phrasing.vendorPool} phrasings`);
+  check('every vendor phrasing names the vendor', phrasing.allNameVendor);
+  check('no {vendor} placeholder escapes', phrasing.leftovers === 0);
+  check('bedrock wipeouts vary and say AWS Bedrock',
+    phrasing.rockVariants === 3 && phrasing.rockSaysAws);
 
   // a broken <img> on a results screen is silent — assert it actually decoded
   const wipe = await page.evaluate(() => {
@@ -366,12 +394,23 @@ function check(name, ok, detail) {
   // the bank the run above just fed, with no API in play.
   await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'networkidle' });
   await page.waitForTimeout(500);
-  const hub = await page.evaluate(() => ({
-    on: !!document.querySelector('#fund.on'),
-    total: Number((document.getElementById('fund-num').textContent || '0').replace(/,/g, '')),
-  }));
-  check('arcade screen shows the bank without an API', hub.on && hub.total >= 250,
-    `${hub.total} tokens`);
+  // fund-num is progress toward the NEXT product, not the lifetime total — the
+  // tally carries the rest, so the bank has to be read back from both.
+  const hub = await page.evaluate(() => {
+    const ship = document.getElementById('fund-ship').textContent;
+    const m = ship.match(/([\d,]+)\s+shipped/);
+    return {
+      on: !!document.querySelector('#fund.on'),
+      toward: Number((document.getElementById('fund-num').textContent || '0').replace(/,/g, '')),
+      shipped: m ? Number(m[1].replace(/,/g, '')) : 0,
+      goal: document.getElementById('fund-num').nextElementSibling.textContent,
+    };
+  });
+  const bankTotal = hub.shipped * 10000 + hub.toward;
+  check('arcade screen shows the bank without an API', hub.on && bankTotal >= 250,
+    `${bankTotal} tokens (${hub.shipped} shipped + ${hub.toward})`);
+  check('the bank ships a product every 10,000 tokens',
+    /10,000 tokens/.test(hub.goal) && hub.toward < 10000, hub.goal);
 
   check('no console errors', errors.length === 0, errors.slice(0, 4).join(' | '));
 
