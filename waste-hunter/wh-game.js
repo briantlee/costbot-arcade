@@ -793,6 +793,11 @@
   Instance.prototype.screenBay = function () {
     const m = this.meta;
     this.clearUI();
+    // The purse is the ARCADE wallet, never `m.tokens`. That field is a dead
+    // pre-wallet ledger: the shared wallet folds it in once and zeroes it at the
+    // source, and nothing credits it again, so gating on it disabled every
+    // button in here while the header showed a real balance.
+    const have = wallet().tokens;
     const items = Object.entries(C.META_UPGRADES).map(([id, u]) => {
       const lvl = m.upgrades[id] || 0;
       const maxed = lvl >= u.max;
@@ -802,7 +807,7 @@
         <div class="t">${u.icon} ${esc(u.name)}</div>
         <div class="d">${esc(u.blurb(lvl + (maxed ? 0 : 1)))}</div>
         <div class="pips">${pips}</div>
-        <button class="wh-buy" data-buy="${id}" ${maxed || m.tokens < cost ? 'disabled' : ''}>
+        <button class="wh-buy" data-buy="${id}" ${maxed || have < cost ? 'disabled' : ''}>
           ${maxed ? 'MAXED' : '<img class="wh-coin" src="../shared/assets/token-coin-64.png" alt="">' + cost.toLocaleString()}</button>
       </div>`;
     }).join('');
@@ -819,8 +824,8 @@
           You have banked <b>${(m.banked || 0).toLocaleString()}</b> so far.</div>
         <div class="wh-bank-row">
           ${BANK_STEPS.map((n) => `<button class="wh-bankbtn" data-bank="${n}"
-            ${m.tokens < n ? 'disabled' : ''}>🏦 ${n.toLocaleString()}</button>`).join('')}
-          <button class="wh-bankbtn all" data-bank="all" ${m.tokens < 1 ? 'disabled' : ''}>
+            ${have < n ? 'disabled' : ''}>🏦 ${n.toLocaleString()}</button>`).join('')}
+          <button class="wh-bankbtn all" data-bank="all" ${have < 1 ? 'disabled' : ''}>
             🏦 Bank all</button>
         </div>
       </div>
@@ -831,8 +836,10 @@
     el.addEventListener('click', (e) => {
       const bank = e.target.closest('[data-bank]');
       if (bank) {
-        const want = bank.dataset.bank === 'all' ? m.tokens : Number(bank.dataset.bank);
-        const give = Math.min(m.tokens, want);
+        // Re-read rather than reuse `have` — another tab may have spent since render.
+        const onHand = wallet().tokens;
+        const want = bank.dataset.bank === 'all' ? onHand : Number(bank.dataset.bank);
+        const give = Math.min(onHand, want);
         if (give > 0) {
           if (!wallet().spend(give)) return;
           m.banked = (m.banked || 0) + give;
@@ -848,7 +855,7 @@
         const id = b.dataset.buy, u = C.META_UPGRADES[id];
         const lvl = m.upgrades[id] || 0;
         const cost = u.cost(lvl);
-        if (lvl < u.max && m.tokens >= cost) {
+        if (lvl < u.max && wallet().tokens >= cost) {
           if (!wallet().spend(cost)) return;
           m.upgrades[id] = lvl + 1;
           saveMeta(m, this.persist); this.audio.coin(); this.screenBay();
@@ -968,10 +975,11 @@
     // the 10,000 needed to ship a product is a handful of runs and not a grind.
     const tokens = Math.round((r.dollars / 250) * interest * clearBonus);
 
-    // Three ledgers, one currency. `tokens` is the spendable Bot Bay balance;
-    // `lifetimeTokens` only ever goes up and records what you earned; `banked` is
-    // what you deliberately gave to CostBot's build fund instead of spending on
-    // yourself, and that is the only one the fund counts.
+    // The spendable balance lives in the shared arcade wallet, NOT in `m.tokens`
+    // — that field predates the wallet and is dead (see screenBay). `m` keeps
+    // only the records: `lifetimeTokens` never goes down and says what you
+    // earned; `banked` is what you gave CostBot's build fund instead of spending
+    // on yourself, and that is the only one the fund counts.
     wallet().earn(tokens, 'waste-hunter');
     m.lifetimeTokens += tokens;
     m.lifetimeDollars += r.dollars;
