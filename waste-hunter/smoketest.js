@@ -208,9 +208,32 @@ const server = http.createServer((req, res) => {
   await page.waitForTimeout(220);
   await shot('08b-terminate-all');
 
-  console.log('▶ Killing boss → stage clear…');
-  await page.evaluate(() => { const b = window.game.run.boss; if (b) b.hp = -1; });
-  await page.waitForTimeout(1200);
+  console.log('▶ Killing boss → victory lap → stage clear…');
+  // Killing the boss opens a short collection lap rather than ending the run on
+  // the spot. That mattered: a clear used to strand every orb still on the floor.
+  const lap = await page.evaluate(async () => {
+    const g = window.game;
+    const b = g.run.boss; if (b) b.hp = -1;
+    for (let i = 0; i < 30; i++) g.update(1 / 60);      // half a second in
+    const mid = { lap: g.run.lap, over: g.run.over, orbs: g.run.orbs.length };
+    // sweep the remaining orbs onto the player, which is what the lap is for
+    const p = g.run.p;
+    g.run.orbs.forEach((o) => { o.x = p.x; o.y = p.y; });
+    for (let i = 0; i < 30; i++) g.update(1 / 60);
+    const swept = { orbs: g.run.orbs.length, dollars: Math.round(g.run.dollars) };
+    for (let i = 0; i < 60 * 4; i++) { if (g.run.over) break; g.update(1 / 60); }
+    return { mid, swept, over: g.run.over, outcome: g.run.outcome,
+             lapLength: window.WH_CONTENT.VICTORY_LAP };
+  });
+  const lapOk = lap.mid.lap > 0 && !lap.mid.over;
+  console.log('  lap:', lap.lapLength + 's ·',
+    lapOk ? '✅ run stays live during it' : '❌ run ended immediately',
+    '· orbs ' + lap.mid.orbs + ' -> ' + lap.swept.orbs,
+    '· ends ' + (lap.outcome || '?'));
+  if (!lapOk) errors.push('boss kill did not open a collection lap');
+  if (lap.swept.orbs >= lap.mid.orbs) errors.push('orbs could not be collected during the lap');
+  if (lap.outcome !== 'clear') errors.push('victory lap did not end in a clear');
+  await page.waitForTimeout(600);
   await resolveLevelUp(false);
   await page.waitForTimeout(2200);
   await shot('09-stage-clear');

@@ -962,11 +962,11 @@
     const m = this.meta;
     const interest = 1 + 0.08 * (m.upgrades.interest || 0);
     const clearBonus = outcome === 'clear' ? 1.5 : 1;
-    // $500 saved = 1 token, doubled from the original $1,000. Measured against
-    // the other cabinets, Waste Hunter was paying roughly half what fishing and
-    // Mudslides do per minute for strictly harder play, which made the game with
-    // the most actual FinOps content in it the worst way to earn.
-    const tokens = Math.round((r.dollars / 500) * interest * clearBonus);
+    // $250 saved = 1 token. Started at $1,000, went to $500 on measurement, and
+    // is here now because a three-minute stage should pay like three minutes of
+    // work: a cleared run lands in the low thousands rather than under one, so
+    // the 10,000 needed to ship a product is a handful of runs and not a grind.
+    const tokens = Math.round((r.dollars / 250) * interest * clearBonus);
 
     // Three ledgers, one currency. `tokens` is the spendable Bot Bay balance;
     // `lifetimeTokens` only ever goes up and records what you earned; `banked` is
@@ -1065,8 +1065,6 @@
           res.quizWrong === 0 && res.quizCorrect > 0 ? ' <span style="color:#6ee7a0">perfect</span>' : ''}</b></div>
         <div class="wh-stat"><span><img class="wh-coin" src="../shared/assets/token-coin-64.png" alt="">AI tokens banked${win ? ' <span style="color:#6ee7a0">(×1.5 clear bonus)</span>' : ''}</span>
           <b>+${res.tokensEarned.toLocaleString()}</b></div>
-        <div class="wh-stat"><span style="color:#7fd6c4">🤖 Into CostBot's build fund</span>
-          <b style="color:#7fd6c4">${(res.meta.lifetimeTokens || 0).toLocaleString()} all-time</b></div>
         ${res.achievementsUnlocked.length ? `<div class="wh-stat"><span>🏆 New achievements</span><b>${res.achievementsUnlocked.length}</b></div>` : ''}
       </div>
       </div>
@@ -1504,6 +1502,10 @@
     if (p.hitT > 0) p.hitT -= dt;
     if (r.comboT > 0) { r.comboT -= dt; if (r.comboT <= 0) r.combo = 0; }
     if (r.bannerT > 0) r.bannerT -= dt;
+    if (r.lap > 0) {
+      r.lap -= dt;
+      if (r.lap <= 0) { r.lap = 0; this.endRun('clear'); return; }
+    }
 
     // ---- camera -------------------------------------------------------------
     r.cam.x = clamp(p.x - VW / 2, 0, WORLD_W - VW);
@@ -1889,7 +1891,10 @@
       this.shake(30);
       if (r.bossHitless) this.unlock('flawless_boss');
       r.boss = null;
-      setTimeout(() => { if (this.run && !this.run.over) this.endRun('clear'); }, 900);
+      // A short lap to sweep up what the fight left on the floor. Spawning is
+      // already halted by bossQueued, so nothing new arrives during it.
+      r.lap = C.VICTORY_LAP;
+      this.banner('BOSS DOWN', 'Grab everything still on the floor');
     }
   };
 
@@ -2455,6 +2460,22 @@
     ctx.beginPath(); ctx.arc(mx + p.x * sx, my + p.y * sy, 3, 0, TAU); ctx.fill();
 
     // --- banner
+    if (r.lap > 0) {
+      const secs = Math.ceil(r.lap);
+      const pulse = 1 - (r.lap % 1);          // swells as each second closes
+      ctx.save();
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `800 ${Math.round(78 + pulse * 26)}px 'Segoe UI',system-ui,sans-serif`;
+      ctx.fillStyle = `rgba(110,231,160,${0.32 + pulse * 0.4})`;
+      ctx.fillText(String(secs), VW / 2, VH * 0.30);
+      ctx.font = "800 15px 'Segoe UI',system-ui,sans-serif";
+      ctx.fillStyle = 'rgba(190,255,215,.88)';
+      ctx.letterSpacing = '2px';
+      ctx.fillText('COLLECT!', VW / 2, VH * 0.30 + 58);
+      ctx.letterSpacing = '0px';
+      ctx.restore();
+    }
+
     if (r.bannerT > 0) {
       const a = clamp(r.bannerT > 0.6 ? 1 : r.bannerT / 0.6, 0, 1);
       ctx.globalAlpha = a;

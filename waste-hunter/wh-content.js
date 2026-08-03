@@ -36,6 +36,11 @@
     perDollar: 1 / 15,    // a $120 Idle EC2 => 8 xp
   };
 
+  // Killing the boss used to end the run 900ms later, which stranded every orb
+  // still on the floor — you watched a stage's worth of savings evaporate. This
+  // is a victory lap: spawning has already stopped, so it is pure collection.
+  const VICTORY_LAP = 3;   // seconds
+
   // Contact damage is gated by i-frames so a swarm cannot delete you instantly.
   // You take the biggest single toucher's damage, scaled slightly by crowd size.
   const CONTACT = { crowdBonus: 0.035, crowdCap: 2.0 };
@@ -506,7 +511,7 @@
   };
 
   global.WH_CONTENT = {
-    PLAYER, XP, CONTACT, TRIVIA_RULES, TRIVIA, ENEMIES, BOSSES, STAGES,
+    PLAYER, XP, CONTACT, VICTORY_LAP, TRIVIA_RULES, TRIVIA, ENEMIES, BOSSES, STAGES,
     WEAPONS, PASSIVES, META_UPGRADES, PICKUPS, ACHIEVEMENTS, TIPS, BRIEFING, END_ART,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
