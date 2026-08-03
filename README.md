@@ -12,9 +12,9 @@ games, you earn the tokens, it ships. One source tree, served two ways.
 arcade/
   index.html            landing page
   leaderboard/          all boards (needs the dynamic app)
-  usage/                who is playing, how often, how long. Unlinked and
-                        owner-gated: the page 404s and its API 403s for
-                        everyone else, so reach it by URL
+  usage/                who is playing, how often, how long, plus the reset
+                        controls. Unlinked and owner-gated: the page 404s and
+                        its API 403s for everyone else, so reach it by URL
   jukebox/              audition the shared soundtrack
   waste-hunter/         the game
   mudslides/            the endless runner
@@ -63,6 +63,36 @@ with `ARCADE_ADMIN_HUB_IDS=local-dev` to see it.
 Locally there is no MyID front door, so the viewer falls back to a stable
 `local-dev` identity. That is deliberate: it keeps the app exercisable without
 pretending to be authenticated.
+
+### Resetting the data
+
+The Usage board carries a danger zone with two scopes, both owner-only:
+
+| Scope | Clears | Leaves |
+|---|---|---|
+| `runs` | the run ledger, so leaderboards go back to empty | wallets, the build fund, display names, visits |
+| `all`  | runs, sessions **and** players — every purse and the whole fund | nothing |
+
+`all` needs the word `RESET` typed, because there is no backup: the Postgres is
+in-cluster and nothing here is recoverable.
+
+**A server-side wipe alone does not work, and that is the interesting part.** Every
+wallet is local-first — it lives in `localStorage` and is pushed back up on the next
+page load — so truncating `players` gets silently undone by the first player through
+the door, and the owner sees a reset that "did not take". So `all` also stamps a
+`reset_epoch` in `app_meta`, which rides out on `/api/me`; `arcade-sync.js` compares
+it against its own stamp and drops every `costbot.*` key before any game reads one.
+That is what makes a reset reach *other people's* browsers rather than only the
+database. A `runs` reset deliberately does **not** stamp it — nobody's purse is
+affected, so no browser needs invalidating.
+
+`tools/reset-verify.js` proves the whole loop headlessly (seed a purse → bank it →
+wipe → reload → assert the money is gone rather than restored), including the
+non-owner 404/403 paths:
+
+```bash
+node tools/reset-verify.js      # needs the app checkout at ~/aix-proto
+```
 
 ### Games only — no API needed
 

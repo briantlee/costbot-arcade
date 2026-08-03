@@ -41,6 +41,28 @@
     padding:2px 7px;border-radius:20px}
   .empty{padding:34px 18px;text-align:center;color:#6b7c9a;font-size:14px;line-height:1.7}
   .note{margin-top:18px;font-size:12.5px;color:#6b7c9a;text-align:center;line-height:1.7}
+
+  /* Danger zone — deliberately plain and a little ugly. Nothing here should look
+     like a thing you casually click. */
+  .danger{margin-top:34px;border:1px solid #5c2530;border-radius:14px;
+    background:linear-gradient(180deg,#1d1114,#120b0e);padding:18px 20px 20px}
+  .danger h2{margin:0 0 4px;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;color:#e2707f}
+  .danger p{margin:0 0 14px;font-size:12.5px;color:#9c8189;line-height:1.65}
+  .danger p b{color:#d9b9bf}
+  .drow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:11px 0;
+    border-top:1px solid #33191f}
+  .drow .lbl{font-size:13px;color:#cbb3b8;flex:1 1 240px;line-height:1.5}
+  .drow .lbl small{display:block;color:#8d747b;font-size:11.5px;margin-top:2px}
+  .dbtn{background:#3a1620;border:1px solid #7a2f3e;color:#f0b8c1;font-family:inherit;
+    font-size:12.5px;font-weight:700;padding:8px 15px;border-radius:8px;cursor:pointer}
+  .dbtn:hover:not(:disabled){background:#5a1f2c;color:#fff}
+  .dbtn:disabled{opacity:.45;cursor:not-allowed}
+  .dbtn.armed{background:#8e2436;border-color:#c4485c;color:#fff}
+  .dtype{background:#140c0f;border:1px solid #5c2530;color:#f2dfe3;font-family:inherit;
+    font-size:12.5px;padding:8px 10px;border-radius:8px;width:110px;letter-spacing:2px}
+  .dout{margin-top:12px;font-size:12.5px;line-height:1.7;color:#8d747b;white-space:pre-wrap}
+  .dout.ok{color:var(--green)}
+  .dout.bad{color:#ff9aa8}
 </style>
 </head>
 <body>
@@ -55,6 +77,31 @@
   <div class="tiles" id="tiles" style="display:none"></div>
   <div class="panel" id="panel"><div class="empty">Loading…</div></div>
   <p class="note" id="note"></p>
+
+  <section class="danger" id="danger" hidden>
+    <h2>⚠ Danger zone</h2>
+    <p>There is <b>no backup and no undo</b>. The database is in-cluster, so nothing
+      here can be recovered afterwards.</p>
+
+    <div class="drow">
+      <div class="lbl">Reset the leaderboards
+        <small>Clears every run. Wallets, the build fund and display names are left alone.</small>
+      </div>
+      <button type="button" class="dbtn" id="reset-runs">Clear runs</button>
+    </div>
+
+    <div class="drow">
+      <div class="lbl">Reset everything
+        <small>Clears runs, visits, every player's wallet and the whole build fund — and
+          tells each browser to drop its local copy on its next page load.</small>
+      </div>
+      <input class="dtype" id="confirm-box" placeholder="RESET" autocomplete="off"
+        spellcheck="false" aria-label="Type RESET to enable">
+      <button type="button" class="dbtn" id="reset-all" disabled>Wipe it all</button>
+    </div>
+
+    <div class="dout" id="dout"></div>
+  </section>
 </div>
 
 <script src="../shared/arcade-sync.js"></script>
@@ -134,6 +181,66 @@
       : 'A visit is a page load; hits within 30 minutes count as one. "Time in game" is time inside runs; "in arcade" is time between first and last page load of a visit.';
   }
 
+  // Resolve the API off this script's sibling, exactly as arcade-sync does — the
+  // page is served from /a/<slug>/usage/ under the front door, so neither an
+  // absolute nor a fixed relative path works.
+  const API = document.querySelector('script[src$="arcade-sync.js"]').src
+    .replace(/shared\/arcade-sync\.js.*$/, '') + 'api/';
+  const api = (path, opts) => fetch(new URL(path, API).href,
+    Object.assign({ credentials: 'same-origin' }, opts));
+
+  const out = document.getElementById('dout');
+  const say = (msg, cls) => { out.textContent = msg; out.className = 'dout' + (cls ? ' ' + cls : ''); };
+  const tally = (c) => (c ? `${c.runs} runs, ${c.sessions} visits, ${c.players} players` : 'unknown');
+
+  async function reset(body, btn) {
+    btn.disabled = true;
+    say('Working…');
+    try {
+      const r = await api('admin/reset', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const d = await r.json();
+      if (!r.ok) { say(d.error || ('failed (' + r.status + ')'), 'bad'); return; }
+      say(`Cleared ${d.cleared}.\nbefore — ${tally(d.before)}\nafter  — ${tally(d.after)}\n${d.note}`, 'ok');
+      // Reload so the table reflects reality rather than the pre-reset render, and
+      // so this browser honours its own reset stamp immediately.
+      setTimeout(() => window.location.reload(), 2600);
+    } catch (err) {
+      say('failed: ' + err.message, 'bad');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function wireDanger() {
+    document.getElementById('danger').hidden = false;
+
+    document.getElementById('reset-runs').onclick = (e) => {
+      if (!confirm('Clear every run?\n\nLeaderboards go back to empty. Wallets and the '
+        + 'build fund are not touched. This cannot be undone.')) return;
+      reset({ scope: 'runs' }, e.currentTarget);
+    };
+
+    // Typing the word is the gate; the dialog is only the last chance to back out.
+    const box = document.getElementById('confirm-box');
+    const all = document.getElementById('reset-all');
+    box.oninput = () => {
+      const ok = box.value.trim().toUpperCase() === 'RESET';
+      all.disabled = !ok;
+      all.classList.toggle('armed', ok);
+    };
+    all.onclick = (e) => {
+      if (box.value.trim().toUpperCase() !== 'RESET') return;
+      if (!confirm('Wipe EVERYTHING?\n\nEvery run, every visit, every wallet, and the '
+        + 'entire build fund. Every player\'s browser will drop its local progress '
+        + 'too. There is no backup and no undo.')) return;
+      reset({ scope: 'all', confirm: 'RESET' }, e.currentTarget);
+    };
+  }
+
   (async () => {
     const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
     const panel = document.getElementById('panel');
@@ -144,9 +251,7 @@
     }
     // The endpoint is owner-gated server-side; a 403 is the expected answer for
     // everyone else, so say so plainly rather than showing a broken table.
-    const r = await fetch(new URL('api/admin/usage',
-      document.querySelector('script[src$="arcade-sync.js"]').src.replace(/shared\/arcade-sync\.js.*$/, '')).href,
-      { credentials: 'same-origin' });
+    const r = await api('admin/usage');
     if (r.status === 403) {
       panel.innerHTML = '<div class="empty">This page is for the arcade owner.<br>Your play still counts toward the build fund.</div>';
       return;
@@ -156,6 +261,7 @@
       return;
     }
     render(await r.json());
+    wireDanger();   // only ever reached by someone the API already accepted
   })();
 </script>
 </body>

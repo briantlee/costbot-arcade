@@ -42,6 +42,8 @@
     identity: null,        // {email, username} as the front door supplied them
     pool: null,            // {total, mine, players} — the shared AI token fund
     isAdmin: false,        // may open the owner-only Usage board
+    resetEpoch: 0,         // when the owner last wiped the server, in epoch ms
+    wipedLocal: false,     // this page load dropped stale local progress
   };
 
   async function req(path, opts) {
@@ -67,6 +69,13 @@
       state.identity = me.identity || null;
       state.pool = me.pool || null;
       state.isAdmin = Boolean(me.isAdmin);
+      state.resetEpoch = Number(me.resetEpoch) || 0;
+
+      // Do this BEFORE anything reads localStorage. Every page awaits init() before
+      // it builds a game, and the wallet initialises lazily inside that game, so
+      // this is the one point where a stale local copy can be dropped rather than
+      // pushed back up to a server that was just cleared.
+      state.wipedLocal = applyReset(state.resetEpoch);
 
       // First sign-in on a browser that already has local progress: adopt it so
       // nothing earned before the server existed is lost.
@@ -84,6 +93,46 @@
       state.enabled = false;   // static hosting, offline, or API down — stay quiet
     }
     return state;
+  }
+
+  // ---- honouring a server-side reset ----------------------------------------
+  // Clearing the database is not enough on its own. Every cabinet's progress and
+  // the shared wallet are local-first: they live in localStorage and get pushed
+  // back up on the next page load, so a truncated server refills itself from the
+  // first player through the door — and the owner sees a reset that "did not work".
+  //
+  // The server hands us the epoch ms of its last full wipe. Anything this browser
+  // stored before that moment is stale by definition, so it goes. One stamp records
+  // the epoch we have already honoured, which is why this runs once per reset and
+  // not on every load.
+  const RESET_STAMP = 'costbot.arcade.reset';
+
+  function applyReset(epoch) {
+    if (!epoch) return false;                 // never reset — nothing to honour
+    let seen = 0;
+    try {
+      seen = Number(localStorage.getItem(RESET_STAMP)) || 0;
+    } catch {
+      return false;                           // no storage at all: nothing to clear
+    }
+    if (seen >= epoch) return false;          // already dropped for this reset
+    try {
+      // Collect first, delete second — removing while iterating shifts the indices.
+      const doomed = [];
+      for (let i = 0; i < localStorage.length; i += 1) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf('costbot.') === 0 && k !== RESET_STAMP) doomed.push(k);
+      }
+      doomed.forEach((k) => { localStorage.removeItem(k); });
+      localStorage.setItem(RESET_STAMP, String(epoch));
+      if (doomed.length) {
+        console.info('arcade: the server was reset — dropped ' + doomed.length
+          + ' stale local key(s)');
+      }
+      return doomed.length > 0;
+    } catch {
+      return false;                           // private mode: nothing persisted anyway
+    }
   }
 
   // ---- the email the front door will not forward ----------------------------
