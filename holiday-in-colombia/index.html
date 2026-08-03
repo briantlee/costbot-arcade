@@ -48,6 +48,7 @@
           if (back && type === 'run:end') back.classList.remove('dim');
         },
         onComplete(result) {
+          window.__lastResult = result;   // exposed for the smoke test
           console.log('[Holiday] run complete', result);
           if (sync && sync.enabled) {
             sync.saveGame('holiday-in-colombia', result.profile);

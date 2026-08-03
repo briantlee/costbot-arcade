@@ -369,7 +369,19 @@
 .wh-seed{font-size:11px;color:#5d6d8a;margin-top:10px;font-family:ui-monospace,monospace;}
 .wh-kbd{display:inline-block;background:#1b2740;border:1px solid #35496e;border-bottom-width:2px;border-radius:5px;
   padding:1px 7px;font-size:12px;font-family:ui-monospace,monospace;color:#c3d0e6;margin:0 2px;}
-.wh-scroll{overflow-y:auto;max-height:${VH - 40}px;padding:20px;display:flex;flex-direction:column;align-items:center;}
+/* A flex parent with justify-content:center clips overflow at BOTH ends, so a
+   tall result screen loses its hero art off the top as well as its buttons off
+   the bottom — and the top is unreachable however far you scroll. Everything
+   tall goes in this scroller instead.
+   max-height is min(container, VH-40): the fixed value alone still overflowed
+   whenever the window was shorter than the game's logical height. */
+.wh-scroll{overflow-y:auto;max-height:min(100%, ${VH - 40}px);padding:20px;
+  display:flex;flex-direction:column;align-items:center;}
+/* The result screen pins its actions: the stats scroll, Run Again does not.
+   Burying the primary button below a fold is how a stage clear ends up looking
+   like it has no way out of it. */
+.wh-result{justify-content:flex-start;padding:0 0 14px;}
+.wh-result .wh-scroll{flex:1 1 auto;min-height:0;max-height:none;}
 .wh-scroll::-webkit-scrollbar{width:8px}.wh-scroll::-webkit-scrollbar-thumb{background:#2b3f66;border-radius:4px}
 `;
 
@@ -1034,8 +1046,9 @@
       : 'loss');
     this.clearUI();
     const el = document.createElement('div');
-    el.className = 'wh-screen';
+    el.className = 'wh-screen wh-result';
     el.innerHTML = `
+      <div class="wh-scroll">
       <img class="wh-hero" style="animation:none;width:132px;height:132px;border-radius:14px;object-fit:cover"
            src="${this.assetBase}${art}.png" alt="">
       <h2 style="font-size:34px;margin:14px 0 2px;color:${win ? '#6ee7a0' : '#ff8a8a'}">
@@ -1056,8 +1069,9 @@
           <b style="color:#7fd6c4">${(res.meta.lifetimeTokens || 0).toLocaleString()} all-time</b></div>
         ${res.achievementsUnlocked.length ? `<div class="wh-stat"><span>🏆 New achievements</span><b>${res.achievementsUnlocked.length}</b></div>` : ''}
       </div>
+      </div>
       <div class="wh-row" style="margin-top:20px">
-        <button class="wh-btn primary" data-act="again">↻  Run Again</button>
+<button class="wh-btn primary" data-act="again">↻  Run Again</button>
         ${this.showShell ? '<button class="wh-btn" data-act="stages">📋  Contracts</button>' : ''}
         <button class="wh-btn ghost" data-act="exit">${esc(this.showShell ? 'Main Menu' : this.returnLabel)}</button>
       </div>`;

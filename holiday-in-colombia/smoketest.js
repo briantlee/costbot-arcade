@@ -701,6 +701,21 @@ const ok = (cond, label, detail) => {
     return { title: el ? el.textContent.trim() : null, hasTable: !!document.querySelector('.hc-tbl') };
   });
   ok(/tokens reclaimed$/.test(result.title || ''), 'the run ends on a results card', result.title);
+
+  // The shared arcade board files runs by `stageId` and ranks them in dollars.
+  // Sending `stage` filed every trip under "unknown", and sending no dollars
+  // put fishing at $0 in every column.
+  const payload = await page.evaluate(() => ({
+    r: window.__lastResult || null,
+    rate: window.HC_CONTENT.DOLLARS_PER_TOKEN,
+  }));
+  ok(payload.r && payload.r.stageId === 'lake',
+    'the result is filed under the lake, not "unknown"', payload.r && payload.r.stageId);
+  ok(payload.r && payload.r.dollarsSaved === payload.r.tokensEarned * payload.rate,
+    'and converts its haul into the board currency',
+    payload.r && `${payload.r.tokensEarned} tokens -> $${payload.r.dollarsSaved}`);
+  ok(payload.r && payload.r.streak !== undefined && payload.r.heaviest !== undefined,
+    'streak and heaviest ride along for the per-game board');
   ok(result.hasTable, 'the results card itemises the haul');
 
   // The haul goes into the shared arcade purse, spendable in any cabinet — NOT
@@ -728,6 +743,37 @@ const ok = (cond, label, detail) => {
     'banking moves the whole purse into the build fund', `${banked.moved} banked`);
 
   // -------------------------------------------------------------------------
+  console.log('\n▶ Records board…');
+  const board = await page.evaluate(() => {
+    const g = window.game;
+    // seed three trips so the sort is actually exercised
+    g.p.history = [
+      { at: Date.now(), tokens: 120, fish: 4, heaviest: 8.2, streak: 2 },
+      { at: Date.now() - 1e6, tokens: 340, fish: 9, heaviest: 44.1, streak: 7 },
+      { at: Date.now() - 2e6, tokens: 60, fish: 2, heaviest: 3.4, streak: 1 },
+    ];
+    g.screenBoard();
+    const head = () => Array.from(document.querySelectorAll('.hc-board th')).map((t) => t.textContent.trim());
+    const col = (n) => Array.from(document.querySelectorAll('.hc-board tbody tr'))
+      .map((r) => r.children[n] && r.children[n].textContent.trim());
+    const first = { sorted: head().find((h) => h.includes('▾')), rows: col(2) };
+    // click "Heaviest" to re-sort
+    Array.from(document.querySelectorAll('.hc-board th[data-sort]'))
+      .find((t) => t.dataset.sort === 'heaviest').click();
+    const second = { sorted: head().find((h) => h.includes('▾')), rows: col(3) };
+    return { cols: head(), first, second, empty: !document.querySelector('.hc-board tbody tr') };
+  });
+  ok(board.cols.some((c) => c.includes('Longest streak')), 'the board ranks on longest streak',
+    board.cols.join(' · '));
+  ok(/Longest streak/.test(board.first.sorted || ''), 'and sorts by it out of the box',
+    board.first.sorted);
+  ok(board.first.rows[0] === '7', 'the best streak comes first', board.first.rows.join(','));
+  ok(/Heaviest/.test(board.second.sorted || ''), 'clicking a column re-sorts');
+  ok(board.second.rows[0] === '44.1 kg', 'and heaviest ranks by weight',
+    board.second.rows.join(','));
+  await page.waitForTimeout(200);
+  await shot('13-records');
+
   console.log('\n▶ Fishdex, achievements, how-to-play…');
   await page.evaluate(() => window.game.screenDex());
   await page.waitForTimeout(250);

@@ -2,7 +2,7 @@
  * CostBot Arcade — SHARED SOUNDTRACK ENGINE
  * ----------------------------------------------------------------------------
  * A procedural sequencer shared by every game in the arcade. No audio files:
- * every kick, hat, bass note and lead line is synthesised in WebAudio at
+ * every kick, hat, bass note and lead line is synthesized in WebAudio at
  * runtime, so a game only has to include this one script.
  *
  * Any arcade game can use it:

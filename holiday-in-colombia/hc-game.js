@@ -627,6 +627,12 @@
   .hc-tbl th{text-align:left;color:#7fd4c4;font-size:11.5px;text-transform:uppercase;
     letter-spacing:.5px;padding:6px 8px;border-bottom:1px solid #24596f;}
   .hc-tbl td{padding:6px 8px;border-bottom:1px solid #12384a;}
+  .hc-board th.n,.hc-board td.n{text-align:right;font-variant-numeric:tabular-nums;}
+  .hc-board th.n{cursor:pointer;user-select:none;white-space:nowrap;}
+  .hc-board th.n:hover{color:#eafaff;}
+  .hc-board th.on{color:#ffd98a;}
+  .hc-board td.on{color:#ffd98a;font-weight:700;}
+  .hc-board .r{width:34px;color:#7f9fb0;text-align:right;}
   `;
 
   function injectCSS() {
@@ -980,7 +986,8 @@
               <div class="hc-stat">Bait<b>${totalBait(p)}</b></div>
               <div class="hc-stat">Tokens<b><img class="hc-coin" src="../shared/assets/token-coin-64.png" alt="">${fmt(wallet().tokens)}</b></div>
               <div class="hc-stat">Fishdex<b>${dexCount}/${dexTotal}</b></div>
-              <div class="hc-stat">Best haul<b>${fmt(p.best.tokens || 0)}</b></div>
+              <div class="hc-stat">Best streak<b>${fmt(p.best.streak || 0)}</b></div>
+              <div class="hc-stat">Heaviest<b>${(p.best.heaviest || 0).toFixed(1)} kg</b></div>
             </div>
           </div>
         </div>
@@ -989,6 +996,7 @@
           <button class="hc-btn" id="hc-shop">🪱 Bait shop</button>
           <button class="hc-btn" id="hc-triv">🎓 Trivia for bait</button>
           <button class="hc-btn ghost" id="hc-dex">📖 Fishdex</button>
+          <button class="hc-btn ghost" id="hc-board">🏆 Records</button>
           <button class="hc-btn ghost" id="hc-ach">🏅 Achievements</button>
           <button class="hc-btn ghost" id="hc-how">❓ How to play</button>
         </div>
@@ -1000,6 +1008,7 @@
     this.ui.querySelector('#hc-shop').onclick = () => this.screenShop();
     this.ui.querySelector('#hc-triv').onclick = () => this.screenTrivia();
     this.ui.querySelector('#hc-dex').onclick = () => this.screenDex();
+    this.ui.querySelector('#hc-board').onclick = () => this.screenBoard();
     this.ui.querySelector('#hc-ach').onclick = () => this.screenAchievements();
     this.ui.querySelector('#hc-how').onclick = () => this.screenBriefing();
   };
@@ -1082,6 +1091,89 @@
         <div class="hc-row"><button class="hc-btn go" id="hc-back">Back to the dock</button></div>
       </div>`;
     this.ui.querySelector('#hc-back').onclick = () => this.screenDock();
+  };
+
+  // Fishing has no dollars to rank on, so it ranks on the things fishing is
+  // actually about. Longest streak is the honest skill measure — it cannot be
+  // got by luck, only by not losing a fish. Heaviest is the brag.
+  const BOARD_COLS = [
+    { key: 'streak', label: 'Longest streak' },
+    { key: 'heaviest', label: 'Heaviest', unit: 'kg' },
+    { key: 'fish', label: 'Fish landed' },
+    { key: 'tokens', label: 'Tokens' },
+  ];
+
+  Game.prototype.screenBoard = function (sortBy) {
+    const sort = sortBy || this._boardSort || 'streak';
+    this._boardSort = sort;
+    this.clearUI();
+    const wrap = document.createElement('div');
+    wrap.className = 'hc-panel wide';
+    this.ui.innerHTML = '<div class="hc-veil"></div>';
+    this.ui.appendChild(wrap);
+
+    const cell = (r, c) => {
+      const v = r[c.key] || 0;
+      return c.unit === 'kg' ? v.toFixed(1) + ' kg' : Math.round(v).toLocaleString();
+    };
+    const render = (rows, who, note) => {
+      rows = rows.slice().sort((a, b) => (b[sort] || 0) - (a[sort] || 0)).slice(0, 25);
+      wrap.innerHTML = `
+        <div class="hc-tag">${esc(note)}</div>
+        <h1>🏆 Records</h1>
+        <table class="hc-tbl hc-board">
+          <thead><tr><th class="r">#</th><th>${esc(who)}</th>
+            ${BOARD_COLS.map((c) => `<th class="n ${c.key === sort ? 'on' : ''}"
+              data-sort="${c.key}">${esc(c.label)}${c.key === sort ? ' ▾' : ''}</th>`).join('')}
+          </tr></thead>
+          <tbody>${rows.length ? rows.map((r, i) => `<tr>
+            <td class="r">${i + 1}</td><td>${esc(r.who)}</td>
+            ${BOARD_COLS.map((c) => `<td class="n ${c.key === sort ? 'on' : ''}">${cell(r, c)}</td>`).join('')}
+          </tr>`).join('') : `<tr><td colspan="6" style="color:#8fb2c4">
+            Nothing logged yet. Land a fish and you are the first name here.</td></tr>`}</tbody>
+        </table>
+        <div class="hc-row">
+          <button class="hc-btn go" data-act="go">🎣 Go fishing</button>
+          <button class="hc-btn ghost" data-act="dock">Back to the dock</button>
+        </div>`;
+    };
+
+    wrap.addEventListener('click', (e) => {
+      const th = e.target.closest('[data-sort]');
+      if (th) { this.screenBoard(th.dataset.sort); return; }
+      if (e.target.closest('[data-act="go"]')) { this.audio.resume(); this.start(); }
+      else if (e.target.closest('[data-act="dock"]')) this.screenDock();
+    });
+
+    const local = () => {
+      const hist = (this.p.history || []).map((h, i) => ({
+        who: new Date(h.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+          + (i === 0 ? ' · latest' : ''),
+        streak: h.streak, heaviest: h.heaviest, fish: h.fish, tokens: h.tokens,
+      }));
+      render(hist, 'Your trips',
+        'Your own trips — sign in on the arcade app to rank against everyone.');
+    };
+
+    const sync = global.ArcadeSync;
+    if (!sync || !sync.enabled || !sync.gameBoards) { local(); return; }
+    sync.gameBoards('holiday-in-colombia').then((data) => {
+      if (this.destroyed) return;
+      if (!data || !data.metrics) { local(); return; }
+      // The server ranks each metric independently; fold them into one row per
+      // player so a single table can sort by any column.
+      const byPlayer = new Map();
+      for (const key of Object.keys(data.metrics)) {
+        for (const row of data.metrics[key] || []) {
+          const pl = byPlayer.get(row.player) || { who: row.player };
+          pl[key] = Math.max(pl[key] || 0, row.value);
+          byPlayer.set(row.player, pl);
+        }
+      }
+      const rows = [...byPlayer.values()];
+      if (!rows.length) { local(); return; }
+      render(rows, 'Player', 'Everyone’s best on each metric. Click a column to sort.');
+    }).catch(local);
   };
 
   Game.prototype.screenAchievements = function () {
@@ -1598,9 +1690,18 @@
 
     const result = {
       game: 'holiday-in-colombia',
-      stage: 'lake',
+      // `stageId`, not `stage` — the server reads stageId, so the old key meant
+      // every fishing run was filed under the stage "unknown".
+      stageId: 'lake',
+      outcome: 'done',
       score: r.tokens,
+      tokens: r.tokens,
       tokensEarned: r.tokens,
+      // The shared board is denominated in dollars. Fishing saves none, so it
+      // converts its haul at the same rate Mudslides does rather than reporting
+      // $0 and sitting at the bottom of every column.
+      dollarsSaved: r.tokens * C.DOLLARS_PER_TOKEN,
+      timeSurvived: Math.round(r.total ? r.total - r.time : 0),
       fish: r.fish, junk: r.junk, escaped: r.escaped,
       heaviest: r.heaviest, streak: r.bestStreak,
       newSpecies: r.newSpecies,
@@ -1724,12 +1825,14 @@
         <div class="hc-row">
           <button class="hc-btn go" id="hc-again" ${totalBait(this.p) ? '' : 'disabled'}>🎣 Another holiday</button>
           <button class="hc-btn" id="hc-triv">🎓 Trivia for bait</button>
+          <button class="hc-btn ghost" id="hc-rec">🏆 Records</button>
           <button class="hc-btn ghost" id="hc-dock">Back to the dock</button>
         </div>
       </div>`;
     this.run = null;
     this.ui.querySelector('#hc-again').onclick = () => this.start();
     this.ui.querySelector('#hc-triv').onclick = () => this.screenTrivia();
+    this.ui.querySelector('#hc-rec').onclick = () => this.screenBoard();
     this.ui.querySelector('#hc-dock').onclick = () => this.screenDock();
   };
 
@@ -1995,7 +2098,7 @@
       }
     }
 
-    // palms along the far bank — the single most recognisable thing in the photo
+    // palms along the far bank — the single most recognizable thing in the photo
     const palm = (px, py, sc, sway) => {
       ctx.save();
       ctx.translate(px, py); ctx.scale(sc, sc);

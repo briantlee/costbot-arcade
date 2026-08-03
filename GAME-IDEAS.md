@@ -51,6 +51,20 @@ against the Budget, double-or-nothing on the forecast. The house never rightsize
 which makes it the natural sink for a player sitting on a pile. Needs care — a
 sink that competes with the build fund weakens the fund.
 
+### 🛡️ NetSky™ Defense System
+Tower defense. It is FY27, rogue AIs are loose across the cloud, and CostBot's
+NetSky™ Defense System is the only thing standing between the company and
+the AI overlord Max Tokens.
+
+*Why it is good:* it is the only concept where **spending** is the mechanic
+rather than the enemy. You fund the server farm, you optimize what it earns, and
+the optimization directly buys you defence — which is a truer model of how FinOps
+actually works than "waste is a monster, kill it".
+
+*The hard part:* tower defense needs a lot of tuning to feel fair, and the
+premise needs Max Tokens to be genuinely threatening without the game turning
+into "AI is bad", which is the wrong message for this arcade.
+
 ### 🎢 CostBotLand
 Theme park tycoon. Build the rides, keep the guests happy, keep the park in the
 black. Every ride left running for an empty midway bills you by the hour.
@@ -65,7 +79,7 @@ tycoon game teaches it without a single line of explanation.
 Ideas that have never had a hub card. Kept here so they are not re-invented.
 
 - **Rightsize Rush** — a packing puzzle. Fit workloads into instances with as
-  little slack as possible. Score is utilisation; overflow is an outage.
+  little slack as possible. Score is utilization; overflow is an outage.
 - **The Commitment** — a betting/forecast game. Commit to 1yr or 3yr coverage
   against a demand curve you can only partially see. Over-commit and you eat the
   waste; under-commit and you pay on-demand.
