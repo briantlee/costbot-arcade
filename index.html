@@ -131,6 +131,9 @@
     color:#a9bad6;padding:3px 9px;border-radius:20px}
   .chip.live{background:#173a26;border-color:#3fa060;color:#8ff0ad}
   .chip.tool{background:#1a2f3a;border-color:#3f7f96;color:#8fd8f0}
+  /* selectable, so the address survives a browser with no mail client */
+  .mail{display:inline-block;margin-top:7px;font-size:12.5px;color:var(--teal);
+    font-weight:600;word-break:break-all;user-select:all;-webkit-user-select:all}
   .badge{position:absolute;top:10px;right:10px;font-size:10.5px;font-weight:800;letter-spacing:1px;
     background:rgba(6,10,18,.85);border:1px solid #3f5f96;padding:4px 10px;border-radius:20px}
   .badge.soon{border-color:#6b5320;color:#ffd76b}
@@ -315,8 +318,12 @@
       <div class="art art-scene"><img src="shared/assets/costbot-feedback.jpg" alt=""></div>
       <div class="body">
         <h3>Feedback &amp; Bugs</h3>
-        <p>Found a bug, or want a game that does not exist yet? Email the Cost
-           Management team — screenshots welcome, half-formed ideas doubly so.</p>
+        <p>Found a bug, or want a game that does not exist yet? Screenshots welcome,
+           half-formed ideas doubly so.<br>
+           <!-- Spelled out, not just linked: a mailto does nothing on a machine with
+                no mail client wired up, and then the address is unreachable. This
+                way it can always be read off the card and copied. -->
+           <span class="mail">DEET.DL-cost-management@disney.com</span></p>
         <div class="meta">
           <span class="chip tool">Email</span>
           <span class="chip">Ideas &amp; bugs</span>
