@@ -716,7 +716,7 @@ const ok = (cond, label, detail) => {
     payload.r && `${payload.r.tokensEarned} tokens -> $${payload.r.dollarsSaved}`);
   ok(payload.r && payload.r.streak !== undefined && payload.r.heaviest !== undefined,
     'streak and heaviest ride along for the per-game board');
-  ok(result.hasTable, 'the results card itemises the haul');
+  ok(result.hasTable, 'the results card itemizes the haul');
 
   // The haul goes into the shared arcade purse, spendable in any cabinet — NOT
   // straight into the build fund. Banking is the player's call, from the hub.

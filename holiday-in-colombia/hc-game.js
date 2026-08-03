@@ -1693,7 +1693,10 @@
       // `stageId`, not `stage` — the server reads stageId, so the old key meant
       // every fishing run was filed under the stage "unknown".
       stageId: 'lake',
-      outcome: 'done',
+      // The server only accepts clear/death/quit and silently rewrites anything
+      // else to 'quit'. Running out of bait is finishing the trip; walking away
+      // early is quitting it.
+      outcome: reason === 'you packed up early' ? 'quit' : 'clear',
       score: r.tokens,
       tokens: r.tokens,
       tokensEarned: r.tokens,

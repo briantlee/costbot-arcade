@@ -309,7 +309,7 @@
     // --- automation ---------------------------------------------------------
     { topic: 'automation', q: 'What is Ballast?',
       c: ['A cost dashboard', 'Tooling that auto-fixes non-compliant resources', 'An RI purchasing service', 'A Databricks cluster policy'], a: 1,
-      why: 'Ballast automatically remediates non-compliant resources across standardisation, security and cost.' },
+      why: 'Ballast automatically remediates non-compliant resources across standardization, security and cost.' },
     { topic: 'automation', q: 'Besides moving to ARM, what reduces Lambda cost?',
       c: ['Smaller deployment packages and dependencies', 'More memory always', 'Longer timeouts', 'More concurrent executions'], a: 0,
       why: 'Trimming package size and dependencies cuts cold-start work; a right-sized memory profile is the other main lever.' },

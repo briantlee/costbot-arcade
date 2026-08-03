@@ -72,7 +72,7 @@
       state.resetEpoch = Number(me.resetEpoch) || 0;
 
       // Do this BEFORE anything reads localStorage. Every page awaits init() before
-      // it builds a game, and the wallet initialises lazily inside that game, so
+      // it builds a game, and the wallet initializes lazily inside that game, so
       // this is the one point where a stale local copy can be dropped rather than
       // pushed back up to a server that was just cleared.
       state.wipedLocal = applyReset(state.resetEpoch);
