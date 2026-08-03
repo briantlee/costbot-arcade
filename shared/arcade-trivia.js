@@ -112,8 +112,8 @@
       why: 'KODA collapses billing to ingest + retrieval per GB, eliminating ConsumerHour (and therefore all ghost consumer cost), shardHourStorage and per-stream charges.' },
 
     // --- idle / retire ------------------------------------------------------
-    { topic: 'idle', q: 'What is the FIRST question to ask about any cost line item?',
-      c: ['Can we buy an RI for it?', 'Can it be retired entirely?', 'Can we move it to Spot?', 'Who owns it?'], a: 1,
+    { topic: 'idle', q: 'Once you know who owns a line item, which optimization lever do you evaluate FIRST?',
+      c: ['Buy an RI for it', 'Retire it entirely', 'Move it to Spot', 'Rightsize it'], a: 1,
       why: 'Retire → rightsize → commit, in that order. No discount beats deleting the resource.' },
     { topic: 'idle', q: 'An unattached Elastic IP address is…',
       c: ['Free', 'Billed hourly while unattached', 'Billed only on data transfer', 'Released automatically'], a: 1,
@@ -151,6 +151,9 @@
     { topic: 'tagging', q: 'Why does untagged spend almost never get optimized?',
       c: ['It is always tiny', 'No team owns it, so nobody acts on it', 'AWS hides it', 'It is billed separately'], a: 1,
       why: 'Tags drive allocation and showback. Untagged cost lands in an unowned bucket and no engineer ever sees it.' },
+    { topic: 'tagging', q: 'Before you can retire anything at Disney, what do you need?',
+      c: ['A Compute Optimizer report', "The owner's approval", 'A 30-day idle window', 'Nothing — just delete it'], a: 1,
+      why: 'Ownership comes first — no resource gets retired without owner sign-off. It is also why untagged spend never gets optimized: no owner, no action.' },
     { topic: 'tagging', q: 'In the CUR, Mariner spend should be identified by…',
       c: ["account name", "product_code = 'Mariner'", 'the EKS product name', 'the owning team tag'], a: 1,
       why: "Mariner runs across 26+ streaming accounts, so filter on product_code = 'Mariner' — never by account name." },
