@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "3.1075.0",
+    "pg": "8.22.0"
+  },
+  "description": "CostBot Arcade \u2014 FinOps mini-games with per-player profiles and leaderboards",
+  "engines": {
+    "node": ">=24"
+  },
+  "main": "server.js",
+  "name": "costbot-arcade",
+  "overrides": {
+    "@aws-sdk/core": "3.974.27",
+    "@aws-sdk/nested-clients": "3.997.27"
+  },
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "dev": "ARCADE_PUBLIC=${ARCADE_PUBLIC:-$HOME/projects/costbot/arcade} node server.js"
+  },
+  "version": "0.0.0"
+}

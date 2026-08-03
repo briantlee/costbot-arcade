@@ -1,0 +1,7 @@
+{
+  "access": "all",
+  "description": "FinOps mini-games starring CostBot. Hunt cloud waste, sled the Mudslide, fish for AI models, earn tokens toward CostBot's build fund, and climb the leaderboards.",
+  "display_name": "CostBot Arcade",
+  "name": "costbot-arcade",
+  "tier": "dynamic"
+}

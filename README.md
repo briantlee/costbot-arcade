@@ -30,13 +30,30 @@ arcade/
     arcade-music.js     soundtrack engine — 8 tracks, 6 themes
     arcade-biomes.js    arena palettes + procedural scenery
     arcade-sync.js      optional bridge to a server profile
+  app/                  the SERVER half, mirrored from the aix-proto repo —
+                        server.js, db.js, manifest.json, tests. Not web content;
+                        excluded from Pages and from the image. See app/README.md
   tools/
     sync-to-app.sh      copy this tree into the aix-proto app
+    reset-verify.js     headless proof that a reset really resets
 ```
 
-**`arcade/` is the source of truth.** The aix-proto app serves a *copy* at
-`examples/costbot-arcade/public/`, because a Docker build needs real files in its
-context — a symlink into another repo would not survive `COPY`.
+**`arcade/` is the source of truth**, for both halves. The aix-proto app serves a
+*copy* of the games at `examples/costbot-arcade/public/`, because a Docker build
+needs real files in its context — a symlink into another repo would not survive
+`COPY` — and gets its server files from `arcade/app/`.
+
+The two halves are copied differently, because one is generated and one is not:
+
+| | Direction | On a conflict |
+|---|---|---|
+| `arcade/*` → `<app>/public/` | overwrite freely | n/a, it is generated |
+| `arcade/app/*` → `<app>/` | **guarded** | the sync **refuses** and you pick `--adopt` or `--force` |
+
+That guard exists because these files used to live only in `~/aix-proto`, and a
+session once edited `server.js` there from a clone that was a commit behind — which
+read, from this repo, as though an earlier deploy had been reverted. `--check` now
+reports drift in either direction, and compares content rather than mtimes.
 
 ---
 
@@ -148,7 +165,19 @@ aix-proto status costbot-arcade --wait
 ```
 
 `sync-to-app.sh --check` reports drift without changing anything and exits non-zero
-if the two copies have diverged — useful as a pre-deploy guard.
+if the two copies have diverged — useful as a pre-deploy guard. It checks **both**
+halves, so it also catches a server-side edit made in `~/aix-proto` that this repo
+does not know about:
+
+```bash
+./tools/sync-to-app.sh --check    # drift in either direction; exit 1 if any
+./tools/sync-to-app.sh --adopt    # an app-side edit was right: pull it into arcade/app/
+./tools/sync-to-app.sh --force    # an app-side edit was wrong: overwrite it
+```
+
+A plain `sync-to-app.sh` will **refuse to run** rather than overwrite an app-side
+change it cannot account for, so reaching for `--adopt` / `--force` is a deliberate
+choice rather than something you discover after the fact.
 
 ### What local checks do NOT cover
 

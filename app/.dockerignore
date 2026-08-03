@@ -1,0 +1,23 @@
+# NOTE: docker build reads the .dockerignore at the BUILD CONTEXT ROOT, and this app's build
+# context is the repo root (see the Dockerfile header), so this file is not consulted by the
+# platform build - the Dockerfile COPYs an explicit file list instead. It is kept for local
+# `docker build examples/_template` experiments and as the ignore an app inherits if it ever
+# switches to an app-dir build context. Keeping the image lean is the goal either way.
+
+# Installed deps (the image runs its own `npm ci` from the committed lockfile, #481).
+node_modules/
+
+# Tests never run inside the image.
+*.test.js
+tests/
+
+# VCS + editor noise.
+.git/
+.gitignore
+.DS_Store
+
+# Docs and local-only files never needed inside the image.
+README.md
+*.md
+.env
+.env.*
