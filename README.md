@@ -11,7 +11,8 @@ games, you earn the tokens, it ships. One source tree, served two ways.
 ```
 arcade/
   index.html            landing page
-  leaderboard/          all boards (needs the dynamic app)
+  leaderboard/          all boards, one per cabinet, each ranked on its own
+                        metrics (needs the dynamic app)
   usage/                who is playing, how often, how long, plus the reset
                         controls. Unlinked and owner-gated: the page 404s and
                         its API 403s for everyone else, so reach it by URL
@@ -137,13 +138,32 @@ bank, forces the boss and stage-clear paths, walks every menu including How to P
 (asserting its bestiary covers every enemy, boss and pickup the balance data defines),
 checks that every theme resolves its tracks and biome, and fails on any console error.
 
-Mudslides also has a per-game leaderboard — distance, near misses, top speed and
-tokens, sortable by column. That needs three columns the shared arcade board never
-had, so `runs` gained `distance` / `near_misses` / `top_speed` (additive migration,
-existing rows carry zeros) and the app serves `GET /api/leaderboards/<game>`, one
-ranked list per metric. **The client and the app have to deploy together**; against
-an older app the endpoint 404s, the fetch fails and the board silently falls back to
-your own local run history, which is also what static hosting always shows.
+### Every cabinet is ranked on what it actually measures
+
+Only **Waste Hunter** saves money, so only Waste Hunter is ranked in dollars — one
+board per stage, best run per player. Mudslides is a downhill run and Holiday in
+Colombia is a lake; neither saves anybody anything, and both used to convert their
+token haul at an invented $25/token just to have a number for a board denominated in
+dollars. That is where a "best run" of $25,150 on a game with no money in it came
+from. Both now report `dollarsSaved: 0` and are ranked on their own metrics instead:
+
+| Cabinet | Ranked on | Headline |
+|---|---|---|
+| Waste Hunter | dollars saved, per stage | best run |
+| Mudslides | distance, top speed, near misses, tokens | distance |
+| Holiday in Colombia | longest streak, heaviest, fish landed, tokens | longest streak |
+
+Those metrics live in `runs` as their own columns (`distance`, `near_misses`,
+`top_speed`, `streak`, `heaviest_g`, `fish` — all additive migrations, existing rows
+carry zeros) and the app serves them from `GET /api/leaderboards/<game>`, one ranked
+list per metric, each one a player's BEST on that metric rather than their latest.
+`leaderboard/` folds those lists into one sortable table per cabinet — the same thing
+each cabinet's own in-game board does with the same payload. Weight is stored in grams
+so the column sorts and indexes like every other metric, and comes back out in kg.
+
+**The client and the app have to deploy together**; against an older app the endpoint
+404s, the fetch fails and the board silently falls back to your own local run history,
+which is also what static hosting always shows.
 
 The Mudslides suite drives a run, checks the mud spray and wake are emitting, verifies
 the Mudslide power-up banks a shield, walks the how-to-play screen (asserting it lists
@@ -216,8 +236,11 @@ depends on the network.
    <script src="../shared/arcade-sync.js"></script>
    ```
 3. Report results through `ArcadeSync.submit(result, profile)` using the same shape
-   Waste Hunter emits (`stageId`, `outcome`, `dollarsSaved`, `quizCorrect`, …) and it
-   lands on the leaderboards automatically.
+   Waste Hunter emits (`stageId`, `outcome`, `tokensEarned`, `quizCorrect`, …) and it
+   lands on the leaderboards automatically. Only send `dollarsSaved` if your game
+   really saves money — inventing a rate to have a number puts a lie on the board.
+   If it ranks on something else, add the column and a `GAME_METRICS` entry, then a
+   `GAMES` entry in `leaderboard/index.html`.
 4. Add a card to `index.html`.
 
 Soundtrack, biomes, identity, profiles and scoring all come for free.

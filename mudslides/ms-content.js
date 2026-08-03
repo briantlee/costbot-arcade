@@ -40,10 +40,6 @@
       streakBonus: 12 },
   };
 
-  // Tokens are the score. This is the rate they convert at for the arcade's
-  // shared wallet and the dollar-denominated leaderboards.
-  const DOLLARS_PER_TOKEN = 25;
-
   // ---------------------------------------------------------------------------
   // VENDORS — the names on the signs.
   //
@@ -257,7 +253,7 @@
   };
 
   global.MS_CONTENT = {
-    WORLD, TOKENS, DOLLARS_PER_TOKEN, VENDORS, OBSTACLES, VENDOR_CAUSES, SPAWN_TABLE, DIFFICULTY,
+    WORLD, TOKENS, VENDORS, OBSTACLES, VENDOR_CAUSES, SPAWN_TABLE, DIFFICULTY,
     POWERUPS, SCORING, ACHIEVEMENTS, TIPS, BRIEFING,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

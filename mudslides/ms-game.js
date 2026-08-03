@@ -1219,7 +1219,6 @@
 
     saveLocal(p);
 
-    const dollars = tokens * C.DOLLARS_PER_TOKEN;
     const res = {
       game: 'mudslides',
       stageId: 'endless',
@@ -1232,8 +1231,10 @@
       distance: r.distance,
       nearMisses: r.nearMisses,
       topSpeed: r.topSpeed,
-      dollarsSaved: dollars,
-      dollars,
+      // No dollars. Nothing on this hill saves money — you dodge vendors and
+      // collect tokens — so converting the haul into a fake savings figure only
+      // put an invented number on the arcade board. Distance is the real score.
+      dollarsSaved: 0,
       level: 1,
       kills: 0,
       quizCorrect: 0,

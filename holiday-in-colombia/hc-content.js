@@ -327,11 +327,6 @@
   // ---------------------------------------------------------------------------
   // SCORING
   // ---------------------------------------------------------------------------
-  // The arcade's shared board ranks every cabinet on one currency, and that
-  // currency is dollars. Mudslides converts at this rate and so does fishing —
-  // without it a fishing run reports $0 and the board shows an empty column.
-  const DOLLARS_PER_TOKEN = 25;
-
   const SCORING = {
     // Balanced by MEASURED tokens-per-minute, not by vibes. Optimal fishing was
     // clearing 722 tokens/min against roughly 90 for a cleared Waste Hunter
@@ -407,7 +402,7 @@
   };
 
   global.HC_CONTENT = {
-    BAIT, BAIT_PACKS, DAILY, TRIVIA_BAIT, BANDS, CAST, DRAW, BITE, REEL, DOLLARS_PER_TOKEN,
+    BAIT, BAIT_PACKS, DAILY, TRIVIA_BAIT, BANDS, CAST, DRAW, BITE, REEL,
     TIER_FIGHT, FISH, JUNK, JUNK_FIGHT, SCORING, ACHIEVEMENTS, TIPS, BRIEFING,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

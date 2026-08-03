@@ -327,7 +327,7 @@ function check(name, ok, detail) {
     const seen = new Set();
     for (let i = 0; i < 200; i++) {
       g.screenOver({ cause: 'x', tokens: 1, distance: 1, nearMisses: 0,
-        topSpeed: 1, dollars: 1, best: false });
+        topSpeed: 1, best: false });
       seen.add(document.querySelector('.ms-wipe').getAttribute('src'));
     }
     const loaded = await Promise.all([...seen].map((src) => new Promise((res) => {
@@ -344,7 +344,7 @@ function check(name, ok, detail) {
     const seq = [];
     for (let i = 0; i < 60; i++) {
       g.screenOver({ cause: 'x', tokens: 1, distance: 1, nearMisses: 0,
-        topSpeed: 1, dollars: 1, best: false });
+        topSpeed: 1, best: false });
       seq.push(document.querySelector('.ms-wipe').getAttribute('src'));
     }
     return seq.some((v, i) => i > 0 && v === seq[i - 1]);
@@ -360,8 +360,7 @@ function check(name, ok, detail) {
   const fits = await page.evaluate(() => {
     window.game.screenOver({
       cause: "CostBot's fun was interrupted by the Datadog Contract.",
-      tokens: 1234, distance: 2048, nearMisses: 12, topSpeed: 2600,
-      dollars: 30850, best: true,
+      tokens: 1234, distance: 2048, nearMisses: 12, topSpeed: 2600, best: true,
     });
     const s = document.querySelector('.ms-screen');
     return { scroll: s.scrollHeight, view: s.clientHeight };

@@ -94,7 +94,7 @@ test('GET /api/leaderboards/<game> ranks each metric by each player\'s best run'
     const body = await res.json();
     assert.equal(body.game, 'mudslides');
     assert.deepEqual(Object.keys(body.metrics).sort(),
-      ['distance', 'heaviest', 'nearMisses', 'streak', 'tokens', 'topSpeed']);
+      ['distance', 'fish', 'heaviest', 'nearMisses', 'streak', 'tokens', 'topSpeed']);
 
     // best run per player, not latest: alice's 2100m beats bob's 1500m
     assert.deepEqual(body.metrics.distance.map((r) => [r.player, r.value]),
@@ -111,7 +111,7 @@ test('GET /api/leaderboards/<game> ranks each metric by each player\'s best run'
   }
 });
 
-test('GET /api/leaderboards/<game> ranks fishing on streak, and weight in kg', async () => {
+test('GET /api/leaderboards/<game> ranks fishing on streak, weight in kg, and fish landed', async () => {
   const server = http.createServer(handler);
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const { port } = server.address();
@@ -124,9 +124,9 @@ test('GET /api/leaderboards/<game> ranks fishing on streak, and weight in kg', a
     const trip = (o) => Object.assign(
       { game: 'holiday-in-colombia', stageId: 'lake', outcome: 'clear' }, o,
     );
-    await post('cara', trip({ streak: 4, heaviest: 8.25, tokensEarned: 120 }));
-    await post('cara', trip({ streak: 9, heaviest: 3.4, tokensEarned: 60 }));
-    await post('dev', trip({ streak: 6, heaviest: 44.1, tokensEarned: 300 }));
+    await post('cara', trip({ streak: 4, heaviest: 8.25, fish: 11, tokensEarned: 120 }));
+    await post('cara', trip({ streak: 9, heaviest: 3.4, fish: 5, tokensEarned: 60 }));
+    await post('dev', trip({ streak: 6, heaviest: 44.1, fish: 19, tokensEarned: 300 }));
 
     const res = await fetch(`http://127.0.0.1:${port}/api/leaderboards/holiday-in-colombia`);
     assert.equal(res.status, 200);
@@ -137,6 +137,10 @@ test('GET /api/leaderboards/<game> ranks fishing on streak, and weight in kg', a
     // stored in grams, handed back in kg — a caller never sees the unit trick
     assert.deepEqual(body.metrics.heaviest.map((r) => [r.player, r.value]),
       [['dev', 44.1], ['cara', 8.25]]);
+    // fish landed used to be dropped on the floor: the cabinet sent it, nothing
+    // stored it, and its own board's column read 0 for everybody
+    assert.deepEqual(body.metrics.fish.map((r) => [r.player, r.value]),
+      [['dev', 19], ['cara', 11]]);
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }

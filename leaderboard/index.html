@@ -31,6 +31,7 @@
     border-radius:14px;padding:6px 4px;box-shadow:0 16px 40px rgba(0,0,0,.45)}
   .board-title{font-size:12px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;
     padding:14px 18px 8px;font-weight:700}
+  .board-note{padding:0 18px 6px;font-size:12.5px;color:#6b7c9a}
   table{width:100%;border-collapse:collapse}
   th{text-align:left;font-size:11px;letter-spacing:1px;color:#7e8fae;text-transform:uppercase;
     padding:8px 18px;border-bottom:1px solid #1e2c47;font-weight:700}
@@ -42,6 +43,14 @@
   .rank.p1{color:#ffd76b}.rank.p2{color:#cfd8e6}.rank.p3{color:#d8a06a}
   .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--green);font-weight:700}
   .val.dim{color:var(--muted);font-weight:500;font-size:13px}
+  /* Sortable metric columns. The one being ranked on is lit; the rest read as
+     supporting detail, the same way each cabinet's own board does it. */
+  th.n{text-align:right}
+  th.n[data-sort]{cursor:pointer;user-select:none}
+  th.n[data-sort]:hover{color:#cfe0f7}
+  th.n.on{color:var(--gold)}
+  td.n{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:500}
+  td.n.on{color:var(--green);font-weight:700}
   .empty{padding:34px 18px;text-align:center;color:#6b7c9a;font-size:14px;line-height:1.7}
   .note{margin-top:18px;font-size:12.5px;color:#6b7c9a;text-align:center;line-height:1.7}
   .note code{background:#141d31;border:1px solid var(--line);border-radius:5px;padding:1px 6px}
@@ -51,7 +60,7 @@
 <div class="wrap">
   <header>
     <h1><img class="hs" src="../shared/assets/highscore-pixel.png" alt="High score"></h1>
-    <p class="sub">Savings realized across the CostBot Arcade.</p>
+    <p class="sub">Best runs across the CostBot Arcade — each cabinet ranked on what it actually measures.</p>
     <div class="who" id="who"></div>
     <a class="back" href="../index.html">← Back to the Arcade</a>
   </header>
@@ -73,11 +82,42 @@
     return v.split('@')[0];
   };
 
-  // boards are keyed "<game>/<stage>"
-  // `mudsliders` is the pre-rename key — any board rows still under it belong to
-  // the same game, so they render with the same name rather than a raw slug.
-  const GAME_NAMES = { 'waste-hunter': 'Waste Hunter', mudslides: 'Mudslides',
-    mudsliders: 'Mudslides', 'holiday-in-colombia': 'Holiday in Colombia' };
+  // ---------------------------------------------------------------------------
+  // ONE BOARD PER CABINET, RANKED ON WHAT THAT CABINET MEASURES.
+  //
+  // Every game used to be ranked in dollars, because dollars is the field the
+  // shared `runs` table has always had. That reads as a lie on two of the three:
+  // Mudslides is a downhill run and fishing is a lake — neither saves anybody any
+  // money, so a "best run" of $25,150 was a token haul multiplied by an invented
+  // rate. Only Waste Hunter deletes real waste, so only Waste Hunter shows money.
+  //
+  // The other two get the metrics their own in-cabinet boards already show, from
+  // /api/leaderboards/<game>, which ranks each metric independently. `sort` is the
+  // headline metric — the column the board opens ranked on.
+  // ---------------------------------------------------------------------------
+  const GAMES = [
+    { id: 'waste-hunter', tab: '🗑️ Waste Hunter', kind: 'stages',
+      note: 'All-time best run per stage. This is real money — every kill is a resource that was costing something.' },
+    { id: 'mudslides', tab: '⛰️ Mudslides', kind: 'metrics', sort: 'distance',
+      // `mudsliders` is the pre-rename key; runs recorded under it are the same game.
+      also: ['mudsliders'],
+      cols: [
+        { key: 'distance', label: 'Distance', unit: 'm' },
+        { key: 'topSpeed', label: 'Top speed' },
+        { key: 'nearMisses', label: 'Near misses' },
+        { key: 'tokens', label: 'Tokens' },
+      ],
+      note: 'Distance is the score — how far you got before the hill got you. Click a column to rank on it.' },
+    { id: 'holiday-in-colombia', tab: '🎣 Holiday in Colombia', kind: 'metrics', sort: 'streak',
+      cols: [
+        { key: 'streak', label: 'Longest streak' },
+        { key: 'heaviest', label: 'Heaviest', unit: 'kg' },
+        { key: 'fish', label: 'Fish landed' },
+        { key: 'tokens', label: 'Tokens' },
+      ],
+      note: 'Streak is the skill — it cannot be got by luck, only by not losing a fish. Heaviest is the brag.' },
+  ];
+
   const STAGE_NAMES = {
     'ec2-graveyard': 'The EC2 Graveyard',
     'storage-sprawl': 'Storage Sprawl',
@@ -85,16 +125,26 @@
     endless: 'Endless Descent',
     lake: 'The Lake',
   };
-  const boardTitle = (key) => {
-    const [g, st] = String(key).includes('/') ? key.split('/') : ['waste-hunter', key];
-    return `${GAME_NAMES[g] || g} — ${STAGE_NAMES[st] || st}`;
-  };
 
-  let data = null, me = null, tab = 'stages';
+  let stagesData = null, me = null, tab = GAMES[0].id;
+  // gameBoards() is one fetch per cabinet, so cache what came back — flipping
+  // between tabs should not re-hit the API every time.
+  const metricCache = {};
 
-  function rows(list, cols) {
-    if (!list || !list.length) return null;
-    const body = list.map((r, i) => {
+  function head(cols, sort) {
+    return cols.map((c) => `<th class="n ${c.key === sort ? 'on' : ''}" data-sort="${c.key}"
+      >${esc(c.label)}${c.key === sort ? ' ▾' : ''}</th>`).join('');
+  }
+
+  function cell(row, c, sort) {
+    const v = Number(row[c.key] || 0);
+    const txt = c.unit === 'kg' ? v.toFixed(1) + ' kg'
+      : Math.round(v).toLocaleString('en-US') + (c.unit ? ' ' + c.unit : '');
+    return `<td class="n ${c.key === sort ? 'on' : ''}">${txt}</td>`;
+  }
+
+  function table(title, note, headHtml, list, cols) {
+    const body = (list || []).map((r, i) => {
       const mine = me && r.player === me;
       return `<tr class="${mine ? 'me' : ''}">
         <td class="rank ${i < 3 ? 'p' + (i + 1) : ''}">${i + 1}</td>
@@ -102,53 +152,106 @@
         ${cols(r)}
       </tr>`;
     }).join('');
-    return body;
+    return `<div class="board-title">${esc(title)}</div>`
+      + (note ? `<div class="board-note">${esc(note)}</div>` : '')
+      + (body
+        ? `<table><thead><tr><th class="rank">#</th><th>Player</th>${headHtml}</tr></thead><tbody>${body}</tbody></table>`
+        : `<div class="empty">No runs recorded yet.<br>Play this one and you will be the first name here.</div>`);
   }
 
-  function table(title, head, list, cols) {
-    const body = rows(list, cols);
-    return `<div class="board-title">${esc(title)}</div>` + (body
-      ? `<table><thead><tr><th class="rank">#</th><th>Player</th>${head}</tr></thead><tbody>${body}</tbody></table>`
-      : `<div class="empty">No runs recorded yet.<br>Play a stage and you will be the first name here.</div>`);
+  // Waste Hunter: one board per stage, ranked in dollars saved.
+  function renderStages(g) {
+    const keys = [g.id, ...(g.also || [])];
+    const ids = Object.keys(stagesData && stagesData.stages || {})
+      .filter((k) => keys.includes(k.split('/')[0]));
+    if (!ids.length) {
+      return table('All-time best per stage', g.note, '<th class="n">Best run</th>', [], () => '');
+    }
+    return ids.map((id) => {
+      const st = id.split('/')[1];
+      return table(STAGE_NAMES[st] || st, g.note, '<th class="n">Best run</th>',
+        stagesData.stages[id], (r) => `<td class="val">${money(r.dollars)}</td>`);
+    }).join('');
+  }
+
+  // Mudslides / fishing: the server ranks each metric on its own, so fold them
+  // into one row per player and let a single table be sorted by any column —
+  // exactly what each cabinet's own board does with the same payload.
+  function foldMetrics(payloads, cols) {
+    const byPlayer = new Map();
+    for (const data of payloads) {
+      if (!data || !data.metrics) continue;
+      for (const key of Object.keys(data.metrics)) {
+        for (const row of data.metrics[key] || []) {
+          const p = byPlayer.get(row.player) || { player: row.player };
+          p[key] = Math.max(p[key] || 0, Number(row.value) || 0);
+          byPlayer.set(row.player, p);
+        }
+      }
+    }
+    // A player only belongs on this board if they actually put a number on one of
+    // ITS columns. Without this, someone whose only run was in another cabinet
+    // rides along on a shared metric (tokens) with zeros everywhere else.
+    return [...byPlayer.values()].filter((p) => cols.some((c) => (p[c.key] || 0) > 0));
+  }
+
+  function renderMetrics(g) {
+    const rows = metricCache[g.id];
+    if (!rows) return `<div class="empty">Loading…</div>`;
+    const sort = g.sort;
+    const sorted = rows.slice().sort((a, b) => (b[sort] || 0) - (a[sort] || 0));
+    return table(`Best run — ${g.cols.find((c) => c.key === sort).label}`, g.note,
+      head(g.cols, sort), sorted, (r) => g.cols.map((c) => cell(r, c, sort)).join(''));
   }
 
   function render() {
     const panel = document.getElementById('panel');
-    if (!data) {
+    if (!stagesData) {
       panel.innerHTML = `<div class="empty">
         Leaderboards need the arcade app.<br>
         This page is running from static hosting, which has no scores API —
         open the arcade on aix-proto to see them.</div>`;
       return;
     }
-    if (tab === 'stages') {
-      const ids = Object.keys(data.stages || {});
-      panel.innerHTML = ids.length
-        ? ids.map((id) => table(boardTitle(id), '<th style="text-align:right">Best run</th>',
-            data.stages[id], (r) => `<td class="val">${money(r.dollars)}</td>`)).join('')
-        : table('All-time best per stage', '', [], () => '');
-    }
+    const g = GAMES.find((x) => x.id === tab) || GAMES[0];
+    panel.innerHTML = g.kind === 'stages' ? renderStages(g) : renderMetrics(g);
   }
 
-  // Quiz accuracy used to be a second board here. It ranked how well people
-  // answered trivia, which is not what anyone comes to a leaderboard for, and it
-  // sat oddly next to a board about money saved.
-  const TABS = [
-    ['stages', '🏆 Per stage'],
-  ];
+  // Clicking a metric header re-ranks that cabinet's board. Delegated on the
+  // panel because render() replaces its contents wholesale.
+  document.getElementById('panel').addEventListener('click', (e) => {
+    const th = e.target.closest('th[data-sort]');
+    if (!th) return;
+    const g = GAMES.find((x) => x.id === tab);
+    if (!g || g.kind !== 'metrics') return;
+    g.sort = th.dataset.sort;
+    render();
+  });
+
+  // Quiz accuracy used to be a tab here. It ranked how well people answered
+  // trivia, which is not what anyone comes to a leaderboard for, and it sat oddly
+  // next to a board about money saved.
   const tabBox = document.getElementById('tabs');
-  TABS.forEach(([id, lbl]) => {
+  GAMES.forEach((g) => {
     const b = document.createElement('button');
-    b.className = 'tab' + (id === tab ? ' on' : '');
-    b.textContent = lbl;
+    b.className = 'tab' + (g.id === tab ? ' on' : '');
+    b.textContent = g.tab;
     b.onclick = () => {
-      tab = id;
+      tab = g.id;
       document.querySelectorAll('.tab').forEach((t) => { t.classList.remove('on'); });
       b.classList.add('on');
       render();
+      if (g.kind === 'metrics' && !metricCache[g.id]) loadMetrics(g);
     };
     tabBox.appendChild(b);
   });
+
+  async function loadMetrics(g) {
+    const keys = [g.id, ...(g.also || [])];
+    const payloads = await Promise.all(keys.map((k) => window.ArcadeSync.gameBoards(k)));
+    metricCache[g.id] = foldMetrics(payloads, g.cols);
+    if (tab === g.id) render();
+  }
 
   (async () => {
     const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
@@ -159,15 +262,19 @@
       // prefer the resolved name — the hub id is a PERNR and reads as nobody
       document.getElementById('who').textContent =
         'Signed in as ' + short(s.displayName || s.hubId);
-      data = await window.ArcadeSync.boards();
-      document.getElementById('note').innerHTML = data && data.source === 'memory'
+      stagesData = await window.ArcadeSync.boards();
+      document.getElementById('note').innerHTML = stagesData && stagesData.source === 'memory'
         ? 'Running without a database — these standings are in-memory and reset when the app restarts.'
         : '';
+      render();
+      // Warm every cabinet's board up front: three small requests, and flipping
+      // tabs then costs nothing.
+      GAMES.filter((g) => g.kind === 'metrics').forEach(loadMetrics);
     } else {
       document.getElementById('note').innerHTML =
         'Served statically, so there is no scores API here. The full arcade lives on aix-proto.';
+      render();
     }
-    render();
   })();
 </script>
 </body>

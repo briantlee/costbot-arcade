@@ -1700,10 +1700,11 @@
       score: r.tokens,
       tokens: r.tokens,
       tokensEarned: r.tokens,
-      // The shared board is denominated in dollars. Fishing saves none, so it
-      // converts its haul at the same rate Mudslides does rather than reporting
-      // $0 and sitting at the bottom of every column.
-      dollarsSaved: r.tokens * C.DOLLARS_PER_TOKEN,
+      // Fishing saves nobody any money, so it reports none. It used to convert
+      // its haul into dollars at a made-up rate just to have a number for the
+      // shared board; the board now ranks fishing on streak, weight and fish
+      // landed instead, which is what the cabinet's own board always did.
+      dollarsSaved: 0,
       timeSurvived: Math.round(r.total ? r.total - r.time : 0),
       fish: r.fish, junk: r.junk, escaped: r.escaped,
       heaviest: r.heaviest, streak: r.bestStreak,

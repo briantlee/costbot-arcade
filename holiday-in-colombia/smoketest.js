@@ -702,20 +702,18 @@ const ok = (cond, label, detail) => {
   });
   ok(/tokens reclaimed$/.test(result.title || ''), 'the run ends on a results card', result.title);
 
-  // The shared arcade board files runs by `stageId` and ranks them in dollars.
-  // Sending `stage` filed every trip under "unknown", and sending no dollars
-  // put fishing at $0 in every column.
-  const payload = await page.evaluate(() => ({
-    r: window.__lastResult || null,
-    rate: window.HC_CONTENT.DOLLARS_PER_TOKEN,
-  }));
+  // The shared arcade board files runs by `stageId`; sending `stage` filed every
+  // trip under "unknown". Dollars stay at zero on purpose — fishing saves no
+  // money, and the board ranks it on streak, weight and fish landed instead.
+  const payload = await page.evaluate(() => ({ r: window.__lastResult || null }));
   ok(payload.r && payload.r.stageId === 'lake',
     'the result is filed under the lake, not "unknown"', payload.r && payload.r.stageId);
-  ok(payload.r && payload.r.dollarsSaved === payload.r.tokensEarned * payload.rate,
-    'and converts its haul into the board currency',
-    payload.r && `${payload.r.tokensEarned} tokens -> $${payload.r.dollarsSaved}`);
-  ok(payload.r && payload.r.streak !== undefined && payload.r.heaviest !== undefined,
-    'streak and heaviest ride along for the per-game board');
+  ok(payload.r && payload.r.dollarsSaved === 0,
+    'and claims no dollars saved — there are none to claim on a lake',
+    payload.r && `$${payload.r.dollarsSaved}`);
+  ok(payload.r && payload.r.streak !== undefined && payload.r.heaviest !== undefined
+    && payload.r.fish !== undefined,
+    'streak, heaviest and fish landed ride along for the per-game board');
   ok(result.hasTable, 'the results card itemizes the haul');
 
   // The haul goes into the shared arcade purse, spendable in any cabinet — NOT

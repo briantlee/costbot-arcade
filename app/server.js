@@ -126,6 +126,10 @@ async function initStore() {
     // the board divides it back down for display.
     await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS streak INT NOT NULL DEFAULT 0');
     await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS heaviest_g INT NOT NULL DEFAULT 0');
+    // Fish landed. The cabinet has always sent it and its own board has always had
+    // a column for it, but there was nowhere to put it — so that column read 0 for
+    // everybody the moment the board came from the server instead of localStorage.
+    await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS fish INT NOT NULL DEFAULT 0');
     await p.query('CREATE INDEX IF NOT EXISTS runs_game_streak ON runs (game, streak DESC)');
     // One row per housekeeping fact. Only `reset_epoch` lives here today; it is a
     // table rather than an env var because it has to survive a pod restart and be
@@ -332,6 +336,7 @@ async function recordRun(hubId, team, r) {
     top_speed: num(r.topSpeed, 1e6),
     streak: num(r.streak, 1e4),
     heaviest_g: num(Math.round((Number(r.heaviest) || 0) * 1000), 1e7),
+    fish: num(r.fish, 1e6),
   };
   if (!pool) {
     mem.runs.push(run);
@@ -342,12 +347,12 @@ async function recordRun(hubId, team, r) {
       `INSERT INTO runs (hub_id, game, stage_id, seed, outcome, dollars, tokens,
                          level, kills, quiz_correct, quiz_wrong, team,
                          distance, near_misses, top_speed, duration_s,
-                         streak, heaviest_g)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
+                         streak, heaviest_g, fish)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)`,
       [run.hub_id, run.game, run.stage_id, run.seed, run.outcome, run.dollars,
         run.tokens, run.level, run.kills, run.quiz_correct, run.quiz_wrong, run.team,
         run.distance, run.near_misses, run.top_speed, run.duration_s,
-        run.streak, run.heaviest_g],
+        run.streak, run.heaviest_g, run.fish],
     );
   } catch (err) {
     console.error('arcade: recordRun failed:', err.message);
@@ -624,6 +629,7 @@ const GAME_METRICS = {
   // grams in the column so it sorts and indexes like every other metric, and
   // comes back out in kg so no caller has to know that.
   heaviest: { col: 'heaviest_g', label: 'Heaviest', div: 1000 },
+  fish: { col: 'fish', label: 'Fish landed' },
 };
 
 function memGameBoards(game) {
