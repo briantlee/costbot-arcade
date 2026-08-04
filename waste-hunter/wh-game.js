@@ -100,6 +100,10 @@
   }
   function saveMeta(meta, persist) {
     if (!persist) return;
+    // Stamped so a server copy that missed a write cannot pass itself off as the
+    // newer one — ArcadeSync.reconcile() reads this. A never-saved profile stays
+    // unstamped on purpose: it has nothing to be newer than.
+    meta.savedAt = Date.now();
     try { localStorage.setItem(STORE_KEY, JSON.stringify(meta)); } catch { /* private mode */ }
   }
 

@@ -81,6 +81,9 @@
   }
   function saveLocal(p) {
     try {
+      // Stamped so a server copy that missed a write cannot pass itself off as
+      // the newer one — ArcadeSync.reconcile() reads this.
+      p.savedAt = Date.now();
       localStorage.setItem(STORE_KEY, JSON.stringify(p));
       localStorage.removeItem(STORE_KEY_OLD);
     } catch { /* private mode */ }
@@ -1772,32 +1775,71 @@
     }
   };
 
-  // A vendor's contract, planted in the lane on two posts.
+  // A vendor's contract: a hoarding boarded all the way down into the mud.
+  //
+  // The silhouette IS the instruction, and this one used to lie. It was a panel
+  // held up on two thin posts with the bottom third left as open daylight —
+  // which is the universal runner's shorthand for "slide under me" — while the
+  // obstacle is a full-lane block that kills you for trying. Sliding worked on
+  // the shorter Renewal gantry and not on the taller Contract, which read as the
+  // slide being broken on tall signs rather than as two different hazards.
+  //
+  // So: no gap, no posts, no daylight. Solid from the mud to the top, the way
+  // the briefing has always described it — "a signed contract fills the lane".
   Game.prototype.drawSign = function (ctx, o, pr, w, h) {
     const d = o.def;
     const v = o.vendor;
-    const bh = h * 0.72;
+    const bh = h * 0.58;                    // brand panel, up where it stays legible
     const top = pr.y - h;
-    const pw = Math.max(1.2, w * 0.06);
+    const rr = Math.min(12 * pr.s, bh * 0.18);
 
-    ctx.fillStyle = '#3a2e22';
-    for (const s of [-1, 1]) ctx.fillRect(pr.x + s * w * 0.28 - pw / 2, pr.y - h * 0.34, pw, h * 0.34);
+    // The boarding below the panel — same body, darker, planked. Drawn first and
+    // full height so there is never a seam of background showing through.
+    ctx.fillStyle = '#241c12';
+    ctx.beginPath();
+    ctx.roundRect(pr.x - w / 2, top, w, h, rr);
+    ctx.fill();
 
+    // vertical plank seams, so the lower half reads as timber and not a shadow
+    ctx.strokeStyle = 'rgba(0,0,0,.34)';
+    ctx.lineWidth = Math.max(1, 1.6 * pr.s);
+    for (let i = 1; i < 4; i++) {
+      const x = pr.x - w / 2 + (w * i) / 4;
+      ctx.beginPath();
+      ctx.moveTo(x, top + bh);
+      ctx.lineTo(x, pr.y);
+      ctx.stroke();
+    }
+    // a lit top edge on the boarding, and mud caked along the bottom
+    ctx.fillStyle = 'rgba(255,255,255,.07)';
+    ctx.fillRect(pr.x - w / 2, top + bh, w, Math.max(1, h * 0.02));
+    ctx.fillStyle = 'rgba(40,27,15,.6)';
+    ctx.fillRect(pr.x - w / 2, pr.y - h * 0.07, w, h * 0.07);
+
+    // the brand panel
     ctx.fillStyle = d.color;
     ctx.strokeStyle = v ? v.color : d.accent;
     ctx.lineWidth = Math.max(1.5, 3.5 * pr.s);
     ctx.beginPath();
-    ctx.roundRect(pr.x - w / 2, top, w, bh, Math.min(12 * pr.s, bh * 0.18));
+    ctx.roundRect(pr.x - w / 2, top, w, bh, rr);
     ctx.fill(); ctx.stroke();
+
+    // half-sunk in the hill, like the bedrock — it is planted, not standing
+    ctx.fillStyle = 'rgba(40,27,15,.55)';
+    ctx.beginPath();
+    ctx.ellipse(pr.x, pr.y, w * 0.54, h * 0.045, 0, 0, TAU);
+    ctx.fill();
 
     this.signFace(ctx, v, pr.x, top, w, bh);
   };
 
-  // The renewal: a banner overhead on two legs, with daylight underneath.
+  // The renewal: a banner overhead on two legs, with daylight underneath. This
+  // is the ONLY vendor hazard you get under, so it wears the whole gap — a
+  // thinner banner on taller legs, well clear of a sliding bot.
   Game.prototype.drawGantry = function (ctx, o, pr, w, h) {
     const d = o.def;
     const v = o.vendor;
-    const bh = h * 0.44;
+    const bh = h * 0.36;
     const top = pr.y - h;
     const pw = Math.max(1.4, w * 0.055);
 

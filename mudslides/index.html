@@ -35,11 +35,16 @@
       const session = sync ? await sync.init() : { enabled: false };
       // Each game keeps its own slice of the shared server profile, so Mudslides
       // progress and Waste Hunter progress never overwrite one another.
-      // The game was called "mudsliders" until it wasn't — fall back to that
-      // slice once so nobody loses a build they already earned. It is written
-      // back under the new key on the next run.
-      const saved = session.enabled && sync.gameProfile
-        ? (sync.gameProfile('mudslides') || sync.gameProfile('mudsliders'))
+      //
+      // Three copies can be in play, and they are MERGED rather than ranked —
+      // whichever one has the achievement keeps it. Booting from the server
+      // slice alone quietly took back anything whose profile write never landed,
+      // so a run that hit terminal velocity could finish, save, and come back
+      // without the achievement. The game was also called "mudsliders" until it
+      // wasn't, so that slice folds in too and is written back under the new key.
+      const saved = session.enabled && sync.adopt
+        ? sync.adopt('mudslides',
+          sync.reconcile(sync.gameProfile('mudsliders'), Mudslides.loadProfile()))
         : null;
 
       game = Mudslides.mount('#game', {

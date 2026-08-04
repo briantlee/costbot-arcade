@@ -237,7 +237,11 @@
 
   function submit(result, profile) {
     if (!state.enabled) return Promise.resolve(null);
-    if (timer) { clearTimeout(timer); timer = null; pending = null; }
+    // A queued profile write gets FLUSHED here, not dropped. Dropping it only
+    // makes sense if this call carries the profile itself, and every caller
+    // passes null — so cancelling the queued save just threw the run's progress
+    // away and left the server a step behind.
+    if (timer) { clearTimeout(timer); timer = null; if (pending) pushProfile(pending, true); }
     return req('score', {
       method: 'POST',
       body: JSON.stringify({ result: result, profile: profile || null }),
@@ -271,6 +275,111 @@
   function gameProfile(id) {
     const p = migrate(state.profile);
     return (p.games && p.games[id]) || null;
+  }
+
+  // ---- reconciling a server slice with the local one ------------------------
+  // Progress is LOCAL-FIRST: a cleared stage or an unlocked achievement is in
+  // localStorage the instant it is earned, and goes to the server best-effort.
+  // Any dropped write — a tab closed on the results screen, a navigation that
+  // aborts the PUT mid-flight, a few seconds of no network — leaves the server
+  // one step behind, and a host that boots from the server copy alone then hands
+  // the player a silent rollback: the stage they just cleared is locked again.
+  // It gets worse, because the rolled-back copy is what the next save writes to
+  // localStorage, so a single lost write turns into lost progress for good.
+  //
+  // So neither copy wins outright. Everything these games persist is one-way — a
+  // cleared stage never un-clears, a lifetime total never falls, an achievement
+  // is never handed back — which means the two copies can be merged on those
+  // semantics, and the merge is always at least as good as either input:
+  //
+  //   numbers   -> the larger (lifetime totals, per-stage bests, upgrade
+  //                levels, achievement timestamps)
+  //   booleans  -> either one (a cleared stage stays cleared)
+  //   objects   -> key by key, recursively
+  //   arrays    -> concatenated, de-duplicated, newest first (run history)
+  //   anything
+  //     else    -> whichever copy was written last, per `savedAt`
+  //
+  // NOT for the wallet. `tokens` is a spendable balance that legitimately goes
+  // DOWN, and merging it upwards would refund every purchase ever made. The
+  // wallet reconciles itself against lifetime `earned` — see arcade-wallet.js.
+  const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+  // Arrays come in two flavours here and they must not be treated alike.
+  //
+  // A LOG is timestamped entries the game trims to a fixed length (run history).
+  // Merged newest-first and trimmed back: neither side was allowed past the
+  // game's cap, so the longer of the two IS that cap.
+  //
+  // A SET is unordered ids with no cap at all (achievements earned, trivia
+  // questions seen). The union stands in full — capping one of those to the
+  // longer input drops entries whenever the two copies have diverged, which is
+  // precisely the case this whole merge exists to handle.
+  function mergeList(server, local) {
+    const seen = new Map();
+    for (const item of server.concat(local)) {
+      const key = isObj(item) && item.t !== undefined ? 't:' + item.t : JSON.stringify(item);
+      if (!seen.has(key)) seen.set(key, item);
+    }
+    const all = Array.from(seen.values());
+    if (!all.every((x) => isObj(x) && typeof x.t === 'number')) return all;
+    all.sort((a, b) => b.t - a.t);
+    return all.slice(0, Math.max(server.length, local.length));
+  }
+
+  function mergeValue(s, l, prefer) {
+    if (s === undefined) return l;
+    if (l === undefined) return s;
+    if (typeof s === 'number' && typeof l === 'number') {
+      if (!Number.isFinite(s)) return l;
+      if (!Number.isFinite(l)) return s;
+      return Math.max(s, l);
+    }
+    if (typeof s === 'boolean' && typeof l === 'boolean') return s || l;
+    if (Array.isArray(s) && Array.isArray(l)) return mergeList(s, l);
+    if (isObj(s) && isObj(l)) return mergeObj(s, l, prefer);
+    return prefer === 'server' ? s : l;
+  }
+
+  function mergeObj(s, l, prefer) {
+    const out = {};
+    const keys = Object.keys(s).concat(Object.keys(l).filter((k) => !(k in s)));
+    for (const k of keys) out[k] = mergeValue(s[k], l[k], prefer);
+    return out;
+  }
+
+  // `opts.spendable` names top-level fields that are BALANCES rather than
+  // records — they go down when the player buys something, so the larger of the
+  // two copies is not the better one. Those come wholesale from whichever copy
+  // was written last, because merging them upward refunds the purchase.
+  function reconcile(server, local, opts) {
+    if (!isObj(server)) return isObj(local) ? local : null;
+    if (!isObj(local)) return server;
+    // A local copy with no stamp cannot claim to be the newer one. That covers
+    // both a browser that has never played and every save written before
+    // stamping existed, and it keeps the old server-wins behaviour for the
+    // fields a merge cannot reason about.
+    const ls = Number(local.savedAt) || 0;
+    const ss = Number(server.savedAt) || 0;
+    const prefer = ls > 0 && ls >= ss ? 'local' : 'server';
+    const merged = mergeObj(server, local, prefer);
+    const newer = prefer === 'server' ? server : local;
+    for (const k of (opts && opts.spendable) || []) {
+      if (k in newer) merged[k] = newer[k];
+    }
+    return merged;
+  }
+
+  // What a host should boot a game from: the server slice merged with whatever
+  // this browser already had. Pushes the result back when the server was the one
+  // behind, so the next machine the player sits at starts from the merged copy
+  // rather than repeating the rollback.
+  function adopt(id, local, opts) {
+    const server = gameProfile(id);
+    const merged = reconcile(server, local, opts);
+    if (!merged) return null;
+    if (state.enabled && JSON.stringify(merged) !== JSON.stringify(server)) saveGame(id, merged);
+    return merged;
   }
 
   function saveGame(id, data) {
@@ -309,7 +418,7 @@
 
   global.ArcadeSync = {
     init, submit, pushProfile, boards, gameBoards, setDisplayName, gameProfile, saveGame,
-    identity,
+    reconcile, adopt, identity,
     get state() { return state; },
     get enabled() { return state.enabled; },
   };

@@ -251,7 +251,7 @@
     graviton_beam: {
       name: 'Graviton Beam', icon: '⚡', topic: 'graviton',
       blurb: 'Piercing beam fired the way you are moving.',
-      fact: 'Intel → Graviton is about 20% off, AMD → Graviton about 10% — plus a 20% AWS adoption credit.',
+      fact: 'Intel → Graviton is about 20% off, AMD → Graviton about 10%.',
       levels: [
         { cd: 1.9, dmg: 26, width: 16, len: 460, note: 'Piercing beam.' },
         { cd: 1.7, dmg: 34, width: 20, len: 520, note: '+width' },

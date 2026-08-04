@@ -111,8 +111,18 @@
       { to: 0.94, band: 3, label: 'The Abyss' },
       { to: 1.00, band: -1, label: 'Snagged!' },   // overcooked it
     ],
-    perfectPad: 0.055,      // within this of a zone's centre = a perfect cast
+    // A perfect cast is the MARK, not the neighbourhood. At 0.055 the window was
+    // ±5.5% of the whole bar against zones only 22-26% wide — so nearly half of
+    // every zone scored perfect and the bonus stopped meaning anything. This is
+    // about a fifth of a zone: you have to actually hit the line.
+    perfectPad: 0.025,      // within this of a zone's centre = a perfect cast
     perfectBoxBonus: 0.10,  // ...which widens the reel box by this fraction
+    // Missing the mark is not a failed cast — it lands, it catches, it just
+    // catches SMALLER. Accuracy runs 1 at the mark to 0 at the zone edge and
+    // scales the fish, so every cast is graded rather than passed or failed.
+    sizeAtMark: 1.22,       // weight multiplier for a dead-centre cast
+    sizeAtEdge: 0.80,       // ...and for one that barely stayed in the zone
+    sizeSpread: 0.14,       // natural variation on top, so no two are identical
   };
 
   // ---------------------------------------------------------------------------
@@ -385,9 +395,11 @@
       { icon: '🪱', label: 'Get bait before you can fish',
         note: 'Ten free every day. Buy more with tokens, or answer a FinOps question '
           + 'for it — trivia never runs out, so you can always fish for free.' },
-      { icon: '💪', label: 'Cast — stop the power meter',
-        note: 'Where you stop it sets the depth, and depth is the only thing that makes an '
-          + 'Opah likely. Overcook it and you snag the line.' },
+      { icon: '💪', label: 'Cast — stop the power meter on the mark',
+        note: 'Which zone you stop in sets the depth, and depth is the only thing that makes '
+          + 'an Opah likely. How close you get to the white line sets the SIZE: on the mark '
+          + 'lands a big one, loose still catches but it will be small. Overcook it and you '
+          + 'snag the line.' },
       { icon: '❗', label: 'Hook — wait for the bobber to go under',
         note: 'Hit it in the first third of the window for a clean hook. Yank early and '
           + 'you spook it; too late and it takes your bait.' },

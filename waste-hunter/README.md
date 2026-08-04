@@ -58,13 +58,13 @@ Clearing a stage unlocks the next one.
 
 ### The trivia bank
 
-47 questions across 12 topics, all sourced from the internal
+93 questions across 12 topics, all sourced from the internal
 [`skills/optional/cost-optimizations/SKILL.md`](../../skills/optional/cost-optimizations/SKILL.md)
 guidance (Confluence PRODPLAT — *AWS Cost Optimization Strategies*), so the
 numbers are the ones the team actually quotes:
 
 > *Migrating an EC2 workload from Intel to Graviton typically saves about how much?*
-> → **~20%.** AMD → Graviton ≈ 10%, Intel → AMD ≈ 10%, plus a ~20% AWS adoption credit (capped).
+> → **~20%.** AMD → Graviton ≈ 10%, Intel → AMD ≈ 10%.
 
 > *A nonprod resource costing what fraction of its prod twin should be flagged?*
 > → **More than 30%.** >50% is strong overprovisioning; more than prod is almost certainly a mistake.

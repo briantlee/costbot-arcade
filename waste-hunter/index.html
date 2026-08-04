@@ -48,8 +48,13 @@
     game = WasteHunter.mount('#game', {
       showShell: true,
       persist: true,
-      meta: session.enabled && window.ArcadeSync.gameProfile
-        ? window.ArcadeSync.gameProfile('waste-hunter') || undefined
+      // The server slice is MERGED with this browser's copy, never swapped for
+      // it. Booting from the server alone rolled a player back whenever a
+      // profile write was lost — clear stage 2, click through to the
+      // leaderboard before the PUT lands, come back to a locked stage 3 and a
+      // localStorage save about to be overwritten with the rollback.
+      meta: session.enabled && window.ArcadeSync.adopt
+        ? window.ArcadeSync.adopt('waste-hunter', WasteHunter.loadMeta()) || undefined
         : undefined,
       onEvent(type, payload) {
         // Handy while iterating — watch the host-facing event stream in devtools.

@@ -36,8 +36,16 @@
       const session = sync ? await sync.init() : { enabled: false };
       // Each game keeps its own slice of the shared server profile, so the
       // fishdex and Waste Hunter's bot bay never overwrite one another.
-      const saved = session.enabled && sync.gameProfile
-        ? sync.gameProfile('holiday-in-colombia') : null;
+      //
+      // The slice is MERGED with this browser's copy rather than replacing it: a
+      // profile write that never lands would otherwise take back the Fable you
+      // just landed, and then save the rollback over the good local copy.
+      // `bait` is exempt — it is a balance that goes DOWN when you spend it, so
+      // keeping the larger of the two would refund every purchase.
+      const saved = session.enabled && sync.adopt
+        ? sync.adopt('holiday-in-colombia', HolidayInColombia.loadProfile(),
+          { spendable: ['bait'] })
+        : null;
 
       game = HolidayInColombia.mount('#game', {
         profile: saved || undefined,

@@ -181,6 +181,9 @@
   };
 
   function saveLocal(p) {
+    // Stamped so a server copy that missed a write cannot pass itself off as the
+    // newer one — ArcadeSync.reconcile() reads this.
+    p.savedAt = Date.now();
     try { localStorage.setItem(STORE_KEY, JSON.stringify(p)); } catch { /* private mode */ }
   }
 
@@ -239,11 +242,26 @@
     return pool[pool.length - 1];
   }
 
-  // Weight varies +/-20% around the species' nominal, and the payout follows it
-  // exactly — so a personal-best Opus is worth real tokens over an average one.
-  function rollCatch(def, rng) {
+  // How big the fish is, and the payout follows it exactly — so a personal-best
+  // Opus is worth real tokens over an average one.
+  //
+  // Weight is mostly the CAST: `acc` is 1 for a cast on the mark and 0 for one
+  // that only just stayed inside its zone, and it slides the nominal weight from
+  // sizeAtEdge to sizeAtMark. Missing the mark used to cost nothing at all here
+  // — every fish rolled the same ±20% whatever the cast — so accuracy paid only
+  // in a rarity nudge nobody could see. Now it is the whole point: aim well and
+  // land a bigger fish, aim loosely and it still bites, just small.
+  //
+  // `acc` defaults to a middling cast so an unqualified call still behaves.
+  function rollCatch(def, rng, acc) {
     const r = rng || Math.random;
-    const jitter = 0.8 + r() * 0.4;
+    const a = clamp(acc === undefined ? 0.5 : acc, 0, 1);
+    const K = C.CAST;
+    // A middling cast still averages the old nominal weight, so this redirects
+    // the payout towards skill rather than inflating it.
+    const base = K.sizeAtEdge + (K.sizeAtMark - K.sizeAtEdge) * a;
+    // spread is symmetric about the earned size, and never dips below the floor
+    const jitter = Math.max(0.5, base + (r() * 2 - 1) * K.sizeSpread);
     return {
       def,
       kg: +(def.kg * jitter).toFixed(def.kg < 2 ? 2 : 1),
@@ -1310,7 +1328,7 @@
       meter: 0, meterDir: 1,
       hooked: null, band: 0, spooks: 0,
       phaseT: 0, msg: '', msgT: 0,
-      perfectCast: false, cleanHook: false,
+      perfectCast: false, castAcc: 0.5, cleanHook: false,
       over: false,
     };
     this.passUI();
@@ -1362,8 +1380,16 @@
     }
     r.band = zone.band;
     const centre = this.zoneCentre(zone);
-    r.perfectCast = Math.abs(r.meter - centre) <= C.CAST.perfectPad;
-    this.say(r.perfectCast ? '🎯 Perfect cast · ' + C.BANDS[r.band].name : C.BANDS[r.band].name);
+    const off = Math.abs(r.meter - centre);
+    r.perfectCast = off <= C.CAST.perfectPad;
+    // Graded, not pass/fail: 1 on the mark, 0 at the zone edge. This is what
+    // sizes the fish, so the read-out has to say which of the three you got —
+    // otherwise the player has no way to learn that loose casts land small ones.
+    r.castAcc = clamp(1 - off / this.zoneHalf(zone), 0, 1);
+    const band = C.BANDS[r.band].name;
+    if (r.perfectCast) this.say('🎯 Perfect cast · ' + band);
+    else if (r.castAcc >= 0.55) this.say('👍 Good cast · ' + band);
+    else this.say('🪶 Loose cast · ' + band + ' — expect a small one');
 
     r.phase = 'sink'; r.phaseT = 0;
     this.audio.plop();
@@ -1374,6 +1400,14 @@
     const ix = C.CAST.zones.indexOf(zone);
     const from = ix > 0 ? C.CAST.zones[ix - 1].to : 0;
     return (from + zone.to) / 2;
+  };
+
+  // Centre to edge. Zones are not all the same width, so accuracy has to be
+  // measured against the zone you actually landed in.
+  Game.prototype.zoneHalf = (zone) => {
+    const ix = C.CAST.zones.indexOf(zone);
+    const from = ix > 0 ? C.CAST.zones[ix - 1].to : 0;
+    return Math.max(1e-6, (zone.to - from) / 2);
   };
 
   Game.prototype.lureX = function () {
@@ -1419,7 +1453,7 @@
     // The fish that swam up IS the fish you hook — it was chosen when it started
     // its approach, so the silhouette you watched is never a bait-and-switch.
     const def = (r.comer && r.comer.def) || pickSpecies(r.band, null, r.perfectCast);
-    const cat = rollCatch(def);
+    const cat = rollCatch(def, null, r.castAcc);
     const f = fightProfile(def);
 
     // A clean hook starts you closer and with slack line — the reward is a
@@ -1482,7 +1516,7 @@
     if (this._cardKey) { this._cardKey(); this._cardKey = null; }
     if (r.phase === 'card') this.passUI();       // put the click-through overlay back
     r.phase = 'idle'; r.phaseT = 0; r.hooked = null; r.comer = null;
-    r.spooks = 0; r.perfectCast = false; r.cleanHook = false;
+    r.spooks = 0; r.perfectCast = false; r.castAcc = 0.5; r.cleanHook = false;
     if (!totalBait(this.p)) this.finish('out of bait');
   };
 
@@ -2442,16 +2476,28 @@
       }
       ctx.fillStyle = g;
       ctx.fillRect(zx, y, zw, h);
-      // the sweet spot: a bright pillar, not a grey smear
+      // The mark. A soft falloff across the zone shows which way the weight is
+      // going — brightest at the centre, dimmest at the edges, because that is
+      // exactly how the fish is sized. The hard line on top is the perfect
+      // window itself, which is far too narrow to aim at as a gradient: a
+      // fuzzy pillar was fine when it was half the zone wide and is useless now.
       if (band) {
         const c = x + w * this.zoneCentre(z);
-        const pw = w * C.CAST.perfectPad;
-        const pg = ctx.createLinearGradient(c - pw, 0, c + pw, 0);
-        pg.addColorStop(0, 'rgba(255,255,255,0)');
-        pg.addColorStop(0.5, on ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.22)');
-        pg.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = pg;
-        ctx.fillRect(c - pw, y, pw * 2, h);
+        const half = w * this.zoneHalf(z);
+        const fg = ctx.createLinearGradient(c - half, 0, c + half, 0);
+        fg.addColorStop(0, 'rgba(255,255,255,0)');
+        fg.addColorStop(0.5, on ? 'rgba(255,255,255,.34)' : 'rgba(255,255,255,.14)');
+        fg.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = fg;
+        ctx.fillRect(c - half, y, half * 2, h);
+
+        const pw = Math.max(1.5, w * C.CAST.perfectPad);
+        ctx.fillStyle = on ? 'rgba(255,255,255,.92)' : 'rgba(255,255,255,.4)';
+        ctx.fillRect(c - pw / 2, y, pw, h);
+        // notches top and bottom, so the line is findable at a glance
+        ctx.fillStyle = on ? '#fff' : 'rgba(255,255,255,.55)';
+        ctx.fillRect(c - pw, y, pw * 2, Math.max(2, h * 0.16));
+        ctx.fillRect(c - pw, y + h - Math.max(2, h * 0.16), pw * 2, Math.max(2, h * 0.16));
       }
       ctx.fillStyle = 'rgba(4,16,24,.5)';
       ctx.fillRect(zx + zw - 1, y, 1.5, h);
@@ -2697,7 +2743,7 @@
   // Exposed for the smoke test: deterministic access to the draw tables.
   Game.prototype.pickSpecies = (band, rng, perfect) => pickSpecies(band, rng, perfect);
   Game.prototype.drawWeight = (fish, band, perfect) => drawWeight(fish, band, perfect);
-  Game.prototype.rollCatch = (def, rng) => rollCatch(def, rng);
+  Game.prototype.rollCatch = (def, rng, acc) => rollCatch(def, rng, acc);
   Game.prototype.fightProfile = (def) => fightProfile(def);
   Game.prototype.totalBait = function () { return totalBait(this.p); };
   Game.prototype.portrait = (def, px) => portrait(def, px);
@@ -2706,5 +2752,6 @@
   global.HolidayInColombia = {
     mount(container, opts) { return new Game(container, opts); },
     CONTENT: C,
+    loadProfile: loadLocal,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
