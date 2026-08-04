@@ -25,6 +25,15 @@ const PUBLIC_DIR = process.env.ARCADE_PUBLIC
   ? nodePath.resolve(process.env.ARCADE_PUBLIC)
   : nodePath.join(__dirname, 'public');
 const MAX_BODY_BYTES = 512 * 1024; // profiles are small; cap hard
+// Node's default header cap is 16 KB, and that is NOT enough here. The front door injects the
+// viewer's full AD group list as `x-aix-groups`, so the request that reaches us is bigger than
+// the one the browser sent — for a viewer in a few hundred groups the injected header alone
+// clears 20 KB. Node's parser then rejects the request with a bare 431 before any of our code
+// runs, so the whole arcade 431s for that person while everyone else is fine (which is exactly
+// how this surfaced: two players locked out, nobody else). Set per-server rather than via
+// `--max-http-header-size` on the CMD so the cap travels with the source and holds however the
+// app is started — the Docker CMD, `npm start`, `npm run dev`, or the tests.
+const MAX_HEADER_BYTES = 64 * 1024;
 const BOARD_LIMIT = 25;
 // Admin allowlist by MyID login id. Not a credential — just who may read the raw
 // tables and reset the boards. The app is private today, so every viewer is
@@ -196,6 +205,30 @@ function nameFromEmail(email) {
   return parts
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
     .join(' ');
+}
+
+// Some accounts are provisioned with a trailing ".nd" — laura.bria.nd@disney.com — which
+// nameFromEmail turns into a "Nd" that reads as part of the surname on a leaderboard. It is
+// an account-type marker, not a name, so it comes off on the way OUT. Nothing STORED changes:
+// players.display_name keeps whatever was provisioned or typed, and this is applied only to
+// labels the app emits. Requires a separator before it, so someone actually called "Nd"
+// keeps their name.
+const ACCOUNT_SUFFIX = /[\s._-]+nd$/i;
+function displayLabel(name) {
+  const s = String(name || '');
+  if (!s) return null;
+  return s.replace(ACCOUNT_SUFFIX, '').trim() || s;
+}
+
+// One name-resolution rule for every label the app emits, so the boards, the usage table
+// and /api/me cannot disagree — the leaderboard highlights your own row by matching the
+// name string, so a suffix stripped in one place and not the other stops that working.
+// A hub id is a PERNR and is only ever the last resort.
+function playerLabel(row, hubId) {
+  const raw = row
+    ? row.display_name || (row.email ? String(row.email).split('@')[0] : null)
+    : null;
+  return displayLabel(raw) || hubId;
 }
 
 function viewer(req) {
@@ -428,7 +461,8 @@ async function usage() {
       u.first_seen = u.first_seen || x.started_at;
       byPlayer.set(x.hub_id, u);
     }
-    const names = new Map([...mem.players.values()].map((p) => [p.hub_id, p.display_name]));
+    const names = new Map([...mem.players.values()]
+      .map((p) => [p.hub_id, playerLabel(p, p.hub_id)]));
     return {
       store: 'memory',
       players: [...byPlayer.values()]
@@ -471,7 +505,7 @@ async function usage() {
       store: 'postgres',
       players: q.rows.map((x) => ({
         hub_id: x.hub_id,
-        player: x.display_name || (x.email ? x.email.split('@')[0] : x.hub_id),
+        player: playerLabel(x, x.hub_id),
         runs: Number(x.runs),
         seconds: Number(x.seconds),
         tokens: Number(x.tokens),
@@ -504,9 +538,7 @@ async function nameMap(hubIds) {
     );
     // email is the fallback identity when no name was derived or set — a hub id
     // is a PERNR and must never be a label
-    return Object.fromEntries(
-      rows.map((r) => [r.hub_id, r.display_name || (r.email ? r.email.split('@')[0] : r.hub_id)]),
-    );
+    return Object.fromEntries(rows.map((r) => [r.hub_id, playerLabel(r, r.hub_id)]));
   } catch {
     return {};
   }
@@ -515,11 +547,7 @@ async function nameMap(hubIds) {
 function memBoards() {
   // Mirror the SQL path's name resolution, otherwise local dev shows raw hub ids
   // (PERNRs) where production shows people.
-  const label = (hubId) => {
-    const p = mem.players.get(hubId);
-    if (!p) return hubId;
-    return p.display_name || (p.email ? p.email.split('@')[0] : hubId);
-  };
+  const label = (hubId) => playerLabel(mem.players.get(hubId), hubId);
   const best = new Map();
   for (const r of mem.runs) {
     const k = `${r.game}/${r.stage_id}|${r.hub_id}`;
@@ -633,11 +661,7 @@ const GAME_METRICS = {
 };
 
 function memGameBoards(game) {
-  const label = (hubId) => {
-    const p = mem.players.get(hubId);
-    if (!p) return hubId;
-    return p.display_name || (p.email ? p.email.split('@')[0] : hubId);
-  };
+  const label = (hubId) => playerLabel(mem.players.get(hubId), hubId);
   const out = {};
   for (const [key, m] of Object.entries(GAME_METRICS)) {
     const best = new Map();
@@ -799,7 +823,11 @@ async function handler(req, res) {
         hubId: v.hubId,
         authenticated: v.authenticated,
         groups: v.groups,
-        displayName: name,
+        // Stripped like every board label, and it HAS to be: the leaderboard highlights
+        // your own row by matching this string against the names on the board, so leaving
+        // the suffix on here would stop anyone with an ".nd" account ever finding
+        // themselves. What was persisted above is the underived name, untouched.
+        displayName: displayLabel(name),
         nameSource: stored && stored !== v.derivedName
           ? 'set-by-player'
           : v.derivedName
@@ -1002,7 +1030,7 @@ async function handler(req, res) {
   return serveStatic(res, urlPath);
 }
 
-const server = http.createServer((req, res) => {
+const server = http.createServer({ maxHeaderSize: MAX_HEADER_BYTES }, (req, res) => {
   handler(req, res).catch((err) => {
     console.error('arcade: unhandled error:', err);
     if (!res.headersSent) json(res, 500, { error: 'internal error' });
@@ -1012,6 +1040,22 @@ const server = http.createServer((req, res) => {
 // Bound slow/stuck clients so a request can't hold a connection open forever.
 server.requestTimeout = 30_000;
 server.headersTimeout = 15_000;
+
+// A header-overflow rejection happens inside the parser, so it never reaches `handler` and Node
+// answers it with a 431 that appears in NO log — the failure is invisible from `aix-proto logs`
+// and unattributable to a person, which is what made the original lockout hard to place. Log it,
+// then send the same 431 by hand (there is no `res` to write through at this point). Any other
+// client error stays a silent socket destroy, as Node would do.
+server.on('clientError', (err, socket) => {
+  if (err.code === 'HPE_HEADER_OVERFLOW') {
+    console.error(`arcade: 431 request headers over ${MAX_HEADER_BYTES} bytes — raise MAX_HEADER_BYTES`);
+    if (socket.writable) {
+      socket.end('HTTP/1.1 431 Request Header Fields Too Large\r\nConnection: close\r\n\r\n');
+      return;
+    }
+  }
+  socket.destroy();
+});
 
 // Graceful shutdown: stop accepting, drain in-flight, then close the pool.
 let shuttingDown = false;
@@ -1037,4 +1081,4 @@ if (require.main === module) {
   process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
-module.exports = { handler, server, viewer, num };
+module.exports = { handler, server, viewer, num, displayLabel, playerLabel };

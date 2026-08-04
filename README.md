@@ -216,6 +216,18 @@ and injects the verified viewer as `x-aix-hub-id` (AD groups as `x-aix-groups`).
 There is no login to build, no credential stored, and a score cannot be submitted as
 somebody else — which is what makes the leaderboard worth having.
 
+**That injection makes the request bigger than the browser sent it, and the app has to
+have room for it.** `x-aix-groups` carries the viewer's whole AD group list, so for
+someone in a few hundred groups it alone clears 20 KB — past Node's 16 KB default header
+cap. The parser then rejects the request with a bare `431` before any of our code runs,
+which locks that person out of every page while everyone else sees nothing wrong. So
+`server.js` raises `maxHeaderSize` to 64 KB **in code** (not via `--max-http-header-size`
+on the CMD, so the cap cannot be lost by a Dockerfile edit or a different start command),
+and logs any overflow past that — Node's default 431 is silent, so without the handler the
+lockout appears in no log and cannot be tied to a person. A 431 is worth recognising as
+*ours*: the front door caps client headers at 16 KB too, but answers with a `400`, so a
+431 means the request got all the way to the app.
+
 **Sync is optional by design.** `arcade-sync.js` resolves its API base from its own
 script URL (pages sit at different depths, and aix-proto nests everything under
 `/a/<slug>/`), probes once, and disables itself if nothing answers. The same files

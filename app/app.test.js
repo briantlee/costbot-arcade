@@ -4,7 +4,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('node:http');
 
-const { handler } = require('./server');
+const { handler, server: realServer, displayLabel, playerLabel } = require('./server');
 const { normalizeSchema, appDbSecretId } = require('./db');
 
 // Parity with the Go/Python/Rust starters: lowercase; non-[a-z0-9_] -> _; strip leading
@@ -54,6 +54,38 @@ test('appDbSecretId prefers APP_DB_SECRET_ARN, then derives from the prefix + sl
   }
 });
 
+// An ".nd" account suffix is an account-type marker, not part of anybody's surname, so it comes
+// off every label the app emits. DISPLAY ONLY — nothing here writes to players.display_name.
+test('displayLabel drops a trailing ".nd" account suffix and leaves real names alone', () => {
+  const cases = [
+    ['Laura Bria Nd', 'Laura Bria'],
+    ['Laura Bria ND', 'Laura Bria'],
+    ['laura.bria.nd', 'laura.bria'],       // the email-local fallback label
+    ['laura_bria_nd', 'laura_bria'],
+    ['Briant Lee', 'Briant Lee'],          // no suffix, untouched
+    ['Nd', 'Nd'],                          // needs a separator, so a real "Nd" survives
+    ['Ferdinand', 'Ferdinand'],            // not a suffix, just an ending
+    ['Anand Ndiaye', 'Anand Ndiaye'],      // "nd" mid-token and a surname starting with it
+    ['', null],
+    [null, null],
+    [undefined, null],
+  ];
+  for (const [raw, want] of cases) {
+    assert.equal(displayLabel(raw), want, `displayLabel(${JSON.stringify(raw)})`);
+  }
+});
+
+// One resolution rule for boards, the usage table and /api/me: a set/derived name, else the
+// email local part, else the hub id. The leaderboard matches your own row on this string, so
+// the paths must not disagree.
+test('playerLabel resolves a name, then the email local part, then the hub id', () => {
+  assert.equal(playerLabel({ display_name: 'Laura Bria Nd' }, '70009486'), 'Laura Bria');
+  assert.equal(playerLabel({ email: 'laura.bria.nd@disney.com' }, '70009486'), 'laura.bria');
+  assert.equal(playerLabel({ display_name: null, email: null }, '70009486'), '70009486');
+  assert.equal(playerLabel(null, '70009486'), '70009486');       // player never saved a profile
+  assert.equal(playerLabel({ display_name: '' }, '70009486'), '70009486');
+});
+
 test('GET /health_check returns 200 {"status":"ok"}', async () => {
   const server = http.createServer(handler);
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -64,6 +96,33 @@ test('GET /health_check returns 200 {"status":"ok"}', async () => {
     assert.deepEqual(await res.json(), { status: 'ok' });
   } finally {
     await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+// Two players were locked out of the whole arcade with a bare 431: the front door injects the
+// viewer's AD groups as `x-aix-groups`, and for someone in a few hundred groups that header alone
+// clears Node's default 16 KB parser cap. This asserts against the REAL exported server, not a
+// fresh `createServer(handler)`, because the cap is a property of how that server is constructed —
+// a test that built its own would pass while production still 431'd.
+test('the server accepts an x-aix-groups header far past Node\'s 16 KB default', async () => {
+  assert.ok(realServer.maxHeaderSize > 16 * 1024, 'server must raise the default header cap');
+  await new Promise((resolve) => realServer.listen(0, '127.0.0.1', resolve));
+  const { port } = realServer.address();
+  try {
+    // ~21 KB of realistic group DNs — over the 16 KB default, under our 64 KB cap.
+    const groups = Array.from(
+      { length: 300 },
+      (_, i) => `CN=DE-Some-Long-AD-Group-Name-${String(i).padStart(4, '0')},OU=Groups,DC=corp,DC=disney,DC=com`,
+    ).join(',');
+    assert.ok(groups.length > 16 * 1024, 'fixture must exceed the default cap to be meaningful');
+
+    const res = await fetch(`http://127.0.0.1:${port}/api/me`, {
+      headers: { 'x-aix-hub-id': '70009486', 'x-aix-groups': groups },
+    });
+    assert.equal(res.status, 200); // 431 here is the regression
+    assert.equal((await res.json()).hubId, '70009486');
+  } finally {
+    await new Promise((resolve) => realServer.close(resolve));
   }
 });
 
