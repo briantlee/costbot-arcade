@@ -71,6 +71,14 @@ EXCLUDES=(
   --exclude 'app/'            # the app mirror — server source, NOT web content
   --exclude '*.md'
 )
+# --delete-excluded, not just --delete. Plain --delete PROTECTS excluded files on
+# the receiving side, so anything copied in before a rule was added is stranded
+# in the image and never updated again: waste-hunter/README.md shipped in the
+# first deploy (aix-proto #758), then went read-only the moment '*.md' was
+# excluded. It sat there for months a version behind, and on 2026-08-03 that
+# meant a figure scrubbed from the source was STILL being served from the image.
+# A doc that cannot be updated is worse than a doc that is absent.
+DELETE=(--delete --delete-excluded)
 
 if [[ ! -d "$SRC" ]]; then
   echo "error: arcade source not found at $SRC" >&2
@@ -183,9 +191,10 @@ fi
 # ---------------------------------------------------------------------------
 # public/ — generated, so never guarded
 # --delete so a file removed from the source is removed from the app copy too;
-# without it a deleted asset would linger in the image forever.
+# without it a deleted asset would linger in the image forever. See DELETE above
+# for why that is --delete-excluded and not plain --delete.
 # ---------------------------------------------------------------------------
-RSYNC_ARGS=(-a --delete "${EXCLUDES[@]}" "$SRC/" "$DEST/")
+RSYNC_ARGS=(-a "${DELETE[@]}" "${EXCLUDES[@]}" "$SRC/" "$DEST/")
 
 if [[ "$MODE" == check ]]; then
   # -c compares CONTENT, not size+mtime. A git checkout rewrites every mtime, so
