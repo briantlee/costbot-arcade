@@ -67,7 +67,7 @@
   const SCORING = {
     reclaimToken: 1,      // tokens per board broken
     checkTokens: 5,       // tokens for passing a Savings Check
-    boostSeconds: 6,      // Commitment Discount, earned only by answering right
+    boostSeconds: 5,      // Commitment Discount, earned only by answering right
     boostMultiplier: 2,
     streakStep: 8,        // boards per extra multiplier
     maxMultiplier: 5,
@@ -156,23 +156,22 @@
   // ---------------------------------------------------------------------------
   // BELTS — highest threshold met wins
   // Calibrated against a 30 second round at the default speed: boards arrive
-  // about every 975ms, so roughly 30 reach the mat and the weighted average
-  // face value is about $2.7K. Board savings were halved once the streak bonus
-  // proved able to carry a reflex-only run too high, and the ladder was then
-  // re-anchored to a concrete run: a CLEAN 30-board round with ZERO Savings
-  // Checks scores about $207K, and that run should read as Yellow — competent
-  // reflexes, no knowledge yet. So Yellow sits below it and Blue just above.
-  // From there each belt demands a share of the thing reflexes can't buy: the
-  // Savings Checks, with their knowledge bonus, boost windows and bonus clock
-  // time. Black is a run you played, not one you survived — a no-check run
-  // cannot reach it no matter how clean.
+  // about every 975ms, so roughly 30 reach the mat, and observed reflex-only
+  // (zero-check) runs land in the ~$160K-$240K band. REFLEX sets the belt: that
+  // band now spreads Yellow -> Blue, so a sloppy clean run and a great clean run
+  // read differently. A correct Savings Check is a bonus worth about half a belt
+  // (its knowledge bonus + a boost window + a little clock time), so it takes two
+  // good checks to move a full belt — a single check nudges, it doesn't vault.
+  // Red is a great reflex run plus a check or two; Black is near-perfect reflex
+  // AND several checks. (Recalibrated from the check-dominated ladder: a clean
+  // 30-board run used to cap at Yellow while one check jumped straight to Red.)
   // ---------------------------------------------------------------------------
   const BELTS = [
     { at: 0, name: 'White belt', title: 'Cost Aware', color: '#e8eef8' },
     { at: 110000, name: 'Yellow belt', title: 'Tag Disciple', color: '#f0a52c' },
-    { at: 240000, name: 'Blue belt', title: 'Waste Hunter', color: '#4a72b8' },
-    { at: 400000, name: 'Red belt', title: 'Commitment Strategist', color: '#c23b3b' },
-    { at: 620000, name: 'Black belt', title: 'FinOps Sensei', color: '#1b2740' },
+    { at: 210000, name: 'Blue belt', title: 'Waste Hunter', color: '#4a72b8' },
+    { at: 340000, name: 'Red belt', title: 'Commitment Strategist', color: '#c23b3b' },
+    { at: 520000, name: 'Black belt', title: 'FinOps Sensei', color: '#1b2740' },
   ];
 
   // ---------------------------------------------------------------------------
@@ -197,16 +196,19 @@
     // has been going long enough to be worth interrupting.
     earliestCheckMs: 12000,
 
-    // A correct answer already pays dollars and a boost window; it now also
-    // buys time back on the round clock. Passing checks is the only way to make
-    // a 30-second round longer, so a strong FinOps run literally lasts longer —
-    // and this is the headroom Black belt is calibrated to expect.
-    correctBonusSeconds: 5,
+    // A correct answer pays dollars and a boost window, and buys a little time
+    // back on the round clock. Kept small on purpose: the extra seconds land at
+    // end-game multipliers, so every second here is worth a lot — a check should
+    // be worth about half a belt, not a two-belt jump on its own.
+    correctBonusSeconds: 3,
 
     streakStep: 0.5,      // each consecutive correct answer adds this multiplier
     streakCap: 3,         // ...up to this cap (so 3rd+ in a row pays 3x)
     wrongConsolation: 0,
-    revealMs: 2600,       // auto-advance after this long; any key/click skips it
+    revealMs: 2600,       // auto-advance after this long
+    revealMinMs: 1500,    // ...but hold the feedback at least this long first — a
+                          // stray key/punch right after answering can't skip it,
+                          // so you always get a beat to read why before the count
     // Grace after a check appears before any answer registers. The player just
     // broke the gold board mid-swing on adrenaline; this lets them drop their
     // arms and read the question so a leftover motion can't punch a false answer.
