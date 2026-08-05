@@ -100,7 +100,9 @@
   const BLANK_META = () => ({
     runs: 0, best: 0, bestStreak: 0, lifetimeDollars: 0, lifetimeTokens: 0,
     quizCorrect: 0, checks: 0, belt: 0, achievements: {},
-    setup: { seconds: C.ROUND.seconds, sensitivity: 5, boardSpeed: 5 },
+    // sensitivity default sits low: a booth is a busy, moving room, so the mat
+    // wants a real swing to fire, not a passer-by. A quiet room can turn it up.
+    setup: { seconds: C.ROUND.seconds, sensitivity: 4, boardSpeed: 5 },
     records: [],
   });
 
@@ -752,7 +754,7 @@
             <input type="range" data-set="seconds" min="15" max="60" step="5" value="${s.seconds}"></label>
           <label class="cd-field"><span>Camera sensitivity — <b data-v="sensitivity">${s.sensitivity}</b></span>
             <input type="range" data-set="sensitivity" min="1" max="10" step="1" value="${s.sensitivity}">
-            <span class="cd-note">Lower triggers on a smaller movement, for dim or crowded rooms.</span></label>
+            <span class="cd-note">Higher fires on a smaller movement. Turn it down for a dim or crowded room.</span></label>
           <label class="cd-field"><span>Board speed — <b data-v="boardSpeed">${s.boardSpeed}</b></span>
             <input type="range" data-set="boardSpeed" min="1" max="10" step="1" value="${s.boardSpeed}">
             <span class="cd-note">How fast boards arrive and how quickly they drift away again.</span></label>
@@ -1558,6 +1560,18 @@
   // ===========================================================================
   // Update
   // ===========================================================================
+  // Higher sensitivity = MORE sensitive = a LOWER motion threshold. (The slider
+  // used to run backwards — a higher number needed a bigger swing.) Chops and the
+  // setup meters must read the exact same number, so both come through here.
+  Instance.prototype.chopThreshold = function () {
+    return 0.074 - this.meta.setup.sensitivity * 0.006;   // s1→0.068 (big swing) … s10→0.014 (hair-trigger)
+  };
+  // A punch should land — the arming grace and the rising-edge gate stop false
+  // ones — so it sits a bit below the chop line (more forgiving) at the same setting.
+  Instance.prototype.punchThreshold = function () {
+    return 0.051 - this.meta.setup.sensitivity * 0.004;   // s1→0.047 … s10→0.011
+  };
+
   Instance.prototype.update = function (dt, now) {
     const r = this.run;
 
@@ -1576,7 +1590,7 @@
         r.spawnTimer = C.ROUND.spawnMs(this.meta.setup.boardSpeed);
       }
 
-      const thr = 0.008 + this.meta.setup.sensitivity * 0.006;
+      const thr = this.chopThreshold();
       this.motion.chops(thr, dt).forEach((lane) => this.chopLane(lane));
 
       for (const b of r.boards) {
@@ -1602,7 +1616,7 @@
     // gated by an arming delay so the swing that broke the gold board doesn't
     // carry through as an answer. Skip once answered (coins disabled).
     if (r && this.state === 'check' && this._quizResolve && this._coins && !this._coins[0].disabled) {
-      const thr = 0.007 + this.meta.setup.sensitivity * 0.004;
+      const thr = this.punchThreshold();
       const armed = now >= (this._checkArmedAt || 0);
       this.checkFeedback(thr, armed, now);
       if (armed) {
@@ -1655,7 +1669,7 @@
 
   Instance.prototype.renderMeters = function () {
     const bars = this.ui.querySelectorAll('.cd-meter');
-    const thr = 0.008 + this.meta.setup.sensitivity * 0.006;
+    const thr = this.chopThreshold();
     for (let l = 0; l < bars.length; l += 1) {
       const level = this.motion.lanes[l] || 0;
       bars[l].querySelector('i').style.height = Math.round(clamp(level / (thr * 2), 0, 1) * 58) + 'px';

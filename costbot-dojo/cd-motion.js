@@ -34,6 +34,9 @@
   const PROC_H = 108;
   const PIXEL_DELTA = 18;     // per-pixel grey change that counts as movement
   const CHOP_COOLDOWN = 260;  // ms a lane is deaf after registering a chop
+  const REARM = 0.6;          // motion must fall below threshold*REARM to fire again
+                              // (a rising edge) so sustained motion fires once, not
+                              // on a loop — someone shifting in frame isn't a chop
 
   function create(options) {
     const opts = options || {};
@@ -46,12 +49,14 @@
 
     const lanes = new Array(laneCount).fill(0);
     const cooldown = new Array(laneCount).fill(0);
+    const armed = new Array(laneCount).fill(true);   // rising-edge gate per lane
 
     // A second, coarser read for the Savings Check: the frame split into a 2x2
     // grid so a punch can be aimed at a corner coin. Ordered TL, TR, BL, BR to
     // match the check's corner layout (quadrant index === answer position).
     const quads = new Array(4).fill(0);
     const quadCool = new Array(4).fill(0);
+    const quadArmed = new Array(4).fill(true);   // rising-edge gate per quadrant
 
     let video = null;
     let stream = null;
@@ -87,6 +92,9 @@
       video = null;
       prevGrey = null;
       lanes.fill(0);
+      quads.fill(0);
+      armed.fill(true);
+      quadArmed.fill(true);
       // 'blocked' is sticky: a refused prompt stays refused until the page
       // reloads, and pretending otherwise just re-prompts a player who said no.
       state = state === 'ready' ? 'idle' : state;
@@ -140,7 +148,9 @@
       const hits = [];
       for (let l = 0; l < laneCount; l += 1) {
         cooldown[l] -= dt;
-        if (lanes[l] > threshold && cooldown[l] <= 0) {
+        if (lanes[l] < threshold * REARM) armed[l] = true;   // lane went quiet: re-arm
+        if (armed[l] && lanes[l] > threshold && cooldown[l] <= 0) {
+          armed[l] = false;                                  // one chop per rising edge
           cooldown[l] = CHOP_COOLDOWN;
           hits.push(l);
         }
@@ -155,9 +165,10 @@
       let best = -1, bestLevel = threshold;
       for (let q = 0; q < 4; q += 1) {
         quadCool[q] -= dt;
-        if (quads[q] > bestLevel && quadCool[q] <= 0) { best = q; bestLevel = quads[q]; }
+        if (quads[q] < threshold * REARM) quadArmed[q] = true;   // corner went quiet: re-arm
+        if (quadArmed[q] && quads[q] > bestLevel && quadCool[q] <= 0) { best = q; bestLevel = quads[q]; }
       }
-      if (best >= 0) quadCool[best] = CHOP_COOLDOWN;
+      if (best >= 0) { quadArmed[best] = false; quadCool[best] = CHOP_COOLDOWN; }
       return best;
     }
 
