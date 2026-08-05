@@ -73,6 +73,14 @@
                { root: 34, tones: [0, 4, 7, 11] },       // Bbmaj7
                { root: 31, tones: [0, 3, 7, 10] },       // Gm7
                { root: 33, tones: [0, 4, 7, 10] }],      // A7
+    // Dojo — A minor with a bright bVII/bVI lift for a bouncy, martial vamp.
+    // The chords only have to give the pentatonic lead somewhere to land: Am G F G.
+    dojo:     [{ root: 45, tones: [0, 3, 7] }, { root: 43, tones: [0, 4, 7] },
+               { root: 41, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] }],   // Am G F G
+    // Dojo trivia — i bVI V i. The E major in bar 3 is the "…?" tension that a
+    // think-cue leans on, resolving home on the last bar. Am F E Am.
+    dojoThink:[{ root: 45, tones: [0, 3, 7] }, { root: 41, tones: [0, 4, 7] },
+               { root: 40, tones: [0, 4, 7] }, { root: 45, tones: [0, 3, 7] }],   // Am F E Am
   };
 
   // ===========================================================================
@@ -169,6 +177,25 @@
       70, _, _, 74, _, 77, _, _, 81, _, 79, _, 76, _, _, _,
       76, _, _, 72, _, 69, _, 72, 74, _, _, _, 77, _, _, _,
     ],
+    // Cute chiptune kung-fu. Strictly A-minor pentatonic (A C D E G) so it reads
+    // as wuxia over the Am-G-F-G bounce: a rise, a climb that lands on G, a fall,
+    // then a little run home. Square-wave lead, so it lands 8-bit.
+    dojo: [
+      69, _, 72, _, 76, _, 74, _, 72, _, _, 69, _, _, 67, _,
+      69, _, _, 72, _, 74, _, _, 76, _, _, _, 79, _, _, _,
+      81, _, 79, _, 76, _, 74, _, 72, _, _, 69, _, _, _, _,
+      72, _, 74, _, 76, _, 79, _, 76, _, 74, _, 72, _, 69, _,
+    ],
+    // The trivia think-cue: a homage to a game-show timer, but voiced in the
+    // Japanese "in" scale on A (A Bb D E F). The half-steps Bb->A and F->E are
+    // the whole flavour. A steady, pensive phrase that climbs on the dominant
+    // (bar 3) and settles back on A, looping like a clock you can't ignore.
+    dojoThink: [
+      69, _, _, _, 74, _, _, _, 76, _, 77, _, 76, _, _, _,
+      74, _, _, _, 70, _, _, _, 69, _, _, _, _, _, _, _,
+      76, _, _, _, 77, _, _, _, 81, _, 77, _, 76, _, _, _,
+      74, _, 70, _, 69, _, _, _, _, _, _, _, _, _, _, _,
+    ],
   };
 
   // ===========================================================================
@@ -251,6 +278,33 @@
       prog: P.chamber, lead: L.chamber, drums: 'chamber', pad: 'strings',
       arpEvery: 1, bassEvery: 4, gain: 0.78, voices: { lead: 'piano', arp: 'piano' },
     },
+
+    // ---- 8-bit kung-fu for the Dojo -----------------------------------------
+    dojo_menu: {
+      title: 'Dojo (still)', influence: '8-bit · wuxia', bpm: 108, key: 'A minor pentatonic',
+      desc: 'Cabinet screen. A soft square arp over strings, no kit — the mat before the bell.',
+      prog: P.dojo, lead: null, drums: false, pad: 'strings',
+      arpEvery: 4, bassEvery: 0, gain: 0.5, voices: { arp: 'square' },
+    },
+    dojo: {
+      title: 'Dojo', influence: '8-bit · Kung Fu Panda', bpm: 132, key: 'A minor pentatonic',
+      desc: 'Bouncy chiptune kung-fu. Square lead on the A-minor pentatonic over a '
+          + 'four-on-the-floor kit and a square arp.',
+      prog: P.dojo, lead: L.dojo, drums: 'four', pad: 'strings',
+      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'chip', arp: 'square' },
+    },
+    // Plays only while a Savings Check is on screen: the tune drops into "think"
+    // mode — a game-show timer voiced in the Japanese in-scale. No kit; the arp
+    // is the ticking clock and the square lead carries the pensive line.
+    dojo_trivia: {
+      title: 'Dojo (think)', influence: '8-bit · wuxia × game-show timer', bpm: 100,
+      key: 'A Japanese in-scale',
+      desc: 'The check overlay cue. Square lead on the A in-scale over a ticking square '
+          + 'arp and soft strings, climbing on the dominant and resolving home. Mixed '
+          + 'about 2.5 dB under the mat track so it stays out of the way of thinking.',
+      prog: P.dojoThink, lead: L.dojoThink, drums: false, pad: 'strings',
+      arpEvery: 2, bassEvery: 8, gain: 0.54, voices: { lead: 'chip', arp: 'square' },
+    },
   };
 
   // Which track plays in which situation, per theme.
@@ -273,6 +327,10 @@
     // arriving when you push off from the dock is the only change.
     lagoon:     { label: 'Lake Bossa',     biome: 'field',
                   menu: 'boathouse',  stage: 'lagoon',     boss: 'lagoon' },
+    // The dojo drives its own slots directly: menu on the cabinet, stage on the
+    // mat, and the 'boss' slot repurposed as the trivia think-cue.
+    dojo:       { label: 'Dojo',           biome: 'field',
+                  menu: 'dojo_menu',  stage: 'dojo',       boss: 'dojo_trivia' },
   };
 
   function create(getNodes) {
@@ -422,6 +480,23 @@
       o1.connect(f); o2.connect(o2g); o2g.connect(f); f.connect(g); g.connect(out); g.connect(delay);
       o1.start(t); o2.start(t); o1.stop(t + dur + 0.1); o2.stop(t + dur + 0.1);
     }
+    function leadChip(t, midi, dur) {
+      // A single square wave with a fast attack, a short sustain and a touch of
+      // vibrato — a hand-played NES lead. Runs through the delay like the other
+      // arcade leads so it sits in the same space.
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.15, t + 0.006);
+      g.gain.setValueAtTime(0.15, t + Math.max(0.03, dur * 0.55));
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      const o = ctx.createOscillator(); o.type = 'square'; o.frequency.value = mtof(midi);
+      const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 5.5;
+      const lg = ctx.createGain(); lg.gain.value = 4.5;   // cents of vibrato
+      lfo.connect(lg); lg.connect(o.detune);
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 4200;
+      o.connect(f); f.connect(g); g.connect(out); g.connect(delay);
+      o.start(t); lfo.start(t); o.stop(t + dur + 0.08); lfo.stop(t + dur + 0.08);
+    }
     function piano(t, midi, dur, peak) {
       const g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t);
@@ -466,7 +541,7 @@
       f.connect(g); g.connect(shaper);
     }
 
-    const LEADS = { saw: leadSaw, dist: leadDist, brass: leadBrass,
+    const LEADS = { saw: leadSaw, dist: leadDist, brass: leadBrass, chip: leadChip,
                     piano: (t, m, d) => piano(t, m, d) };
 
     // ---- sequencer ----------------------------------------------------------
