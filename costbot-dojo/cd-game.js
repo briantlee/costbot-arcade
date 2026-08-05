@@ -811,6 +811,7 @@
     // beat. Also lift any results-screen duck back to full for the new run.
     if (this.music) { this.music.setVolume(MUSIC_VOL); this.music.setState('silent'); }
     this._musicSlot = null;
+    this.motion.resetCalibration();   // relearn the room's noise floor this round
     this.clearTimers();
     this.clearUI();
 
@@ -1575,7 +1576,10 @@
   Instance.prototype.update = function (dt, now) {
     const r = this.run;
 
-    if (this.state !== 'idle' || this._meters) this.motion.sample();
+    // During the 3-2-1 the room is still, so learn its noise floor; otherwise
+    // just sample. (Setup shows live meters while idle, hence the _meters check.)
+    if (this.state === 'countdown') this.motion.calibrate();
+    else if (this.state !== 'idle' || this._meters) this.motion.sample();
     if (this._meters && this.ui.querySelector('.cd-meter')) this.renderMeters();
     else this._meters = null;
 

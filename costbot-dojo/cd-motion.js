@@ -37,6 +37,8 @@
   const REARM = 0.6;          // motion must fall below threshold*REARM to fire again
                               // (a rising edge) so sustained motion fires once, not
                               // on a loop — someone shifting in frame isn't a chop
+  const NOISE_MAX = 0.05;     // cap on the learned noise floor, so a stray movement
+                              // during calibration can't deafen the mat entirely
 
   function create(options) {
     const opts = options || {};
@@ -50,6 +52,8 @@
     const lanes = new Array(laneCount).fill(0);
     const cooldown = new Array(laneCount).fill(0);
     const armed = new Array(laneCount).fill(true);   // rising-edge gate per lane
+    const baseL = new Array(laneCount).fill(0);      // learned resting noise per lane
+    const rawL = new Array(laneCount).fill(0);       // this frame's level before subtraction
 
     // A second, coarser read for the Savings Check: the frame split into a 2x2
     // grid so a punch can be aimed at a corner coin. Ordered TL, TR, BL, BR to
@@ -57,6 +61,8 @@
     const quads = new Array(4).fill(0);
     const quadCool = new Array(4).fill(0);
     const quadArmed = new Array(4).fill(true);   // rising-edge gate per quadrant
+    const baseQ = new Array(4).fill(0);          // learned resting noise per quadrant
+    const rawQ = new Array(4).fill(0);           // this frame's level before subtraction
 
     let video = null;
     let stream = null;
@@ -95,6 +101,8 @@
       quads.fill(0);
       armed.fill(true);
       quadArmed.fill(true);
+      baseL.fill(0);
+      baseQ.fill(0);
       // 'blocked' is sticky: a refused prompt stays refused until the page
       // reloads, and pretending otherwise just re-prompts a player who said no.
       state = state === 'ready' ? 'idle' : state;
@@ -138,10 +146,30 @@
       }
 
       if (prevGrey) {
-        for (let l = 0; l < laneCount; l += 1) lanes[l] = changed[l] / Math.max(1, total[l]);
-        for (let q = 0; q < 4; q += 1) quads[q] = changedQ[q] / Math.max(1, totalQ[q]);
+        // rawL/rawQ are the frame's motion; lanes/quads are what's left after the
+        // learned room noise floor is subtracted, so a still room reads ~0.
+        for (let l = 0; l < laneCount; l += 1) {
+          rawL[l] = changed[l] / Math.max(1, total[l]);
+          lanes[l] = Math.max(0, rawL[l] - baseL[l]);
+        }
+        for (let q = 0; q < 4; q += 1) {
+          rawQ[q] = changedQ[q] / Math.max(1, totalQ[q]);
+          quads[q] = Math.max(0, rawQ[q] - baseQ[q]);
+        }
       }
       prevGrey = grey;
+    }
+
+    // Learn the room's resting motion. Call this each frame during the 3-2-1
+    // countdown, when nobody is chopping yet: it samples and eases the noise floor
+    // toward the current still-room level, so sensor noise in a dim or busy room
+    // doesn't sit near the trigger. Subtracted back out in sample().
+    function resetCalibration() { baseL.fill(0); baseQ.fill(0); }
+    function calibrate() {
+      sample();
+      if (!isLive()) return;
+      for (let l = 0; l < laneCount; l += 1) baseL[l] = Math.min(NOISE_MAX, baseL[l] * 0.85 + rawL[l] * 0.15);
+      for (let q = 0; q < 4; q += 1) baseQ[q] = Math.min(NOISE_MAX, baseQ[q] * 0.85 + rawQ[q] * 0.15);
     }
 
     function chops(threshold, dt) {
@@ -173,7 +201,7 @@
     }
 
     return {
-      start, stop, sample, chops, punch, isLive, lanes, quads,
+      start, stop, sample, calibrate, resetCalibration, chops, punch, isLive, lanes, quads,
       get state() { return state; },
       get video() { return video; },
       get laneCount() { return laneCount; },
