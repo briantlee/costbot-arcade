@@ -533,7 +533,7 @@
   const TIPS = [
     'Every board is a real waste pattern out of the bill. Breaking it is the drill.',
     'Streak steps up every eight boards to five times — and dies the moment one drifts away.',
-    'The gold board freezes the clock for a Savings Check — answer right and win bonus time: six seconds at double savings and five seconds back on the clock.',
+    `The gold board freezes the clock for a Savings Check — answer right and win bonus time: ${SCORING.boostSeconds} seconds at ${SCORING.boostMultiplier}× savings and ${TRIVIA_RULES.correctBonusSeconds} seconds back on the clock.`,
     'Miss a Savings Check and every board drifts away faster for the rest of the round.',
     'No camera? The arrow keys run the same three lanes, and you can click a board directly.',
     'Finish with nothing drifted and your tokens double.',
