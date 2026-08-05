@@ -252,6 +252,32 @@
   vertical-align:middle;}
 .cd-fine{font-size:12px;color:#5d6d8a;line-height:1.6;margin:8px 0 0;}
 
+/* ---- title: the cabinet "card" — art left, the brief on the right ---- */
+.cd-card{display:grid;grid-template-columns:378px 1fr;gap:32px;align-items:center;
+  width:min(1015px,94%);text-align:left;
+  background:linear-gradient(180deg,rgba(21,31,54,.94),rgba(11,17,30,.96));
+  border:1px solid #2b3f66;border-radius:22px;padding:30px 34px;
+  box-shadow:0 34px 80px rgba(0,0,0,.55);}
+.cd-card-art{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border-radius:15px;
+  border:1px solid #35507f;box-shadow:0 16px 34px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.03);}
+.cd-card-body{display:flex;flex-direction:column;gap:14px;min-width:0;}
+.cd-card-body .cd-eyebrow{margin:0;}
+.cd-card-body .cd-title{font-size:47px;line-height:1;letter-spacing:-1px;}
+.cd-card-body .cd-sub{margin:0;max-width:none;font-size:14.5px;color:#9fb0cf;line-height:1.5;}
+.cd-card-body .cd-row{justify-content:flex-start;gap:10px;}
+.cd-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.cd-stat{background:rgba(255,255,255,.03);border:1px solid #2b3f66;border-radius:12px;
+  padding:9px 14px 10px;min-width:74px;}
+.cd-stat em{display:block;font-style:normal;font-size:10px;letter-spacing:.7px;
+  text-transform:uppercase;color:#7c8daf;margin-bottom:4px;}
+.cd-stat b{font-size:19px;font-weight:800;color:var(--fg);font-variant-numeric:tabular-nums;}
+.cd-stat b.gold{color:var(--gold);}
+.cd-keys{display:flex;gap:17px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:#8395b5;}
+.cd-keys span{display:inline-flex;gap:6px;align-items:center;}
+.cd-kbd{display:inline-block;background:#182640;border:1px solid #35507f;border-bottom-width:2px;
+  border-radius:6px;padding:2px 7px;font:700 12px inherit;color:#cfe0ff;min-width:14px;text-align:center;}
+.cd-tip{font-size:12.5px;color:#6f80a0;font-style:italic;margin:0;}
+
 .cd-field{display:block;text-align:left;margin-bottom:13px;}
 .cd-field span{display:block;font-size:13px;color:#a9bad6;margin-bottom:6px;}
 .cd-field span b{color:var(--gold);font-variant-numeric:tabular-nums;}
@@ -291,28 +317,59 @@
 /* ---- savings check ---- */
 .cd-veil{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:13px;background:rgba(4,6,12,.72);backdrop-filter:blur(3px);padding:20px;}
-.cd-quiz{width:770px;max-width:100%;background:linear-gradient(180deg,#16203a,#0d1424);
-  border:2px solid #3f5f96;border-radius:16px;padding:20px 24px 18px;
-  box-shadow:0 26px 64px rgba(0,0,0,.65);}
+/* The prompt sits in a small panel dead-centre; the answers are punched at the
+   corners (see .cd-coin), so this stays narrow and out of their way. */
+.cd-quiz-center{width:520px;max-width:74%;background:linear-gradient(180deg,#16203a,#0d1424);
+  border:2px solid #3f5f96;border-radius:16px;padding:18px 22px 16px;text-align:center;
+  box-shadow:0 26px 64px rgba(0,0,0,.65);z-index:2;}
 .cd-quiz-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:11px;}
 .cd-quiz-tag{font-size:11.5px;font-weight:800;letter-spacing:1.5px;color:var(--teal);}
 .cd-quiz-prize{font-size:12.5px;font-weight:700;color:#ffd76b;background:rgba(240,165,44,.13);
   border:1px solid #6b5320;padding:4px 11px;border-radius:20px;white-space:nowrap;}
-.cd-quiz-timer{height:5px;background:#1b2740;border-radius:5px;overflow:hidden;margin-bottom:15px;}
+.cd-quiz-timer{height:5px;background:#1b2740;border-radius:5px;overflow:hidden;margin-bottom:14px;}
 .cd-quiz-timer i{display:block;height:100%;background:linear-gradient(90deg,#6ee7a0,#ffd76b);}
 .cd-quiz-timer.low i{background:linear-gradient(90deg,#ff8a8a,#ff3b3b);}
-.cd-quiz-q{font-size:20px;line-height:1.38;margin:0 0 15px;font-weight:650;}
-.cd-quiz-choices{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
-.cd-choice{display:flex;gap:11px;align-items:center;text-align:left;background:#182541;
-  border:1.5px solid #33507f;color:#dce7f8;padding:12px 14px;border-radius:9px;font:400 14px inherit;
-  cursor:pointer;transition:.12s;}
-.cd-choice:hover:not(:disabled){background:#22355c;border-color:var(--teal);transform:translateX(3px);}
-.cd-choice b{flex:0 0 24px;height:24px;border-radius:6px;background:#2b3f66;display:flex;
-  align-items:center;justify-content:center;font-size:12px;}
-.cd-choice.struck{opacity:.28;text-decoration:line-through;}
-.cd-choice.right{background:#123a26;border-color:#4ade80;color:#c7f5da;}
-.cd-choice.right b{background:#1d6b3f;}
-.cd-choice.wrong{background:#3a1418;border-color:#ff6b6b;color:#ffd0d0;}
+.cd-quiz-q{font-size:21px;line-height:1.34;margin:0 0 8px;font-weight:700;}
+
+/* The four answers are gold "POW!" coins pinned to the corners of the mat — you
+   punch (click / A–D) the one you want. Absolute against .cd-veil (inset:0). */
+.cd-coin{position:absolute;width:214px;display:flex;flex-direction:column;align-items:center;gap:9px;
+  background:none;border:none;padding:0;cursor:pointer;color:#eaf1ff;font:inherit;z-index:3;}
+.cd-coin-tl{top:44px;left:54px;}
+.cd-coin-tr{top:44px;right:54px;}
+.cd-coin-bl{bottom:44px;left:54px;flex-direction:column-reverse;}
+.cd-coin-br{bottom:44px;right:54px;flex-direction:column-reverse;}
+.cd-coin:hover:not(:disabled) .cd-pow{transform:scale(1.09) rotate(-4deg);}
+.cd-coin:active:not(:disabled) .cd-pow{transform:scale(.9);}
+/* the spiky POW! starburst */
+.cd-pow{position:relative;width:96px;height:96px;display:flex;align-items:center;justify-content:center;
+  transition:transform .1s;background:radial-gradient(circle at 50% 38%,#ffe89a,#f0a52c 58%,#c9781a);
+  clip-path:polygon(50% 0,61% 22%,86% 12%,79% 39%,100% 50%,79% 61%,86% 88%,61% 78%,50% 100%,39% 78%,14% 88%,21% 61%,0 50%,21% 39%,14% 12%,39% 22%);
+  filter:drop-shadow(0 6px 14px rgba(240,165,44,.45));}
+/* the coin face nested inside the burst, letter stamped on it */
+.cd-coin-face{width:62px;height:62px;border-radius:50%;
+  background:radial-gradient(circle at 40% 32%,#fff2c4,#f6b73c 55%,#cf861d);
+  border:2px solid #8a5a12;box-shadow:inset 0 2px 5px rgba(255,255,255,.6),inset 0 -4px 8px rgba(120,70,10,.5);
+  display:flex;align-items:center;justify-content:center;}
+.cd-coin-face b{font-size:31px;font-weight:900;color:#7a4a08;text-shadow:0 1px 0 rgba(255,255,255,.4);}
+.cd-coin-label{font-size:15px;font-weight:650;color:#dce7f8;line-height:1.25;
+  background:rgba(10,16,30,.74);border:1px solid #33507f;border-radius:9px;padding:7px 12px;}
+.cd-coin.struck{opacity:.3;}
+.cd-coin.struck .cd-coin-label{text-decoration:line-through;}
+.cd-coin.right .cd-coin-label{background:#123a26;border-color:#4ade80;color:#c7f5da;}
+.cd-coin.right .cd-pow{filter:drop-shadow(0 0 16px rgba(74,222,128,.85));animation:cd-coinpop .4s ease-out;}
+.cd-coin.wrong .cd-coin-label{background:#3a1418;border-color:#ff6b6b;color:#ffd0d0;}
+.cd-coin.wrong .cd-pow{filter:grayscale(.55) drop-shadow(0 4px 10px rgba(0,0,0,.5));}
+@keyframes cd-coinpop{0%{transform:scale(1)}40%{transform:scale(1.28)}100%{transform:scale(1.09)}}
+/* live punch feedback: motion landing in a corner lights that coin as it charges */
+.cd-coin{--charge:0;transition:opacity .35s ease,filter .35s ease;}
+/* asleep = the compose grace right after a check opens: dimmed, greyed and
+   unpunchable so a leftover swing can't answer before the player is ready. */
+.cd-coin.asleep{opacity:.38;filter:grayscale(.85);pointer-events:none;}
+.cd-coin.charging .cd-pow{filter:drop-shadow(0 0 calc(6px + var(--charge)*24px) rgba(255,222,120,calc(.4 + var(--charge)*.6)));}
+.cd-coin.charging .cd-coin-face{box-shadow:inset 0 2px 5px rgba(255,255,255,.6),inset 0 -4px 8px rgba(120,70,10,.5),0 0 calc(var(--charge)*14px) rgba(255,222,120,.9);}
+.cd-quiz-dbg{margin-top:11px;font:600 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--teal);
+  opacity:.8;letter-spacing:.2px;}
 .cd-quiz-foot{font-size:12px;color:#7e8fae;margin-top:13px;text-align:center;font-style:italic;}
 .cd-why{margin-top:14px;padding:13px 15px;border-radius:9px;font-size:13.5px;line-height:1.5;}
 .cd-why b{display:block;margin-bottom:5px;font-size:14.5px;}
@@ -584,28 +641,38 @@
     const cam = this.camLine();
     const tip = C.TIPS[(Math.random() * C.TIPS.length) | 0];
     this.screen('', `
-      <img class="cd-hero" src="${this.assetBase}costbot.png" alt="CostBot">
-      <p class="cd-eyebrow">CostBot Arcade</p>
-      <h1 class="cd-title">CostBot Dojo</h1>
-      <p class="cd-sub">CostBot throws the waste; you break it. Every board is a real pattern
-        out of the bill, it holds a lane for a few seconds and then drifts away still billing.
-        The gold board stops the clock and asks you something.</p>
-      <div class="cd-row">
-        <span class="cd-chip">Best <b>${money(m.best || 0)}</b></span>
-        <span class="cd-chip">Rank <b>${esc(belt.name)}</b></span>
-        <span class="cd-chip">Tokens <b>${wallet().tokens.toLocaleString('en-US')}</b></span>
-        <span class="cd-chip">Checks passed <b>${m.quizCorrect || 0}</b></span>
-        <span class="cd-chip">Best streak <b>${m.bestStreak || 0}</b></span>
-      </div>
-      <div class="cd-row">
-        <button class="cd-btn primary" data-act="start">▶  Step On The Mat</button>
-        <button class="cd-btn" data-act="howto">How to play</button>
-        <button class="cd-btn" data-act="setup">Dojo setup</button>
-        <button class="cd-btn" data-act="records">Records</button>
-        ${this.showShell ? '' : `<button class="cd-btn ghost" data-act="exit">${esc(this.returnLabel)}</button>`}
-      </div>
-      <p class="cd-status ${cam[0]}">${esc(cam[1])}</p>
-      <p class="cd-fine">${esc(tip)}</p>`);
+      <div class="cd-card">
+        <img class="cd-card-art" src="${this.assetBase}costbot-dojo.jpg" alt="CostBot Dojo">
+        <div class="cd-card-body">
+          <p class="cd-eyebrow">CostBot Arcade</p>
+          <h1 class="cd-title">CostBot Dojo</h1>
+          <p class="cd-sub">CostBot throws the waste; you break it. Every board is a real pattern
+            out of the bill — it holds a lane for a few seconds, then drifts away still billing.
+            The gold board freezes the clock for a Savings Check — answer right and win bonus time.</p>
+          <div class="cd-stats">
+            <div class="cd-stat"><em>Best</em><b class="gold">${money(m.best || 0)}</b></div>
+            <div class="cd-stat"><em>Rank</em><b style="color:${belt.color}">${esc(belt.name)}</b></div>
+            <div class="cd-stat"><em>Tokens</em><b class="gold">${wallet().tokens.toLocaleString('en-US')}</b></div>
+            <div class="cd-stat"><em>Checks passed</em><b>${m.quizCorrect || 0}</b></div>
+            <div class="cd-stat"><em>Best streak</em><b>${m.bestStreak || 0}</b></div>
+          </div>
+          <div class="cd-row">
+            <button class="cd-btn primary" data-act="start">▶  Step On The Mat</button>
+            <button class="cd-btn" data-act="howto">❓ How to play</button>
+            <button class="cd-btn" data-act="setup">⚙️ Dojo setup</button>
+            <button class="cd-btn" data-act="records">🏆 Records</button>
+            ${this.showShell ? '' : `<button class="cd-btn ghost" data-act="exit">${esc(this.returnLabel)}</button>`}
+          </div>
+          <div class="cd-keys">
+            <span><kbd class="cd-kbd">←</kbd><kbd class="cd-kbd">↑</kbd><kbd class="cd-kbd">→</kbd> chop a lane</span>
+            <span><kbd class="cd-kbd">A</kbd><kbd class="cd-kbd">W</kbd><kbd class="cd-kbd">D</kbd> too</span>
+            <span>📷 camera chop</span>
+            <span>🖱️ click a board</span>
+          </div>
+          <p class="cd-tip">💡 ${esc(tip)}</p>
+          <p class="cd-status ${cam[0]}" style="margin:0;font-size:12.5px">${esc(cam[1])}</p>
+        </div>
+      </div>`);
   };
 
   Instance.prototype.screenHowTo = function () {
@@ -646,7 +713,7 @@
             <li><b>CAM</b> — chop left, centre or right. Your whole arm, not your wrist.</li>
             <li><b>← ↑ →</b> — the same three lanes, no camera needed. AWD works too.</li>
             <li><b>Click</b> — or just click a board.</li>
-            <li><b>A B C D</b> — answer a Savings Check. 1–4 works too.</li>
+            <li><b>Savings Check</b> — punch the corner coin you want. A B C D (or 1–4) and a click work too.</li>
             <li><b>P</b> or <b>Esc</b> — pause. <b>M</b> — mute.</li>
           </ul>
         </div>
@@ -1040,6 +1107,9 @@
     const keyOf = (global.ArcadeTrivia && global.ArcadeTrivia.key) || ((x) => x.q);
     r.seen.add(keyOf(q));
     this.state = 'check';
+    // Don't let the chop that broke the gold board carry through as an answer:
+    // hold every input off until the player has had a moment to drop their arms.
+    this._checkArmedAt = performance.now() + (R.armMs || 1300);
     this.setMusic('boss');   // drop into the Japanese "think" cue while stopped
 
     // Shuffle the choices but keep `a` indexing the ORIGINAL array: `order[pos]`
@@ -1055,27 +1125,38 @@
     const mult = Math.min(R.streakCap || 1, 1 + (R.streakStep || 0) * (r.quizStreak || 0));
     const prize = Math.round(R.correctBonus * mult);
 
+    // Answers land at the four corners in reading order: A top-left, B
+    // top-right, C bottom-left, D bottom-right.
+    const CORNER = ['tl', 'tr', 'bl', 'br'];
+
     const el = document.createElement('div');
     el.className = 'cd-veil';
     el.innerHTML = `
-      <div class="cd-quiz">
+      <div class="cd-quiz-center">
         <div class="cd-quiz-head">
           <span class="cd-quiz-tag">🎓 AWS SAVINGS CHECK</span>
           <span class="cd-quiz-prize">${money(prize)} + ${C.SCORING.boostSeconds}s discount${R.correctBonusSeconds > 0 ? ` + ${R.correctBonusSeconds}s clock` : ''}</span>
         </div>
         <div class="cd-quiz-timer"><i style="width:100%"></i></div>
         <h3 class="cd-quiz-q">${esc(q.q)}</h3>
-        <div class="cd-quiz-choices">
-          ${order.map((orig, pos) => `
-            <button class="cd-choice" data-p="${pos}">
-              <b>${LETTERS[pos]}</b><span>${esc(q.c[orig])}</span>
-            </button>`).join('')}
-        </div>
         <div class="cd-quiz-foot">${R.mode === 'gate'
-    ? 'Answer correctly to claim the Commitment Discount.'
-    : 'A correct answer pays a knowledge bonus.'}</div>
-      </div>`;
+    ? 'Punch the right coin to claim the Commitment Discount.'
+    : 'Punch the right coin for a knowledge bonus.'}</div>
+      </div>
+      ${order.map((orig, pos) => `
+        <button class="cd-coin cd-coin-${CORNER[pos]} asleep" data-p="${pos}">
+          <span class="cd-pow"><span class="cd-coin-face"><b>${LETTERS[pos]}</b></span></span>
+          <span class="cd-coin-label">${esc(q.c[orig])}</span>
+        </button>`).join('')}`;
     this.ui.appendChild(el);
+
+    // Live punch feedback: the loop lights each coin by how much camera motion
+    // is landing in its corner, and a small readout shows the raw numbers so we
+    // can see whether the camera is live and what a punch actually registers.
+    this._coins = Array.from(el.querySelectorAll('.cd-coin'));
+    this._checkDbg = document.createElement('div');
+    this._checkDbg.className = 'cd-quiz-dbg';
+    el.querySelector('.cd-quiz-center').appendChild(this._checkDbg);
 
     const bar = el.querySelector('.cd-quiz-timer i');
     const barBox = el.querySelector('.cd-quiz-timer');
@@ -1106,13 +1187,15 @@
       const correct = chosenPos === correctPos;
       const timedOut = chosenPos === -1;
 
-      el.querySelectorAll('.cd-choice').forEach((b) => {
+      el.querySelectorAll('.cd-coin').forEach((b) => {
         b.disabled = true;
+        b.classList.remove('charging');
         const pos = +b.dataset.p;
         if (pos === correctPos) b.classList.add('right');
         else if (pos === chosenPos) b.classList.add('wrong');
         else b.classList.add('struck');
       });
+      if (self._checkDbg) self._checkDbg.remove();
       bar.style.width = '0%';
 
       let headline;
@@ -1163,14 +1246,15 @@
         + (q.source ? `<div class="cd-src"><span class="${fromKb ? '' : 'aws'}">`
           + `${fromKb ? 'CostBot KB' : 'AWS'}</span>${esc(q.source)}</div>` : '')
         + '<div class="cd-continue">press any key to continue ▸</div>';
-      el.querySelector('.cd-quiz').appendChild(why);
+      const center = el.querySelector('.cd-quiz-center');
+      center.appendChild(why);
 
       if (r.certified) {
         const cert = document.createElement('div');
         cert.className = 'cd-cert';
         cert.innerHTML = '<em>📗</em><div><b>Certified</b>'
           + `<i>${C.SCORING.certifyAt} Savings Checks passed in one run.</i></div>`;
-        el.appendChild(cert);
+        center.appendChild(cert);
       }
 
       // Auto-advance, but let an impatient player skip straight through.
@@ -1197,8 +1281,11 @@
       self.later(advance, R.revealMs);
     }
 
-    el.querySelectorAll('.cd-choice').forEach((b) => {
-      b.addEventListener('click', () => resolve(+b.dataset.p));
+    el.querySelectorAll('.cd-coin').forEach((b) => {
+      b.addEventListener('click', () => {
+        if (performance.now() < (self._checkArmedAt || 0)) return;   // coins still asleep
+        resolve(+b.dataset.p);
+      });
     });
     this._quizResolve = resolve;
     this._quizAdvance = null;
@@ -1209,6 +1296,8 @@
     this._quizResolve = null;
     this._quizAdvance = null;
     this._quizSkip = null;
+    this._coins = null;
+    this._checkDbg = null;
     this.clearUI();
     // Don't drop the player straight back onto a live mat — a board could be
     // one frame from spawning. A short "re-entering the dojo" count gives the
@@ -1508,6 +1597,20 @@
       if (r.elapsed >= r.seconds * 1000) this.endRound('clear');
     }
 
+    // A Savings Check is answered by punching a corner coin. Feedback runs every
+    // frame (lighting the coin the camera sees motion in); the punch itself is
+    // gated by an arming delay so the swing that broke the gold board doesn't
+    // carry through as an answer. Skip once answered (coins disabled).
+    if (r && this.state === 'check' && this._quizResolve && this._coins && !this._coins[0].disabled) {
+      const thr = 0.007 + this.meta.setup.sensitivity * 0.004;
+      const armed = now >= (this._checkArmedAt || 0);
+      this.checkFeedback(thr, armed, now);
+      if (armed) {
+        const q = this.motion.punch(thr, dt);
+        if (q >= 0) this._quizResolve(q);
+      }
+    }
+
     if (r) {
       for (const c of r.chips) { c.x += c.vx; c.y += c.vy; c.vy += 0.5; c.rot += c.vr; c.life -= 0.02; }
       r.chips = r.chips.filter((c) => c.life > 0);
@@ -1521,6 +1624,33 @@
     this.sensei.bob += dt / 420;
     this.sensei.pulse = Math.max(0, this.sensei.pulse - dt / 240);
     if (this.sensei.lineLeft > 0) this.sensei.lineLeft -= dt;
+  };
+
+  // Per-frame during a Savings Check: light each coin by how much motion the
+  // camera sees in its corner, and print the raw quadrant levels so a punch that
+  // isn't registering can be diagnosed (camera off? below the fire line?).
+  Instance.prototype.checkFeedback = function (thr, armed, now) {
+    const live = this.motion.isLive();
+    const qd = this.motion.quads;
+    for (const b of this._coins) {
+      const pos = +b.dataset.p;
+      const lvl = (armed && live) ? (qd[pos] || 0) : 0;
+      b.style.setProperty('--charge', clamp(lvl / thr, 0, 1).toFixed(2));
+      b.classList.toggle('charging', armed && live && lvl > thr * 0.4);
+      // Coins sleep until armed: dimmed, greyed, and — with the guards in the
+      // click/key handlers — unpunchable, so a leftover swing can't answer.
+      b.classList.toggle('asleep', !armed);
+    }
+    if (this._checkDbg) {
+      if (!armed) {
+        const secs = Math.max(0, (this._checkArmedAt - now) / 1000);
+        this._checkDbg.textContent = `steady — drop your arms · coins wake in ${secs.toFixed(1)}s`;
+      } else {
+        this._checkDbg.textContent = live
+          ? `cam ● A ${qd[0].toFixed(3)}  B ${qd[1].toFixed(3)}  C ${qd[2].toFixed(3)}  D ${qd[3].toFixed(3)}  ·  fire > ${thr.toFixed(3)}`
+          : 'cam OFF — turn the camera on in Dojo setup to punch (click / A–D still work)';
+      }
+    }
   };
 
   Instance.prototype.renderMeters = function () {
@@ -1889,7 +2019,10 @@
       const byLetter = OPTION_KEYS.indexOf(key);
       const byNumber = '1234'.indexOf(key);
       const pos = byLetter >= 0 ? byLetter : byNumber;
-      if (pos >= 0 && this._quizResolve) { this._quizResolve(pos); e.preventDefault(); }
+      // Honour the compose grace: keys don't answer until the coins wake either.
+      if (pos >= 0 && this._quizResolve && performance.now() >= (this._checkArmedAt || 0)) {
+        this._quizResolve(pos); e.preventDefault();
+      }
       return;
     }
 

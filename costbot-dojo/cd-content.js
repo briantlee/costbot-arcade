@@ -207,6 +207,10 @@
     streakCap: 3,         // ...up to this cap (so 3rd+ in a row pays 3x)
     wrongConsolation: 0,
     revealMs: 2600,       // auto-advance after this long; any key/click skips it
+    // Grace after a check appears before any answer registers. The player just
+    // broke the gold board mid-swing on adrenaline; this lets them drop their
+    // arms and read the question so a leftover motion can't punch a false answer.
+    armMs: 1300,
     allowRepeats: false,
     ttlPenalty: 0.92,     // a miss multiplies every board's dwell by this...
     ttlPenaltyFloor: 0.7, // ...down to this floor
@@ -527,7 +531,7 @@
   const TIPS = [
     'Every board is a real waste pattern out of the bill. Breaking it is the drill.',
     'Streak steps up every eight boards to five times — and dies the moment one drifts away.',
-    'The gold board stops the clock and asks you something. Get it right for six seconds at double savings and five seconds back on the clock.',
+    'The gold board freezes the clock for a Savings Check — answer right and win bonus time: six seconds at double savings and five seconds back on the clock.',
     'Miss a Savings Check and every board drifts away faster for the rest of the round.',
     'No camera? The arrow keys run the same three lanes, and you can click a board directly.',
     'Finish with nothing drifted and your tokens double.',

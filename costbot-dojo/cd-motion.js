@@ -47,6 +47,12 @@
     const lanes = new Array(laneCount).fill(0);
     const cooldown = new Array(laneCount).fill(0);
 
+    // A second, coarser read for the Savings Check: the frame split into a 2x2
+    // grid so a punch can be aimed at a corner coin. Ordered TL, TR, BL, BR to
+    // match the check's corner layout (quadrant index === answer position).
+    const quads = new Array(4).fill(0);
+    const quadCool = new Array(4).fill(0);
+
     let video = null;
     let stream = null;
     let prevGrey = null;
@@ -101,20 +107,31 @@
       const frame = pctx.getImageData(0, 0, PROC_W, PROC_H).data;
       const grey = new Float32Array(PROC_W * PROC_H);
       const laneW = PROC_W / laneCount;
+      const halfH = PROC_H / 2;
+      const halfW = PROC_W / 2;
       const changed = new Array(laneCount).fill(0);
       const total = new Array(laneCount).fill(0);
+      const changedQ = [0, 0, 0, 0];
+      const totalQ = [0, 0, 0, 0];
 
       for (let i = 0; i < grey.length; i += 1) {
         const p = i * 4;
         grey[i] = frame[p] * 0.3 + frame[p + 1] * 0.59 + frame[p + 2] * 0.11;
-        let lane = Math.floor((i % PROC_W) / laneW);
+        const x = i % PROC_W;
+        let lane = Math.floor(x / laneW);
         if (lane >= laneCount) lane = laneCount - 1;
         total[lane] += 1;
-        if (prevGrey && Math.abs(grey[i] - prevGrey[i]) > PIXEL_DELTA) changed[lane] += 1;
+        const q = ((i / PROC_W) < halfH ? 0 : 2) + (x < halfW ? 0 : 1);
+        totalQ[q] += 1;
+        if (prevGrey && Math.abs(grey[i] - prevGrey[i]) > PIXEL_DELTA) {
+          changed[lane] += 1;
+          changedQ[q] += 1;
+        }
       }
 
       if (prevGrey) {
         for (let l = 0; l < laneCount; l += 1) lanes[l] = changed[l] / Math.max(1, total[l]);
+        for (let q = 0; q < 4; q += 1) quads[q] = changedQ[q] / Math.max(1, totalQ[q]);
       }
       prevGrey = grey;
     }
@@ -131,8 +148,21 @@
       return hits;
     }
 
+    // The single quadrant punched hardest this frame, or -1 for none. Unlike
+    // chops() this returns one corner, not a list: a check has exactly one answer
+    // and a wide swing lights two neighbours, so the loudest quadrant wins.
+    function punch(threshold, dt) {
+      let best = -1, bestLevel = threshold;
+      for (let q = 0; q < 4; q += 1) {
+        quadCool[q] -= dt;
+        if (quads[q] > bestLevel && quadCool[q] <= 0) { best = q; bestLevel = quads[q]; }
+      }
+      if (best >= 0) quadCool[best] = CHOP_COOLDOWN;
+      return best;
+    }
+
     return {
-      start, stop, sample, chops, isLive, lanes,
+      start, stop, sample, chops, punch, isLive, lanes, quads,
       get state() { return state; },
       get video() { return video; },
       get laneCount() { return laneCount; },
