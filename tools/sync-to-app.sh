@@ -21,6 +21,14 @@
 #   ./sync-to-app.sh --check    report drift only, change nothing (exit 1 if drifted)
 #   ./sync-to-app.sh --adopt    pull app-side edits BACK into arcade/app/
 #   ./sync-to-app.sh --force    overwrite app-side files even when they differ
+#   ./sync-to-app.sh --after-deploy   re-open access once the rollout has landed
+#
+# The full ship sequence is three commands, in this order:
+#
+#   ./sync-to-app.sh                                   copy source -> app dir
+#   aix-proto deploy costbot-arcade --tier dynamic \
+#     --hosting mariner --db postgres                  PR, auto-merges on green
+#   ./sync-to-app.sh --after-deploy                    re-open access
 #
 # The app files are copied GUARDED: if one differs from its mirror, the script
 # stops rather than overwriting, and tells you to --adopt (keep the app-side
@@ -37,14 +45,52 @@ DEST="${ARCADE_DEST:-$HOME/aix-proto/examples/costbot-arcade/public}"
 APP_DIR="$(dirname "$DEST")"
 APP_SRC="$SRC/app"
 
+SLUG="$(basename "$APP_DIR")"
+AIX_PROTO="${AIX_PROTO:-$HOME/.aix/bin/aix-proto}"
+
 MODE=copy
 case "${1:-}" in
   --check) MODE=check ;;
   --adopt) MODE=adopt ;;
   --force) MODE=force ;;
+  --after-deploy) MODE=access ;;
   '') ;;
-  *) echo "usage: $0 [--check|--adopt|--force]" >&2; exit 2 ;;
+  *) echo "usage: $0 [--check|--adopt|--force|--after-deploy]" >&2; exit 2 ;;
 esac
+
+# ---------------------------------------------------------------------------
+# --after-deploy — put the app's access back to public.
+#
+# A DYNAMIC app's declared access (manifest "access": "all") is seeded exactly once:
+# inside the transaction that first registers it (aix-proto's registry.ts, via
+# seededAccessRules). Every later deploy takes the `already_registered` path, which
+# re-asserts nothing — and the reconciler that DOES converge access back to the
+# manifest on each deploy exists only on the static path (static-registry/reconcile.ts).
+# So a dynamic app that ends up owner-only STAYS owner-only until someone reopens it,
+# no matter what the manifest says.
+#
+# That is not hypothetical. The audit trail shows ~20 flips to private, each ~12s after
+# a deploy, and on 2026-08-03 six people were locked out and had to file access requests
+# before anyone noticed.
+#
+# Deliberately NOT folded into the sync: sync runs BEFORE the deploy, so re-asserting
+# access there would happen before the thing that drops it. Run this once the rollout
+# has landed. Idempotent — a no-op when access is already public.
+# ---------------------------------------------------------------------------
+if [[ $MODE == access ]]; then
+  echo "app    : $SLUG"
+  if [[ ! -x "$AIX_PROTO" ]]; then
+    echo "error: no aix-proto CLI at $AIX_PROTO (override with AIX_PROTO=...)" >&2
+    exit 1
+  fi
+  if ! "$AIX_PROTO" access set "$SLUG" --public; then
+    echo "error: could not set access. If it says the session expired, run:" >&2
+    echo "       aix-proto login logout && aix-proto login run" >&2
+    exit 1
+  fi
+  echo "access : public — every authenticated MyID user ✅"
+  exit 0
+fi
 
 # The app files that live in BOTH places. Anything not listed here is either
 # generated (node_modules, public/) or owned by the platform scaffold and must
@@ -246,3 +292,8 @@ done < <(grep '^COPY' "$APP_DIR/Dockerfile" 2>/dev/null | sed 's/^COPY //')
 
 echo "files  : $(find "$DEST" -type f | wc -l)   size: $(du -sh "$DEST" | cut -f1)"
 echo "docker : every COPY source resolves ✅"
+echo
+# --db postgres is spelled out because the CLI's default is --db none, and deploying
+# with the default is how an app quietly loses its database.
+echo "next   : aix-proto deploy $SLUG --tier dynamic --hosting mariner --db postgres"
+echo "         $0 --after-deploy      # re-opens access — a deploy can close it"
