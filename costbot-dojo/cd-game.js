@@ -59,7 +59,6 @@
   const MUSIC_VOL = 0.5;                       // normal soundtrack level
   const MUSIC_DUCK = MUSIC_VOL * 0.7079;       // -3 dB, for the results screen
   const STORE_KEY = 'costbot.dojo.v1';
-  const OPTION_KEYS = ['a', 'b', 'c', 'd'];
   const LETTERS = ['A', 'B', 'C', 'D'];
 
   // ===========================================================================
@@ -175,6 +174,8 @@
       },
       good: () => [659, 880, 1318].forEach((f, i) => setTimeout(() => tone(f, 0.3, 'square', 0.11), i * 70)),
       bad: () => { tone(311, 0.16, 'sawtooth', 0.13); setTimeout(() => tone(233, 0.24, 'sawtooth', 0.12), 100); },
+      // A landed punch: a noise snap over a short low thud that drops in pitch.
+      punch: () => { noise(0.1, 0.5, 800); tone(160, 0.13, 'square', 0.22, 60); },
       drift: () => { noise(0.14, 0.12, 420); tone(174, 0.2, 'sine', 0.08); },
       tick: (f) => tone(f, 0.11, 'square', 0.12),
       gong: () => [196, 262, 330].forEach((f) => tone(f, 1.2, 'sine', 0.14)),
@@ -321,7 +322,8 @@
   justify-content:center;gap:13px;background:rgba(4,6,12,.72);backdrop-filter:blur(3px);padding:20px;}
 /* The prompt sits in a small panel dead-centre; the answers are punched at the
    corners (see .cd-coin), so this stays narrow and out of their way. */
-.cd-quiz-center{width:520px;max-width:74%;background:linear-gradient(180deg,#16203a,#0d1424);
+.cd-quiz-center{position:absolute;top:34px;left:50%;transform:translateX(-50%);
+  width:600px;max-width:80%;background:linear-gradient(180deg,#16203a,#0d1424);
   border:2px solid #3f5f96;border-radius:16px;padding:18px 22px 16px;text-align:center;
   box-shadow:0 26px 64px rgba(0,0,0,.65);z-index:2;}
 .cd-quiz-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:11px;}
@@ -333,14 +335,15 @@
 .cd-quiz-timer.low i{background:linear-gradient(90deg,#ff8a8a,#ff3b3b);}
 .cd-quiz-q{font-size:21px;line-height:1.34;margin:0 0 8px;font-weight:700;}
 
-/* The four answers are gold "POW!" coins pinned to the corners of the mat — you
-   punch (click / A–D) the one you want. Absolute against .cd-veil (inset:0). */
-.cd-coin{position:absolute;width:214px;display:flex;flex-direction:column;align-items:center;gap:9px;
+/* The three answers are gold "POW!" coins, one per lane (left/centre/right) —
+   chop the lane of your answer, the same gesture as breaking a board. Absolute,
+   lane-centred, near the bottom; label sits above the coin. */
+.cd-coin{position:absolute;bottom:52px;width:320px;max-width:31%;transform:translateX(-50%);
+  display:flex;flex-direction:column-reverse;align-items:center;gap:10px;
   background:none;border:none;padding:0;cursor:pointer;color:#eaf1ff;font:inherit;z-index:3;}
-.cd-coin-tl{top:44px;left:54px;}
-.cd-coin-tr{top:44px;right:54px;}
-.cd-coin-bl{bottom:44px;left:54px;flex-direction:column-reverse;}
-.cd-coin-br{bottom:44px;right:54px;flex-direction:column-reverse;}
+.cd-coin-l{left:16.66%;}
+.cd-coin-c{left:50%;}
+.cd-coin-r{left:83.34%;}
 .cd-coin:hover:not(:disabled) .cd-pow{transform:scale(1.09) rotate(-4deg);}
 .cd-coin:active:not(:disabled) .cd-pow{transform:scale(.9);}
 /* the spiky POW! starburst */
@@ -1115,11 +1118,19 @@
     this._checkArmedAt = performance.now() + (R.armMs || 1300);
     this.setMusic('boss');   // drop into the Japanese "think" cue while stopped
 
-    // Shuffle the choices but keep `a` indexing the ORIGINAL array: `order[pos]`
-    // is which original choice sits at display position `pos`. Rewriting `a`
-    // instead would mean the bank and the screen could drift apart.
-    const order = q.c.map((_, i) => i);
-    for (let i = order.length - 1; i > 0; i -= 1) {
+    // Three lanes, so we show the correct answer plus up to two distractors —
+    // one per lane (left/centre/right), the same three lanes the player already
+    // chops. order[pos] is the ORIGINAL choice index shown at display position
+    // pos; keeping `a` as the bank's index means the screen and the bank can't
+    // drift apart. (The camera can tell left/centre/right apart reliably but not
+    // top/bottom, so four corners would ask it to read a dimension it can't.)
+    const others = q.c.map((_, i) => i).filter((i) => i !== q.a);
+    for (let i = others.length - 1; i > 0; i -= 1) {
+      const j = (r.rnd() * (i + 1)) | 0;
+      const t = others[i]; others[i] = others[j]; others[j] = t;
+    }
+    const order = [q.a, ...others.slice(0, 2)];   // correct + two distractors
+    for (let i = order.length - 1; i > 0; i -= 1) {   // ...shuffled across the lanes
       const j = (r.rnd() * (i + 1)) | 0;
       const t = order[i]; order[i] = order[j]; order[j] = t;
     }
@@ -1128,9 +1139,9 @@
     const mult = Math.min(R.streakCap || 1, 1 + (R.streakStep || 0) * (r.quizStreak || 0));
     const prize = Math.round(R.correctBonus * mult);
 
-    // Answers land at the four corners in reading order: A top-left, B
-    // top-right, C bottom-left, D bottom-right.
-    const CORNER = ['tl', 'tr', 'bl', 'br'];
+    // Answers sit in the three lanes: A left, B centre, C right. Chop the lane of
+    // your answer, exactly like breaking a board.
+    const LANE = ['l', 'c', 'r'];
 
     const el = document.createElement('div');
     el.className = 'cd-veil';
@@ -1143,11 +1154,11 @@
         <div class="cd-quiz-timer"><i style="width:100%"></i></div>
         <h3 class="cd-quiz-q">${esc(q.q)}</h3>
         <div class="cd-quiz-foot">${R.mode === 'gate'
-    ? 'Punch the right coin to claim the Commitment Discount.'
-    : 'Punch the right coin for a knowledge bonus.'}</div>
+    ? 'Chop the lane of the right answer to claim the Commitment Discount.'
+    : 'Chop the lane of the right answer for a knowledge bonus.'}</div>
       </div>
       ${order.map((orig, pos) => `
-        <button class="cd-coin cd-coin-${CORNER[pos]} asleep" data-p="${pos}">
+        <button class="cd-coin cd-coin-${LANE[pos]} asleep" data-p="${pos}">
           <span class="cd-pow"><span class="cd-coin-face"><b>${LETTERS[pos]}</b></span></span>
           <span class="cd-coin-label">${esc(q.c[orig])}</span>
         </button>`).join('')}`;
@@ -1189,6 +1200,7 @@
       stopTimer();
       const correct = chosenPos === correctPos;
       const timedOut = chosenPos === -1;
+      if (!timedOut) self.audio.punch();   // the coin takes the hit (skip on a timeout)
 
       el.querySelectorAll('.cd-coin').forEach((b) => {
         b.disabled = true;
@@ -1217,7 +1229,8 @@
         self.meta.quizCorrect = (self.meta.quizCorrect || 0) + 1;
         headline = `Correct — knowledge bonus ${money(payout)}, Commitment Discount for `
           + `${C.SCORING.boostSeconds}s${addSec > 0 ? `, +${addSec}s on the clock` : ''}${streakTag}`;
-        self.audio.good();
+        // Elevated "you won the bonus" fanfare on a correct punch (not just good()).
+        setTimeout(() => self.audio.win(), 90);
         self.say('boost');
         r.pops.push({ x: VW / 2, y: VH * 0.42, txt: '+' + money(payout), life: 1, gold: true });
         if (addSec > 0) r.pops.push({ x: VW / 2, y: VH * 0.42 - 42, txt: `+${addSec}s`, life: 1, gold: true });
@@ -1272,7 +1285,8 @@
       };
       const onSkip = () => advance();
       self._quizAdvance = advance;
-      // A brief grace so the answering click does not also skip the reveal.
+      // Hold the feedback for a beat before it can be skipped, so the answering
+      // punch/click can't cut it short — you always get time to read the why.
       self.later(() => {
         if (advanced || self.destroyed) return;
         window.addEventListener('keydown', onSkip);
@@ -1280,7 +1294,7 @@
         // Expose the handler so destroy() can detach it if the game is torn
         // down while the reveal is still on screen (advance() may never run).
         self._quizSkip = onSkip;
-      }, 280);
+      }, R.revealMinMs || 1500);
       self.later(advance, R.revealMs);
     }
 
@@ -1567,12 +1581,6 @@
   Instance.prototype.chopThreshold = function () {
     return 0.074 - this.meta.setup.sensitivity * 0.006;   // s1→0.068 (big swing) … s10→0.014 (hair-trigger)
   };
-  // A punch should land — the arming grace and the rising-edge gate stop false
-  // ones — so it sits a bit below the chop line (more forgiving) at the same setting.
-  Instance.prototype.punchThreshold = function () {
-    return 0.051 - this.meta.setup.sensitivity * 0.004;   // s1→0.047 … s10→0.011
-  };
-
   Instance.prototype.update = function (dt, now) {
     const r = this.run;
 
@@ -1615,17 +1623,19 @@
       if (r.elapsed >= r.seconds * 1000) this.endRound('clear');
     }
 
-    // A Savings Check is answered by punching a corner coin. Feedback runs every
-    // frame (lighting the coin the camera sees motion in); the punch itself is
-    // gated by an arming delay so the swing that broke the gold board doesn't
-    // carry through as an answer. Skip once answered (coins disabled).
+    // A Savings Check is answered by chopping the lane of your answer — the same
+    // reliable left/centre/right chop as play. Feedback lights the coin the camera
+    // sees motion in; the answer is gated by an arming delay so the swing that
+    // broke the gold board doesn't carry through. Skip once answered (coins off).
     if (r && this.state === 'check' && this._quizResolve && this._coins && !this._coins[0].disabled) {
-      const thr = this.punchThreshold();
+      const thr = this.chopThreshold();
       const armed = now >= (this._checkArmedAt || 0);
       this.checkFeedback(thr, armed, now);
       if (armed) {
-        const q = this.motion.punch(thr, dt);
-        if (q >= 0) this._quizResolve(q);
+        const hits = this.motion.chops(thr, dt);
+        // a chop in a lane with a coin answers it (ignore an empty lane)
+        const pick = hits.find((lane) => lane < this._coins.length);
+        if (pick !== undefined) this._quizResolve(pick);
       }
     }
 
@@ -1649,14 +1659,14 @@
   // isn't registering can be diagnosed (camera off? below the fire line?).
   Instance.prototype.checkFeedback = function (thr, armed, now) {
     const live = this.motion.isLive();
-    const qd = this.motion.quads;
+    const ln = this.motion.lanes;   // a coin sits in its lane, so pos === lane index
     for (const b of this._coins) {
       const pos = +b.dataset.p;
-      const lvl = (armed && live) ? (qd[pos] || 0) : 0;
+      const lvl = (armed && live) ? (ln[pos] || 0) : 0;
       b.style.setProperty('--charge', clamp(lvl / thr, 0, 1).toFixed(2));
       b.classList.toggle('charging', armed && live && lvl > thr * 0.4);
       // Coins sleep until armed: dimmed, greyed, and — with the guards in the
-      // click/key handlers — unpunchable, so a leftover swing can't answer.
+      // click/key handlers — unchoppable, so a leftover swing can't answer.
       b.classList.toggle('asleep', !armed);
     }
     if (this._checkDbg) {
@@ -1665,8 +1675,8 @@
         this._checkDbg.textContent = `steady — drop your arms · coins wake in ${secs.toFixed(1)}s`;
       } else {
         this._checkDbg.textContent = live
-          ? `cam ● A ${qd[0].toFixed(3)}  B ${qd[1].toFixed(3)}  C ${qd[2].toFixed(3)}  D ${qd[3].toFixed(3)}  ·  fire > ${thr.toFixed(3)}`
-          : 'cam OFF — turn the camera on in Dojo setup to punch (click / A–D still work)';
+          ? `cam ● L ${(ln[0] || 0).toFixed(3)}  C ${(ln[1] || 0).toFixed(3)}  R ${(ln[2] || 0).toFixed(3)}  ·  fire > ${thr.toFixed(3)}`
+          : 'cam OFF — turn the camera on in Dojo setup to chop (click / A B C still work)';
       }
     }
   };
@@ -2031,14 +2041,15 @@
     const key = e.key.toLowerCase();
 
     if (this.state === 'check') {
-      // Pressing a key on an UNANSWERED question does nothing by design: the
-      // reveal is what listens for "any key", so there has to be an answer
-      // first. A-D and 1-4 are the way in.
-      const byLetter = OPTION_KEYS.indexOf(key);
-      const byNumber = '1234'.indexOf(key);
-      const pos = byLetter >= 0 ? byLetter : byNumber;
+      // Answer by lane, same keys as chopping: left/A/1, centre/W/B/2, right/D/C/3.
+      // (A/B/C line up because the coins are A-left, B-centre, C-right.)
+      let pos = null;
+      if (key === 'arrowleft' || key === 'a' || key === '1') pos = 0;
+      else if (key === 'arrowup' || key === 'w' || key === 'b' || key === '2') pos = 1;
+      else if (key === 'arrowright' || key === 'd' || key === 'c' || key === '3') pos = 2;
       // Honour the compose grace: keys don't answer until the coins wake either.
-      if (pos >= 0 && this._quizResolve && performance.now() >= (this._checkArmedAt || 0)) {
+      if (pos !== null && this._coins && pos < this._coins.length && this._quizResolve
+          && performance.now() >= (this._checkArmedAt || 0)) {
         this._quizResolve(pos); e.preventDefault();
       }
       return;

@@ -55,15 +55,6 @@
     const baseL = new Array(laneCount).fill(0);      // learned resting noise per lane
     const rawL = new Array(laneCount).fill(0);       // this frame's level before subtraction
 
-    // A second, coarser read for the Savings Check: the frame split into a 2x2
-    // grid so a punch can be aimed at a corner coin. Ordered TL, TR, BL, BR to
-    // match the check's corner layout (quadrant index === answer position).
-    const quads = new Array(4).fill(0);
-    const quadCool = new Array(4).fill(0);
-    const quadArmed = new Array(4).fill(true);   // rising-edge gate per quadrant
-    const baseQ = new Array(4).fill(0);          // learned resting noise per quadrant
-    const rawQ = new Array(4).fill(0);           // this frame's level before subtraction
-
     let video = null;
     let stream = null;
     let prevGrey = null;
@@ -98,11 +89,8 @@
       video = null;
       prevGrey = null;
       lanes.fill(0);
-      quads.fill(0);
       armed.fill(true);
-      quadArmed.fill(true);
       baseL.fill(0);
-      baseQ.fill(0);
       // 'blocked' is sticky: a refused prompt stays refused until the page
       // reloads, and pretending otherwise just re-prompts a player who said no.
       state = state === 'ready' ? 'idle' : state;
@@ -123,38 +111,24 @@
       const frame = pctx.getImageData(0, 0, PROC_W, PROC_H).data;
       const grey = new Float32Array(PROC_W * PROC_H);
       const laneW = PROC_W / laneCount;
-      const halfH = PROC_H / 2;
-      const halfW = PROC_W / 2;
       const changed = new Array(laneCount).fill(0);
       const total = new Array(laneCount).fill(0);
-      const changedQ = [0, 0, 0, 0];
-      const totalQ = [0, 0, 0, 0];
 
       for (let i = 0; i < grey.length; i += 1) {
         const p = i * 4;
         grey[i] = frame[p] * 0.3 + frame[p + 1] * 0.59 + frame[p + 2] * 0.11;
-        const x = i % PROC_W;
-        let lane = Math.floor(x / laneW);
+        let lane = Math.floor((i % PROC_W) / laneW);
         if (lane >= laneCount) lane = laneCount - 1;
         total[lane] += 1;
-        const q = ((i / PROC_W) < halfH ? 0 : 2) + (x < halfW ? 0 : 1);
-        totalQ[q] += 1;
-        if (prevGrey && Math.abs(grey[i] - prevGrey[i]) > PIXEL_DELTA) {
-          changed[lane] += 1;
-          changedQ[q] += 1;
-        }
+        if (prevGrey && Math.abs(grey[i] - prevGrey[i]) > PIXEL_DELTA) changed[lane] += 1;
       }
 
       if (prevGrey) {
-        // rawL/rawQ are the frame's motion; lanes/quads are what's left after the
-        // learned room noise floor is subtracted, so a still room reads ~0.
+        // rawL is the frame's motion; lanes is what's left after the learned room
+        // noise floor is subtracted, so a still room reads ~0.
         for (let l = 0; l < laneCount; l += 1) {
           rawL[l] = changed[l] / Math.max(1, total[l]);
           lanes[l] = Math.max(0, rawL[l] - baseL[l]);
-        }
-        for (let q = 0; q < 4; q += 1) {
-          rawQ[q] = changedQ[q] / Math.max(1, totalQ[q]);
-          quads[q] = Math.max(0, rawQ[q] - baseQ[q]);
         }
       }
       prevGrey = grey;
@@ -164,12 +138,11 @@
     // countdown, when nobody is chopping yet: it samples and eases the noise floor
     // toward the current still-room level, so sensor noise in a dim or busy room
     // doesn't sit near the trigger. Subtracted back out in sample().
-    function resetCalibration() { baseL.fill(0); baseQ.fill(0); }
+    function resetCalibration() { baseL.fill(0); }
     function calibrate() {
       sample();
       if (!isLive()) return;
       for (let l = 0; l < laneCount; l += 1) baseL[l] = Math.min(NOISE_MAX, baseL[l] * 0.85 + rawL[l] * 0.15);
-      for (let q = 0; q < 4; q += 1) baseQ[q] = Math.min(NOISE_MAX, baseQ[q] * 0.85 + rawQ[q] * 0.15);
     }
 
     function chops(threshold, dt) {
@@ -186,22 +159,8 @@
       return hits;
     }
 
-    // The single quadrant punched hardest this frame, or -1 for none. Unlike
-    // chops() this returns one corner, not a list: a check has exactly one answer
-    // and a wide swing lights two neighbours, so the loudest quadrant wins.
-    function punch(threshold, dt) {
-      let best = -1, bestLevel = threshold;
-      for (let q = 0; q < 4; q += 1) {
-        quadCool[q] -= dt;
-        if (quads[q] < threshold * REARM) quadArmed[q] = true;   // corner went quiet: re-arm
-        if (quadArmed[q] && quads[q] > bestLevel && quadCool[q] <= 0) { best = q; bestLevel = quads[q]; }
-      }
-      if (best >= 0) { quadArmed[best] = false; quadCool[best] = CHOP_COOLDOWN; }
-      return best;
-    }
-
     return {
-      start, stop, sample, calibrate, resetCalibration, chops, punch, isLive, lanes, quads,
+      start, stop, sample, calibrate, resetCalibration, chops, isLive, lanes,
       get state() { return state; },
       get video() { return video; },
       get laneCount() { return laneCount; },
