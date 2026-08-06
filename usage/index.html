@@ -31,6 +31,10 @@
   table{width:100%;border-collapse:collapse;min-width:760px}
   th{text-align:left;font-size:11px;letter-spacing:1px;color:#7e8fae;text-transform:uppercase;
     padding:10px 14px;border-bottom:1px solid #1e2c47;font-weight:700;white-space:nowrap}
+  th[data-key]{cursor:pointer;user-select:none}
+  th[data-key]:hover{color:#c3d2ee}
+  th[data-key].sorted{color:var(--gold)}
+  th .arrow{display:inline-block;margin-left:4px;font-size:9px;opacity:.85}
   td{padding:11px 14px;font-size:14px;border-bottom:1px solid #16223a;white-space:nowrap}
   tr:last-child td{border-bottom:none}
   .num{text-align:right;font-variant-numeric:tabular-nums}
@@ -146,12 +150,43 @@
   };
   const GAME_NAMES = { 'waste-hunter': 'Waste Hunter', mudslides: 'Mudslides', mudsliders: 'Mudslides' };
 
+  // Columns sortable by click. `get` extracts a comparable value; `dir` is the
+  // direction a first click on that column lands on (newest/most first reads
+  // better than alphabetical-style ascending for anything time- or count-based).
+  const COLUMNS = [
+    { key: 'player', label: 'Player', get: (r) => (r.player || '').toLowerCase(), dir: 'asc' },
+    { key: 'visits', label: 'Visits', get: (r) => r.visits || 0, dir: 'desc' },
+    { key: 'runs', label: 'Runs', get: (r) => r.runs || 0, dir: 'desc' },
+    { key: 'seconds', label: 'Time in game', get: (r) => r.seconds || 0, dir: 'desc' },
+    { key: 'in_app_s', label: 'In arcade', get: (r) => r.in_app_s || 0, dir: 'desc' },
+    { key: null, label: 'Games' },
+    { key: 'quiz', label: 'Quiz', get: (r) => (r.quiz_asked ? r.quiz_correct / r.quiz_asked : -1), dir: 'desc' },
+    { key: 'tokens', label: 'Tokens', get: (r) => r.tokens || 0, dir: 'desc' },
+    { key: 'last_seen', label: 'Last seen', get: (r) => (r.last_seen ? new Date(r.last_seen).getTime() : 0), dir: 'desc' },
+  ];
+  // Default view: whoever showed up most recently first — that's the question
+  // this page gets opened to answer most often.
+  let sort = { key: 'last_seen', dir: 'desc' };
+  let lastData = null;
+
   function render(d) {
-    const rows = d.players || [];
+    lastData = d;
+    const rows = (d.players || []).slice();
     const panel = document.getElementById('panel');
     if (!rows.length) {
       panel.innerHTML = '<div class="empty">Nobody has played yet.</div>';
       return;
+    }
+
+    if (sort.key) {
+      const col = COLUMNS.find((c) => c.key === sort.key);
+      const mul = sort.dir === 'asc' ? 1 : -1;
+      rows.sort((a, b) => {
+        const va = col.get(a), vb = col.get(b);
+        if (va < vb) return -1 * mul;
+        if (va > vb) return 1 * mul;
+        return 0;
+      });
     }
 
     const tot = rows.reduce((t, r) => ({
@@ -172,11 +207,15 @@
     document.getElementById('tiles').style.display = '';
 
     panel.innerHTML = `<table>
-      <thead><tr>
-        <th>Player</th><th class="num">Visits</th><th class="num">Runs</th>
-        <th class="num">Time in game</th><th class="num">In arcade</th>
-        <th>Games</th><th class="num">Quiz</th><th class="num">Tokens</th><th class="num">Last seen</th>
-      </tr></thead>
+      <thead><tr>${COLUMNS.map((c) => {
+        if (!c.key) return `<th>${esc(c.label)}</th>`;
+        const active = sort.key === c.key;
+        const arrow = active ? `<span class="arrow">${sort.dir === 'asc' ? '▲' : '▼'}</span>` : '';
+        const cls = ['num'];
+        if (c.key === 'player') cls.length = 0;
+        if (active) cls.push('sorted');
+        return `<th${cls.length ? ` class="${cls.join(' ')}"` : ''} data-key="${c.key}">${esc(c.label)}${arrow}</th>`;
+      }).join('')}</tr></thead>
       <tbody>${rows.map((r) => {
         const games = Object.keys(r.games || {})
           .sort((a, b) => r.games[b] - r.games[a])
@@ -196,6 +235,15 @@
           <td class="num dim" title="${esc(ago(r.last_seen))}">${esc(when(r.last_seen))}</td>
         </tr>`;
       }).join('')}</tbody></table>`;
+
+    panel.querySelectorAll('th[data-key]').forEach((th) => {
+      th.onclick = () => {
+        const key = th.dataset.key;
+        const col = COLUMNS.find((c) => c.key === key);
+        sort = { key, dir: sort.key === key ? (sort.dir === 'asc' ? 'desc' : 'asc') : col.dir };
+        render(lastData);
+      };
+    });
 
     document.getElementById('note').textContent = d.store === 'memory'
       ? 'Running without a database — these figures are in-memory and reset when the app restarts.'
