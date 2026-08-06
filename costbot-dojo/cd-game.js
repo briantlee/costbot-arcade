@@ -458,6 +458,11 @@
     if (this.music) this.music.setTheme('dojo');
     this._musicSlot = null;
     this._quizSkip = null;
+    // The raw per-lane motion readout under a Savings Check is a tuning aid, not
+    // cabinet polish: off by default, on with ?debug=1 (or opts.debug) so we can
+    // still diagnose a camera in the field without shipping numbers to players.
+    this._debug = opts.debug === true
+      || (typeof location !== 'undefined' && /[?&]debug=1(?:&|$)/.test(location.search));
     this.destroyed = false;
     if (opts.seconds) this.meta.setup.seconds = clamp(opts.seconds, 15, 60);
 
@@ -1129,6 +1134,10 @@
       const j = (r.rnd() * (i + 1)) | 0;
       const t = others[i]; others[i] = others[j]; others[j] = t;
     }
+    // Every question in the shared bank has four choices, so this always yields
+    // three coins; warn loudly if a future question has too few, since a short
+    // `order` would leave a lane with no coin to chop.
+    if (q.c.length < 3) console.warn('[CostBotDojo] trivia question has <3 choices — a lane will render empty:', q.q);
     const order = [q.a, ...others.slice(0, 2)];   // correct + two distractors
     for (let i = order.length - 1; i > 0; i -= 1) {   // ...shuffled across the lanes
       const j = (r.rnd() * (i + 1)) | 0;
@@ -1671,12 +1680,18 @@
     }
     if (this._checkDbg) {
       if (!armed) {
+        // Compose-grace countdown — real player guidance, always shown.
         const secs = Math.max(0, (this._checkArmedAt - now) / 1000);
         this._checkDbg.textContent = `steady — drop your arms · coins wake in ${secs.toFixed(1)}s`;
+      } else if (!live) {
+        // Camera-off hint — also player guidance, always shown.
+        this._checkDbg.textContent = 'cam OFF — turn the camera on in Dojo setup to chop (click / A B C still work)';
       } else {
-        this._checkDbg.textContent = live
+        // Raw per-lane numbers: a field tuning aid, hidden unless ?debug=1 so the
+        // cabinet never shows a diagnostic readout to players.
+        this._checkDbg.textContent = this._debug
           ? `cam ● L ${(ln[0] || 0).toFixed(3)}  C ${(ln[1] || 0).toFixed(3)}  R ${(ln[2] || 0).toFixed(3)}  ·  fire > ${thr.toFixed(3)}`
-          : 'cam OFF — turn the camera on in Dojo setup to chop (click / A B C still work)';
+          : '';
       }
     }
   };
