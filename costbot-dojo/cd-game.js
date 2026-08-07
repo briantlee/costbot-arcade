@@ -170,17 +170,17 @@
       // A break is a snap, not a beep. Heavy tiers get a sparkle on top.
       brk: (big) => {
         noise(0.18, 0.34, 1500);
-        if (big) [880, 1175, 1568].forEach((f, i) => setTimeout(() => tone(f, 0.25, 'triangle', 0.12), i * 60));
+        if (big) [880, 1175, 1568].forEach((f, i) => { setTimeout(() => tone(f, 0.25, 'triangle', 0.12), i * 60); });
       },
-      good: () => [659, 880, 1318].forEach((f, i) => setTimeout(() => tone(f, 0.3, 'square', 0.11), i * 70)),
+      good: () => [659, 880, 1318].forEach((f, i) => { setTimeout(() => tone(f, 0.3, 'square', 0.11), i * 70); }),
       bad: () => { tone(311, 0.16, 'sawtooth', 0.13); setTimeout(() => tone(233, 0.24, 'sawtooth', 0.12), 100); },
       // A landed punch: a noise snap over a short low thud that drops in pitch.
       punch: () => { noise(0.1, 0.5, 800); tone(160, 0.13, 'square', 0.22, 60); },
       drift: () => { noise(0.14, 0.12, 420); tone(174, 0.2, 'sine', 0.08); },
       tick: (f) => tone(f, 0.11, 'square', 0.12),
-      gong: () => [196, 262, 330].forEach((f) => tone(f, 1.2, 'sine', 0.14)),
-      win: () => [523, 659, 784, 1046, 1318].forEach((f, i) => setTimeout(() => tone(f, 0.35, 'sine', 0.13), i * 110)),
-      ach: () => [880, 1174].forEach((f, i) => setTimeout(() => tone(f, 0.2, 'sine', 0.11), i * 90)),
+      gong: () => [196, 262, 330].forEach((f) => { tone(f, 1.2, 'sine', 0.14); }),
+      win: () => [523, 659, 784, 1046, 1318].forEach((f, i) => { setTimeout(() => tone(f, 0.35, 'sine', 0.13), i * 110); }),
+      ach: () => [880, 1174].forEach((f, i) => { setTimeout(() => tone(f, 0.2, 'sine', 0.11), i * 90); }),
       nodes() { const c = ensure(); return c ? { ctx: c, master } : null; },
       toggle() {
         muted = !muted;
@@ -1612,7 +1612,7 @@
       }
 
       const thr = this.chopThreshold();
-      this.motion.chops(thr, dt).forEach((lane) => this.chopLane(lane));
+      this.motion.chops(thr, dt).forEach((lane) => { this.chopLane(lane); });
 
       for (const b of r.boards) {
         if (b.dead) continue;

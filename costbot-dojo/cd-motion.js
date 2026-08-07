@@ -84,7 +84,7 @@
     }
 
     function stop() {
-      if (stream) stream.getTracks().forEach((t) => t.stop());
+      if (stream) stream.getTracks().forEach((t) => { t.stop(); });
       stream = null;
       video = null;
       prevGrey = null;
