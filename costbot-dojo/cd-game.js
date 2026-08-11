@@ -58,6 +58,20 @@
   const VW = 1152, VH = 648;                  // logical viewport, 16:9
   const MUSIC_VOL = 0.5;                       // normal soundtrack level
   const MUSIC_DUCK = MUSIC_VOL * 0.7079;       // -3 dB, for the results screen
+  const MATERIALIZE_MS = 2600;                 // player assembles over the countdown
+  const FADE_MS = 750;                         // player + dojo fade to black at the end
+  // Cinematic bookend beats (COSTMAN-3737 reduced A/C):
+  const INTRO_FADE_MS = 750;                   // dojo fades IN from black at round start
+  const INTRO_HOLD_MS = 300;                   // beat of stillness on the dojo before the gong
+  const OUTRO_RETURN_MS = 850;                 // webcam dissolves out / dojo materialises back
+  const OUTRO_HOLD_MS = 300;                   // beat of stillness on the dojo before the gong
+  const GONG_LEAD_MS = 560;                    // let the gong bloom before the next beat starts
+  const RESULTS_DIM = 0.5;                     // round-end fade stops here (NOT full black) so the
+                                               // dimmed dojo becomes the results-screen backdrop
+  // deterministic per-pixel noise for the transporter dissolve (matches the
+  // approved prototype: bottom-up bias so the figure assembles from the mat up)
+  const dissolveThr = (x, y) => (Math.abs(Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1) * 0.72 + (1 - y / VH) * 0.28;
+  // CostBot elastic-arm chop timing (extend → impact → retract) + overshoot ease
   const STORE_KEY = 'costbot.dojo.v1';
   const LETTERS = ['A', 'B', 'C', 'D'];
 
@@ -178,8 +192,29 @@
       punch: () => { noise(0.1, 0.5, 800); tone(160, 0.13, 'square', 0.22, 60); },
       drift: () => { noise(0.14, 0.12, 420); tone(174, 0.2, 'sine', 0.08); },
       tick: (f) => tone(f, 0.11, 'square', 0.12),
-      gong: () => [196, 262, 330].forEach((f) => { tone(f, 1.2, 'sine', 0.14); }),
+      // Korean jing (징): a struck brass gong. A noise transient for the mallet,
+      // a low inharmonic cluster that sags slightly (the wobble), close-detuned
+      // partials that beat into a metallic shimmer, and a late bloom — all over a
+      // long decay. Synthesised, no asset.
+      gong: () => {
+        noise(0.16, 0.22, 900);                              // mallet strike
+        tone(138, 3.2, 'sine', 0.15, 128);                   // fundamental, sags
+        tone(146, 3.2, 'sine', 0.06, 136);                   // close detune -> beating
+        tone(207, 3.0, 'sine', 0.10, 200);                   // ~1.5x
+        tone(278, 2.6, 'sine', 0.08, 272);                   // inharmonic upper
+        tone(355, 2.2, 'sine', 0.06, 349);                   // shimmer
+        tone(141, 2.8, 'triangle', 0.05, 131);               // brassy body
+        setTimeout(() => {                                   // late shimmer bloom
+          tone(420, 1.6, 'sine', 0.05, 405);
+          tone(560, 1.3, 'sine', 0.035, 548);
+          noise(0.5, 0.05, 3200);
+        }, 180);
+      },
       win: () => [523, 659, 784, 1046, 1318].forEach((f, i) => { setTimeout(() => tone(f, 0.35, 'sine', 0.13), i * 110); }),
+      // transporter materialize: a rising shimmer that lands on a bright chime
+      materialize: () => { for (let i = 0; i < 7; i += 1) setTimeout(() => tone(300 + i * 190, 0.12, 'triangle', 0.06), i * 45); setTimeout(() => { tone(1568, 0.4, 'sine', 0.12); noise(0.16, 0.18, 2600); }, 340); },
+      // power-down as the dojo fades to black
+      powerdown: () => { tone(660, 0.5, 'sine', 0.12, 120); setTimeout(() => tone(220, 0.4, 'sine', 0.08, 70), 120); },
       ach: () => [880, 1174].forEach((f, i) => { setTimeout(() => tone(f, 0.2, 'sine', 0.11), i * 90); }),
       nodes() { const c = ensure(); return c ? { ctx: c, master } : null; },
       toggle() {
@@ -320,6 +355,9 @@
 /* ---- savings check ---- */
 .cd-veil{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:13px;background:rgba(4,6,12,.72);backdrop-filter:blur(3px);padding:20px;}
+/* Results screen: a lighter scrim than the quiz veil so the dimmed dojo shows
+   through as the backdrop (the opaque summary card carries the text). */
+.cd-veil.cd-veil-results{background:rgba(4,6,12,.28);}
 /* The prompt sits in a small panel dead-centre; the answers are punched at the
    corners (see .cd-coin), so this stays narrow and out of their way. */
 .cd-quiz-center{position:absolute;top:34px;left:50%;transform:translateX(-50%);
@@ -487,6 +525,14 @@
     this.assetBase = opts.assetBase || '../shared/assets/';
     this.hero = new Image();
     this.hero.src = this.assetBase + 'costbot.png';
+    // the rendered dojo stage (backdrop for the CostBot mode; intro for "me")
+    this._stage = new Image();
+    this._stage.src = this.assetBase + 'costbot-dojo-stage.jpg';
+    // the karate CostBot avatar who stands on the mat and chops in CostBot mode
+    this._revealAt = 0;                          // materialize clock (set at countdown)
+    this._fadeAt = 0;                            // fade-to-black clock (set at round end)
+    this._introFadeAt = 0;                       // dojo fade-IN-from-black clock (round start)
+    this._returnAt = 0;                          // webcam->dojo return clock (round end)
 
     // ---- input --------------------------------------------------------------
     this.motion = global.CDMotion
@@ -608,7 +654,7 @@
   Instance.prototype.act = function (action) {
     this.audio.resume();
     if (this.music && this._musicSlot) this.music.setState(this._musicSlot);
-    if (action === 'start') { this.startRound(this.rngSeed); return; }
+    if (action === 'start') { this.startRound(); return; }
     if (action === 'howto') { this.screenHowTo(); return; }
     if (action === 'setup') { this.screenSetup(); return; }
     if (action === 'records') { this.screenRecords(); return; }
@@ -644,6 +690,10 @@
 
   Instance.prototype.screenTitle = function () {
     this.state = 'idle';
+    this._fadeAt = 0;
+    this._revealAt = 0;
+    this._introFadeAt = 0;
+    this._returnAt = 0;
     if (this.music) this.music.setVolume(MUSIC_VOL);   // undo any results-screen duck
     this.setMusic('menu');
     const m = this.meta;
@@ -813,16 +863,29 @@
   // ===========================================================================
   // Round
   // ===========================================================================
-  Instance.prototype.startRound = async function (seed) {
+  Instance.prototype.startRound = async function (seedOverride) {
     this.audio.resume();
-    // The main theme holds until GO — the countdown gets the blips, not the
-    // beat. Also lift any results-screen duck back to full for the new run.
-    if (this.music) { this.music.setVolume(MUSIC_VOL); this.music.setState('silent'); }
-    this._musicSlot = null;
-    this.motion.resetCalibration();   // relearn the room's noise floor this round
+    // Music starts immediately and rides through the whole round. The dojo fades
+    // IN from black, holds a beat for the gong, then dissolves into the webcam
+    // over the countdown. Lift any results-screen duck back to full for the run.
+    if (this.music) this.music.setVolume(MUSIC_VOL);
+    this.setMusic('stage');
+    this.motion.resetCalibration();      // relearn the room's noise floor this round
+    this._introFadeAt = performance.now();   // dojo fades in from black
+    this._revealAt = 0;                      // webcam stays hidden until the gong beat
+    this._fadeAt = 0;                        // clear any previous fade-to-black
+    this._returnAt = 0;                      // clear any previous webcam->dojo return
     this.clearTimers();
     this.clearUI();
 
+    // Advance the seed every round. Reusing one seed replays the identical board
+    // spawns AND the identical trivia draw order — which is what made the Savings
+    // Checks feel like a tiny fixed set across "play again". An explicit
+    // seedOverride still pins a run for reproducible / testing use.
+    this.rngSeed = seedOverride != null
+      ? seedOverride
+      : (Math.imul(this.rngSeed, 1664525) + 1013904223) >>> 0;
+    const seed = this.rngSeed;
     const s = this.meta.setup;
     const rnd = mulberry32(seed);
     this.run = {
@@ -864,6 +927,7 @@
     const count = document.createElement('div');
     count.className = 'cd-count';
     count.innerHTML = '<b>···</b>';
+    count.style.visibility = 'hidden';   // stays hidden through the dojo fade-in + gong
     this.ui.appendChild(count);
 
     if (this.motion.state !== 'ready' && this.motion.state !== 'blocked') {
@@ -877,7 +941,7 @@
     const b = count.querySelector('b');
     let n = 3;
     const step = () => {
-      if (this.destroyed) return;
+      if (this.destroyed || this.state !== 'countdown') return;
       if (n > 0) {
         b.textContent = String(n);
         b.classList.remove('go');
@@ -892,17 +956,35 @@
         this.later(() => {
           count.remove();
           this.state = 'play';
-          this.setMusic('stage');   // main theme drops now the countdown is over
           this.run.graceUntil = performance.now() + C.ROUND.graceMs;
         }, 480);
       }
     };
-    step();
+
+    // Intro bookend: the dojo has faded in from black — hold a beat, strike the
+    // gong, then simultaneously start the countdown and dissolve the dojo into
+    // the webcam. Music is already playing from the top of startRound.
+    this.later(() => {
+      if (this.destroyed || this.state !== 'countdown') return;
+      this.audio.gong();
+      this.later(() => {
+        if (this.destroyed || this.state !== 'countdown') return;
+        this._revealAt = performance.now();   // dojo dissolves -> webcam materialises
+        this.audio.materialize();
+        count.style.visibility = '';          // the 3-2-1 appears now
+        step();
+      }, GONG_LEAD_MS);
+    }, INTRO_FADE_MS + INTRO_HOLD_MS);
   };
 
   Instance.prototype.leaveRound = function () {
     if (this.run && !this.run.over && this.state !== 'idle') this.endRound('quit');
     this.clearTimers();
+    // endRound() only releases the camera at the END of the outro timer chain,
+    // and the clearTimers() above just cancelled that chain — so on a mid-round
+    // quit we must stop motion synchronously or the webcam stream (and its
+    // indicator light) leaks until destroy(). stop() is a no-op if idle.
+    this.motion.stop();
     this.state = 'idle';
     this.run = null;
     this.screenTitle();
@@ -1304,7 +1386,10 @@
         // down while the reveal is still on screen (advance() may never run).
         self._quizSkip = onSkip;
       }, R.revealMinMs || 1500);
-      self.later(advance, R.revealMs);
+      // A wrong (or timed-out) answer holds the feedback longer so there's time
+      // to read the correct answer + why before the re-entry countdown. A skip
+      // is still allowed after revealMinMs for anyone who's ready sooner.
+      self.later(advance, R.revealMs + (correct ? 0 : (R.wrongExtraMs || 0)));
     }
 
     el.querySelectorAll('.cd-coin').forEach((b) => {
@@ -1396,9 +1481,10 @@
     r.outcome = outcome;
     this.state = 'over';
     this.clearTimers();
-    // The round is done — release the camera so its light goes out. A new run
-    // re-requests it in the opening countdown; sample() no-ops while it's off.
-    this.motion.stop();
+    // Outro bookend: the music keeps playing while the webcam dissolves back into
+    // the dojo. The fade-to-black (and music fade) come later, after the gong.
+    this._returnAt = performance.now();   // webcam dissolves out / dojo materialises back
+    this._revealAt = 0;                   // leave the intro reveal path
 
     const total = this.total();
     const clean = r.missed === 0 && r.reclaimed > 0;
@@ -1458,19 +1544,43 @@
     this.emit('run:end', result);
     this.onComplete(result);
 
-    if (outcome === 'clear') this.screenCountOut(result, belt, clean);
+    // Outro sequence: dojo returns -> hold a beat -> gong -> fade the dojo AND the
+    // music to black together -> results once the screen is fully black.
+    this.later(() => {
+      if (this.destroyed) return;
+      this.audio.gong();
+      this.later(() => {
+        if (this.destroyed) return;
+        this._fadeAt = performance.now();   // dojo fades to black
+        this.audio.powerdown();
+        this.fadeMusicOut(FADE_MS);         // music fades with the dojo
+        this.later(() => {
+          this.motion.stop();
+          if (outcome === 'clear') this.screenCountOut(result, belt, clean);
+        }, FADE_MS);
+      }, GONG_LEAD_MS);
+    }, OUTRO_RETURN_MS + OUTRO_HOLD_MS);
+  };
+
+  // Ramp the soundtrack down over `ms` so it fades with the dojo at round end.
+  // Uses tracked timers so it clears cleanly on destroy.
+  Instance.prototype.fadeMusicOut = function (ms) {
+    if (!this.music) return;
+    const steps = 8;
+    for (let i = 1; i <= steps; i += 1) {
+      this.later(() => { if (this.music) this.music.setVolume(MUSIC_VOL * (1 - i / steps)); }, (ms / steps) * i);
+    }
   };
 
   Instance.prototype.screenCountOut = function (result, belt, clean) {
     const r = this.run;
-    this.audio.gong();
-    // The theme keeps playing over the count-out, but 3 dB down so it sits
-    // under the tally. Full level is restored on the next run or at the cabinet.
+    // The gong already rang in the outro; here the theme comes back up from the
+    // fade to a soft duck so the tally isn't silent. Full level on the next run.
     if (this.music) this.music.setVolume(MUSIC_DUCK);
     this.clearUI();
 
     const el = document.createElement('div');
-    el.className = 'cd-veil';
+    el.className = 'cd-veil cd-veil-results';
     el.innerHTML = `<div class="cd-sum">
       <h3>${r.certified ? 'Time — certified' : 'Time'}</h3>
       <p class="cd-sub">${r.reclaimed} of ${r.reclaimed + r.missed} reclaimed · ${r.missed} drifted away · `
@@ -1726,40 +1836,75 @@
     const ctx = this.ctx;
     const r = this.run;
     ctx.clearRect(0, 0, VW, VH);
-    this.drawBackdrop();
+    this.drawBackdrop(now);
     this.drawSensei();
     if (r && this.state !== 'idle') {
-      for (const b of r.boards) if (!b.dead) this.drawBoard(b, now);
+      // Boards and HUD belong to live play — once the round is over the mat is
+      // just the dojo backdrop for the results, so drop them (chips/pops linger
+      // and fade on their own).
+      if (this.state !== 'over') for (const b of r.boards) if (!b.dead) this.drawBoard(b, now);
       this.drawChips();
       this.drawPops();
       if (this.state !== 'over') this.drawHud();
     }
+    // the dojo fades IN from black at the very start of the round...
+    if (this._introFadeAt) {
+      const i = clamp((now - this._introFadeAt) / INTRO_FADE_MS, 0, 1);
+      if (i < 1) { ctx.globalAlpha = 1 - i; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, VW, VH); }
+    }
+    // ...and at round end the mat dims toward — but not all the way to — black
+    // (RESULTS_DIM), so the dimmed dojo IS the results-screen backdrop. The opaque
+    // summary card carries the text, so every line stays legible over it.
+    if (this._fadeAt) {
+      const f = clamp((now - this._fadeAt) / FADE_MS, 0, 1) * RESULTS_DIM;
+      if (f > 0) { ctx.globalAlpha = f; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, VW, VH); }
+    }
     ctx.globalAlpha = 1;
   };
 
-  Instance.prototype.drawBackdrop = function () {
+  // cover-fit a source of aspect `vr` into the VW×VH viewport
+  Instance.prototype.coverFit = function (vr) {
+    const sr = VW / VH; let dw = VW, dh = VH, dx = 0, dy = 0;
+    if (vr > sr) { dh = VH; dw = VH * vr; dx = -(dw - VW) / 2; } else { dw = VW; dh = VW / vr; dy = -(dh - VH) / 2; }
+    return { dx, dy, dw, dh };
+  };
+
+  Instance.prototype.drawBackdrop = function (now) {
     const ctx = this.ctx;
     const r = this.run;
-    if (this.motion.isLive()) {
-      const v = this.motion.video;
-      ctx.save();
-      ctx.translate(VW, 0);
-      ctx.scale(-1, 1);
-      const vr = v.videoWidth / v.videoHeight;
-      const sr = VW / VH;
-      let dw = VW, dh = VH, dx = 0, dy = 0;
-      if (vr > sr) { dh = VH; dw = VH * vr; dx = -(dw - VW) / 2; } else { dw = VW; dh = VW / vr; dy = -(dh - VH) / 2; }
-      ctx.globalAlpha = 0.62;
-      ctx.drawImage(v, dx, dy, dw, dh);
-      ctx.restore();
-      ctx.fillStyle = 'rgba(4,6,11,.58)';
-      ctx.fillRect(0, 0, VW, VH);
-    } else {
+    const stageReady = this._stage && this._stage.complete && this._stage.naturalWidth;
+    const grad = () => {
       const g = ctx.createRadialGradient(VW / 2, VH * 0.28, 40, VW / 2, VH * 0.55, VH);
-      g.addColorStop(0, '#16233d');
-      g.addColorStop(1, '#04060b');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, VW, VH);
+      g.addColorStop(0, '#16233d'); g.addColorStop(1, '#04060b');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
+    };
+    const drawDojo = () => { if (stageReady) ctx.drawImage(this._stage, 0, 0, VW, VH); else grad(); };
+
+    // Cinematic bookend — the dojo frames a round of the status-quo webcam view:
+    //   reveal 0->1  dojo dissolves INTO the webcam over the countdown (intro)
+    //   ret    0->1  webcam dissolves BACK into the dojo at round end (outro)
+    // (The dojo's own fade in/out of black is applied in render(), over everything.)
+    const reveal = this._revealAt ? clamp((now - this._revealAt) / MATERIALIZE_MS, 0, 1) : 0;
+    const ret = this._returnAt ? clamp((now - this._returnAt) / OUTRO_RETURN_MS, 0, 1) : 0;
+    // The "status-quo view": the webcam when it's live, else the gradient — the
+    // same no-camera backdrop keyboard players already get. drawWebcam derefs the
+    // video, so it must never be called unless the camera is actually up.
+    const live = this.motion.isLive();
+
+    if (this._returnAt) {
+      // OUTRO: status-quo underneath, the dojo crossfades back in on top.
+      if (live) this.drawWebcam(now, 1); else grad();
+      if (ret > 0) { ctx.save(); ctx.globalAlpha = ret; drawDojo(); ctx.restore(); }
+    } else if (reveal >= 1) {
+      // PLAY: the status-quo view.
+      if (live) this.drawWebcam(now, 1); else grad();
+    } else {
+      // INTRO: the dojo, dissolving into the status-quo view as the countdown runs.
+      drawDojo();
+      if (reveal > 0) {
+        if (live) this.drawWebcam(now, reveal);                                  // webcam's own sparkle materialise
+        else { ctx.save(); ctx.globalAlpha = reveal; grad(); ctx.restore(); }    // gradient crossfade
+      }
     }
 
     const laneW = VW / C.ROUND.lanes;
@@ -1794,6 +1939,65 @@
       ctx.fillText('THE MAT IS OPEN', VW / 2, VH * 0.62);
       ctx.letterSpacing = '0px';
     }
+  };
+
+  // The full-frame webcam view. reveal<1 => it materialises in over the dojo.
+  Instance.prototype.drawWebcam = function (now, reveal) {
+    const ctx = this.ctx;
+    const v = this.motion.video;
+    const d = this.coverFit(v.videoWidth / v.videoHeight);
+    if (reveal >= 1) {
+      ctx.save(); ctx.translate(VW, 0); ctx.scale(-1, 1);
+      ctx.globalAlpha = 0.62; ctx.drawImage(v, d.dx, d.dy, d.dw, d.dh); ctx.restore();
+      ctx.globalAlpha = 1; ctx.fillStyle = 'rgba(4,6,11,.58)'; ctx.fillRect(0, 0, VW, VH);
+      return;
+    }
+    const pc = this._webCv || (this._webCv = document.createElement('canvas'));
+    if (pc.width !== VW) { pc.width = VW; pc.height = VH; }
+    const pg = pc.getContext('2d', { willReadFrequently: true });
+    pg.clearRect(0, 0, VW, VH);
+    pg.save(); pg.translate(VW, 0); pg.scale(-1, 1); pg.globalAlpha = 0.62;
+    pg.drawImage(v, d.dx, d.dy, d.dw, d.dh); pg.restore(); pg.globalAlpha = 1;
+    this.applyMaterialize(pg, reveal);
+    ctx.drawImage(pc, 0, 0);
+    this.drawSparkle(reveal);
+    ctx.fillStyle = 'rgba(4,6,11,.58)'; ctx.fillRect(0, 0, VW, VH);
+  };
+
+  // Per-pixel transporter dissolve on the player layer — only while assembling
+  // (reveal < 1), so steady play pays nothing. Pixels past the frontier vanish;
+  // pixels at the frontier flash cyan energy.
+  Instance.prototype.applyMaterialize = function (pg, reveal) {
+    const img = pg.getImageData(0, 0, VW, VH);
+    const dt = img.data;
+    const front = 0.14;
+    for (let y = 0; y < VH; y += 1) {
+      for (let x = 0; x < VW; x += 1) {
+        const i = (y * VW + x) * 4;
+        if (dt[i + 3] === 0) continue;
+        const thr = dissolveThr(x, y);
+        if (thr > reveal) { dt[i + 3] = 0; }
+        else if (thr > reveal - front) { dt[i] = 150; dt[i + 1] = 232; dt[i + 2] = 220; }
+      }
+    }
+    pg.putImageData(img, 0, 0);
+  };
+
+  // Gold/cyan sparkle motes riding the materialize frontier.
+  Instance.prototype.drawSparkle = function (reveal) {
+    const ctx = this.ctx;
+    const front = 0.14;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (let n = 0; n < 420; n += 1) {
+      const x = Math.random() * VW, y = Math.random() * VH;
+      if (Math.abs(dissolveThr(x | 0, y | 0) - reveal) < front) {
+        ctx.globalAlpha = 0.5 + Math.random() * 0.5;
+        ctx.fillStyle = Math.random() < 0.7 ? '#8ff0e6' : '#ffd76b';
+        const s = 1 + Math.random() * 2.4;
+        ctx.fillRect(x, y, s, s);
+      }
+    }
+    ctx.restore(); ctx.globalAlpha = 1;
   };
 
   // Greedy wrap that refuses rather than overflowing the board.

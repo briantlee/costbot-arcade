@@ -205,7 +205,9 @@
     streakStep: 0.5,      // each consecutive correct answer adds this multiplier
     streakCap: 3,         // ...up to this cap (so 3rd+ in a row pays 3x)
     wrongConsolation: 0,
-    revealMs: 2600,       // auto-advance after this long
+    revealMs: 2600,       // auto-advance after this long (on a correct answer)
+    wrongExtraMs: 2000,   // ...plus this long when the answer was NOT correct, so
+                          // there's extra time to read the right answer + why
     revealMinMs: 1500,    // ...but hold the feedback at least this long first — a
                           // stray key/punch right after answering can't skip it,
                           // so you always get a beat to read why before the count
