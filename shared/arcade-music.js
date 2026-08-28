@@ -126,6 +126,36 @@
                { root: 40, tones: [0, 7] }, { root: 34, tones: [0, 7] },
                { root: 38, tones: [0, 7] }, { root: 39, tones: [0, 7] },
                { root: 40, tones: [0, 7] }, { root: 34, tones: [0, 7] }],
+    // CostBot Hero — "It's a Small Cost". It's a Small World in C major, simple
+    // I–V harmony under the electro-light-parade arrangement.
+    chSmall:  [{ root: 48, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },  // C C
+               { root: 43, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },  // G G
+               { root: 48, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },  // C C
+               { root: 43, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },  // G C
+               { root: 48, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },  // C C
+               { root: 43, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },  // G C
+               { root: 48, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },  // C G
+               { root: 43, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] }], // G C
+    // CostBot Hero — "Electrical Spendarade". Main St. Electrical Parade (Baroque
+    // Hoedown) in G major: a G–C hoedown vamp with a D–A lift in the B section.
+    chParade: [{ root: 43, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },  // G C
+               { root: 43, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },
+               { root: 43, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },
+               { root: 43, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },
+               { root: 50, tones: [0, 4, 7] }, { root: 45, tones: [0, 4, 7] },  // D A (B section)
+               { root: 50, tones: [0, 4, 7] }, { root: 45, tones: [0, 4, 7] },
+               { root: 43, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },  // G C
+               { root: 43, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] }],
+    // CostBot Hero — "Fiscal Jeopardy". The "Think!" vamp: an A–D turnaround,
+    // then the whole thing up a minor third (C–F) — the classic key change.
+    chJeopardy:[{ root: 45, tones: [0, 4, 7] }, { root: 50, tones: [0, 4, 7] },  // A D
+               { root: 45, tones: [0, 4, 7] }, { root: 50, tones: [0, 4, 7] },
+               { root: 45, tones: [0, 4, 7] }, { root: 50, tones: [0, 4, 7] },
+               { root: 50, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },
+               { root: 48, tones: [0, 4, 7] }, { root: 53, tones: [0, 4, 7] },  // C F (up a 3rd)
+               { root: 48, tones: [0, 4, 7] }, { root: 53, tones: [0, 4, 7] },
+               { root: 48, tones: [0, 4, 7] }, { root: 53, tones: [0, 4, 7] },
+               { root: 53, tones: [0, 4, 7] }, { root: 46, tones: [0, 4, 7] }],
   };
 
   // ===========================================================================
@@ -371,6 +401,68 @@
       74, _, _, _, 67, _, _, _, _, _, _, _, _, _, _, _,
       74, _, _, _, 72, _, _, 70, 70, _, _, _, 69, _, _, _,
     ],
+    // CostBot Hero — "It's a Small Cost". It's a Small World, transcribed from MIDI:
+    // the verse then the "…small world after all" chorus, in C major. Arranged as an
+    // electro light parade in the track config (four-on-floor, 16th arp, sub bass).
+    chSmall: [
+      _, _, _, _, 64, _, 65, _, 67, _, _, _, 76, _, _, _,   // verse
+      72, _, _, _, 74, _, 72, _, 72, _, _, _, 71, _, _, _,
+      71, _, _, _, 62, _, 64, _, 65, _, _, _, 74, _, _, _,
+      71, _, _, _, 72, _, 71, _, 69, _, _, _, 67, _, _, _,
+      67, _, _, _, 64, _, 65, _, 67, _, _, _, 72, _, 74, _,
+      76, _, _, _, 74, _, 72, _, 69, _, _, _, 74, _, 76, _,
+      77, _, _, _, 76, _, 74, _, 67, _, _, _, 77, _, _, _,
+      76, _, _, _, 74, _, _, _, 72, _, _, _, _, _, _, _,
+      _, _, _, _, _, _, _, _, 72, _, _, _, _, _, 72, _,     // chorus
+      76, _, _, _, 72, _, _, _, 74, _, _, _, _, _, 74, _,
+      74, _, _, _, _, _, _, _, 74, _, _, _, _, _, 74, _,
+      77, _, _, _, 74, _, _, _, 76, _, _, _, _, _, 76, _,
+      76, _, _, _, _, _, _, _, 76, _, _, _, _, _, 76, _,
+      79, _, _, _, 76, _, _, _, 77, _, _, _, _, _, 77, _,
+      77, _, _, _, 76, _, 74, _, 67, _, _, _, _, _, _, _,
+      71, _, _, _, _, _, _, _, 72, _, _, _, _, _, _, _,
+    ],
+    // CostBot Hero — "Electrical Spendarade". The Main St. Electrical Parade theme
+    // (Baroque Hoedown), transcribed from MIDI (dropped an octave) as an A-A-B-A
+    // loop. Busy 16th runs = the bouncy parade sparkle; arranged electro in config.
+    chParade: [
+      67, _, 71, 72, 74, _, 67, _, 64, _, 69, 67, 66, 64, 66, 62,
+      67, _, 67, 69, 71, 69, 67, 66, 64, _, 69, _, 66, 64, 66, 62,
+      67, _, 71, 72, 74, _, 67, _, 64, _, 69, 67, 66, 64, 66, 62,
+      67, 69, 71, 67, 69, 71, 69, 67, 66, 64, 66, 62, 67, _, _, _,
+      67, _, 71, 72, 74, _, 67, _, 64, _, 69, 67, 66, 64, 66, 62,
+      67, _, 67, 69, 71, 69, 67, 66, 64, _, 69, _, 66, 64, 66, 62,
+      67, _, 71, 72, 74, _, 67, _, 64, _, 69, 67, 66, 64, 66, 62,
+      67, 69, 71, 67, 69, 71, 69, 67, 66, 64, 66, 62, 67, _, _, _,
+      79, _, 79, _, 78, _, 74, _, 76, _, 69, _, 74, _, _, _,
+      71, _, 67, _, 69, _, 66, _, 67, _, 64, _, 62, _, _, _,
+      71, _, _, _, 69, _, 74, _, 76, _, 73, _, 74, _, _, _,
+      71, _, 67, _, 69, _, 66, _, 67, _, 64, _, 62, _, _, _,
+      67, _, 71, 72, 74, _, 67, _, 64, _, 69, 67, 66, 64, 66, 62,
+      67, _, 67, 69, 71, 69, 67, 66, 64, _, 69, _, 66, 64, 66, 62,
+      67, _, 71, 72, 74, _, 67, _, 64, _, 69, 67, 66, 64, 66, 62,
+      67, 69, 71, 67, 69, 71, 69, 67, 66, 64, 66, 62, 67, _, _, _,
+    ],
+    // CostBot Hero — "Fiscal Jeopardy". The Jeopardy "Think!" theme from MIDI: the
+    // main vamp, then the same phrase up a minor third (the trademark key change).
+    chJeopardy: [
+      79, _, _, _, 84, _, _, _, 79, _, _, _, 72, _, 72, _,
+      79, _, _, _, 84, _, _, _, 79, _, _, _, 71, _, _, _,
+      79, _, _, _, 84, _, _, _, 79, _, _, _, 84, _, _, _,
+      88, _, _, _, _, _, 86, _, 84, _, 83, _, 81, _, 80, _,
+      79, _, _, _, 84, _, _, _, 79, _, _, _, 72, _, 72, _,
+      79, _, _, _, 84, _, _, _, 79, _, _, _, _, _, _, _,
+      84, _, _, _, _, _, 81, _, 79, _, _, _, 77, _, _, _,
+      76, _, _, _, 74, _, _, _, 72, _, _, _, _, _, _, _,
+      82, _, _, _, 87, _, _, _, 82, _, _, _, 75, _, 75, _,
+      82, _, _, _, 87, _, _, _, 82, _, _, _, 74, _, _, _,
+      82, _, _, _, 87, _, _, _, 82, _, _, _, 87, _, _, _,
+      91, _, _, _, _, _, 89, _, 87, _, 86, _, 84, _, 83, _,
+      82, _, _, _, 87, _, _, _, 82, _, _, _, 75, _, 75, _,
+      82, _, _, _, 87, _, _, _, 82, _, _, _, _, _, _, _,
+      87, _, _, _, _, _, 84, _, 82, _, _, _, 80, _, _, _,
+      79, _, _, _, _, _, _, _, 77, _, _, _, _, _, _, _,
+    ],
   };
 
   // ===========================================================================
@@ -549,6 +641,38 @@
       prog: P.chAvengers, lead: L.chAvengers, drums: 'double', pad: 'power', bars: 16,
       fillBar: 15, crashBars: [0, 8],
       arpEvery: 0, bassEvery: 1, gain: 0.95, voices: { lead: 'dist' },
+    },
+    // It's a Small World, reimagined as an electro light parade — bright four-on-
+    // the-floor pulse, a 16th synth arp twinkling like the parade lights, and a
+    // strong sub bass under the transcribed tune.
+    ch_small: {
+      title: "It's a Small Cost", influence: "It's a Small World, electro light-parade", bpm: 126, key: 'C major',
+      desc: "It's a Small World as an electro light parade: a bright four-on-the-floor pulse, a 16th "
+          + "synth arpeggio twinkling like the lights, and a strong sub bass under the melody.",
+      prog: P.chSmall, lead: L.chSmall, drums: 'four', pad: 'saw', bars: 16,
+      fillBar: 15, crashBars: [0, 8],
+      arpEvery: 1, bassEvery: 2, gain: 0.9, voices: { lead: 'saw' },
+    },
+    // Main St. Electrical Parade in the same electro-light-parade style — bright
+    // four-on-the-floor, strong sub bass, saw lead carrying the bouncy hoedown runs.
+    // No extra arp: the melody is already a stream of 16ths.
+    ch_parade: {
+      title: 'Electrical Spendarade', influence: 'Main St. Electrical Parade (Baroque Hoedown), electro', bpm: 124, key: 'G major',
+      desc: 'The Main Street Electrical Parade theme as an electro light parade: four-on-the-floor, a '
+          + 'strong sub bass and a saw lead ripping the bouncy hoedown runs. The parade rolls down the highway.',
+      prog: P.chParade, lead: L.chParade, drums: 'four', pad: 'saw', bars: 16,
+      fillBar: 15, crashBars: [0, 8],
+      arpEvery: 0, bassEvery: 2, gain: 0.9, voices: { lead: 'saw' },
+    },
+    // Jeopardy "Think!" theme, given the upbeat-electro treatment — driving four-on-
+    // the-floor, a strong sub bass and a saw lead on the vamp, up a third at the half.
+    ch_jeopardy: {
+      title: 'Fiscal Jeopardy', influence: "Jeopardy 'Think!' theme, electro", bpm: 132, key: 'A / C',
+      desc: 'The Jeopardy Think! theme, cranked up: a driving four-on-the-floor pulse, a strong sub '
+          + 'bass and a saw lead on the vamp — then the whole thing jumps up a third. Beat the clock.',
+      prog: P.chJeopardy, lead: L.chJeopardy, drums: 'four', pad: 'saw', bars: 16,
+      fillBar: 15, crashBars: [0, 8],
+      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'saw' },
     },
   };
 

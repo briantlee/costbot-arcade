@@ -17,8 +17,10 @@
   // The two new tracks lead; the rest are existing arcade bangers that already
   // carry a singable lead line, so they chart cleanly.
   const SONGS = [
-    { key: 'ch_avengers', name: 'The Savengers',   sub: 'Avengers, rocked · 148', tag: 'NEW' },
-    { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Villain march · 104',    tag: '' },
+    { key: 'ch_avengers', name: 'The Savengers',   sub: 'Avengers, rocked · 148',   tag: '' },
+    { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Villain march · 104',      tag: '' },
+    { key: 'ch_small',    name: "It's a Small Cost", sub: 'Electro light parade · 126', tag: '' },
+    { key: 'ch_jeopardy', name: 'Fiscal Jeopardy',  sub: "Think! electro · 132",       tag: 'NEW' },
   ];
 
   const DIFFS = {
@@ -28,7 +30,7 @@
     //          bigger gap just thins dense runs (easier) without moving notes.
     easy:   { label: 'Easy',   lanes: 3, fall: 2.15, minGap: 4, holdGap: 99, traps: false, missCost: 5,  color: '#39d98a' },
     medium: { label: 'Medium', lanes: 4, fall: 1.90, minGap: 3, holdGap: 8,  traps: false, missCost: 7,  color: '#f5c451' },
-    hard:   { label: 'Hard',   lanes: 5, fall: 1.28, minGap: 1, holdGap: 4,  traps: true,  missCost: 10, color: '#ff5d6c' },
+    hard:   { label: 'Hard',   lanes: 4, fall: 1.45, minGap: 2, holdGap: 5,  traps: true,  missCost: 9,  color: '#ff5d6c' },
   };
 
   // Lanes are vendors — colour + name read left-to-right across the highway.
@@ -45,7 +47,7 @@
 
   const BILL_MAX = 100;
   const TARGET_SECS = 105;    // aimed note span; capped so a whole run stays under ~2 min
-  const MAX_NOTE_SECS = 110;  // hard cap on chart length regardless of loop rounding
+  const MAX_NOTE_SECS = 115;  // hard cap on chart length regardless of loop rounding
   const PREROLL = 2.6;        // seconds of countdown before the first note
 
   const STORE_KEY = 'costbot.hero.v1';
@@ -174,12 +176,13 @@
       const lead = track.lead || [];
       const stepDur = 60 / track.bpm / 4;
       const loopSecs = LL * stepDur;
-      const loops = Math.max(2, Math.ceil(TARGET_SECS / loopSecs));
-      const total = Math.min(loops * LL, Math.floor(MAX_NOTE_SECS / stepDur));
-      // Stop spawning notes ~4s before the end and cut on a bar boundary, so the
-      // song winds down with a clean, note-free outro instead of tiles right up to
-      // the last second (which read as mismatched with the music).
-      const tailSteps = Math.max(16, Math.round(4 / stepDur));
+      // whole loops only, so the melody completes its phrases and the song ends on a
+      // musical boundary instead of being chopped mid-phrase (which read as abrupt)
+      const maxLoops = Math.max(2, Math.floor(MAX_NOTE_SECS / loopSecs));
+      const loops = Math.min(Math.max(2, Math.ceil(TARGET_SECS / loopSecs)), maxLoops);
+      const total = loops * LL;
+      // stop spawning notes ~2.5s before the musical end for a clean, note-free outro
+      const tailSteps = Math.max(16, Math.round(2.5 / stepDur));
       let noteCut = Math.floor((total - tailSteps) / 16) * 16;
       if (noteCut < 16) noteCut = total;
 
@@ -224,7 +227,7 @@
         const gold = (k.midi === globalHi);
         const gap = gapAt(k.src);
         const holdEnd = gap >= diff.holdGap ? k.time + Math.min(gap, 10) * stepDur : 0;
-        let spend = 250 + (Math.abs(k.midi * 7 + lane * 53) % 40) * 75;
+        let spend = 40 + (Math.abs(k.midi * 7 + lane * 53) % 40) * 12;
         if (gold) spend *= 4;
         const icon = gold ? '💰' : SAVINGS[Math.abs(k.midi + lane) % SAVINGS.length];
         notes.push({
@@ -245,9 +248,9 @@
       }
 
       notes.sort((a, b) => a.time - b.time);
-      // end a few seconds after the last note lands, so the finish is a clean,
-      // note-free wind-down rather than tiles right up to the results screen
-      const outroEnd = firstStep0 + (startStepAbs + noteCut) * stepDur + lat + 3.0;
+      // end on the loop boundary (a downbeat), just after the last phrase resolves,
+      // so the finish feels intentional; the music fades out into this point
+      const outroEnd = firstStep0 + (startStepAbs + total) * stepDur + lat + 0.4;
       return { notes, stepDur, endTime: outroEnd };
     }
 
@@ -314,7 +317,7 @@
       const acc = r.total ? (c.perfect + c.great * 0.7 + c.ok * 0.4) / r.total : 0;
       let grade = r.failed ? 'F'
         : acc >= 0.95 ? 'S' : acc >= 0.85 ? 'A' : acc >= 0.70 ? 'B' : acc >= 0.50 ? 'C' : 'D';
-      const tokens = Math.max(0, Math.floor(r.score / 500));
+      const tokens = Math.max(0, Math.floor(r.score / 50));
       if (global.ArcadeWallet && tokens) global.ArcadeWallet.earn(tokens, 'costbot-hero');
 
       // record best (by score) per song+difficulty
@@ -325,6 +328,7 @@
       meta.plays++; persist();
 
       run.result = { grade, acc: Math.round(acc * 100), tokens, best: better };
+      run.resultAt = performance.now();   // for the crossfade into the results screen
       state = 'result';
       emit('run:end', { song: r.song.key, diff: diffKey });
 
@@ -364,7 +368,7 @@
       }
 
       const j = bestDt <= 0.045 ? 'perfect' : bestDt <= 0.09 ? 'great' : 'ok';
-      const base = j === 'perfect' ? 1500 : j === 'great' ? 900 : 400;
+      const base = j === 'perfect' ? 150 : j === 'great' ? 90 : 40;
       const goldX = best.type === 'gold' ? 3 : 1;
       run.combo++; run.maxCombo = Math.max(run.maxCombo, run.combo);
       const newMult = multFor(run.combo);
@@ -542,8 +546,13 @@
         for (const n of run.chart.notes) {
           if (n.type === 'hold' && n.judged && !n.holdScored && now >= n.holdEnd) {
             n.holdScored = true;
-            if (n.held) { const g = 2000 * run.mult; run.score += g; pop(run, n.lane, 'HOLD +' + fmt$(g), '#8fe' ); burst(run, n.lane, 10); SFX.great(); }
+            // hold bonus scales with how long it was held, so long holds pay off
+            if (n.held) { const secs = n.holdEnd - n.time; const g = Math.round((60 + secs * 90) * run.mult / 5) * 5; run.score += g; pop(run, n.lane, 'HOLD +' + fmt$(g), '#8fe'); burst(run, n.lane, 10); SFX.great(); }
           }
+        }
+        // fade the music out over the final ~2.8s so the song doesn't cut abruptly
+        if (music && now > run.chart.endTime - 2.8) {
+          music.setVolume(0.8 * clamp((run.chart.endTime - now) / 2.8, 0, 1));
         }
         if (now > run.chart.endTime) { endSong(); }
       }
@@ -936,6 +945,9 @@
       if (!run || !run.result) return;
       resultHit = [];
       const r = run.result, cx = W / 2;
+      // crossfade the results in over the highway so the finish isn't an abrupt snap
+      const fa = clamp((performance.now() - (run.resultAt || 0)) / 900, 0, 1);
+      ctx2d.globalAlpha = fa;
       ctx2d.fillStyle = 'rgba(5,6,15,.82)'; ctx2d.fillRect(0, 0, W, H);
       ctx2d.textAlign = 'center';
       ctx2d.fillStyle = run.failed ? '#ff5d6c' : '#ffd76a';
@@ -964,6 +976,7 @@
       ctx2d.fillStyle = 'rgba(255,255,255,.1)'; rrect(bx + bw + gap, by, bw, 46, 11); ctx2d.fill();
       ctx2d.fillStyle = '#dfe8f7'; ctx2d.fillText('Song select', bx + bw + gap + bw / 2, by + 30);
       resultHit.push({ x: bx + bw + gap, y: by, w: bw, h: 46, kind: 'menu' });
+      ctx2d.globalAlpha = 1;
     }
     function handleResultClick(x, y) {
       for (const h of resultHit) if (x >= h.x && x <= h.x + h.w && y >= h.y && y <= h.y + h.h) {
