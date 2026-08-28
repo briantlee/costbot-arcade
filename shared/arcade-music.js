@@ -81,6 +81,40 @@
     // think-cue leans on, resolving home on the last bar. Am F E Am.
     dojoThink:[{ root: 45, tones: [0, 3, 7] }, { root: 41, tones: [0, 4, 7] },
                { root: 40, tones: [0, 4, 7] }, { root: 45, tones: [0, 3, 7] }],   // Am F E Am
+    // CostBot Hero — Graviton Groove. A driving E-minor loop, brighter than the
+    // industrial boss: Em C G D lifts on the G and turns on the D. Gives the
+    // rhythm chart a wide contour so the melody sweeps across all five lanes.
+    chGraviton:[{ root: 40, tones: [0, 3, 7] }, { root: 36, tones: [0, 4, 7] },
+               { root: 43, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] }],   // Em C G D
+    // CostBot Hero — "Livin' on a Spreadsheet". The four-chord arena-rock anthem,
+    // I–V–vi–IV in G, so the hook resolves home every four bars.
+    chRock:   [{ root: 43, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] },
+               { root: 40, tones: [0, 3, 7] }, { root: 36, tones: [0, 4, 7] }],   // G D Em C
+    // CostBot Hero — "Stranger Costs". A minor with a dark harmonic-minor V (E major),
+    // the G# in that last chord is the horror turn. The arpeggio does the work.
+    chStranger:[{ root: 45, tones: [0, 3, 7] }, { root: 41, tones: [0, 4, 7] },
+               { root: 48, tones: [0, 4, 7] }, { root: 40, tones: [0, 4, 7] }],   // Am F C E
+    // CostBot Hero — "Game of Loans". 16 bars in C minor, four four-bar sections so
+    // the song evolves: A verse (dark, low), B build, C climax (the soar), D
+    // breakdown + fill back to the top. Roots dropped an octave for a heavy low end.
+    chThrones:[{ root: 36, tones: [0, 3, 7] }, { root: 32, tones: [0, 4, 7] },   // A: Cm Ab
+               { root: 39, tones: [0, 4, 7] }, { root: 34, tones: [0, 4, 7] },   //    Eb Bb
+               { root: 32, tones: [0, 4, 7] }, { root: 39, tones: [0, 4, 7] },   // B: Ab Eb
+               { root: 34, tones: [0, 4, 7] }, { root: 36, tones: [0, 3, 7] },   //    Bb Cm
+               { root: 36, tones: [0, 3, 7] }, { root: 32, tones: [0, 4, 7] },   // C: Cm Ab
+               { root: 39, tones: [0, 4, 7] }, { root: 34, tones: [0, 4, 7] },   //    Eb Bb
+               { root: 32, tones: [0, 4, 7] }, { root: 34, tones: [0, 4, 7] },   // D: Ab Bb
+               { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] }],  //    Cm Cm
+    // CostBot Hero — "Imperial Markup". 16 bars in G minor: A the theme, B the
+    // lyrical middle, C the big octave-up statement, D dark bridge + fill.
+    chImperial:[{ root: 43, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },  // A: Gm Gm
+               { root: 39, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] },   //    Eb D
+               { root: 43, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },   // B: Gm Gm
+               { root: 39, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] },   //    Eb D
+               { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] },   // C: Cm Cm
+               { root: 43, tones: [0, 3, 7] }, { root: 38, tones: [0, 4, 7] },   //    Gm D
+               { root: 39, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] },   // D: Eb D
+               { root: 43, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] }],  //    Gm Gm
   };
 
   // ===========================================================================
@@ -196,6 +230,110 @@
       76, _, _, _, 77, _, _, _, 81, _, 77, _, 76, _, _, _,
       74, _, 70, _, 69, _, _, _, _, _, _, _, _, _, _, _,
     ],
+    // CostBot Hero — "Megabill Mash". A funky A-minor head over Am F C G: stabby,
+    // syncopated, and it ranges 65->79 so the falling-note chart derived from it
+    // sweeps the whole highway. Verse (bars 1-2) then a climbing turnaround.
+    chMegabill: [
+      // Am — funk stabs, A up to E and back
+      69, _, 72, _, 76, _, 74, 72, _, 69, _, 67, 69, _, _, _,
+      // F — lift toward the octave
+      65, _, 69, _, 72, _, 77, _, 76, _, 72, _, _, 69, _, _,
+      // C — bright answer
+      72, _, 76, _, 79, _, 76, 74, _, 72, _, 71, 72, _, _, _,
+      // G — climbing turnaround back to the top
+      67, _, 71, _, 74, _, 79, _, 78, _, 74, _, 71, _, 74, _,
+    ],
+    // CostBot Hero — "Graviton Groove". Fast E-minor drive over Em C G D with a
+    // blue note; wide leaps so the hard chart hits every lane. The B->D climb in
+    // the last bar is the hook that resolves back to the top of the loop.
+    chGraviton: [
+      // Em — gallop up the triad
+      64, _, 67, _, 71, _, 74, _, 71, _, 67, _, 64, _, _, _,
+      // C — turn and fall, blue note on the way down
+      72, _, _, 71, _, 67, _, 64, _, 67, _, 71, _, 72, _, _,
+      // G — reach for the octave
+      74, _, 71, _, 67, _, 71, _, 74, _, 79, _, 76, _, 74, _,
+      // D — the climb-and-drop hook
+      66, _, 69, _, 74, _, 78, _, 76, _, 74, _, 69, _, 66, _,
+    ],
+    // CostBot Hero — "Livin' on a Spreadsheet". A big singable arena-rock hook
+    // over G–D–Em–C. Every onset sits on a beat or an off-beat 8th (never a lone
+    // 16th), so the falling-note chart lands exactly on the pulse you hear.
+    chRock: [
+      // G (I) — the hook enters, G B B D D B
+      67, _, _, _, 71, _, 71, _, 74, _, _, _, 74, _, 71, _,
+      // D (V) — answer climbs, A D F# E D
+      69, _, _, _, 74, _, _, _, 78, _, 76, _, 74, _, _, _,
+      // Em (vi) — the lift, B D E F# E D
+      71, _, _, _, 74, _, 76, _, 78, _, _, _, 76, _, 74, _,
+      // C (IV) — peak on the octave and resolve, E G F# E D C
+      76, _, _, _, 79, _, 78, _, 76, _, 74, _, 72, _, _, _,
+    ],
+    // CostBot Hero — "Stranger Costs". A steady 8th-note analog arpeggio that climbs
+    // each chord, peaks, and falls — the Carpenter/Stranger Things signature. The
+    // note stream you hit IS this arpeggio, so it can't drift from the music.
+    chStranger: [
+      // Am — A C E climbing to C6 and back
+      69, _, 72, _, 76, _, 81, _, 84, _, 81, _, 76, _, 72, _,
+      // F — F A C up to A5 and down
+      65, _, 69, _, 72, _, 77, _, 81, _, 77, _, 72, _, 69, _,
+      // C — C E G reaching E6, the peak
+      72, _, 76, _, 79, _, 84, _, 88, _, 84, _, 79, _, 76, _,
+      // E (harmonic-minor V) — the dark G# turn, E G# B
+      64, _, 68, _, 71, _, 76, _, 80, _, 76, _, 71, _, 68, _,
+    ],
+    // CostBot Hero — "Game of Loans". 16 bars. A: the cell low and menacing. B: it
+    // climbs. C: a huge soar (peaks at 91). D: a sparse breakdown (the kit drops)
+    // then an ascending fill that slingshots back to the top. Every loop tells the
+    // whole arc, so it never sits on one idea.
+    chThrones: [
+      // -- A: dark low verse --------------------------------------------------
+      43, _, 48, _, 51, _, 53, _, 55, _, 51, _, 48, _, 43, _,   // Cm
+      44, _, 48, _, 51, _, 53, _, 56, _, 51, _, 48, _, 44, _,   // Ab
+      51, _, 55, _, 58, _, 63, _, 58, _, 55, _, 51, _, 55, _,   // Eb
+      46, _, 50, _, 53, _, 55, _, 53, _, 50, _, 46, _, 43, _,   // Bb
+      // -- B: the build -------------------------------------------------------
+      48, _, 51, _, 56, _, 60, _, 63, _, 60, _, 56, _, 51, _,   // Ab
+      51, _, 55, _, 58, _, 63, _, 67, _, 63, _, 58, _, 55, _,   // Eb
+      53, _, 58, _, 62, _, 65, _, 70, _, 65, _, 62, _, 58, _,   // Bb
+      55, _, 60, _, 63, _, 67, _, 72, _, 67, _, 63, _, 60, _,   // Cm
+      // -- C: the climax / soar ----------------------------------------------
+      72, _, 75, _, 79, _, 84, _, 86, _, 84, _, 79, _, 75, _,   // Cm
+      72, _, 75, _, 80, _, 84, _, 87, _, 84, _, 80, _, 75, _,   // Ab
+      75, _, 79, _, 82, _, 87, _, 91, _, 87, _, 82, _, 79, _,   // Eb (peak 91)
+      82, _, 79, _, 75, _, 70, _, 67, _, 63, _, 58, _, 55, _,   // Bb (dramatic fall)
+      // -- D: breakdown (kit drops) then fill --------------------------------
+      51, _, _, _, 55, _, _, _, 58, _, _, _, 55, _, _, _,       // Ab (sparse)
+      50, _, _, _, 53, _, _, _, 58, _, _, _, 53, _, _, _,       // Bb (sparse)
+      48, _, 51, _, 55, _, 60, _, 63, _, 60, _, 55, _, 51, _,   // Cm (rebuild)
+      55, _, 51, _, 48, _, 51, _, 55, _, 58, _, 60, _, 63, _,   // Cm (ascending fill)
+    ],
+    // CostBot Hero — "Imperial Markup". 16 bars. A: the theme (G G G / Eb–Bb, the
+    // dotted Bb on the 'a' of 4 is the menace). B: the lyrical middle rises and
+    // leans on the leading tone. C: the big statement an octave up. D: a dark
+    // sparse bridge (kit drops) then a fill back to the march. Held notes = long cuts.
+    chImperial: [
+      // -- A: the theme -------------------------------------------------------
+      67, _, _, _, 67, _, _, _, 67, _, _, _, 63, _, _, 70,      // Gm  G G G Eb Bb
+      67, _, _, _, 63, _, _, 70, 67, _, _, _, _, _, _, _,       // Gm  G Eb Bb G (ring)
+      74, _, _, _, 74, _, _, _, 74, _, _, _, 75, _, _, 70,      // Eb  D D D Eb Bb
+      67, _, _, _, 63, _, _, 70, 67, _, _, _, _, _, _, _,       // D   G Eb Bb G
+      // -- B: the lyrical middle ---------------------------------------------
+      70, _, _, _, 72, _, _, _, 74, _, _, _, 75, _, _, 74,      // Gm  Bb C D Eb D
+      72, _, _, _, 70, _, _, _, 67, _, _, _, 63, _, _, _,       // Gm  C Bb G Eb
+      70, _, _, _, 72, _, _, _, 74, _, _, _, 79, _, _, 75,      // Eb  Bb C D G Eb
+      74, _, _, _, 70, _, _, _, 67, _, _, _, 66, _, _, _,       // D   D Bb G F# (tension)
+      // -- C: the big statement, octave up -----------------------------------
+      79, _, _, _, 79, _, _, _, 79, _, _, _, 75, _, _, 82,      // Cm  G G G Eb Bb (up 8ve)
+      79, _, _, _, 75, _, _, 82, 79, _, _, _, _, _, _, _,       // Cm  G Eb Bb G
+      86, _, _, _, 86, _, _, _, 86, _, _, _, 87, _, _, 82,      // Gm  D D D Eb Bb (peak 87)
+      79, _, _, _, 75, _, _, 82, 79, _, _, _, _, _, _, _,       // D   G Eb Bb G
+      // -- D: dark bridge (kit drops) then fill ------------------------------
+      63, _, _, _, _, _, _, _, 58, _, _, _, _, _, _, _,         // Eb  Eb ... Bb (sparse)
+      62, _, _, _, _, _, _, _, 66, _, _, _, _, _, _, _,         // D   D ... F# (sparse)
+      67, _, _, _, 67, _, _, _, 67, _, _, _, 63, _, _, 70,      // Gm  the theme returns
+      67, _, _, _, 63, _, _, 70, 63, _, 66, _, 67, _, _, _,     // Gm  fill/turnaround
+    ],
   };
 
   // ===========================================================================
@@ -304,6 +442,65 @@
           + 'about 2.5 dB under the mat track so it stays out of the way of thinking.',
       prog: P.dojoThink, lead: L.dojoThink, drums: false, pad: 'strings',
       arpEvery: 2, bassEvery: 8, gain: 0.54, voices: { lead: 'chip', arp: 'square' },
+    },
+
+    // ---- CostBot Hero — the rhythm cabinet ----------------------------------
+    // The title track. Funky four-on-the-floor synthwave; the falling-note chart
+    // is generated from this song's own lead line, so the player plays the tune.
+    ch_megabill: {
+      title: 'Megabill Mash', influence: 'Synthwave funk', bpm: 126, key: 'A minor',
+      desc: 'CostBot Hero title track. Stabby saw lead over Am–F–C–G, four-on-the-floor '
+          + 'kit, sub bass and a 16th arp. Cut the spend on the beat.',
+      prog: P.aeolian, lead: L.chMegabill, drums: 'four', pad: 'saw',
+      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'saw' },
+    },
+    // The hard track. Faster, double-kick, distorted lead — the anomaly boss song.
+    ch_graviton: {
+      title: 'Graviton Groove', influence: 'Driving synth', bpm: 140, key: 'E minor',
+      desc: 'CostBot Hero hard track. Double-kick drive, 16th bass gallop and a '
+          + 'distorted saw lead over Em–C–G–D. Rightsize to the beat.',
+      prog: P.chGraviton, lead: L.chGraviton, drums: 'double', pad: 'saw',
+      arpEvery: 1, bassEvery: 1, gain: 0.95, voices: { lead: 'dist' },
+    },
+    // The headline track — 80s arena rock. Power chords, rock backbeat, a big
+    // distorted-guitar hook whose notes fall right on the beat.
+    ch_rock: {
+      title: "Livin' on a Spreadsheet", influence: 'Bon Jovi · arena rock', bpm: 126, key: 'G major',
+      desc: 'CostBot Hero arena-rock anthem. Power chords over G–D–Em–C with a rock backbeat and '
+          + 'a big singable distorted-guitar hook — every note lands on the beat.',
+      prog: P.chRock, lead: L.chRock, drums: 'rock', pad: 'power',
+      arpEvery: 4, bassEvery: 2, gain: 0.95, voices: { lead: 'dist' },
+    },
+    // Electronic synth-horror — the Stranger Things / John Carpenter lane. A climbing
+    // analog arpeggio over a throbbing 8th-note bass and a four-on-the-floor pulse.
+    ch_stranger: {
+      title: 'Stranger Costs', influence: 'Stranger Things · analog synth', bpm: 108, key: 'A minor',
+      desc: 'CostBot Hero synth-horror cue. A climbing analog arpeggio over a throbbing bass with '
+          + 'a dark harmonic-minor turn — the falling notes ARE the arpeggio, cascading the lanes.',
+      prog: P.chStranger, lead: L.chStranger, drums: 'four', pad: 'saw',
+      arpEvery: 0, bassEvery: 2, gain: 0.85, voices: { lead: 'saw' },
+    },
+    // Dark epic — the Game of Thrones lane, heavier cut. 16-bar song: double-kick
+    // drive, a 16th string ostinato, deep low end and a distorted lead over the
+    // cell — verse, build, a soaring climax, then a breakdown and a fill home.
+    ch_thrones: {
+      title: 'Game of Loans', influence: 'Game of Thrones · dark epic', bpm: 132, key: 'C minor',
+      desc: 'CostBot Hero dark-epic anthem, ~26s: a low menacing verse, a build, a huge soaring '
+          + 'climax and a breakdown that falls away before a fill slingshots back to the top.',
+      prog: P.chThrones, lead: L.chThrones, drums: 'double', pad: 'strings', bars: 16,
+      breakBars: [12, 13], fillBar: 15, crashBars: [8, 12],
+      arpEvery: 1, bassEvery: 1, gain: 0.95, voices: { lead: 'dist' },
+    },
+    // Villain march — the Imperial March lane. 16-bar song: heavy brass power
+    // chords and a martial kit through the theme, a lyrical middle, a big octave-up
+    // statement, then a dark bridge where the kit drops and a fill back in.
+    ch_imperial: {
+      title: 'Imperial Markup', influence: 'Star Wars · Imperial March', bpm: 104, key: 'G minor',
+      desc: 'CostBot Hero villain march, ~37s: the menacing G–G–G / Eb–Bb theme, a lyrical middle, '
+          + 'a huge octave-up statement, then a dark bridge that drops out before the march returns.',
+      prog: P.chImperial, lead: L.chImperial, drums: 'march', pad: 'power', bars: 16,
+      breakBars: [12, 13], fillBar: 15, crashBars: [8, 12],
+      arpEvery: 0, bassEvery: 2, gain: 0.95, voices: { lead: 'brass' },
     },
   };
 
