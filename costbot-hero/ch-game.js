@@ -17,15 +17,8 @@
   // The two new tracks lead; the rest are existing arcade bangers that already
   // carry a singable lead line, so they chart cleanly.
   const SONGS = [
-    { key: 'ch_stranger', name: 'Stranger Costs',  sub: 'Analog synth-horror · 108', tag: '' },
-    { key: 'ch_thrones',  name: 'Game of Loans',   sub: 'Dark epic · 132',           tag: '' },
-    { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Villain march · 104',       tag: 'NEW' },
-    { key: 'overworld',   name: 'Ledger Fields',   sub: 'Zelda adventure · 124',     tag: '' },
-    { key: 'ch_rock',     name: "Livin' on a Spreadsheet", sub: '80s arena rock · 126', tag: '' },
-    { key: 'ch_megabill', name: 'Megabill Mash',  sub: 'Synthwave funk · 126',  tag: '' },
-    { key: 'ch_graviton', name: 'Graviton Groove', sub: 'Driving synth · 140',   tag: '' },
-    { key: 'sonicboom',   name: 'Invoice Boom',    sub: '80s arena · 138',       tag: '' },
-    { key: 'dojo',        name: 'Dojo',            sub: 'Chiptune kung-fu · 132', tag: '' },
+    { key: 'ch_avengers', name: 'The Savengers',   sub: 'Avengers, rocked · 148', tag: 'NEW' },
+    { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Villain march · 104',    tag: '' },
   ];
 
   const DIFFS = {
@@ -95,6 +88,34 @@
     resize();
     global.addEventListener('resize', resize);
 
+    // ---- outer-space starfield backdrop ----
+    const stars = [];
+    for (let i = 0; i < 160; i++) stars.push({
+      x: Math.random(), y: Math.random(), r: Math.random() * 1.3 + 0.3,
+      tw: Math.random() * 2 + 0.4, ph: Math.random() * 6.283,
+      c: Math.random() < 0.16 ? '#bcd0ff' : (Math.random() < 0.18 ? '#ffe4bc' : '#ffffff'),
+    });
+    function drawStars() {
+      const t = performance.now() / 1000;
+      // a couple of faint nebulae for depth
+      const neb = (nx, ny, nr, col) => {
+        const gg = ctx2d.createRadialGradient(nx, ny, 0, nx, ny, nr);
+        gg.addColorStop(0, col); gg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx2d.fillStyle = gg; ctx2d.fillRect(0, 0, W, H);
+      };
+      neb(W * 0.5, H * 0.16, Math.max(W, H) * 0.4, 'rgba(96,70,190,0.12)');
+      neb(W * 0.82, H * 0.72, Math.max(W, H) * 0.34, 'rgba(40,120,180,0.08)');
+      // drifting, twinkling stars
+      for (const s of stars) {
+        const a = 0.30 + 0.45 * Math.sin(t * s.tw + s.ph);
+        if (a <= 0.02) continue;
+        const yy = ((s.y + t * 0.006) % 1) * H;
+        ctx2d.globalAlpha = a; ctx2d.fillStyle = s.c;
+        ctx2d.beginPath(); ctx2d.arc(s.x * W, yy, s.r, 0, 6.283); ctx2d.fill();
+      }
+      ctx2d.globalAlpha = 1;
+    }
+
     // ---- persistent meta ----
     const store = loadStore();
     const meta = Object.assign({ records: {}, plays: 0, lastSong: 0, lastDiff: 'medium', calibMs: 0 },
@@ -155,6 +176,12 @@
       const loopSecs = LL * stepDur;
       const loops = Math.max(2, Math.ceil(TARGET_SECS / loopSecs));
       const total = Math.min(loops * LL, Math.floor(MAX_NOTE_SECS / stepDur));
+      // Stop spawning notes ~4s before the end and cut on a bar boundary, so the
+      // song winds down with a clean, note-free outro instead of tiles right up to
+      // the last second (which read as mismatched with the music).
+      const tailSteps = Math.max(16, Math.round(4 / stepDur));
+      let noteCut = Math.floor((total - tailSteps) / 16) * 16;
+      if (noteCut < 16) noteCut = total;
 
       let globalHi = -Infinity;
       for (const m of lead) if (m != null && m > globalHi) globalHi = m;
@@ -167,7 +194,7 @@
       // No ramp — every kept note is a note you actually hear, so chart == tune.
       const kept = [];
       let lastKept = -Infinity;
-      for (let S = 0; S < total; S++) {
+      for (let S = 0; S < noteCut; S++) {
         const src = (startStepAbs + S) % LL;
         const m = lead[src];
         if (m == null) continue;
@@ -209,7 +236,7 @@
 
       // sparse "do-not-hit" traps on Hard, placed on empty grid slots
       if (diff.traps) {
-        for (let S = 24; S < total; S += 41) {
+        for (let S = 24; S < noteCut; S += 41) {
           const time = firstStep0 + (startStepAbs + S) * stepDur + lat;
           const lane = (S * 7) % diff.lanes;
           const clash = notes.some(n => n.lane === lane && Math.abs(n.time - time) < 0.14);
@@ -218,7 +245,10 @@
       }
 
       notes.sort((a, b) => a.time - b.time);
-      return { notes, stepDur, endTime: (notes.length ? notes[notes.length - 1].time : firstStep0) + 2.0 };
+      // end a few seconds after the last note lands, so the finish is a clean,
+      // note-free wind-down rather than tiles right up to the results screen
+      const outroEnd = firstStep0 + (startStepAbs + noteCut) * stepDur + lat + 3.0;
+      return { notes, stepDur, endTime: outroEnd };
     }
 
     // ---- start a song -----------------------------------------------------
@@ -536,6 +566,7 @@
       const bg = ctx2d.createLinearGradient(0, 0, 0, H);
       bg.addColorStop(0, '#0a0f22'); bg.addColorStop(1, '#05060f');
       ctx2d.fillStyle = bg; ctx2d.fillRect(0, 0, W, H);
+      drawStars();
 
       if (state === 'menu') { drawMenu(); drawOverlay(); return; }
       if (!run) return;

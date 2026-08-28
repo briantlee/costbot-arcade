@@ -115,6 +115,17 @@
                { root: 43, tones: [0, 3, 7] }, { root: 38, tones: [0, 4, 7] },   //    Gm D
                { root: 39, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] },   // D: Eb D
                { root: 43, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] }],  //    Gm Gm
+    // CostBot Hero — "The Savengers". The Avengers bass ostinato D–Eb–E–Bb, dropped
+    // an octave and voiced as power chords for the rocked-up cut; same four roots
+    // repeat under all four sections (matching the MIDI).
+    chAvengers:[{ root: 38, tones: [0, 7] }, { root: 39, tones: [0, 7] },   // D Eb
+               { root: 40, tones: [0, 7] }, { root: 34, tones: [0, 7] },    // E Bb
+               { root: 38, tones: [0, 7] }, { root: 39, tones: [0, 7] },
+               { root: 40, tones: [0, 7] }, { root: 34, tones: [0, 7] },
+               { root: 38, tones: [0, 7] }, { root: 39, tones: [0, 7] },
+               { root: 40, tones: [0, 7] }, { root: 34, tones: [0, 7] },
+               { root: 38, tones: [0, 7] }, { root: 39, tones: [0, 7] },
+               { root: 40, tones: [0, 7] }, { root: 34, tones: [0, 7] }],
   };
 
   // ===========================================================================
@@ -334,6 +345,32 @@
       67, _, _, _, 67, _, _, _, 67, _, _, _, 63, _, _, 70,      // Gm  the theme returns
       67, _, _, _, 63, _, _, 70, 63, _, 66, _, 67, _, _, _,     // Gm  fill/turnaround
     ],
+    // CostBot Hero — "The Savengers". The actual Avengers theme (Silvestri),
+    // transcribed from MIDI into a faithful 16-bar loop: the low ostinato intro,
+    // the heroic melody, the same melody an octave up, then the melody again.
+    // Rocked up in the track config (fast, double-kick, distorted).
+    chAvengers: [
+      // ostinato intro
+      62, 62, 62, _, _, _, 62, 62, 62, _, _, _, 62, 62, 62, 62,
+      63, 63, 63, _, _, _, 63, 63, 64, _, _, _, 64, 64, 64, 64,
+      65, 65, 65, _, _, _, 65, 65, 64, _, _, _, 64, 64, 64, 64,
+      63, 63, 63, _, _, _, 63, 63, 58, _, _, _, 60, _, _, _,
+      // the theme
+      67, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      74, _, _, _, 72, _, _, 70, 70, _, _, _, 72, _, _, 74,
+      74, _, _, _, 67, _, _, _, _, _, _, _, _, _, _, _,
+      74, _, _, _, 72, _, _, 70, 70, _, _, _, 69, _, _, _,
+      // the theme, an octave up (triumphant)
+      79, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      86, _, _, _, 84, _, _, 82, 82, _, _, _, 84, _, _, 86,
+      86, _, _, _, 79, _, _, _, _, _, _, _, _, _, _, _,
+      86, _, _, _, 84, _, _, 82, 82, _, _, _, 81, _, _, _,
+      // the theme again, resolving into the loop
+      67, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      74, _, _, _, 72, _, _, 70, 70, _, _, _, 72, _, _, 74,
+      74, _, _, _, 67, _, _, _, _, _, _, _, _, _, _, _,
+      74, _, _, _, 72, _, _, 70, 70, _, _, _, 69, _, _, _,
+    ],
   };
 
   // ===========================================================================
@@ -501,6 +538,17 @@
       prog: P.chImperial, lead: L.chImperial, drums: 'march', pad: 'power', bars: 16,
       breakBars: [12, 13], fillBar: 15, crashBars: [8, 12],
       arpEvery: 0, bassEvery: 2, gain: 0.95, voices: { lead: 'brass' },
+    },
+    // The Avengers theme, rocked up — transcribed from MIDI, then cranked: fast,
+    // double-kick gallop, 16th power-chord bass and a distorted lead over the
+    // ostinato intro, the heroic melody and its octave-up statement.
+    ch_avengers: {
+      title: 'The Savengers', influence: 'Avengers theme (Silvestri), rocked up', bpm: 148, key: 'D',
+      desc: 'The Avengers theme cranked to 11: the low ostinato intro, the heroic melody and its '
+          + 'octave-up statement over a double-kick gallop, 16th power-chord bass and a distorted lead.',
+      prog: P.chAvengers, lead: L.chAvengers, drums: 'double', pad: 'power', bars: 16,
+      fillBar: 15, crashBars: [0, 8],
+      arpEvery: 0, bassEvery: 1, gain: 0.95, voices: { lead: 'dist' },
     },
   };
 
