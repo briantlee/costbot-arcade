@@ -41,6 +41,9 @@
   // Lanes are vendors — colour + name read left-to-right across the highway.
   const PALETTE = ['#ff9900', '#4285f4', '#00b7ff', '#ff3621', '#29b5e8'];
   const VENDORS = ['AWS', 'GCP', 'Azure', 'Databricks', 'Snowflake'];
+  // savings-lever icons shown on the note faces (rightsize, delete idle, schedule
+  // off, commit/RI, cold storage, cleanup, consolidate, cut)
+  const SAVINGS = ['📉', '🗑️', '⏸️', '🔒', '❄️', '🧹', '📦', '🔻'];
   const KEYS = { 3: ['s', 'd', 'f'], 4: ['a', 's', 'd', 'f'], 5: ['a', 's', 'd', 'f', 'g'] };
 
   // FinOps-flavoured judgment names.
@@ -48,7 +51,8 @@
   const COMBO_CALLS = { 10: 'ON THE BOOKS', 25: 'QUARTERLY SAVINGS!', 50: 'FISCAL LEGEND!' };
 
   const BILL_MAX = 100;
-  const TARGET_SECS = 155;    // aimed song length (~2.5 min); rounded up to whole loops
+  const TARGET_SECS = 105;    // aimed note span; capped so a whole run stays under ~2 min
+  const MAX_NOTE_SECS = 110;  // hard cap on chart length regardless of loop rounding
   const PREROLL = 2.6;        // seconds of countdown before the first note
 
   const STORE_KEY = 'costbot.hero.v1';
@@ -150,7 +154,7 @@
       const stepDur = 60 / track.bpm / 4;
       const loopSecs = LL * stepDur;
       const loops = Math.max(2, Math.ceil(TARGET_SECS / loopSecs));
-      const total = loops * LL;
+      const total = Math.min(loops * LL, Math.floor(MAX_NOTE_SECS / stepDur));
 
       let globalHi = -Infinity;
       for (const m of lead) if (m != null && m > globalHi) globalHi = m;
@@ -195,8 +199,9 @@
         const holdEnd = gap >= diff.holdGap ? k.time + Math.min(gap, 10) * stepDur : 0;
         let spend = 250 + (Math.abs(k.midi * 7 + lane * 53) % 40) * 75;
         if (gold) spend *= 4;
+        const icon = gold ? '💰' : SAVINGS[Math.abs(k.midi + lane) % SAVINGS.length];
         notes.push({
-          time: k.time, lane, midi: k.midi, spend,
+          time: k.time, lane, midi: k.midi, spend, icon,
           type: gold ? 'gold' : (holdEnd ? 'hold' : 'tap'),
           holdEnd, judged: false, held: false, holdScored: false,
         });
@@ -771,10 +776,18 @@
           ctx2d.fillStyle = col; rrect(cx - rW / 2, y - rH / 2, rW, rH, 6); ctx2d.fill();
           ctx2d.shadowBlur = 0;
           ctx2d.fillStyle = 'rgba(255,255,255,.85)'; rrect(cx - rW / 2, y - rH / 2, rW, 4 * s + 1, 2); ctx2d.fill();
-          if (s > 0.55) {
-            ctx2d.fillStyle = gold ? '#5a4300' : 'rgba(6,12,22,.82)'; ctx2d.textAlign = 'center';
-            ctx2d.font = '800 ' + Math.round(13 * s) + 'px Segoe UI, system-ui, sans-serif';
-            ctx2d.fillText((gold ? '💰' : '') + fmtK(n.spend), cx, y + 4 * s);
+          ctx2d.textAlign = 'center';
+          if (s > 0.72) {
+            // near: savings-type icon + the spend to cut
+            ctx2d.font = Math.round(15 * s) + 'px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+            ctx2d.fillText(n.icon, cx - rW * 0.22, y + 5 * s);
+            ctx2d.fillStyle = gold ? '#5a4300' : 'rgba(6,12,22,.9)';
+            ctx2d.font = '800 ' + Math.round(12 * s) + 'px Segoe UI, system-ui, sans-serif';
+            ctx2d.fillText(fmtK(n.spend), cx + rW * 0.14, y + 4 * s);
+          } else if (s > 0.45) {
+            // farther: just the icon
+            ctx2d.font = Math.round(16 * s) + 'px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+            ctx2d.fillText(n.icon, cx, y + 5 * s);
           }
         }
       }
@@ -822,6 +835,13 @@
     // ---- hud ----
     function drawHud() {
       if (!run) return;
+      // song progress line across the very top (fills left->right as the song plays)
+      const prog = clamp((actx.currentTime - run.beginTime) / Math.max(0.001, run.chart.endTime - run.beginTime), 0, 1);
+      ctx2d.fillStyle = 'rgba(255,255,255,.07)'; ctx2d.fillRect(0, 0, W, 4);
+      const pgrad = ctx2d.createLinearGradient(0, 0, W, 0);
+      pgrad.addColorStop(0, '#7fd6c4'); pgrad.addColorStop(1, '#ffd76a');
+      ctx2d.fillStyle = pgrad; ctx2d.fillRect(0, 0, W * prog, 4);
+
       // top-left: song + difficulty, then the bill meter (grouped, no stray text)
       ctx2d.textAlign = 'left';
       ctx2d.fillStyle = '#dfe8f7'; ctx2d.font = '700 15px Segoe UI, system-ui, sans-serif';
