@@ -620,6 +620,11 @@
           total: chart.notes.filter(n => n.type !== 'trap').length,
           laneFlash: new Array(diff.lanes).fill(0),
           pops: [], parts: [], shake: 0, tint: 0, hostBob: 0, tip: null, tipN: 0, anom: false,
+          // hot-streak visuals: heat eases toward the current combo tier (see
+          // multFor) so notes/highway "catch fire" smoothly rather than
+          // snapping in/out at the exact combo thresholds; embers are the
+          // ambient sparks that drift up off the highway while heat is up.
+          heat: 0, embers: [], emberAcc: 0, emberAcc2: 0,
           failed: false,
           bio, bioProps,
           audioSrcNode: null, audioGain: null,   // set below for real-audio songs
@@ -1000,6 +1005,50 @@
       if (run.tip) { run.tip.life -= dt; if (run.tip.life <= 0) run.tip = null; }
       for (const p of run.parts) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 640 * dt; p.life -= dt * 1.3; }
       run.parts = run.parts.filter(p => p.life > 0);
+
+      // hot-streak heat: eased toward the CURRENT combo tier (not the peak),
+      // so a miss that resets run.mult back to 1 cools the highway back down
+      // instead of leaving it permanently on fire after one good streak.
+      const heatTarget = run.mult >= 8 ? 1 : run.mult >= 4 ? 0.6 : run.mult >= 2 ? 0.28 : 0;
+      run.heat += (heatTarget - run.heat) * clamp(dt * 2.5, 0, 1);
+      // fever tier: a small constant tremor on top of the normal hit/combo
+      // shake, so the screen stays visibly "alive" the whole time you're at
+      // ×8 instead of only jolting on individual hits.
+      if (run.mult >= 8 && state === 'play') run.shake = Math.max(run.shake, 2.2);
+      if (run.heat > 0.02 && state === 'play') {
+        run.emberAcc += dt * (5 + run.heat * 30);
+        while (run.emberAcc > 1) {
+          run.emberAcc -= 1;
+          const g = geom(run.diff.lanes);
+          run.embers.push({
+            x: g.x0 + Math.random() * g.w, y: hitY() + Math.random() * 18 - 6,
+            vx: (Math.random() - 0.5) * 22, vy: -(50 + Math.random() * 90 + run.heat * 90),
+            life: 1, maxLife: 0.7 + Math.random() * 0.8, sway: Math.random() * 6.283,
+            r: (1.6 + Math.random() * 2.6) * (0.5 + run.heat),
+          });
+        }
+        // fever tier (top combo): the WHOLE screen catches, not just the
+        // highway — embers rise off the bottom edge across the full width,
+        // the "cabinet itself is on fire" payoff for reaching ×8.
+        if (run.mult >= 8) {
+          run.emberAcc2 += dt * 14;
+          while (run.emberAcc2 > 1) {
+            run.emberAcc2 -= 1;
+            run.embers.push({
+              x: Math.random() * W, y: H + Math.random() * 20,
+              vx: (Math.random() - 0.5) * 14, vy: -(70 + Math.random() * 120),
+              life: 1, maxLife: 1.1 + Math.random() * 0.9, sway: Math.random() * 6.283,
+              r: 1.8 + Math.random() * 3,
+            });
+          }
+        }
+      }
+      for (const e of run.embers) {
+        e.x += e.vx * dt + Math.sin(performance.now() / 1000 + e.sway) * 6 * dt;
+        e.y += e.vy * dt;
+        e.life -= dt / e.maxLife;
+      }
+      run.embers = run.embers.filter(e => e.life > 0);
     }
 
     function draw() {
@@ -1305,18 +1354,99 @@
           }
         } else {
           const gold = n.type === 'gold';
-          const col = PALETTE[n.lane];               // gold notes keep the lane colour...
-          const tlen = 82 * s;                       // comet trail toward the horizon
+          // The note's OWN colour never changes with heat — lane identity has
+          // to stay readable at ×8 combo, not wash into one orange blob. Only
+          // a SEPARATE "glow" colour escalates toward flame-orange; it drives
+          // the aura/trail/shadow below, never the fill.
+          const col = gold ? '#ffd76a' : PALETTE[n.lane];
+          const glowCol = (!gold && run.heat > 0.02) ? blendHex(col, '#ff5a1e', Math.min(0.8, run.heat * 0.85)) : col;
+          // fire flicker: once heat is present, pulses the glow so hot notes
+          // read as visibly alive/burning rather than a static tinted colour
+          // (each note flickers slightly out of phase via lane+time offsets).
+          const flick = run.heat > 0.02 ? 0.78 + 0.22 * Math.sin(now * 13 + n.lane * 2.4 + n.time * 11) : 1;
+
+          // heat aura: a soft radial glow BEHIND the note, escalating with the
+          // combo tier — this is where "hotter" shows up, not in the fill.
+          if (!gold && run.heat > 0.05) {
+            const auraR = (rW * 0.8 + run.heat * rW * 0.9) * flick;
+            const ag = ctx2d.createRadialGradient(cx, y, 0, cx, y, auraR);
+            ag.addColorStop(0, hexA(glowCol, 0.32 * run.heat));
+            ag.addColorStop(1, hexA(glowCol, 0));
+            ctx2d.fillStyle = ag;
+            ctx2d.beginPath(); ctx2d.arc(cx, y, auraR, 0, 6.283); ctx2d.fill();
+          }
+
+          const tlen = (82 + run.heat * 26) * s;      // comet trail toward the horizon, longer while hot
           const tg = ctx2d.createLinearGradient(0, y - tlen, 0, y);
-          tg.addColorStop(0, 'rgba(0,0,0,0)'); tg.addColorStop(1, hexA(gold ? '#ffd76a' : col, 0.30));
+          tg.addColorStop(0, 'rgba(0,0,0,0)'); tg.addColorStop(1, hexA(glowCol, 0.30 + run.heat * 0.15));
           ctx2d.fillStyle = tg; ctx2d.fillRect(cx - rW * 0.24, y - tlen, rW * 0.48, tlen);
-          // ...but glow gold so they still read as the ×3 bonus
-          ctx2d.shadowColor = gold ? '#ffd76a' : col; ctx2d.shadowBlur = (gold ? 22 : 9) * s;
-          ctx2d.fillStyle = col; rrect(cx - rW / 2, y - rH / 2, rW, rH, 6); ctx2d.fill();
+          ctx2d.shadowColor = glowCol;
+          ctx2d.shadowBlur = (gold ? 22 : (9 + run.heat * 20) * flick) * s;
+          // gem-style vertical gradient (bright facet on top, saturated colour
+          // at the base) instead of a flat fill, plus a thin dark outline for
+          // contrast — reads more like a polished gem than a solid-colour pill.
+          // Highlight blends toward the note's OWN colour, never glowCol, so
+          // lane identity survives at any heat.
+          const gemTop = blendHex(col, '#ffffff', gold ? 0.55 : 0.32);
+          const gg = ctx2d.createLinearGradient(0, y - rH / 2, 0, y + rH / 2);
+          gg.addColorStop(0, gemTop); gg.addColorStop(1, col);
+          ctx2d.fillStyle = gg; rrect(cx - rW / 2, y - rH / 2, rW, rH, 6); ctx2d.fill();
           ctx2d.shadowBlur = 0;
+          ctx2d.strokeStyle = 'rgba(6,12,22,.5)'; ctx2d.lineWidth = Math.max(1, 1.3 * s);
+          rrect(cx - rW / 2, y - rH / 2, rW, rH, 6); ctx2d.stroke();
           if (gold) {                                // gold rim marks the bonus note
             ctx2d.strokeStyle = '#ffd76a'; ctx2d.lineWidth = Math.max(1.5, 2.6 * s);
             rrect(cx - rW / 2, y - rH / 2, rW, rH, 6); ctx2d.stroke();
+          }
+          // flame cap: once heat crosses into the top half of its range
+          // (roughly combo ×4+), ONE continuous flame licks along the full
+          // top edge of the note. Two layers — a wider dim-orange envelope
+          // and a narrower bright core sitting on top — drawn with additive
+          // ('lighter') blending, which is what actually reads as "fire":
+          // plain alpha-blended overlapping orange just muddies into brown,
+          // additive brightens instead, and the two-tone (orange body / hot
+          // core) is what real flame silhouettes look like.
+          if (!gold && run.heat > 0.5) {
+            const capT = Math.min(1, (run.heat - 0.5) / 0.5);
+            const flameW = rW * 0.94;
+            const baseY = y - rH / 2 + 1;
+            const seed = n.lane * 2.7 + n.time * 4.1;
+
+            const flamePath = (w, h, seedOff) => {
+              const segs = 16;
+              ctx2d.beginPath();
+              ctx2d.moveTo(cx - w / 2, baseY);
+              for (let i = 0; i <= segs; i++) {
+                const t = i / segs;
+                const px = cx - w / 2 + w * t;
+                const env = Math.sin(t * Math.PI);   // tapers to points at both corners
+                const flick = 0.55
+                  + 0.30 * Math.sin(now * 11 + seed + seedOff + t * 9)
+                  + 0.20 * Math.sin(now * 23 + seed * 1.6 + seedOff + t * 21);
+                ctx2d.lineTo(px, baseY - h * env * Math.max(0.25, flick));
+              }
+              ctx2d.lineTo(cx + w / 2, baseY);
+              ctx2d.closePath();
+            };
+
+            ctx2d.save();
+            ctx2d.globalCompositeOperation = 'lighter';
+
+            const outerH = (14 + capT * 16) * s;
+            flamePath(flameW, outerH, 0);
+            const og = ctx2d.createLinearGradient(0, baseY - outerH, 0, baseY);
+            og.addColorStop(0, 'rgba(255,150,50,' + (0.05 * capT).toFixed(3) + ')');
+            og.addColorStop(1, 'rgba(255,80,20,' + (0.55 * capT).toFixed(3) + ')');
+            ctx2d.fillStyle = og; ctx2d.fill();
+
+            const innerH = outerH * 0.68;
+            flamePath(flameW * 0.6, innerH, 1.9);
+            const ig = ctx2d.createLinearGradient(0, baseY - innerH, 0, baseY);
+            ig.addColorStop(0, 'rgba(255,244,190,' + (0.1 * capT).toFixed(3) + ')');
+            ig.addColorStop(1, 'rgba(255,170,60,' + (0.6 * capT).toFixed(3) + ')');
+            ctx2d.fillStyle = ig; ctx2d.fill();
+
+            ctx2d.restore();
           }
           ctx2d.fillStyle = gold ? '#ffe9a8' : 'rgba(255,255,255,.85)';
           rrect(cx - rW / 2, y - rH / 2, rW, 4 * s + 1, 2); ctx2d.fill();
@@ -1348,6 +1478,7 @@
         }
       }
 
+      drawEmbers();
       drawHost();
 
       // particles + pops
@@ -1365,6 +1496,31 @@
       ctx2d.globalAlpha = 1;
     }
 
+    // ---- hot-streak embers: ambient sparks drifting up off the highway while
+    // a combo tier is active (see the heat easing in update()). Purely
+    // decorative — no gameplay effect, just the "streak's on fire" payoff.
+    function drawEmbers() {
+      if (!run || !run.embers.length) return;
+      ctx2d.save();
+      // additive-ish blending so overlapping embers brighten into each other
+      // like real flame does, instead of just stacking flat opaque dots.
+      ctx2d.globalCompositeOperation = 'lighter';
+      for (const e of run.embers) {
+        const a = Math.max(0, Math.min(1, e.life));
+        if (a <= 0) continue;
+        const rad = Math.max(0.6, e.r * a);
+        // small radial gradient per ember — hot yellow-white core cooling to
+        // orange-red at the edge — reads as an actual flame lick, not a flat dot.
+        const g = ctx2d.createRadialGradient(e.x, e.y, 0, e.x, e.y, rad * 1.8);
+        g.addColorStop(0, 'rgba(255,244,200,' + (a * 0.95).toFixed(3) + ')');
+        g.addColorStop(0.45, 'rgba(255,170,60,' + (a * 0.75).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(255,70,20,0)');
+        ctx2d.fillStyle = g;
+        ctx2d.beginPath(); ctx2d.arc(e.x, e.y, rad * 1.8, 0, 6.283); ctx2d.fill();
+      }
+      ctx2d.restore();
+    }
+
     // ---- the CostBot host, reacting in the left gutter ----
     function drawHost() {
       if (!hostReady || !run) return;
@@ -1375,11 +1531,16 @@
       const bob = Math.sin(run.hostBob) * (4 + Math.min(14, run.combo * 0.12));
       const cy = H * 0.5 + bob;
       const hot = run.bill / BILL_MAX;
+      const heat = run.heat || 0;
       ctx2d.save();
-      ctx2d.shadowColor = hot > 0.6 ? '#ff5d6c' : '#39d98a';
+      const baseGlow = hot > 0.6 ? '#ff5d6c' : '#39d98a';
+      // the host catches fire too — its glow blends toward flame-orange with
+      // the same run.heat driving the highway/notes, instead of only ever
+      // reading danger-red (bill) or calm-green (default).
+      ctx2d.shadowColor = heat > 0.1 ? blendHex(baseGlow, '#ff7a1e', Math.min(0.85, heat)) : baseGlow;
       // baseline raised from 12 -> 20 so the hero art reads as clearly glowing
       // even at zero combo/bill-heat, not just once things heat up.
-      ctx2d.shadowBlur = 20 + run.tint * 20 + hot * 26;
+      ctx2d.shadowBlur = 20 + run.tint * 20 + hot * 26 + heat * 22;
       ctx2d.globalAlpha = 0.55 + Math.min(0.45, run.tint + 0.15);
       ctx2d.drawImage(hostImg, cx - size / 2, cy - size / 2, size, size);
       ctx2d.restore();
@@ -1548,7 +1709,29 @@
         ctx2d.fillStyle = '#fff'; ctx2d.font = '800 34px Segoe UI, system-ui, sans-serif';
         ctx2d.fillText(run.combo, W / 2, 44);
         ctx2d.fillStyle = run.mult > 1 ? '#ffd76a' : '#8ea3cc'; ctx2d.font = '800 16px Segoe UI, system-ui, sans-serif';
-        ctx2d.fillText('×' + run.mult + ' combo', W / 2, 64);
+        ctx2d.fillText('×' + run.mult + ' combo' + (run.mult >= 8 ? '  🔥 ON FIRE' : ''), W / 2, 64);
+      }
+
+      // hot-streak fever glow: a warm vignette that eases in/out with run.heat
+      // (see update()) rather than snapping at multFor's discrete thresholds,
+      // plus a pulsing gold border once the top combo tier (×8) is reached —
+      // the "streak's on fire" payoff the anomaly-alert border pattern already
+      // established for a different, red/urgent state.
+      if (run.heat > 0.02) {
+        const pulse = 0.5 + 0.5 * Math.sin(actx.currentTime * (4 + run.heat * 4));
+        const alpha = run.heat * (0.14 + pulse * 0.16);
+        const vg = ctx2d.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.22, W / 2, H / 2, Math.max(W, H) * 0.72);
+        vg.addColorStop(0, 'rgba(255,120,40,0)');
+        vg.addColorStop(0.6, 'rgba(255,110,30,' + (alpha * 0.7).toFixed(3) + ')');
+        vg.addColorStop(1, 'rgba(255,70,20,' + alpha.toFixed(3) + ')');
+        ctx2d.fillStyle = vg; ctx2d.fillRect(0, 0, W, H);
+        if (run.mult >= 8) {
+          const bp = 0.45 + 0.4 * Math.sin(actx.currentTime * 9);
+          ctx2d.strokeStyle = 'rgba(255,180,60,' + bp.toFixed(2) + ')'; ctx2d.lineWidth = 7;
+          ctx2d.shadowColor = 'rgba(255,140,40,.8)'; ctx2d.shadowBlur = 18;
+          ctx2d.strokeRect(3, 3, W - 6, H - 6);
+          ctx2d.shadowBlur = 0;
+        }
       }
 
       // big FinOps callout on combo milestones
@@ -1658,6 +1841,20 @@
     function hexA(hex, a) {
       const n = parseInt(hex.slice(1), 16);
       return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+    }
+    // linear-interpolate two hex colours by t (0 = a, 1 = b) — used to blend
+    // notes toward flame-orange as the hot-streak heat rises.
+    function blendHex(a, b, t) {
+      t = clamp(t, 0, 1);
+      const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+      const ar = (pa >> 16) & 255, ag = (pa >> 8) & 255, ab = pa & 255;
+      const br = (pb >> 16) & 255, bg = (pb >> 8) & 255, bb = pb & 255;
+      const r = Math.round(ar + (br - ar) * t), g = Math.round(ag + (bg - ag) * t), bl = Math.round(ab + (bb - ab) * t);
+      // MUST stay '#rrggbb' hex, not 'rgb(...)' — callers (hexA(), and chained
+      // blendHex() calls for the note gem gradient) parse via hex.slice(1) +
+      // parseInt(...,16), which silently produces NaN on an 'rgb(...)' string.
+      const h = (n) => clamp(n, 0, 255).toString(16).padStart(2, '0');
+      return '#' + h(r) + h(g) + h(bl);
     }
     // word-wrap a string to a pixel width, using the ctx's current font
     function wrapText(text, maxW) {
