@@ -153,7 +153,8 @@ test('GET /api/leaderboards/<game> ranks each metric by each player\'s best run'
     const body = await res.json();
     assert.equal(body.game, 'mudslides');
     assert.deepEqual(Object.keys(body.metrics).sort(),
-      ['distance', 'fish', 'heaviest', 'nearMisses', 'streak', 'tokens', 'topSpeed']);
+      ['combo', 'distance', 'fish', 'guests', 'heaviest', 'nearMisses',
+        'stars', 'streak', 'tokens', 'topSpeed', 'totalEarned', 'uptime']);
 
     // best run per player, not latest: alice's 2100m beats bob's 1500m
     assert.deepEqual(body.metrics.distance.map((r) => [r.player, r.value]),

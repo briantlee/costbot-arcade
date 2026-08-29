@@ -140,6 +140,19 @@ async function initStore() {
     // everybody the moment the board came from the server instead of localStorage.
     await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS fish INT NOT NULL DEFAULT 0');
     await p.query('CREATE INDEX IF NOT EXISTS runs_game_streak ON runs (game, streak DESC)');
+    // Board Meeting ranks on cumulative earnings. The client sends its running
+    // total (monotonic), so a per-player MAX of this column IS that player's
+    // total — no special SUM query, it rides the same pipeline as every metric.
+    await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS total_earned BIGINT NOT NULL DEFAULT 0');
+    await p.query('CREATE INDEX IF NOT EXISTS runs_game_total_earned ON runs (game, total_earned DESC)');
+    // CostBotLand ranks on park-triage metrics. Park rating is a 0–5 star value
+    // with one decimal, kept as an integer ×10 (like heaviest's grams) and divided
+    // back down for display; the rest are plain counts/percentages.
+    await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS guests INT NOT NULL DEFAULT 0');
+    await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS stars_x10 INT NOT NULL DEFAULT 0');
+    await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS uptime_pct INT NOT NULL DEFAULT 0');
+    await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS combo INT NOT NULL DEFAULT 0');
+    await p.query('CREATE INDEX IF NOT EXISTS runs_game_guests ON runs (game, guests DESC)');
     // One row per housekeeping fact. Only `reset_epoch` lives here today; it is a
     // table rather than an env var because it has to survive a pod restart and be
     // readable by both replicas.
@@ -370,6 +383,13 @@ async function recordRun(hubId, team, r) {
     streak: num(r.streak, 1e4),
     heaviest_g: num(Math.round((Number(r.heaviest) || 0) * 1000), 1e7),
     fish: num(r.fish, 1e6),
+    // CostBotLand metrics; stars is 0–5 with one decimal, stored ×10.
+    guests: num(r.guests, 1e6),
+    stars_x10: num(Math.round((Number(r.stars) || 0) * 10), 100),
+    uptime_pct: num(r.uptime, 100),
+    combo: num(r.combo, 1e4),
+    // Board Meeting: the player's cumulative earnings (monotonic).
+    total_earned: num(r.totalEarned, 1e12),
   };
   if (!pool) {
     mem.runs.push(run);
@@ -380,12 +400,14 @@ async function recordRun(hubId, team, r) {
       `INSERT INTO runs (hub_id, game, stage_id, seed, outcome, dollars, tokens,
                          level, kills, quiz_correct, quiz_wrong, team,
                          distance, near_misses, top_speed, duration_s,
-                         streak, heaviest_g, fish)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)`,
+                         streak, heaviest_g, fish,
+                         guests, stars_x10, uptime_pct, combo, total_earned)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)`,
       [run.hub_id, run.game, run.stage_id, run.seed, run.outcome, run.dollars,
         run.tokens, run.level, run.kills, run.quiz_correct, run.quiz_wrong, run.team,
         run.distance, run.near_misses, run.top_speed, run.duration_s,
-        run.streak, run.heaviest_g, run.fish],
+        run.streak, run.heaviest_g, run.fish,
+        run.guests, run.stars_x10, run.uptime_pct, run.combo, run.total_earned],
     );
   } catch (err) {
     console.error('arcade: recordRun failed:', err.message);
@@ -658,6 +680,14 @@ const GAME_METRICS = {
   // comes back out in kg so no caller has to know that.
   heaviest: { col: 'heaviest_g', label: 'Heaviest', div: 1000 },
   fish: { col: 'fish', label: 'Fish landed' },
+  // CostBotLand. Others carry 0 in these columns and are filtered out by the
+  // `> 0` guard, so the metrics only surface on the park's own board.
+  guests: { col: 'guests', label: 'Guests kept happy' },
+  stars: { col: 'stars_x10', label: 'Park rating', div: 10 },
+  uptime: { col: 'uptime_pct', label: 'Ride uptime %' },
+  combo: { col: 'combo', label: 'Best combo' },
+  // Board Meeting. Monotonic client total, so MAX-per-player is the running sum.
+  totalEarned: { col: 'total_earned', label: 'Total earnings' },
 };
 
 function memGameBoards(game) {

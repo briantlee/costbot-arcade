@@ -116,6 +116,21 @@
         { key: 'tokens', label: 'Tokens' },
       ],
       note: 'Streak is the skill — it cannot be got by luck, only by not losing a fish. Heaviest is the brag.' },
+    { id: 'costbotland', tab: '🎢 CostBotLand', kind: 'metrics', sort: 'guests',
+      cols: [
+        { key: 'guests', label: 'Guests kept happy' },
+        { key: 'stars', label: 'Park rating' },
+        { key: 'uptime', label: 'Ride uptime', unit: '%' },
+        { key: 'combo', label: 'Best combo' },
+      ],
+      note: 'Guests kept happy is the score — how many incidents you cleared before a land went dark. Park rating is the brag.' },
+    { id: 'board-meeting', tab: '🏢 Board Meeting', kind: 'metrics', sort: 'totalEarned',
+      cols: [
+        { key: 'totalEarned', label: 'Total earnings', unit: 'money' },
+        { key: 'streak', label: 'Best streak' },
+        { key: 'tokens', label: 'Tokens' },
+      ],
+      note: 'Total earnings is every round you have banked, added up — beat Max Tokens often enough and you climb.' },
   ];
 
   const STAGE_NAMES = {
@@ -139,6 +154,7 @@
   function cell(row, c, sort) {
     const v = Number(row[c.key] || 0);
     const txt = c.unit === 'kg' ? v.toFixed(1) + ' kg'
+      : c.unit === 'money' ? money(v)
       : Math.round(v).toLocaleString('en-US') + (c.unit ? ' ' + c.unit : '');
     return `<td class="n ${c.key === sort ? 'on' : ''}">${txt}</td>`;
   }
