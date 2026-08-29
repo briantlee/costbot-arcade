@@ -16,13 +16,51 @@
   // ---- songs (keys into ArcadeMusic.TRACKS) --------------------------------
   // The two new tracks lead; the rest are existing arcade bangers that already
   // carry a singable lead line, so they chart cleanly.
+  // biome: per-song backdrop key, drawn behind the highway via ArcadeBiomes
+  // (see arcade/shared/arcade-biomes.js) — picked to match each song's vibe:
+  // warm sunset arena for the hero anthem, ashen dusk for the villain march,
+  // cool blue datacenter (glowing LED racks) for the neon electro parade.
   const SONGS = [
-    { key: 'ch_avengers', name: 'The Savengers',   sub: 'Avengers, rocked · 148',   tag: '' },
+    // art: optional filename (in ../shared/assets/) for a real per-song
+    // illustration, drawn as a full-canvas "wallpaper" background (cover-fit,
+    // dimmed + scrimmed for legibility — see drawSongArt()) instead of the
+    // plain biome color/glow wash. Songs with no `art` keep the wash unaffected.
+    { key: 'ch_avengers', name: 'The Savengers',   sub: 'Avengers, rocked · 148',   tag: '', biome: 'arena', art: 'cb_snapped.jpg' },
     // Slow quarter-note march — sparse by nature, so Hard speeds the approach and
     // drops the freebie holds (all taps) to bring it up to the other two.
-    { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Villain march · 104',      tag: '',
-      hard: { fall: 1.15, holdGap: 99, missCost: 10 } },
-    { key: 'ch_small',    name: "It's a Small Cost", sub: 'Electro light parade · 126', tag: '' },
+    // chordSize: on notes that land on the FIRST step of a bar — the exact
+    // moment arcade-music.js's own playStep() strikes the real backing pad
+    // chord for that bar (see isChordEligible() in buildChart) — expand that
+    // note into a chord of this many DISTINCT lanes/pitches (real harmony
+    // tones, see pickHarmonyNotes()) instead of one, for the player to hit
+    // with multiple keys simultaneously. Easy has no override (stays 0/off,
+    // single notes only). Normal chords every bar-start note as a 2-note
+    // chord; Hard chords the same bar-start notes as a 3-note chord — the two
+    // differ only in chord SIZE, not in which/how many notes qualify, since
+    // the bar cadence itself already paces the chords evenly (no streak cap
+    // needed).
+    // maxLoops: 2 (not the shared MAX_LOOPS of 3) — even at the shared cap this
+    // was the longest song in the roster (~1:51 vs ~1:14-1:31 for the others);
+    // dropping one loop brings it to ~1:14, in line with the rest.
+    { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Villain march · 118',      tag: '', biome: 'dusk', art: 'darth_cb.png',
+      maxLoops: 2,
+      medium: { chordSize: 2 },
+      hard: { fall: 1.15, holdGap: 99, missCost: 10, chordSize: 3 } },
+    { key: 'ch_small',    name: "It's a Small Cost", sub: 'Electro light parade · 126', tag: '', biome: 'datacenter', art: 'cb_smallworld.jpg' },
+    // Foundry (cool industrial steel) instead of dusk — keeps this visually
+    // distinct from Imperial Markup's purple ashen dusk while still reading dark/gritty.
+    // The ostinato's real onsets land every 2 steps (8th notes), so the shared
+    // Normal minGap of 3 collapses to the exact same thinned-to-every-4-steps
+    // chart as Easy's minGap of 4 (neither can land on a gap of 3 in 2-step-
+    // spaced data) — Normal was accidentally as easy as Easy. minGap: 2 fixes
+    // that by keeping every real 8th-note onset, tightened fall/missCost so it
+    // reads as a genuine step up. Hard already keeps every onset at the shared
+    // minGap of 2, so there's no more density to claim; the escalation comes
+    // from a much faster fall and a harsher missCost — deliberately harder than
+    // the other songs' Hard, since this one is meant to be the roster's darkest.
+    { key: 'ch_blindhero', name: 'Blind Spend', sub: 'Daredevil, dark ostinato · 156', tag: '', biome: 'foundry', art: 'cb_justice.jpg',
+      medium: { fall: 2.0, minGap: 3, missCost: 7 },
+      hard:   { fall: 1.05, minGap: 1, missCost: 12 } },
   ];
 
   const DIFFS = {
@@ -58,7 +96,8 @@
   const KEYS = { 3: ['s', 'd', 'f'], 4: ['a', 's', 'd', 'f'] };
 
   // FinOps-flavoured judgment names.
-  const JUDGE = { perfect: 'OPTIMIZED!', great: 'RIGHTSIZED', ok: 'TRIMMED', miss: 'OVERRUN', trap: "PROD — DON'T CUT" };
+  const JUDGE = { perfect: 'OPTIMIZED!', great: 'RIGHTSIZED', ok: 'TRIMMED', miss: 'OVERRUN', trap: "PROD — DON'T CUT",
+    wrongLane: 'WRONG LANE', mistimed: 'MISTIMED' };
   const COMBO_CALLS = { 10: 'ON THE BOOKS', 25: 'QUARTERLY SAVINGS!', 50: 'FISCAL LEGEND!' };
 
   // Real FinOps tips — surfaced on good moments so the game teaches while you play.
@@ -100,27 +139,52 @@
   ];
 
   const BILL_MAX = 100;
-  const TARGET_SECS = 105;    // aimed note span; capped so a whole run stays under ~2 min
-  const MAX_NOTE_SECS = 115;  // hard cap on chart length regardless of loop rounding
+  const TARGET_SECS = 105;    // aimed note span; the loop cap below is what actually bounds length
+  const MAX_LOOPS = 3;        // every song repeats its bar-loop at most this many times
   const PREROLL = 2.6;        // seconds of countdown before the first note
 
   const STORE_KEY = 'costbot.hero.v1';
+  // Matches arcade-music.js's own STEPS_PER_BAR / playStep() convention exactly
+  // (bar = Math.floor(step / STEPS_PER_BAR), chord = track.prog[bar % prog.length])
+  // so a chord note's harmony always lines up with the bar the backing track
+  // is actually playing.
+  const STEPS_PER_BAR = 16;
 
   // ---- small helpers -------------------------------------------------------
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const fmt$ = (n) => '$' + Math.round(n).toLocaleString('en-US');
   const fmtK = (n) => n >= 1000 ? '$' + (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k' : '$' + Math.round(n);
 
-  // CostBot mascot, drawn as the DJ/host reacting to the run.
+  // CostBot mascot, drawn as the DJ/host reacting to the run. Superhero-pose
+  // art (same image already used for this game's boot-loading icon) — NOT
+  // the plain costbot.png used by the boot icon's favicon/back-link, which
+  // stays untouched.
   const hostImg = new Image(); let hostReady = false;
   hostImg.onload = () => { hostReady = true; };
-  hostImg.src = '../shared/assets/costbot.png';
+  hostImg.src = '../shared/assets/cb_hero.png';
 
   // Token coin — same art as the rest of the arcade (e.g. Mudslides' "tokens
   // collected all-time"), not the 🪙 emoji.
   const coinImg = new Image(); let coinReady = false;
   coinImg.onload = () => { coinReady = true; };
   coinImg.src = '../shared/assets/token-coin-64.png';
+
+  // Per-song full-background artwork (SONGS[i].art). Loaded lazily on first
+  // reference and cached by filename so switching songs (or retrying) never
+  // re-fetches. Songs with no `art` never touch this cache.
+  const artCache = new Map();
+  function getArtImage(file) {
+    if (!file) return null;
+    let entry = artCache.get(file);
+    if (!entry) {
+      const img = new Image();
+      entry = { img, ready: false };
+      img.onload = () => { entry.ready = true; };
+      img.src = '../shared/assets/' + file;
+      artCache.set(file, entry);
+    }
+    return entry;
+  }
 
   function loadStore() {
     try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; }
@@ -157,16 +221,23 @@
       tw: Math.random() * 2 + 0.4, ph: Math.random() * 6.283,
       c: Math.random() < 0.16 ? '#bcd0ff' : (Math.random() < 0.18 ? '#ffe4bc' : '#ffffff'),
     });
-    function drawStars() {
+    // skipNebula: true when a song biome already supplies its own sky gradient —
+    // the purple/blue nebula blobs are tuned for the plain space backdrop and
+    // clash with e.g. the sunset arena or field skies, so they're dropped there.
+    // The twinkling star dots stay in both cases — cheap, subtle, reads fine
+    // over any dark floor and keeps a consistent "arcade at night" feel.
+    function drawStars(skipNebula) {
       const t = performance.now() / 1000;
-      // a couple of faint nebulae for depth
-      const neb = (nx, ny, nr, col) => {
-        const gg = ctx2d.createRadialGradient(nx, ny, 0, nx, ny, nr);
-        gg.addColorStop(0, col); gg.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx2d.fillStyle = gg; ctx2d.fillRect(0, 0, W, H);
-      };
-      neb(W * 0.5, H * 0.16, Math.max(W, H) * 0.4, 'rgba(96,70,190,0.12)');
-      neb(W * 0.82, H * 0.72, Math.max(W, H) * 0.34, 'rgba(40,120,180,0.08)');
+      if (!skipNebula) {
+        // a couple of faint nebulae for depth
+        const neb = (nx, ny, nr, col) => {
+          const gg = ctx2d.createRadialGradient(nx, ny, 0, nx, ny, nr);
+          gg.addColorStop(0, col); gg.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx2d.fillStyle = gg; ctx2d.fillRect(0, 0, W, H);
+        };
+        neb(W * 0.5, H * 0.16, Math.max(W, H) * 0.4, 'rgba(96,70,190,0.12)');
+        neb(W * 0.82, H * 0.72, Math.max(W, H) * 0.34, 'rgba(40,120,180,0.08)');
+      }
       // drifting, twinkling stars
       for (const s of stars) {
         const a = 0.30 + 0.45 * Math.sin(t * s.tw + s.ph);
@@ -176,6 +247,23 @@
         ctx2d.beginPath(); ctx2d.arc(s.x * W, yy, s.r, 0, 6.283); ctx2d.fill();
       }
       ctx2d.globalAlpha = 1;
+    }
+
+    // song-specific backdrop: biome floor colour + sky wash only. Scenery props
+    // (crates/trees/racks/etc.) are intentionally NOT drawn here — playtesting
+    // feedback was that the color/glow reads well but the generated scenery
+    // objects don't. `props` is still accepted (and startSong still generates
+    // bioProps) so this stays cheap to re-enable, or to swap in real artwork
+    // later, without rebuilding the biome plumbing; it's just unused for now.
+    // Falls back to the plain gradient if biomes didn't load or the song has
+    // no biome assigned.
+    function drawBiomeBackground(bio, props) {
+      ctx2d.fillStyle = bio.floor; ctx2d.fillRect(0, 0, W, H);
+      if (bio.sky) {
+        const sg = ctx2d.createLinearGradient(0, 0, 0, H);
+        sg.addColorStop(0, bio.sky[0]); sg.addColorStop(1, bio.sky[1]);
+        ctx2d.globalAlpha = 0.35; ctx2d.fillStyle = sg; ctx2d.fillRect(0, 0, W, H); ctx2d.globalAlpha = 1;
+      }
     }
 
     // ---- persistent meta ----
@@ -218,6 +306,19 @@
       ok:      () => blip(440, 0.08, 'square', 0.3),
       miss:    () => blip(150, 0.16, 'sawtooth', 0.35, 70),
       trap:    () => blip(110, 0.22, 'sawtooth', 0.45, 55),
+      // two distinct "you goofed, but not as badly as a real miss" cues, so a
+      // player can tell "I pressed wrong" apart from "a note got away from me":
+      // a mid square blip for pressing the wrong lane, a quick high whiff for
+      // pressing with nothing anywhere in range. Confirmed via live oscillator
+      // instrumentation that both fire correctly through the full sfxBus/master
+      // chain (they're just rarely TRIGGERED in normal accurate play, since a
+      // press only reaches this branch when nothing is in that lane within the
+      // 150ms window at all — most real misses are note timeouts, which use
+      // SFX.miss instead). Gain bumped a second time regardless, past the other
+      // penalty cues' level, since low-frequency square blips read as duller
+      // than the higher-pitched judgment chimes at the same amplitude.
+      wrongLane: () => blip(200, 0.12, 'square', 0.55, 90),
+      mistimed:  () => blip(320, 0.07, 'square', 0.45, 260),
       gold:    () => { blip(1046, 0.12, 'triangle', 0.5, 1568); blip(1568, 0.12, 'sine', 0.3, 2093); },
       combo:   () => { blip(784, 0.08, 'triangle', 0.4, 1046); },
       ui:      () => blip(520, 0.05, 'square', 0.25),
@@ -233,18 +334,106 @@
     const keysDown = new Set(); // lane keys currently held
     const pointers = new Map(); // pointerId -> laneIndex
 
+    // Map a MIDI pitch to a lane using the exact same rolling pitch-window
+    // scheme as the primary melody note (Pass 2 below): lower pitch -> lower
+    // lane, higher pitch -> higher lane, scaled against the local [lo, hi]
+    // window. Factored out so chord harmony tones land in a lane consistent
+    // with how every other note on the highway is placed, instead of some
+    // separate ad hoc scheme.
+    function pitchToLane(midi, lo, hi, lanes) {
+      const lane = hi > lo ? Math.round((midi - lo) / (hi - lo) * (lanes - 1)) : (lanes >> 1);
+      return clamp(lane, 0, lanes - 1);
+    }
+
+    // Find the nearest free lane to `desired` for a chord's harmony voice:
+    // not already claimed by this same chord (`usedLanes`), and not within
+    // ~0.15s of an unrelated note in another lane (so a chord can never
+    // silently overlap an unrelated note — also what keeps chords from ever
+    // landing on a Hard trap slot, since the trap pass below already
+    // clash-checks against every note in `notes`, chords included). Falls
+    // back outward one lane at a time; returns -1 if the highway is jammed,
+    // in which case the caller just drops that harmony voice.
+    function pickFreeLane(desired, lanes, usedLanes, existingNotes, time) {
+      for (let d = 0; d < lanes; d++) {
+        const tryLanes = d === 0 ? [desired] : [desired - d, desired + d];
+        for (const l of tryLanes) {
+          if (l < 0 || l >= lanes) continue;
+          if (usedLanes.indexOf(l) !== -1) continue;
+          const busy = existingNotes.some(n => n.lane === l && Math.abs(n.time - time) < 0.15);
+          if (!busy) return l;
+        }
+      }
+      return -1;
+    }
+
+    // Pick REAL harmony tones from the song's own chord progression
+    // (track.prog, the same data arcade-music.js's playStep() uses to voice
+    // the backing pad/bass) for a chord note, instead of duplicating the
+    // melody pitch. `extraCount` is how many ADDITIONAL voices beyond the
+    // melody note itself (1 for a 2-note chord, 2 for a 3-note chord).
+    // Returns an array of { midi, lane } for the extra voices only — the
+    // primary note keeps its own midi/lane untouched.
+    function pickHarmonyNotes(track, k, lane, extraCount, lo, hi, diff, existingNotes) {
+      if (!track.prog || !track.prog.length) return [];
+      const bar = Math.floor(k.src / STEPS_PER_BAR);
+      const chord = track.prog[bar % track.prog.length];
+      if (!chord || !chord.tones || !chord.tones.length) return [];
+      const melodyClass = ((k.midi % 12) + 12) % 12;
+      // Prefer tones that are NOT the same pitch class as the melody note, so
+      // a harmony voice is always genuinely different — if the melody note IS
+      // the chord root, this naturally prefers the third then the fifth,
+      // since P.chImperial writes tones root-first (e.g. [0, 3, 7]).
+      const ordered = chord.tones.filter((t) => (((chord.root + t) % 12) + 12) % 12 !== melodyClass);
+      const picks = ordered.slice(0, extraCount);
+      const out = [];
+      const usedLanes = [lane];
+      for (const t of picks) {
+        const pitchClass = chord.root + t;
+        // place this tone in whichever octave lands closest to the melody
+        // note, so the harmony sits in a musically sensible register near
+        // the lead line rather than an arbitrary octave
+        let bestMidi = pitchClass, bestDist = Infinity;
+        for (let o = -3; o <= 3; o++) {
+          const cand = pitchClass + o * 12;
+          const dist = Math.abs(cand - k.midi);
+          if (dist < bestDist) { bestDist = dist; bestMidi = cand; }
+        }
+        const desiredLane = pitchToLane(bestMidi, lo, hi, diff.lanes);
+        const lane = pickFreeLane(desiredLane, diff.lanes, usedLanes, existingNotes, k.time);
+        if (lane === -1) continue;   // highway jammed here — just drop this voice
+        usedLanes.push(lane);
+        out.push({ midi: bestMidi, lane });
+      }
+      return out;
+    }
+
+    // spend/icon are cosmetic but derived from a note's midi+lane, so a chord
+    // voice with its own real pitch needs its own real spend/icon rather than
+    // inheriting the melody note's numbers verbatim.
+    function spendFor(midi, lane, gold) {
+      let spend = 40 + (Math.abs(midi * 7 + lane * 53) % 40) * 12;
+      if (gold) spend *= 4;
+      return spend;
+    }
+    function iconFor(midi, lane, gold) {
+      return gold ? '💰' : SAVINGS[Math.abs(midi + lane) % SAVINGS.length];
+    }
+
     // ---- chart build ------------------------------------------------------
     // `lat` shifts every note by the audio output latency so a tile reaches the
     // line exactly when you HEAR its note, not when it was scheduled.
-    function buildChart(track, diff, firstStep0, startStepAbs, lat) {
+    function buildChart(track, diff, firstStep0, startStepAbs, lat, maxLoopsOverride) {
       const LL = (track.bars || 4) * 16;
       const lead = track.lead || [];
       const stepDur = 60 / track.bpm / 4;
       const loopSecs = LL * stepDur;
       // whole loops only, so the melody completes its phrases and the song ends on a
-      // musical boundary instead of being chopped mid-phrase (which read as abrupt)
-      const maxLoops = Math.max(2, Math.floor(MAX_NOTE_SECS / loopSecs));
-      const loops = Math.min(Math.max(2, Math.ceil(TARGET_SECS / loopSecs)), maxLoops);
+      // musical boundary instead of being chopped mid-phrase (which read as abrupt).
+      // Real-audio tracks (track.audioSrc) are a single fixed-length recording, not
+      // a synth loop to repeat until ~TARGET_SECS — always chart exactly one pass.
+      // Every synth song is capped at MAX_LOOPS regardless of tempo, so a fast song
+      // no longer runs longer than a slow one just to reach TARGET_SECS.
+      const loops = track.audioSrc ? 1 : Math.min(Math.max(2, Math.ceil(TARGET_SECS / loopSecs)), maxLoopsOverride || MAX_LOOPS);
       const total = loops * LL;
       // stop spawning notes ~2.5s before the musical end for a clean, note-free outro
       const tailSteps = Math.max(16, Math.round(2.5 / stepDur));
@@ -277,14 +466,26 @@
       const W = 6;
       const notes = [];
       let prevLane = -1;
+      // A note is a real "chord moment" in the composition if and only if it
+      // falls on the FIRST step of a bar (src % STEPS_PER_BAR === 0) — that's
+      // exactly when arcade-music.js's own playStep() strikes the real backing
+      // pad chord for this bar (see `if (cfg.pad && inBar === 0) padChord(...)`
+      // — unconditional, every bar, including break bars). Every bar of
+      // chImperial's lead has a real melody note at step 0, so this lines the
+      // chord candidates up one-to-one with the bar cadence the ear actually
+      // hears the pad chord land on — no streak/stride cap needed, since the
+      // bar boundary itself paces the chords evenly through the whole song.
+      function isChordEligible(src) {
+        if (src % STEPS_PER_BAR !== 0) return false;
+        return lead[src] != null;
+      }
       for (let i = 0; i < kept.length; i++) {
         const k = kept[i];
         let lo = Infinity, hi = -Infinity;
         for (let j = Math.max(0, i - W); j <= Math.min(kept.length - 1, i + W); j++) {
           const p = kept[j].midi; if (p < lo) lo = p; if (p > hi) hi = p;
         }
-        let lane = hi > lo ? Math.round((k.midi - lo) / (hi - lo) * (diff.lanes - 1)) : (diff.lanes >> 1);
-        lane = clamp(lane, 0, diff.lanes - 1);
+        let lane = pitchToLane(k.midi, lo, hi, diff.lanes);
         if (lane === prevLane && diff.lanes > 1) {
           lane = lane >= diff.lanes - 1 ? lane - 1 : lane + 1;   // spread consecutive repeats
         }
@@ -292,14 +493,33 @@
         const gold = (k.midi === globalHi);
         const gap = gapAt(k.src);
         const holdEnd = gap >= diff.holdGap ? k.time + Math.min(gap, 10) * stepDur : 0;
-        let spend = 40 + (Math.abs(k.midi * 7 + lane * 53) % 40) * 12;
-        if (gold) spend *= 4;
-        const icon = gold ? '💰' : SAVINGS[Math.abs(k.midi + lane) % SAVINGS.length];
-        notes.push({
+        const spend = spendFor(k.midi, lane, gold);
+        const icon = iconFor(k.midi, lane, gold);
+        const noteType = gold ? 'gold' : (holdEnd ? 'hold' : 'tap');
+        const primary = {
           time: k.time, lane, midi: k.midi, spend, icon,
-          type: gold ? 'gold' : (holdEnd ? 'hold' : 'tap'),
-          holdEnd, judged: false, held: false, holdScored: false,
-        });
+          type: noteType, holdEnd, judged: false, held: false, holdScored: false,
+        };
+        notes.push(primary);
+
+        // ---- chord expansion (gated by diff.chordSize — Imperial Markup only) --
+        // Only plain single-hit taps that are chord-eligible per isChordEligible()
+        // above — landing on the bar-start step where the real backing pad chord
+        // strikes — expand into a chord; every other step in the bar, plus any
+        // gold/hold note, always stays single-lane so those other mechanics stay
+        // legible. The extra voice(s) are REAL harmony tones drawn from
+        // track.prog (the same chord progression driving the backing pad/bass
+        // for this bar), not copies of the melody pitch — see pickHarmonyNotes().
+        if (diff.chordSize >= 2 && noteType === 'tap' && isChordEligible(k.src)) {
+          const extras = pickHarmonyNotes(track, k, lane, diff.chordSize - 1, lo, hi, diff, notes);
+          for (const extra of extras) {
+            notes.push(Object.assign({}, primary, {
+              lane: extra.lane, midi: extra.midi,
+              spend: spendFor(extra.midi, extra.lane, false),
+              icon: iconFor(extra.midi, extra.lane, false),
+            }));
+          }
+        }
       }
 
       // sparse "do-not-hit" traps on Hard, placed on empty grid slots
@@ -321,43 +541,65 @@
     }
 
     // ---- start a song -----------------------------------------------------
+    // AudioBuffer cache for real-audio songs (assets/*.mp3), keyed by src, so a
+    // Retry/replay doesn't re-fetch + re-decode the file every time.
+    const audioBufCache = new Map();
+    let audioStartToken = 0;   // invalidates an in-flight decode if the player backs out
+    function loadAudioBuffer(src) {
+      if (audioBufCache.has(src)) return Promise.resolve(audioBufCache.get(src));
+      return fetch(src).then((r) => r.arrayBuffer())
+        .then((ab) => actx.decodeAudioData(ab))
+        .then((buf) => { audioBufCache.set(src, buf); return buf; })
+        .catch((err) => { console.error('[CostBotHero] failed to load', src, err); return null; });
+    }
+
     function startSong() {
       initAudio();
       const song = SONGS[songIdx];
-      const track = global.ArcadeMusic && global.ArcadeMusic.TRACKS[song.key];
+      const isAudioSong = !!song.audioSrc;
+      // Real-audio songs have no ArcadeMusic.TRACKS entry — the SONGS object
+      // itself already carries {bpm, bars, lead}, the same shape buildChart()
+      // reads off a synth track, so it can be used as the "track" directly.
+      const track = isAudioSong ? song : (global.ArcadeMusic && global.ArcadeMusic.TRACKS[song.key]);
       if (!track) return;
       meta.lastSong = songIdx; meta.lastDiff = diffKey; persist();
 
-      // per-song Hard tuning (e.g. Imperial Markup) layers over the base difficulty
-      const diff = Object.assign({}, DIFFS[diffKey], (diffKey === 'hard' && song.hard) ? song.hard : {});
+      // per-song, per-difficulty tuning (e.g. Imperial Markup's hard, Blind Spend's
+      // medium/hard) layers over the shared base difficulty. A song with no
+      // override for the current difficulty key falls straight through to the
+      // shared DIFFS entry unchanged.
+      const diff = Object.assign({}, DIFFS[diffKey], song[diffKey] || {});
       const stepDur = 60 / track.bpm / 4;
-      const LL = (track.bars || 4) * 16;
 
-      // Kick the music off, then read the scheduler's clock to anchor the chart.
-      if (music) music.setVolume(0.8);
-      if (music) music.playTrack(song.key);
-
-      // Read the anchor on the next frame (start() has run by then).
-      requestAnimationFrame(() => {
-        let firstStep0, startStepAbs;
-        const now = actx.currentTime;
-        if (music && music.debug) {
-          const d = music.debug();
-          const nextTime = d.nextTime || (now + 0.08);
-          const step = d.step || 0;
-          firstStep0 = nextTime - step * stepDur;              // when step 0 of this loop played
-        } else {
-          firstStep0 = now + 0.08;
-        }
-        // first charted step = first whole grid step at least PREROLL ahead
-        startStepAbs = Math.ceil((now + PREROLL - firstStep0) / stepDur);
-        if (startStepAbs < 0) startStepAbs = 0;
-
+      // Shared tail-end of song start, once we know exactly when "step 0" plays
+      // (firstStep0) and which step the chart should start from (startStepAbs).
+      // Used by both the synth path (anchored to ArcadeMusic's own clock) and
+      // the real-audio path (anchored to our own scheduled AudioBufferSourceNode).
+      function beginRun(firstStep0, startStepAbs) {
         // shift visuals + judging to when audio is actually heard (output latency),
         // plus the player's own calibration offset (menu-adjustable)
         const lat = (actx.outputLatency || actx.baseLatency || 0.02) + (meta.calibMs || 0) / 1000;
 
-        const chart = buildChart(track, diff, firstStep0, startStepAbs, lat);
+        const chart = buildChart(track, diff, firstStep0, startStepAbs, lat, song.maxLoops);
+        // per-song backdrop: one biome + one generated prop set, made once at
+        // song start (not per-frame). The highway trapezoid (see geom()) is
+        // widest at the bottom and only narrows going up, so it never reaches
+        // past its own [x0, x0+w] band at any height; the left gutter is
+        // already spoken for by the host + FinOps tip. Confining props to the
+        // free right gutter (shifted in from a biome "world" sized to that
+        // strip) guarantees they can never cover notes, the host, or the HUD,
+        // whatever the density a biome ships with.
+        const bio = global.ArcadeBiomes ? global.ArcadeBiomes.get(song.biome) : null;
+        let bioProps = [];
+        if (global.ArcadeBiomes && bio) {
+          const hwy = geom(diff.lanes);
+          const gutterX = hwy.x0 + hwy.w + 12;
+          const gutterW = Math.max(60, W - gutterX - 8);
+          const density = Math.max(5, Math.round((gutterW * H) / 8000));
+          const gutterBio = Object.assign({}, bio, { density });
+          bioProps = global.ArcadeBiomes.generate(Math.random, gutterW, H, gutterBio)
+            .map((p) => Object.assign({}, p, { x: p.x + gutterX }));
+        }
         run = {
           song, track, diff, chart,
           keys: KEYS[diff.lanes],
@@ -370,21 +612,75 @@
           laneFlash: new Array(diff.lanes).fill(0),
           pops: [], parts: [], shake: 0, tint: 0, hostBob: 0, tip: null, tipN: 0, anom: false,
           failed: false,
+          bio, bioProps,
+          audioSrcNode: null, audioGain: null,   // set below for real-audio songs
         };
         state = 'count';
         emit('run:start', { song: song.key, diff: diffKey });
-      });
+      }
+
+      if (isAudioSong) {
+        // Real MP3 track: no ArcadeMusic scheduler to anchor against, so decode
+        // once (cached) and schedule a plain AudioBufferSourceNode ourselves at a
+        // precisely known actx.currentTime. That keeps the SAME clock driving
+        // both playback and note judgment as the synth songs (actx.currentTime) —
+        // no separate <audio>-element clock to reconcile or drift against, and
+        // Web Audio's sample-accurate start() is at least as precise for sync as
+        // reading back an <audio> element's currentTime.
+        const token = ++audioStartToken;
+        loadAudioBuffer(song.audioSrc).then((buf) => {
+          if (!buf || token !== audioStartToken) return;   // stale: menu changed / re-started mid-decode
+          const gain = actx.createGain(); gain.gain.value = 0.8; gain.connect(master);
+          const src = actx.createBufferSource(); src.buffer = buf; src.connect(gain);
+          const firstStep0 = actx.currentTime + PREROLL;   // audio + step 0 start together
+          src.start(firstStep0);
+          beginRun(firstStep0, 0);
+          run.audioSrcNode = src; run.audioGain = gain;
+        });
+      } else {
+        // Kick the music off, then read the scheduler's clock to anchor the chart.
+        if (music) music.setVolume(0.8);
+        if (music) music.playTrack(song.key);
+
+        // Read the anchor on the next frame (start() has run by then).
+        requestAnimationFrame(() => {
+          let firstStep0, startStepAbs;
+          const now = actx.currentTime;
+          if (music && music.debug) {
+            const d = music.debug();
+            const nextTime = d.nextTime || (now + 0.08);
+            const step = d.step || 0;
+            firstStep0 = nextTime - step * stepDur;              // when step 0 of this loop played
+          } else {
+            firstStep0 = now + 0.08;
+          }
+          // first charted step = first whole grid step at least PREROLL ahead
+          startStepAbs = Math.ceil((now + PREROLL - firstStep0) / stepDur);
+          if (startStepAbs < 0) startStepAbs = 0;
+          beginRun(firstStep0, startStepAbs);
+        });
+      }
+    }
+
+    // stop whichever audio is backing the current run: the shared ArcadeMusic
+    // synth (music.stop()) for the synth-track songs, or our own
+    // AudioBufferSourceNode for a real-audio song (see isAudioSong above —
+    // no current SONGS entry uses this path, but the plumbing stays generic
+    // and reusable for a future one).
+    function stopRunAudio(r) {
+      if (music) music.stop();
+      if (r && r.audioSrcNode) { try { r.audioSrcNode.stop(); } catch {} }
     }
 
     function endSong() {
       if (!run || state === 'result') return;
-      if (music) music.stop();
+      stopRunAudio(run);
       const r = run;
       const c = r.counts;
       const acc = r.total ? (c.perfect + c.great * 0.7 + c.ok * 0.4) / r.total : 0;
       let grade = r.failed ? 'F'
         : acc >= 0.95 ? 'S' : acc >= 0.85 ? 'A' : acc >= 0.70 ? 'B' : acc >= 0.50 ? 'C' : 'D';
-      const tokens = Math.max(0, Math.floor(r.score / 50));
+      const tokens = Math.max(0, Math.floor(r.score / 250));
       if (global.ArcadeWallet && tokens) global.ArcadeWallet.earn(tokens, 'costbot-hero');
 
       // record best (by score) per song+difficulty
@@ -421,7 +717,7 @@
     function multFor(combo) { return combo >= 50 ? 8 : combo >= 25 ? 4 : combo >= 10 ? 2 : 1; }
 
     function judgeHit(lane) {
-      if (!run) return;
+      if (!run || state !== 'play') return;   // never during countdown/result/menu
       const now = actx.currentTime;
       run.laneFlash[lane] = 1;
       // nearest unjudged note in this lane within the OK window
@@ -432,7 +728,34 @@
         if (dt < bestDt) { bestDt = dt; best = n; }
         if (n.time - now > 0.16) break; // sorted; nothing closer ahead
       }
-      if (!best) return;
+      if (!best) {
+        // A press with nothing to score in ITS OWN lane is a mistake — but which
+        // kind depends on whether some OTHER lane genuinely has a live note right
+        // now. Traps don't count (they're meant to be avoided, not hit) and
+        // already-judged notes don't count, so this can't misfire against a
+        // chord note a different lane-press already legitimately scored, and
+        // can't collide with the separate trap-penalty path above.
+        let otherLive = false;
+        for (const n of run.chart.notes) {
+          if (n.judged || n.lane === lane || n.type === 'trap') continue;
+          if (Math.abs(n.time - now) < 0.15) { otherLive = true; break; }
+        }
+        run.combo = 0; run.mult = 1;
+        run.tint = Math.max(0, run.tint - 0.15);
+        if (otherLive) {
+          // "the wrong key at the right time" — scaled below a full miss, but a
+          // real, felt cost so mashing every lane stops being a free strategy.
+          run.bill = clamp(run.bill + run.diff.missCost * 0.6, 0, BILL_MAX);
+          pop(run, lane, JUDGE.wrongLane, '#ff8a5c'); SFX.wrongLane();
+        } else {
+          // "hitting the key at the wrong time" — the lightest of the three
+          // miss-family penalties, since nothing was on-screen to react to.
+          run.bill = clamp(run.bill + run.diff.missCost * 0.4, 0, BILL_MAX);
+          pop(run, lane, JUDGE.mistimed, '#7d8aa8'); SFX.mistimed();
+        }
+        checkFail();
+        return;
+      }
 
       if (best.type === 'trap') {
         best.judged = true; run.counts.trap++; run.combo = 0; run.mult = 1;
@@ -505,7 +828,7 @@
         return;
       }
       if (state === 'play' || state === 'count') {
-        if (k === 'escape') { if (music) music.stop(); state = 'menu'; run = null; emit('run:end', {}); return; }
+        if (k === 'escape') { stopRunAudio(run); state = 'menu'; run = null; emit('run:end', {}); return; }
         if (!run) return;
         const lane = run.keys.indexOf(k);
         if (lane === -1) return;
@@ -646,8 +969,10 @@
           }
         }
         // fade the music out over the final ~2.8s so the song doesn't cut abruptly
-        if (music && now > run.chart.endTime - 2.8) {
-          music.setVolume(0.8 * clamp((run.chart.endTime - now) / 2.8, 0, 1));
+        if (now > run.chart.endTime - 2.8) {
+          const vol = 0.8 * clamp((run.chart.endTime - now) / 2.8, 0, 1);
+          if (music) music.setVolume(vol);
+          if (run.audioGain) run.audioGain.gain.value = vol;
         }
         if (now > run.chart.endTime) { endSong(); }
       }
@@ -667,11 +992,19 @@
 
     function draw() {
       ctx2d.clearRect(0, 0, W, H);
-      // background
-      const bg = ctx2d.createLinearGradient(0, 0, 0, H);
-      bg.addColorStop(0, '#0a0f22'); bg.addColorStop(1, '#05060f');
-      ctx2d.fillStyle = bg; ctx2d.fillRect(0, 0, W, H);
-      drawStars();
+      // background — an in-progress run with a loaded biome gets that song's
+      // distinct backdrop; the menu (and any biome-less fallback) keeps the
+      // original flat space gradient + starfield.
+      if (run && run.bio) {
+        drawBiomeBackground(run.bio, run.bioProps);
+        drawStars(true);
+      } else {
+        const bg = ctx2d.createLinearGradient(0, 0, 0, H);
+        bg.addColorStop(0, '#0a0f22'); bg.addColorStop(1, '#05060f');
+        ctx2d.fillStyle = bg; ctx2d.fillRect(0, 0, W, H);
+        drawStars(false);
+      }
+      drawSongArt();   // per-song full-canvas wallpaper art, over the wash, if any
 
       if (state === 'menu') {
         if (menuEl) { menuEl.style.display = 'flex'; if (!wasMenu) { syncMenu(); wasMenu = true; } }
@@ -909,6 +1242,30 @@
         vis.push(n);
       }
       vis.sort((a, b) => b.time - a.time);
+
+      // chord link: when 2+ visible notes share the exact same `time` (a chord),
+      // draw a soft connecting bar behind them so they read as "these cross the
+      // line together" rather than as unrelated notes that happen to line up.
+      const chordGroups = new Map();
+      for (const n of vis) {
+        if (n.type === 'trap') continue;
+        const arr = chordGroups.get(n.time); if (arr) arr.push(n); else chordGroups.set(n.time, [n]);
+      }
+      for (const arr of chordGroups.values()) {
+        if (arr.length < 2) continue;
+        const ct = arr[0].time;
+        const f = (ct - now) / fall;
+        const s = scaleAt(f), y = yAt(s);
+        let minC = Infinity, maxC = -Infinity;
+        for (const n of arr) { const ccx = pxp(cxFull(n.lane), s); if (ccx < minC) minC = ccx; if (ccx > maxC) maxC = ccx; }
+        const rH = 26 * s + 3;
+        const lg = ctx2d.createLinearGradient(minC, 0, maxC, 0);
+        lg.addColorStop(0, hexA(PALETTE[arr[0].lane], 0.4));
+        lg.addColorStop(1, hexA(PALETTE[arr[arr.length - 1].lane], 0.4));
+        ctx2d.fillStyle = lg;
+        ctx2d.fillRect(minC, y - rH * 0.22, maxC - minC, rH * 0.44);
+      }
+
       for (const n of vis) {
         const f = (n.time - now) / fall;
         const s = scaleAt(f), y = yAt(s);
@@ -1008,7 +1365,9 @@
       const hot = run.bill / BILL_MAX;
       ctx2d.save();
       ctx2d.shadowColor = hot > 0.6 ? '#ff5d6c' : '#39d98a';
-      ctx2d.shadowBlur = 12 + run.tint * 22 + hot * 28;
+      // baseline raised from 12 -> 20 so the hero art reads as clearly glowing
+      // even at zero combo/bill-heat, not just once things heat up.
+      ctx2d.shadowBlur = 20 + run.tint * 20 + hot * 26;
       ctx2d.globalAlpha = 0.55 + Math.min(0.45, run.tint + 0.15);
       ctx2d.drawImage(hostImg, cx - size / 2, cy - size / 2, size, size);
       ctx2d.restore();
@@ -1031,6 +1390,95 @@
       }
     }
 
+    // Score display: big, and stacked above the host character in the left
+    // gutter (same horizontal centre as drawHost's cx = g.x0/2) instead of a
+    // top-right corner. Mirrors drawHost's own size/position math so the
+    // readout always lands just above the host's head regardless of combo
+    // (host size/bob grow with combo). On narrow layouts with no left gutter
+    // (same threshold drawHost uses to skip drawing the host at all), it
+    // falls back to a compact top-right treatment so there's still a score
+    // shown somewhere.
+    function drawScoreHud() {
+      const g = geom(run.diff.lanes);
+      if (g.x0 >= 108) {
+        const cx = g.x0 / 2;
+        const hostSize = 74 + Math.min(26, run.combo * 0.4);
+        const bob = Math.sin(run.hostBob) * (4 + Math.min(14, run.combo * 0.12));
+        const hostTop = H * 0.5 + bob - hostSize / 2;
+        const size = Math.round(clamp(g.x0 * 0.42, 28, 46));
+        const cy = hostTop - 30;
+        // label sits a font-size-proportional gap above the score's baseline, so a
+        // tall/large score number's ascent can never climb into the "SAVED" text
+        // (a fixed offset broke once `size` grew past ~40px).
+        ctx2d.textAlign = 'center';
+        ctx2d.fillStyle = '#8ea3cc'; ctx2d.font = '700 13px Segoe UI, system-ui, sans-serif';
+        ctx2d.fillText('SAVED', cx, cy - size * 0.8 - 6);
+        ctx2d.fillStyle = '#ffd76a'; ctx2d.font = '800 ' + size + 'px Segoe UI, system-ui, sans-serif';
+        ctx2d.shadowColor = 'rgba(255,215,106,.55)'; ctx2d.shadowBlur = 16;
+        ctx2d.fillText(fmt$(run.score), cx, cy);
+        ctx2d.shadowBlur = 0;
+      } else {
+        // narrow layout: no left gutter for the host, so keep a compact
+        // top-right readout, nudged below the top progress bar / time-remaining
+        // pill (see drawHud) so the two never overlap.
+        ctx2d.textAlign = 'right';
+        ctx2d.fillStyle = '#ffd76a'; ctx2d.font = '800 32px Segoe UI, system-ui, sans-serif';
+        ctx2d.fillText(fmt$(run.score), W - 14, 88);
+        ctx2d.fillStyle = '#8ea3cc'; ctx2d.font = '700 12px Segoe UI, system-ui, sans-serif';
+        ctx2d.fillText('SAVED', W - 14, 104);
+      }
+    }
+
+    // Per-song "wallpaper" background (SONGS[i].art): the illustration is
+    // scaled to CONTAIN within the canvas (CSS background-size:contain — the
+    // whole image always visible, aspect preserved, letterboxed/pillarboxed
+    // rather than cropped — per feedback that cover-fit was cropping too much
+    // off portrait/non-16:9 art) and drawn vividly (but not full-opacity) with
+    // a light darkening scrim on top, so it reads as present "wallpaper" art
+    // rather than a washed-out corner illustration, while the highway/notes/
+    // HUD drawn after it stay legible. Runs BEHIND everything gameplay-
+    // related: called right after the biome floor/sky wash (see draw()),
+    // before drawHighway. A solid base fill (that song's biome floor colour,
+    // or a dark neutral if no biome) is painted first so contain-fit's
+    // letterbox bars read as intentional, not a bug — it also doubles as the
+    // loading/failure safety net. Songs with no `art` are untouched: this
+    // function just returns immediately and the plain wash shows through.
+    function drawSongArt() {
+      if (!run || !run.song || !run.song.art) return;
+      const bio = global.ArcadeBiomes ? global.ArcadeBiomes.get(run.song.biome) : null;
+      ctx2d.fillStyle = (bio && bio.floor) || '#0b0d14';
+      ctx2d.fillRect(0, 0, W, H);
+
+      const entry = getArtImage(run.song.art);
+      if (!entry || !entry.ready) return;
+      const img = entry.img;
+      const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+      if (!iw || !ih) return;
+
+      // contain-fit: scale so the whole image fits inside W×H, letterboxing
+      // whichever axis doesn't match rather than cropping it away.
+      const scale = Math.min(W / iw, H / ih);
+      const dw = iw * scale, dh = ih * scale;
+      const dx = (W - dw) / 2, dy = (H - dh) / 2;
+
+      ctx2d.save();
+      ctx2d.globalAlpha = 0.65;
+      ctx2d.drawImage(img, dx, dy, dw, dh);
+      ctx2d.restore();
+
+      // light dark scrim, heavier toward the edges than the centre, so the
+      // highway/notes/HUD keep reliable contrast regardless of how bright or
+      // busy the source image is — kept subtle so the art still reads as
+      // vivid "wallpaper" rather than faded.
+      const scrim = ctx2d.createRadialGradient(
+        W / 2, H * 0.45, Math.min(W, H) * 0.18,
+        W / 2, H * 0.5, Math.max(W, H) * 0.75);
+      scrim.addColorStop(0, 'rgba(5,6,15,.12)');
+      scrim.addColorStop(1, 'rgba(5,6,15,.32)');
+      ctx2d.fillStyle = scrim;
+      ctx2d.fillRect(0, 0, W, H);
+    }
+
     // ---- hud ----
     function drawHud() {
       if (!run) return;
@@ -1040,12 +1488,26 @@
         ctx2d.strokeStyle = 'rgba(255,93,108,' + ap.toFixed(2) + ')'; ctx2d.lineWidth = 6;
         ctx2d.strokeRect(3, 3, W - 6, H - 6);
       }
-      // song progress line across the very top (fills left->right as the song plays)
+      // song progress: a thick bar across the very top (fills left->right as the
+      // song plays), plus an actual mm:ss countdown so progress is a readable
+      // number, not just an inferred fill fraction on a thin line. The bar was
+      // 4px and playtesting called it hard to see / hard to read time-left from.
+      const barH = 9;
       const prog = clamp((actx.currentTime - run.beginTime) / Math.max(0.001, run.chart.endTime - run.beginTime), 0, 1);
-      ctx2d.fillStyle = 'rgba(255,255,255,.07)'; ctx2d.fillRect(0, 0, W, 4);
+      ctx2d.fillStyle = 'rgba(255,255,255,.09)'; ctx2d.fillRect(0, 0, W, barH);
       const pgrad = ctx2d.createLinearGradient(0, 0, W, 0);
       pgrad.addColorStop(0, '#7fd6c4'); pgrad.addColorStop(1, '#ffd76a');
-      ctx2d.fillStyle = pgrad; ctx2d.fillRect(0, 0, W * prog, 4);
+      ctx2d.fillStyle = pgrad; ctx2d.fillRect(0, 0, W * prog, barH);
+      // time-remaining pill, top-right — clear of the top-left song/diff/bill
+      // block and (in the normal wide layout) clear of the score, which now
+      // lives above the host on the left instead of this corner.
+      const remainSecs = Math.max(0, run.chart.endTime - actx.currentTime);
+      const mm = Math.floor(remainSecs / 60), ss = Math.floor(remainSecs % 60);
+      const timeStr = mm + ':' + (ss < 10 ? '0' : '') + ss;
+      ctx2d.fillStyle = 'rgba(5,6,15,.55)'; rrect(W - 78, barH + 5, 64, 24, 7); ctx2d.fill();
+      ctx2d.textAlign = 'right'; ctx2d.fillStyle = '#ffe9a8';
+      ctx2d.font = '800 16px Segoe UI, system-ui, sans-serif';
+      ctx2d.fillText(timeStr, W - 20, barH + 23);
 
       // top-left: song + difficulty, then the bill meter (grouped, no stray text)
       ctx2d.textAlign = 'left';
@@ -1066,12 +1528,7 @@
         ctx2d.fillText('⚠ BUDGET AT RISK', bx + bw + 10, by + 11);
       }
 
-      // score, top-right
-      ctx2d.textAlign = 'right';
-      ctx2d.fillStyle = '#ffd76a'; ctx2d.font = '800 30px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText(fmt$(run.score), W - 18, 34);
-      ctx2d.fillStyle = '#8ea3cc'; ctx2d.font = '600 12px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText('SAVED', W - 18, 50);
+      drawScoreHud();
 
       // combo + multiplier, centred
       ctx2d.textAlign = 'center';
@@ -1119,6 +1576,9 @@
       ctx2d.textAlign = 'center';
       ctx2d.fillStyle = run.failed ? '#ff5d6c' : '#ffd76a';
       ctx2d.font = '800 20px Segoe UI'; ctx2d.fillText(run.failed ? 'BUDGET BLOWN' : 'SONG CLEAR', cx, 96);
+      // song + difficulty played
+      ctx2d.font = '600 13px Segoe UI'; ctx2d.fillStyle = '#8ea3cc';
+      ctx2d.fillText(run.song.name + '  ·  ' + run.diff.label.toUpperCase(), cx, 118);
       // grade
       const gc = r.grade === 'S' ? '#ffd76a' : r.grade === 'F' ? '#ff5d6c' : '#39d98a';
       ctx2d.fillStyle = gc; ctx2d.font = '800 120px Segoe UI, system-ui, sans-serif';
@@ -1212,7 +1672,11 @@
           align-items:center;overflow:auto;padding:22px 16px 40px;box-sizing:border-box;
           font-family:'Segoe UI',system-ui,sans-serif;color:#dfe8f7;-webkit-overflow-scrolling:touch;}
         .ch-menu .ch-veil{position:fixed;inset:0;z-index:-1;
-          background:radial-gradient(circle at 50% -10%,rgba(30,38,90,.55),rgba(5,6,15,.9));}
+          background:radial-gradient(circle at 50% -10%,rgba(30,38,90,.55),rgba(5,6,15,.9));
+          transition:background .25s ease;}
+        .ch-menu .ch-artwash{position:fixed;inset:0;z-index:-2;background-size:contain;
+          background-position:center;background-repeat:no-repeat;opacity:0;transition:opacity .25s ease;}
+        .ch-menu.has-art .ch-veil{background:radial-gradient(circle at 50% -10%,rgba(20,26,60,.22),rgba(5,6,15,.5));}
         .ch-panel{width:min(780px,100%);display:flex;flex-direction:column;gap:16px;}
         .ch-hero{border-radius:16px;overflow:hidden;border:1px solid #2b3f66;
           box-shadow:0 14px 44px rgba(0,0,0,.55);}
@@ -1259,6 +1723,7 @@
       menuEl = document.createElement('div');
       menuEl.className = 'ch-menu';
       menuEl.innerHTML = `
+        <div class="ch-artwash" id="ch-artwash"></div>
         <div class="ch-veil"></div>
         <div class="ch-panel">
           <div class="ch-hero"><img src="../shared/assets/cb_hero_banner_wide_logos.jpg" alt="CostBot Hero"></div>
@@ -1315,8 +1780,41 @@
       menuEl.querySelector('#ch-cal-down').onclick = () => { meta.calibMs = clamp((meta.calibMs || 0) - 5, -300, 300); persist(); SFX.ui(); syncMenu(); };
       menuEl.querySelector('#ch-cal-up').onclick = () => { meta.calibMs = clamp((meta.calibMs || 0) + 5, -300, 300); persist(); SFX.ui(); syncMenu(); };
     }
+    // Selected-song artwork wash behind the whole menu (ch-artwash, under the
+    // existing ch-veil vignette) — updates live as songIdx changes, whether
+    // that's a click or an arrow-key nav (both funnel through syncMenu()).
+    // Cross-fades between songs by fading the wash out, swapping the
+    // background-image + biome-floor fallback colour, then fading back in.
+    // Songs with no `art` (none currently, but SONGS entries aren't required
+    // to have one) just hide the wash and fall back to the plain veil.
+    let artWashFile;
+    function updateArtWash() {
+      const wash = menuEl.querySelector('#ch-artwash');
+      if (!wash) return;
+      const song = SONGS[songIdx];
+      const file = song && song.art;
+      if (file === artWashFile) return;
+      const apply = () => {
+        artWashFile = file;
+        if (!file) {
+          wash.style.opacity = '0';
+          menuEl.classList.remove('has-art');
+          return;
+        }
+        const bio = global.ArcadeBiomes ? global.ArcadeBiomes.get(song.biome) : null;
+        wash.style.backgroundColor = (bio && bio.floor) || '#0b0d14';
+        wash.style.backgroundImage =
+          'linear-gradient(rgba(5,6,15,.35),rgba(8,10,20,.58)), url("../shared/assets/' + file + '")';
+        wash.style.opacity = '1';
+        menuEl.classList.add('has-art');
+      };
+      if (artWashFile === undefined) { apply(); return; } // first paint: no fade needed
+      wash.style.opacity = '0';
+      setTimeout(apply, 180);
+    }
     function syncMenu() {
       if (!menuEl) return;
+      updateArtWash();
       menuEl.querySelectorAll('.ch-song').forEach((el) => {
         const i = +el.dataset.i;
         el.classList.toggle('sel', i === songIdx);
@@ -1342,7 +1840,7 @@
       get meta() { return meta; },
       get muted() { return !!meta.muted; },
       toggleMute,
-      destroy() { if (music) music.stop(); cv.remove(); },
+      destroy() { stopRunAudio(run); cv.remove(); },
     };
   }
 
