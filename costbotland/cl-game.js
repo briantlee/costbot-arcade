@@ -177,6 +177,11 @@
       if (k === 'escape') { quitToMenu(); return; }
       if (k === 'm') { toggleMute(); return; }
       if (k === ' ' || k === 'spacebar' || k === 'enter' || k === 'e') {
+        // Space is the action button mashed throughout a run — don't let a
+        // leftover press instantly restart from the results screen. Click/tap
+        // (or Enter/E) still restarts; only Space is swallowed here.
+        const isSpace = k === ' ' || k === 'spacebar';
+        if (isSpace && G.state === 'over') { keys['_act'] = true; return; }
         if (!keys['_act']) primaryAction(); keys['_act'] = true; return;
       }
       keys[k] = true; audio.resume();
@@ -896,12 +901,21 @@
         ctx.fillStyle = hair;                                   // hair (top half)
         ctx.beginPath(); ctx.arc(gx, y - 9, 5.9, Math.PI, 2 * Math.PI); ctx.fill();
       }
-      // front-of-line countdown — only the first guest is on the clock
+      // front-of-line countdown — only the first guest is on the clock. Same
+      // color-and-pulse language as the circle goals' countdown ring (green →
+      // amber → red, glowing and flashing when low), just kept as a bar.
       if (G.gate.line.length > 0) {
         const fx = g.x + dir * 38, f = clamp(G.gate.frontT / C.GATE.patience, 0, 1);
         const bcol = f > 0.5 ? '#34d399' : f > 0.25 ? '#fbbf24' : '#f87171';
+        const lowT = f <= 0.25, flashT = lowT ? 0.55 + 0.45 * Math.sin(now() / 90) : 1;
         ctx.fillStyle = 'rgba(8,5,16,0.7)'; rrect(ctx, fx - 16, g.y - 30, 32, 6, 3); ctx.fill();
-        if (f > 0) { ctx.fillStyle = bcol; rrect(ctx, fx - 16, g.y - 30, 32 * f, 6, 3); ctx.fill(); }
+        if (f > 0) {
+          ctx.save();
+          ctx.globalAlpha = flashT;
+          if (lowT) { ctx.shadowColor = bcol; ctx.shadowBlur = 14; }
+          ctx.fillStyle = bcol; rrect(ctx, fx - 16, g.y - 30, 32 * f, 6, 3); ctx.fill();
+          ctx.restore();
+        }
         if (f <= 0.35) { ctx.fillStyle = '#f87171'; ctx.font = '800 13px system-ui,sans-serif';
           ctx.textAlign = 'center'; ctx.fillText('!', fx, g.y - 40); }
       }

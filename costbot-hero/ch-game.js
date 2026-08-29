@@ -116,6 +116,12 @@
   hostImg.onload = () => { hostReady = true; };
   hostImg.src = '../shared/assets/costbot.png';
 
+  // Token coin — same art as the rest of the arcade (e.g. Mudslides' "tokens
+  // collected all-time"), not the 🪙 emoji.
+  const coinImg = new Image(); let coinReady = false;
+  coinImg.onload = () => { coinReady = true; };
+  coinImg.src = '../shared/assets/token-coin-64.png';
+
   function loadStore() {
     try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; }
   }
@@ -1121,8 +1127,16 @@
       ctx2d.font = '700 22px Segoe UI'; ctx2d.fillStyle = '#fff';
       ctx2d.fillText(fmt$(run.score) + ' saved', cx, 268);
       ctx2d.font = '600 15px Segoe UI'; ctx2d.fillStyle = '#c4d0e8';
-      ctx2d.fillText('Accuracy ' + r.acc + '%   ·   Max combo ' + run.maxCombo +
-        '   ·   +' + r.tokens + ' 🪙', cx, 296);
+      {
+        const statsText = 'Accuracy ' + r.acc + '%   ·   Max combo ' + run.maxCombo + '   ·   +' + r.tokens;
+        const iconSize = 15, gap = 5;
+        const textW = ctx2d.measureText(statsText).width;
+        const startX = cx - (textW + gap + iconSize) / 2;
+        ctx2d.textAlign = 'left';
+        ctx2d.fillText(statsText, startX, 296);
+        if (coinReady) ctx2d.drawImage(coinImg, startX + textW + gap, 296 - iconSize + 3, iconSize, iconSize);
+        ctx2d.textAlign = 'center';
+      }
       ctx2d.fillStyle = '#8ea3cc'; ctx2d.font = '600 13px Segoe UI';
       const c = run.counts;
       ctx2d.fillText('Perfect ' + c.perfect + ' · Great ' + c.great + ' · OK ' + c.ok +
@@ -1205,7 +1219,7 @@
         .ch-hero img{width:100%;display:block;}
         .ch-head{text-align:center;}
         .ch-head h1{margin:0;font-size:30px;font-weight:800;color:#ffd76a;letter-spacing:.4px;}
-        .ch-head p{margin:5px 0 0;color:#8ea3cc;font-size:14px;}
+        .ch-head p{margin:5px 0 0;color:#8ea3cc;font-size:28px;}
         .ch-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
         @media(max-width:640px){.ch-cols{grid-template-columns:1fr;}}
         .ch-lbl{font-size:11px;font-weight:800;letter-spacing:1.6px;color:#8194b6;margin-bottom:8px;}

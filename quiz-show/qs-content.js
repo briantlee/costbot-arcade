@@ -1,5 +1,5 @@
 /* ============================================================================
- * Board Meeting — the clue bank
+ * Quiz Show — the clue bank
  * ----------------------------------------------------------------------------
  * A Jeopardy-style CostBot board. FOUR categories are drawn onto the board each
  * game (from the pool below); each fills FOUR value tiers ($400/$800/$1200/$1600).
@@ -593,5 +593,5 @@
     { cat: 'FinOps', q: 'What does “CUR” stand for in AWS billing?', c: ['Cloud Usage Report', 'Cost & Usage Report', 'Compute Utilization Rate', 'Cloud Unit Rate'], a: 1, why: 'The Cost & Usage Report is the line-item billing export.' },
   ];
 
-  global.BoardMeetingContent = { CATEGORIES, FINALS };
+  global.QuizShowContent = { CATEGORIES, FINALS };
 })(typeof window !== 'undefined' ? window : globalThis);

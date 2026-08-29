@@ -86,25 +86,6 @@
     // rhythm chart a wide contour so the melody sweeps across all five lanes.
     chGraviton:[{ root: 40, tones: [0, 3, 7] }, { root: 36, tones: [0, 4, 7] },
                { root: 43, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] }],   // Em C G D
-    // CostBot Hero — "Livin' on a Spreadsheet". The four-chord arena-rock anthem,
-    // I–V–vi–IV in G, so the hook resolves home every four bars.
-    chRock:   [{ root: 43, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] },
-               { root: 40, tones: [0, 3, 7] }, { root: 36, tones: [0, 4, 7] }],   // G D Em C
-    // CostBot Hero — "Stranger Costs". A minor with a dark harmonic-minor V (E major),
-    // the G# in that last chord is the horror turn. The arpeggio does the work.
-    chStranger:[{ root: 45, tones: [0, 3, 7] }, { root: 41, tones: [0, 4, 7] },
-               { root: 48, tones: [0, 4, 7] }, { root: 40, tones: [0, 4, 7] }],   // Am F C E
-    // CostBot Hero — "Game of Loans". 16 bars in C minor, four four-bar sections so
-    // the song evolves: A verse (dark, low), B build, C climax (the soar), D
-    // breakdown + fill back to the top. Roots dropped an octave for a heavy low end.
-    chThrones:[{ root: 36, tones: [0, 3, 7] }, { root: 32, tones: [0, 4, 7] },   // A: Cm Ab
-               { root: 39, tones: [0, 4, 7] }, { root: 34, tones: [0, 4, 7] },   //    Eb Bb
-               { root: 32, tones: [0, 4, 7] }, { root: 39, tones: [0, 4, 7] },   // B: Ab Eb
-               { root: 34, tones: [0, 4, 7] }, { root: 36, tones: [0, 3, 7] },   //    Bb Cm
-               { root: 36, tones: [0, 3, 7] }, { root: 32, tones: [0, 4, 7] },   // C: Cm Ab
-               { root: 39, tones: [0, 4, 7] }, { root: 34, tones: [0, 4, 7] },   //    Eb Bb
-               { root: 32, tones: [0, 4, 7] }, { root: 34, tones: [0, 4, 7] },   // D: Ab Bb
-               { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] }],  //    Cm Cm
     // CostBot Hero — "Imperial Markup". 16 bars in G minor: A the theme, B the
     // lyrical middle, C the big octave-up statement, D dark bridge + fill.
     chImperial:[{ root: 43, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },  // A: Gm Gm
@@ -156,6 +137,16 @@
                { root: 48, tones: [0, 4, 7] }, { root: 53, tones: [0, 4, 7] },
                { root: 48, tones: [0, 4, 7] }, { root: 53, tones: [0, 4, 7] },
                { root: 53, tones: [0, 4, 7] }, { root: 46, tones: [0, 4, 7] }],
+    // "Blind Hero" (dd.mid). i–VI–iv–i in C minor — Cm Ab Fm Cm, two bars each,
+    // twice through the 16-bar loop. Matches the source's bass exactly.
+    blindHero:[{ root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },  // Cm Cm
+               { root: 44, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },  // Ab Ab
+               { root: 41, tones: [0, 3, 7] }, { root: 41, tones: [0, 3, 7] },  // Fm Fm
+               { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },  // Cm Cm
+               { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },  // Cm Cm
+               { root: 44, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },  // Ab Ab
+               { root: 41, tones: [0, 3, 7] }, { root: 41, tones: [0, 3, 7] },  // Fm Fm
+               { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] }], // Cm Cm
   };
 
   // ===========================================================================
@@ -297,58 +288,6 @@
       // D — the climb-and-drop hook
       66, _, 69, _, 74, _, 78, _, 76, _, 74, _, 69, _, 66, _,
     ],
-    // CostBot Hero — "Livin' on a Spreadsheet". A big singable arena-rock hook
-    // over G–D–Em–C. Every onset sits on a beat or an off-beat 8th (never a lone
-    // 16th), so the falling-note chart lands exactly on the pulse you hear.
-    chRock: [
-      // G (I) — the hook enters, G B B D D B
-      67, _, _, _, 71, _, 71, _, 74, _, _, _, 74, _, 71, _,
-      // D (V) — answer climbs, A D F# E D
-      69, _, _, _, 74, _, _, _, 78, _, 76, _, 74, _, _, _,
-      // Em (vi) — the lift, B D E F# E D
-      71, _, _, _, 74, _, 76, _, 78, _, _, _, 76, _, 74, _,
-      // C (IV) — peak on the octave and resolve, E G F# E D C
-      76, _, _, _, 79, _, 78, _, 76, _, 74, _, 72, _, _, _,
-    ],
-    // CostBot Hero — "Stranger Costs". A steady 8th-note analog arpeggio that climbs
-    // each chord, peaks, and falls — the Carpenter/Stranger Things signature. The
-    // note stream you hit IS this arpeggio, so it can't drift from the music.
-    chStranger: [
-      // Am — A C E climbing to C6 and back
-      69, _, 72, _, 76, _, 81, _, 84, _, 81, _, 76, _, 72, _,
-      // F — F A C up to A5 and down
-      65, _, 69, _, 72, _, 77, _, 81, _, 77, _, 72, _, 69, _,
-      // C — C E G reaching E6, the peak
-      72, _, 76, _, 79, _, 84, _, 88, _, 84, _, 79, _, 76, _,
-      // E (harmonic-minor V) — the dark G# turn, E G# B
-      64, _, 68, _, 71, _, 76, _, 80, _, 76, _, 71, _, 68, _,
-    ],
-    // CostBot Hero — "Game of Loans". 16 bars. A: the cell low and menacing. B: it
-    // climbs. C: a huge soar (peaks at 91). D: a sparse breakdown (the kit drops)
-    // then an ascending fill that slingshots back to the top. Every loop tells the
-    // whole arc, so it never sits on one idea.
-    chThrones: [
-      // -- A: dark low verse --------------------------------------------------
-      43, _, 48, _, 51, _, 53, _, 55, _, 51, _, 48, _, 43, _,   // Cm
-      44, _, 48, _, 51, _, 53, _, 56, _, 51, _, 48, _, 44, _,   // Ab
-      51, _, 55, _, 58, _, 63, _, 58, _, 55, _, 51, _, 55, _,   // Eb
-      46, _, 50, _, 53, _, 55, _, 53, _, 50, _, 46, _, 43, _,   // Bb
-      // -- B: the build -------------------------------------------------------
-      48, _, 51, _, 56, _, 60, _, 63, _, 60, _, 56, _, 51, _,   // Ab
-      51, _, 55, _, 58, _, 63, _, 67, _, 63, _, 58, _, 55, _,   // Eb
-      53, _, 58, _, 62, _, 65, _, 70, _, 65, _, 62, _, 58, _,   // Bb
-      55, _, 60, _, 63, _, 67, _, 72, _, 67, _, 63, _, 60, _,   // Cm
-      // -- C: the climax / soar ----------------------------------------------
-      72, _, 75, _, 79, _, 84, _, 86, _, 84, _, 79, _, 75, _,   // Cm
-      72, _, 75, _, 80, _, 84, _, 87, _, 84, _, 80, _, 75, _,   // Ab
-      75, _, 79, _, 82, _, 87, _, 91, _, 87, _, 82, _, 79, _,   // Eb (peak 91)
-      82, _, 79, _, 75, _, 70, _, 67, _, 63, _, 58, _, 55, _,   // Bb (dramatic fall)
-      // -- D: breakdown (kit drops) then fill --------------------------------
-      51, _, _, _, 55, _, _, _, 58, _, _, _, 55, _, _, _,       // Ab (sparse)
-      50, _, _, _, 53, _, _, _, 58, _, _, _, 53, _, _, _,       // Bb (sparse)
-      48, _, 51, _, 55, _, 60, _, 63, _, 60, _, 55, _, 51, _,   // Cm (rebuild)
-      55, _, 51, _, 48, _, 51, _, 55, _, 58, _, 60, _, 63, _,   // Cm (ascending fill)
-    ],
     // CostBot Hero — "Imperial Markup". 16 bars. A: the theme (G G G / Eb–Bb, the
     // dotted Bb on the 'a' of 4 is the menace). B: the lyrical middle rises and
     // leans on the leading tone. C: the big statement an octave up. D: a dark
@@ -462,6 +401,29 @@
       82, _, _, _, 87, _, _, _, 82, _, _, _, _, _, _, _,
       87, _, _, _, _, _, 84, _, 82, _, _, _, 80, _, _, _,
       79, _, _, _, _, _, _, _, 77, _, _, _, _, _, _, _,
+    ],
+    // "Blind Hero" (dd.mid), transcribed from MIDI: an 8-bar 8th-note ostinato
+    // (G–Eb–D–C, the top note lifting a semitone under the Ab/Fm bars), then the
+    // sparse, held-note theme that answers it. Faithful to the source's rests.
+    blindHero: [
+      // -- ostinato, bars 1-8 (top note tracks the chord: G over Cm, G# over Ab/Fm) --
+      67, _, 63, _, 62, _, 60, _, 67, _, 63, _, 62, _, 60, _,
+      67, _, 63, _, 62, _, 60, _, 67, _, 63, _, 62, _, 60, _,
+      68, _, 63, _, 62, _, 60, _, 68, _, 63, _, 62, _, 60, _,
+      68, _, 63, _, 62, _, 60, _, 68, _, 63, _, 62, _, 60, _,
+      68, _, 63, _, 62, _, 60, _, 68, _, 63, _, 62, _, 60, _,
+      68, _, 63, _, 62, _, 60, _, 68, _, 63, _, 62, _, 60, _,
+      67, _, 63, _, 62, _, 60, _, 67, _, 63, _, 62, _, 60, _,
+      67, _, 63, _, 62, _, 60, _, 67, _, 63, _, 62, _, 60, _,
+      // -- the theme, bars 9-16 (sparse, held) ------------------------------
+      75, _, _, _, _, _, _, _, 74, _, _, _, _, _, _, _,
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      75, _, _, _, 79, _, _, _, 77, _, _, _, _, _, _, _,
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      77, _, _, _, _, _, _, _, 72, _, _, _, _, _, _, _,
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      75, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      74, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
     ],
   };
 
@@ -591,35 +553,6 @@
       prog: P.chGraviton, lead: L.chGraviton, drums: 'double', pad: 'saw',
       arpEvery: 1, bassEvery: 1, gain: 0.95, voices: { lead: 'dist' },
     },
-    // The headline track — 80s arena rock. Power chords, rock backbeat, a big
-    // distorted-guitar hook whose notes fall right on the beat.
-    ch_rock: {
-      title: "Livin' on a Spreadsheet", influence: 'Bon Jovi · arena rock', bpm: 126, key: 'G major',
-      desc: 'CostBot Hero arena-rock anthem. Power chords over G–D–Em–C with a rock backbeat and '
-          + 'a big singable distorted-guitar hook — every note lands on the beat.',
-      prog: P.chRock, lead: L.chRock, drums: 'rock', pad: 'power',
-      arpEvery: 4, bassEvery: 2, gain: 0.95, voices: { lead: 'dist' },
-    },
-    // Electronic synth-horror — the Stranger Things / John Carpenter lane. A climbing
-    // analog arpeggio over a throbbing 8th-note bass and a four-on-the-floor pulse.
-    ch_stranger: {
-      title: 'Stranger Costs', influence: 'Stranger Things · analog synth', bpm: 108, key: 'A minor',
-      desc: 'CostBot Hero synth-horror cue. A climbing analog arpeggio over a throbbing bass with '
-          + 'a dark harmonic-minor turn — the falling notes ARE the arpeggio, cascading the lanes.',
-      prog: P.chStranger, lead: L.chStranger, drums: 'four', pad: 'saw',
-      arpEvery: 0, bassEvery: 2, gain: 0.85, voices: { lead: 'saw' },
-    },
-    // Dark epic — the Game of Thrones lane, heavier cut. 16-bar song: double-kick
-    // drive, a 16th string ostinato, deep low end and a distorted lead over the
-    // cell — verse, build, a soaring climax, then a breakdown and a fill home.
-    ch_thrones: {
-      title: 'Game of Loans', influence: 'Game of Thrones · dark epic', bpm: 132, key: 'C minor',
-      desc: 'CostBot Hero dark-epic anthem, ~26s: a low menacing verse, a build, a huge soaring '
-          + 'climax and a breakdown that falls away before a fill slingshots back to the top.',
-      prog: P.chThrones, lead: L.chThrones, drums: 'double', pad: 'strings', bars: 16,
-      breakBars: [12, 13], fillBar: 15, crashBars: [8, 12],
-      arpEvery: 1, bassEvery: 1, gain: 0.95, voices: { lead: 'dist' },
-    },
     // Villain march — the Imperial March lane. 16-bar song: heavy brass power
     // chords and a martial kit through the theme, a lyrical middle, a big octave-up
     // statement, then a dark bridge where the kit drops and a fill back in.
@@ -673,6 +606,17 @@
       prog: P.chJeopardy, lead: L.chJeopardy, drums: 'four', pad: 'saw', bars: 16,
       fillBar: 15, crashBars: [0, 8],
       arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'saw' },
+    },
+    // Daredevil, given the same treatment as The Savengers: transcribed from MIDI,
+    // then cranked — double-kick drive under a dark string pad, distorted lead on
+    // the 8-bar ostinato hook, then the sparse theme answers it.
+    ch_blindhero: {
+      title: 'Blind Hero', influence: 'Daredevil, dark ostinato', bpm: 114, key: 'C minor',
+      desc: 'Daredevil theme, cranked up: an 8-bar 8th-note ostinato hook driving over a double-kick '
+          + 'pulse and dark strings, i–VI–iv–i in C minor, before a sparse, moody theme answers it.',
+      prog: P.blindHero, lead: L.blindHero, drums: 'double', pad: 'strings', bars: 16,
+      fillBar: 15, crashBars: [0, 8],
+      arpEvery: 1, bassEvery: 1, gain: 0.9, voices: { lead: 'dist' },
     },
   };
 

@@ -33,35 +33,35 @@
   <script src="../shared/arcade-sync.js"></script>
   <script src="../shared/arcade-wallet.js"></script>
   <script src="../shared/arcade-music.js"></script>
-  <script src="bm-content.js"></script>
-  <script src="bm-game.js"></script>
+  <script src="qs-content.js"></script>
+  <script src="qs-game.js"></script>
   <script>
     let game;
     (async () => {
       const session = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
       if (window.ArcadeWallet) window.ArcadeWallet.init();
-      game = BoardMeeting.mount('#game', {
+      game = QuizShow.mount('#game', {
         persist: true,
         meta: session.enabled && window.ArcadeSync.gameProfile
-          ? window.ArcadeSync.gameProfile('board-meeting') || undefined
+          ? window.ArcadeSync.gameProfile('quiz-show') || undefined
           : undefined,
         onEvent(type, payload) {
-          if (type !== 'ready') console.log('[BoardMeeting]', type, payload);
+          if (type !== 'ready') console.log('[QuizShow]', type, payload);
           const back = document.getElementById('back');
           if (back && type === 'run:start') back.classList.add('dim');
           if (back && type === 'run:end') back.classList.remove('dim');
         },
         onComplete(result) {
-          console.log('[BoardMeeting] game complete', result);
+          console.log('[QuizShow] game complete', result);
           if (window.ArcadeSync && window.ArcadeSync.enabled) {
-            window.ArcadeSync.saveGame('board-meeting', game.meta);
+            window.ArcadeSync.saveGame('quiz-show', game.meta);
             window.ArcadeSync.submit(result, null);
           }
         },
       });
       window.game = game;
       if (session.enabled) {
-        setInterval(() => window.ArcadeSync.saveGame('board-meeting', game.meta), 20000);
+        setInterval(() => window.ArcadeSync.saveGame('quiz-show', game.meta), 20000);
       }
     })();
     window.addEventListener('load', () => {
