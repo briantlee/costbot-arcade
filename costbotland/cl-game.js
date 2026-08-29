@@ -43,13 +43,16 @@
     ctx.closePath();
   }
 
-  // ---- self-contained blips (shared soundtrack is a later juice pass) -------
+  // ---- audio: blips on a master bus + the shared ArcadeMusic soundtrack --------
   function makeAudio() {
-    let ac = null;
+    let ac = null, master = null, music = null, muted = false;
     const ok = typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined';
     function actx() {
       if (!ok) return null;
-      if (!ac) { const A = global.AudioContext || global.webkitAudioContext; ac = new A(); }
+      if (!ac) {
+        const A = global.AudioContext || global.webkitAudioContext; ac = new A();
+        master = ac.createGain(); master.gain.value = muted ? 0 : 1; master.connect(ac.destination);
+      }
       if (ac.state === 'suspended') ac.resume().catch(() => {});
       return ac;
     }
@@ -58,11 +61,16 @@
       const o = a.createOscillator(), g = a.createGain();
       o.type = type || 'sine'; o.frequency.value = freq;
       g.gain.value = gain == null ? 0.06 : gain;
-      o.connect(g); g.connect(a.destination);
+      o.connect(g); g.connect(master);
       const t = a.currentTime;
       g.gain.setValueAtTime(g.gain.value, t);
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       o.start(t); o.stop(t + dur);
+    }
+    function ensureMusic() {
+      const a = actx(); if (!a || !global.ArcadeMusic) return null;
+      if (!music) music = global.ArcadeMusic.create(() => ({ ctx: a, master }));
+      return music;
     }
     return {
       fix(combo) { const b = 620 + combo * 55; blip(b, 0.09, 'triangle', 0.06); setTimeout(() => blip(b * 1.5, 0.11, 'triangle', 0.05), 60); },
@@ -72,6 +80,10 @@
       down() { blip(120, 0.4, 'sawtooth', 0.07); },
       firework() { blip(400 + Math.round(200 * (now() % 5) / 5), 0.18, 'triangle', 0.04); },
       resume() { actx(); },
+      playMusic(key) { const m = ensureMusic(); if (m) { m.setVolume(0.6); m.playTrack(key); } },
+      stopMusic() { if (music) music.stop(); },
+      setMuted(v) { muted = !!v; if (master) master.gain.value = muted ? 0 : 1; return muted; },
+      isMuted() { return muted; },
     };
   }
 
@@ -94,7 +106,7 @@
 
     // ---- persistent profile (bests) ----------------------------------------
     const LS_KEY = 'costbot.land.meta';
-    function defaultMeta() { return { bestGuests: 0, bestStars: 0, bestCombo: 0, bestUptime: 0, plays: 0 }; }
+    function defaultMeta() { return { bestGuests: 0, bestStars: 0, bestCombo: 0, bestUptime: 0, plays: 0, muted: false }; }
     function loadMeta() {
       if (opts.meta) return Object.assign(defaultMeta(), opts.meta);
       if (opts.persist) { try { const raw = global.localStorage && localStorage.getItem(LS_KEY);
@@ -162,6 +174,8 @@
     function onKeyDown(e) {
       const k = e.key.toLowerCase();
       if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k) || k === 'spacebar') e.preventDefault();
+      if (k === 'escape') { quitToMenu(); return; }
+      if (k === 'm') { toggleMute(); return; }
       if (k === ' ' || k === 'spacebar' || k === 'enter' || k === 'e') {
         if (!keys['_act']) primaryAction(); keys['_act'] = true; return;
       }
@@ -198,7 +212,7 @@
       state: 'menu', t: 0, last: now(),
       chef: { x: 500, y: 600, held: null, prep: null, onTrack: false, boost: 0, carryChild: null },
       lands: [],            // {def, happy, incident, downT}
-      gate: { happy: C.GATE.start, line: [], spawnT: 1.5, jamT: 0 },
+      gate: { happy: C.GATE.start, line: [], spawnT: 1.5, jamT: 0, frontT: C.GATE.patience },
       child: null,
       churro: null, churroT: C.CHURRO.every,
       goalT: 1.5, phase: C.PHASES[0],
@@ -212,7 +226,7 @@
     function reset() {
       G.t = 0; G.chef = { x: 500, y: 600, held: null, prep: null, onTrack: false, boost: 0, carryChild: null };
       G.lands = C.LANDS.map((def) => ({ def, happy: S.landStart, incident: null, downT: 0 }));
-      G.gate = { happy: C.GATE.start, line: [], spawnT: 1.5, jamT: 0 };
+      G.gate = { happy: C.GATE.start, line: [], spawnT: 1.5, jamT: 0, frontT: C.GATE.patience };
       G.child = null;
       G.churro = null; G.churroT = C.CHURRO.every;
       G.goalT = 1.5; G.phase = C.PHASES[0];
@@ -220,7 +234,10 @@
       G.openLandSec = 0; G.totalLandSec = 0;
       G.floats = []; G.sparks = []; G.result = null; G.hint = null;
     }
-    function startRun() { reset(); G.state = 'playing'; G.last = now(); audio.resume(); onEvent('run:start', {}); }
+    function startRun() { reset(); G.state = 'playing'; G.last = now(); audio.resume(); audio.playMusic('ch_parade'); onEvent('run:start', {}); }
+    // Esc bails out of a run back to the intro (no score recorded).
+    function quitToMenu() { if (G.state !== 'playing') return; audio.stopMusic(); G.state = 'menu'; G.hint = null; onEvent('run:end', {}); }
+    function toggleMute() { const m = audio.setMuted(!audio.isMuted()); api.meta.muted = m; saveMeta(); onEvent('mute', { muted: m }); return m; }
 
     function addFloat(x, y, text, color, big) { G.floats.push({ x, y, text, color: color || '#fff', life: 1, big: !!big }); }
     function burst(x, y, color, n) {
@@ -248,7 +265,7 @@
       const slot = slots[(Math.random() * slots.length) | 0];
       if (slot === 'child') { spawnChild(); return; }
       const pool = C.INCIDENT_POOL;
-      slot.incident = { type: C.INCIDENTS[pool[(Math.random() * pool.length) | 0]], age: 0 };
+      slot.incident = { type: C.INCIDENTS[pool[(Math.random() * pool.length) | 0]], ttl: S.goalTtl, ttlMax: S.goalTtl };
     }
 
     // ---- interaction --------------------------------------------------------
@@ -324,29 +341,28 @@
       audio.fix(Math.min(6, G.combo));
     }
 
-    function landDown(land) {
-      land.downT = S.downSeconds; land.incident = null; land.happy = 0;
+    // A circle goal timed out unresolved: it vanishes and the park loses cash.
+    // Rides no longer close — this is the only consequence of ignoring a goal.
+    function goalMissed(land) {
+      land.incident = null;
       G.combo = 0;
+      G.score -= S.goalMissPenalty;
       const a = land.def.attract;
-      addFloat(a.x, a.y, 'LAND CLOSED', '#f87171', true);
-      burst(a.x, a.y, '#f87171', 16);
+      addFloat(a.x, a.y - 20, 'MISSED', '#f87171', true);
+      addFloat(a.x, a.y - 46, '-$' + S.goalMissPenalty.toLocaleString(), '#f87171', true);
+      burst(a.x, a.y, '#f87171', 12);
       audio.down();
-      if (G.lands.every((l) => l.downT > 0)) endRun('closed');
     }
 
     // ---- ticket gate --------------------------------------------------------
     function scanGate() {
-      if (!G.gate.line.length || G.gate.jamT > 0) return;
+      if (!G.gate.line.length) return;
       G.gate.line.shift();                       // admit the front of the line
+      G.gate.frontT = C.GATE.patience;           // fresh clock for the next guest up
       G.gate.happy = Math.min(S.landMax, G.gate.happy + C.GATE.scanGain);
       G.guests += 1; G.score += Math.round(C.GATE.score * G.phase.scoreMult);
       addFloat(C.GATE.x + 30, C.GATE.y - 26, '🎟 +' + C.GATE.score, '#7fd8c4');
       audio.grab();
-    }
-    function gateJam() {
-      G.gate.jamT = S.downSeconds; G.gate.line = []; G.gate.happy = 0; G.combo = 0;
-      addFloat(C.GATE.x, C.GATE.y - 60, 'GATE JAMMED', '#f87171', true);
-      burst(C.GATE.x, C.GATE.y - 20, '#f87171', 14); audio.down();
     }
 
     // ---- lost child escort --------------------------------------------------
@@ -411,8 +427,13 @@
       G.t += dt;
       G.phase = C.phaseAt(G.t);
 
+      // final-stretch rush: for the last window, every countdown ticks faster so
+      // the closing stretch gets frantic. The day clock (G.t) itself is untouched.
+      const rush = G.t >= S.roundSeconds - S.rushWindow ? S.finaleRush : 1;
+      G.rush = rush > 1;
+
       // churro spawn / pickup / boost timer
-      G.churroT -= dt;
+      G.churroT -= dt * rush;
       if (G.churroT <= 0 && !G.churro) {
         G.churro = { x: 470 + Math.random() * 60, y: 250 + Math.random() * 220 };
         // avoid dropping it inside the castle
@@ -434,51 +455,53 @@
       }
 
       // one goal every goalEvery seconds, into a random open land or the child slot
-      G.goalT -= dt;
+      G.goalT -= dt * rush;
       if (G.goalT <= 0) { spawnGoal(); G.goalT = S.goalEvery; }
 
-      // ticket gate: a line builds, its meter drains with the queue, and a guest
-      // who waits past their patience abandons the line — costing park cash.
+      // ticket gate: a line builds, and ONLY the front guest is on the clock.
+      // Scan them in time or they walk out, the line shuffles up, and the timer
+      // resets for whoever is now at the front. The gate never jams shut.
       const gate = G.gate;
-      if (gate.jamT > 0) { gate.jamT -= dt; if (gate.jamT <= 0) gate.happy = S.reopenAt; }
-      else {
-        gate.spawnT -= dt;
-        if (gate.spawnT <= 0) {
-          if (gate.line.length < C.GATE.cap) gate.line.push({ patience: C.GATE.patience,
-            shirt: pick(GUEST_SHIRTS), skin: pick(GUEST_SKINS), hair: pick(GUEST_HAIR) });
-          gate.spawnT = G.phase.id === 'open' ? C.GATE.spawnOpen : C.GATE.spawnOther;
+      gate.spawnT -= dt * rush;
+      if (gate.spawnT <= 0) {
+        if (gate.line.length < C.GATE.cap) {
+          gate.line.push({ shirt: pick(GUEST_SHIRTS), skin: pick(GUEST_SKINS), hair: pick(GUEST_HAIR) });
+          if (gate.line.length === 1) gate.frontT = C.GATE.patience;   // first arrival starts the clock
         }
-        // impatient guests abandon the line (charge one penalty per walkout)
-        let walked = 0;
-        for (const guest of gate.line) { guest.patience = (guest.patience == null ? C.GATE.patience : guest.patience) - dt; }
-        gate.line = gate.line.filter((guest) => { if (guest.patience > 0) return true; walked++; return false; });
-        if (walked > 0) {
-          G.score -= walked * S.ticketPenalty; gate.happy -= 6 * walked; G.combo = 0;
-          addFloat(C.GATE.x, C.GATE.y - 60, '-$' + (walked * S.ticketPenalty).toLocaleString() + ' walked out', '#f87171', true);
-          audio.down();
-        }
-        gate.happy -= (C.GATE.drainBase + C.GATE.drainPerGuest * gate.line.length) * dt;
-        if (gate.happy <= 0) gateJam();
+        gate.spawnT = G.phase.id === 'open' ? C.GATE.spawnOpen : C.GATE.spawnOther;
       }
+      if (gate.line.length > 0) {
+        gate.frontT -= dt * rush;
+        if (gate.frontT <= 0) {
+          gate.line.shift();
+          G.score -= S.ticketPenalty; gate.happy = Math.max(0, gate.happy - 6); G.combo = 0;
+          addFloat(C.GATE.x, C.GATE.y - 60, '-$' + S.ticketPenalty.toLocaleString() + ' walked out', '#f87171', true);
+          audio.down();
+          gate.frontT = C.GATE.patience;                               // next guest, fresh clock
+        }
+      }
+      gate.happy = clamp(gate.happy - (C.GATE.drainBase + C.GATE.drainPerGuest * gate.line.length) * dt, 0, S.landMax);
 
       // lost child: tick patience, follow the chef while carried (spawned via spawnGoal)
       if (G.child) {
-        G.child.patience -= dt;
+        G.child.patience -= dt * rush;
         if (G.child.state === 'carried') { G.child.x = G.chef.x; G.child.y = G.chef.y - 44; }
         if (G.child.patience <= 0) loseChild();
       }
 
-      // land meters
-      let openCount = 0;
+      // land meters — rides never close now. A land with an active circle goal is
+      // "something's wrong" and slips; an idle land is running fine and recovers.
+      // The goal's OWN countdown (ttl) is the timer — let it lapse and it's a miss.
       for (const l of G.lands) {
-        if (l.downT > 0) { l.downT -= dt; if (l.downT <= 0) l.happy = S.reopenAt; continue; }
-        openCount++;
-        let decay = S.baseDecay;
-        if (l.incident) { l.incident.age += dt; decay += l.incident.type.sev; }
-        l.happy -= decay * dt;
-        if (l.happy <= 0) landDown(l);
+        if (l.incident) {
+          l.incident.ttl -= dt * rush;
+          l.happy = clamp(l.happy - S.baseDecay * dt, 0, S.landMax);
+          if (l.incident.ttl <= 0) goalMissed(l);
+        } else {
+          l.happy = clamp(l.happy + S.recoverRate * dt, 0, S.landMax);
+        }
       }
-      G.openLandSec += (openCount / G.lands.length) * dt; G.totalLandSec += dt;
+      G.openLandSec += dt; G.totalLandSec += dt;   // nothing closes ⇒ uptime is 100%
       G.peakStars = Math.max(G.peakStars, stars());
 
       // finale fireworks
@@ -500,6 +523,7 @@
 
     function endRun(outcome) {
       if (G.state !== 'playing') return;
+      audio.stopMusic();
       G.state = 'over';
       const uptime = G.totalLandSec > 0 ? Math.round((G.openLandSec / G.totalLandSec) * 100) : 100;
       api.meta.plays = (api.meta.plays || 0) + 1;
@@ -549,7 +573,9 @@
 
       drawHUD();
       if (touchMode && G.state === 'playing') drawTouch();
-      if (G.state === 'menu') drawMenu();
+      if (G.state === 'menu') {
+        if (introEl) { introEl.style.display = 'flex'; if (!introShown) { syncIntro(); introShown = true; } }
+      } else if (introEl && introShown) { introEl.style.display = 'none'; introShown = false; }
       if (G.state === 'over') drawOver();
     }
 
@@ -612,7 +638,8 @@
       drawGate();
       if (G.churro) { ctx.font = '30px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(C.CHURRO.emoji, G.churro.x, G.churro.y); }
-      for (const l of G.lands) drawLandMeter(l);
+      // (land happiness bars removed — rides never close, so the ★ rating in the
+      // HUD is the only health readout the player needs.)
       for (const l of G.lands) if (l.incident && l.downT <= 0) drawIncident(l);
       if (G.child && G.child.state === 'waiting') drawChild();
       if (G.chef.carryChild) drawChildTarget(G.lands[G.chef.carryChild.target]);
@@ -801,27 +828,41 @@
 
     function drawIncident(l) {
       const a = l.def.attract, inc = l.incident;
-      const pulse = 1 + Math.sin(now() / 140) * 0.08;
+      const pulse = 1 + Math.sin(now() / 120) * 0.12;
       const fixing = G.chef.prep && G.chef.prep.land === l;
       const hot = G.hint && G.hint.kind === 'fix' && G.hint.land === l;
+      const R = 34;
+      const frac = clamp((inc.ttl != null ? inc.ttl : inc.ttlMax) / (inc.ttlMax || 1), 0, 1);
+      const tcol = frac > 0.5 ? '#34d399' : frac > 0.25 ? '#fbbf24' : '#f87171';
+      const low = frac <= 0.25;
+      const flash = low ? 0.55 + 0.45 * Math.sin(now() / 90) : 1;
+      // a big glowing disc so goals pop off the busy painted park
       ctx.save();
-      ctx.shadowColor = l.def.color; ctx.shadowBlur = hot ? 26 : 14;
-      ctx.fillStyle = '#1a1330';
-      ctx.beginPath(); ctx.arc(a.x, a.y, 30 * pulse, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = flash;
+      ctx.shadowColor = l.def.color; ctx.shadowBlur = hot ? 32 : 22;
+      ctx.fillStyle = 'rgba(20,12,40,0.92)';
+      ctx.beginPath(); ctx.arc(a.x, a.y, R * pulse, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = hot ? 26 : 12;
+      ctx.strokeStyle = hot ? '#fde047' : l.def.color; ctx.lineWidth = hot ? 5 : 3.5;
+      ctx.beginPath(); ctx.arc(a.x, a.y, R * pulse, 0, Math.PI * 2); ctx.stroke();
       ctx.restore();
-      ctx.strokeStyle = hot ? '#fde047' : l.def.color; ctx.lineWidth = hot ? 4 : 2.5;
-      ctx.beginPath(); ctx.arc(a.x, a.y, 30 * pulse, 0, Math.PI * 2); ctx.stroke();
+      // countdown ring — depletes clockwise; turns amber then red and pulses low
+      ctx.save();
+      ctx.strokeStyle = tcol; ctx.lineWidth = 5; ctx.lineCap = 'round';
+      if (low) { ctx.shadowColor = tcol; ctx.shadowBlur = 14; }
+      ctx.beginPath();
+      ctx.arc(a.x, a.y, R + 9, -Math.PI / 2, -Math.PI / 2 + frac * Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.font = '28px system-ui'; ctx.fillText(inc.type.icon, a.x, a.y - 2);
-      // alert bang
-      ctx.font = '20px system-ui'; ctx.fillText('❗', a.x + 26, a.y - 24);
-      // label
-      ctx.font = '700 12px system-ui,sans-serif'; ctx.fillStyle = '#f0e6ff';
-      ctx.fillText(inc.type.label, a.x, a.y + 44);
-      // prep ring
+      ctx.font = '30px system-ui'; ctx.fillText(inc.type.icon, a.x, a.y - 2);
+      ctx.font = '20px system-ui'; ctx.fillText('❗', a.x + 30, a.y - 28);
+      ctx.font = '800 13px system-ui,sans-serif'; ctx.fillStyle = '#f6ecff';
+      ctx.fillText(inc.type.label, a.x, a.y + 52);
+      // prep ring while resolving a hold incident (sits just outside the timer)
       if (fixing) { const p = clamp(G.chef.prep.t / G.chef.prep.dur, 0, 1);
         ctx.beginPath(); ctx.strokeStyle = '#fde68a'; ctx.lineWidth = 6;
-        ctx.arc(a.x, a.y, 38, -Math.PI / 2, -Math.PI / 2 + p * Math.PI * 2); ctx.stroke(); }
+        ctx.arc(a.x, a.y, R + 16, -Math.PI / 2, -Math.PI / 2 + p * Math.PI * 2); ctx.stroke(); }
     }
 
     function drawGate() {
@@ -854,10 +895,15 @@
         ctx.beginPath(); ctx.arc(gx, y - 9, 5.6, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = hair;                                   // hair (top half)
         ctx.beginPath(); ctx.arc(gx, y - 9, 5.9, Math.PI, 2 * Math.PI); ctx.fill();
-        if (guest.patience != null && guest.patience < 4) {     // getting impatient
-          ctx.fillStyle = '#f87171'; ctx.font = '700 12px system-ui,sans-serif';
-          ctx.textAlign = 'center'; ctx.fillText('!', gx, y - 20);
-        }
+      }
+      // front-of-line countdown — only the first guest is on the clock
+      if (G.gate.line.length > 0) {
+        const fx = g.x + dir * 38, f = clamp(G.gate.frontT / C.GATE.patience, 0, 1);
+        const bcol = f > 0.5 ? '#34d399' : f > 0.25 ? '#fbbf24' : '#f87171';
+        ctx.fillStyle = 'rgba(8,5,16,0.7)'; rrect(ctx, fx - 16, g.y - 30, 32, 6, 3); ctx.fill();
+        if (f > 0) { ctx.fillStyle = bcol; rrect(ctx, fx - 16, g.y - 30, 32 * f, 6, 3); ctx.fill(); }
+        if (f <= 0.35) { ctx.fillStyle = '#f87171'; ctx.font = '800 13px system-ui,sans-serif';
+          ctx.textAlign = 'center'; ctx.fillText('!', fx, g.y - 40); }
       }
       ctx.textAlign = 'center';
       if (G.gate.line.length >= C.GATE.cap) { ctx.fillStyle = '#f87171'; ctx.font = '700 11px system-ui,sans-serif';
@@ -970,8 +1016,9 @@
       let starStr = '';
       for (let i = 0; i < 5; i++) starStr += i < Math.round(sv) ? '★' : '☆';
       ctx.fillStyle = '#fbbf24'; ctx.fillText(starStr, view.cw / 2, HUD_H / 2 - 8);
-      ctx.fillStyle = '#cbb3e0'; ctx.font = '700 13px system-ui,sans-serif';
-      ctx.fillText('🎟 ' + G.guests + ' guests   ·   ' + (G.state === 'playing' ? G.phase.name : ''), view.cw / 2, HUD_H / 2 + 12);
+      const phaseTxt = G.state === 'playing' ? (G.rush ? '⚡ FINAL RUSH' : G.phase.name) : '';
+      ctx.fillStyle = G.rush ? '#fbbf24' : '#cbb3e0'; ctx.font = '700 13px system-ui,sans-serif';
+      ctx.fillText('🎟 ' + G.guests + ' guests   ·   ' + phaseTxt, view.cw / 2, HUD_H / 2 + 12);
       // park cash (right) — always shown; red when you're in the red
       ctx.textAlign = 'right';
       const combo = G.combo > 1;
@@ -1032,7 +1079,6 @@
       const rows = [
         ['🎟 Guests kept happy', (r.guests || 0)],
         ['★ Peak rating', (r.stars || 0) + ' / 5'],
-        ['🟢 Ride uptime', (r.uptime || 0) + '%'],
         ['🔥 Best combo', 'x' + (r.combo || 0)],
         ['💰 Park cash', money(r.score || 0)],
       ];
@@ -1045,6 +1091,79 @@
       ctx.textAlign = 'center';
       ctx.fillStyle = '#7c3aed'; rrect(ctx, cx - 100, cy + 124, 200, 50, 25); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.font = '800 18px system-ui,sans-serif'; ctx.fillText('▶ OPEN AGAIN', cx, cy + 150);
+    }
+
+    // ---- DOM intro screen ---------------------------------------------------
+    // The canvas draws the park; the intro is a DOM overlay (banner + how-to),
+    // matching the other cabinets. Shown only in the 'menu' state.
+    let introEl = null, introShown = false;
+    function buildIntro() {
+      if (!document.getElementById('cl-intro-style')) {
+        const st = document.createElement('style'); st.id = 'cl-intro-style';
+        st.textContent = `
+        .cl-intro{position:absolute;inset:0;z-index:4;display:none;flex-direction:column;
+          align-items:center;overflow:auto;padding:22px 16px 40px;box-sizing:border-box;
+          font-family:'Segoe UI',system-ui,sans-serif;color:#ece3f7;-webkit-overflow-scrolling:touch;}
+        .cl-intro .cl-veil{position:fixed;inset:0;z-index:-1;
+          background:radial-gradient(circle at 50% -10%,rgba(60,30,90,.6),rgba(8,5,16,.92));}
+        .cl-panel{width:min(760px,100%);display:flex;flex-direction:column;gap:16px;}
+        .cl-hero{border-radius:16px;overflow:hidden;border:1px solid #4a3a72;box-shadow:0 14px 44px rgba(0,0,0,.55);}
+        .cl-hero img{width:100%;display:block;}
+        .cl-head{text-align:center;}
+        .cl-head h1{margin:0;font-size:30px;font-weight:800;color:#fde68a;letter-spacing:.4px;}
+        .cl-head p{margin:5px 0 0;color:#c3a9dc;font-size:14px;}
+        .cl-lbl{font-size:11px;font-weight:800;letter-spacing:1.6px;color:#a888c8;margin-bottom:8px;}
+        .cl-how{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+        @media(max-width:560px){.cl-how{grid-template-columns:1fr;}}
+        .cl-card{padding:9px 11px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid #2f2447;}
+        .cl-card .k{font-weight:800;font-size:12px;color:#f3ecff;margin-bottom:2px;}
+        .cl-card .d{font-size:11px;color:#c3a9dc;line-height:1.4;}
+        .cl-best{text-align:center;color:#e9d5ff;font-size:13px;font-weight:600;}
+        .cl-play{align-self:center;margin-top:2px;padding:14px 52px;border:none;border-radius:26px;
+          background:#7c3aed;color:#fff;font-weight:800;font-size:19px;cursor:pointer;
+          box-shadow:0 8px 24px rgba(124,58,237,.4);transition:transform .1s;}
+        .cl-play:hover{transform:translateY(-2px);}
+        .cl-board{align-self:center;text-decoration:none;color:#c3a9dc;font-weight:700;font-size:13px;
+          padding:8px 18px;border-radius:9px;border:1px solid #4a3a72;background:rgba(255,255,255,.04);
+          transition:border-color .12s,color .12s;}
+        .cl-board:hover{border-color:#8a5aa0;color:#fff;}
+        .cl-foot{text-align:center;color:#7a6294;font-size:11px;}`;
+        document.head.appendChild(st);
+      }
+      introEl = document.createElement('div');
+      introEl.className = 'cl-intro';
+      introEl.innerHTML = `
+        <div class="cl-veil"></div>
+        <div class="cl-panel">
+          <div class="cl-hero"><img src="../shared/assets/costbotland.jpg" alt="CostBotLand"></div>
+          <div class="cl-head">
+            <h1>🎢 CostBotLand</h1>
+            <p>Keep the park humming. Clear every incident before its timer runs out.</p>
+          </div>
+          <div>
+            <div class="cl-lbl">HOW TO PLAY</div>
+            <div class="cl-how">
+              <div class="cl-card"><div class="k">🕹️ Move &amp; act</div><div class="d">WASD / arrows to move, Space (or tap) to act. Esc quits, M mutes.</div></div>
+              <div class="cl-card"><div class="k">⭕ Circle goals</div><div class="d">Incidents pop as glowing circles with a countdown ring. Reach one and act before the ring empties.</div></div>
+              <div class="cl-card"><div class="k">⏳ Beat the timer</div><div class="d">Miss a goal's timer and it vanishes — and the park loses cash. Rides never close, so just keep clearing.</div></div>
+              <div class="cl-card"><div class="k">🎟️ Ticket line</div><div class="d">Scan the guest at the front within 5s or they walk out (−cash). The line then shuffles up.</div></div>
+              <div class="cl-card"><div class="k">🧒 Lost child</div><div class="d">Lift a lost child and carry them to the marked ride before their patience runs out. Hands full = can't fix.</div></div>
+              <div class="cl-card"><div class="k">⚡ Speed lane &amp; 🌯</div><div class="d">Ride the glowing ring track to move faster; grab a churro for a boost. Can't cross the castle.</div></div>
+            </div>
+          </div>
+          <div class="cl-best" id="cl-best"></div>
+          <button class="cl-play" id="cl-play">▶  OPEN PARK</button>
+          <a class="cl-board" href="../leaderboard/index.html#costbotland">🏆 Leaderboard</a>
+          <div class="cl-foot">Survive the day to the 🎆 fireworks finale · high scores post to the arcade leaderboard</div>
+        </div>`;
+      host.appendChild(introEl);
+      introEl.querySelector('#cl-play').onclick = () => startRun();
+    }
+    function syncIntro() {
+      if (!introEl) return;
+      const m = api.meta;
+      introEl.querySelector('#cl-best').textContent =
+        'Best: 🎟 ' + (m.bestGuests || 0) + '   ★ ' + (m.bestStars || 0) + '   best combo x' + (m.bestCombo || 0);
     }
 
     // ---- loop ---------------------------------------------------------------
@@ -1063,17 +1182,22 @@
       meta: loadMeta(),
       start: startRun,
       get state() { return G.state; },
+      get muted() { return audio.isMuted(); },
+      toggleMute,
       _debug: G,
       act: primaryAction,
       destroy() {
         alive = false;
         if (raf) global.cancelAnimationFrame(raf);
+        audio.stopMusic();
         global.removeEventListener('keydown', onKeyDown);
         global.removeEventListener('keyup', onKeyUp);
         if (ro) ro.disconnect(); else global.removeEventListener('resize', resize);
         host.innerHTML = '';
       },
     };
+    audio.setMuted(!!api.meta.muted);   // honour a persisted mute before first sound
+    buildIntro();
     return api;
   }
 

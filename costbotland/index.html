@@ -21,19 +21,25 @@
   #back:hover{background:#2f1f45;color:#fff;border-color:#8a5aa0;opacity:1 !important;}
   #back img{width:18px;height:18px;object-fit:contain}
   #back.dim{opacity:0;pointer-events:none}
+  #mute{position:fixed;bottom:14px;left:14px;z-index:6;display:flex;align-items:center;justify-content:center;
+    width:38px;height:34px;background:rgba(16,10,26,.78);border:1px solid #4a3a66;color:#d9c2e6;
+    border-radius:20px;font-size:16px;cursor:pointer;backdrop-filter:blur(4px);
+    transition:background .14s,color .14s,border-color .14s;}
+  #mute:hover{background:#2f1f45;color:#fff;border-color:#8a5aa0;}
 </style>
 </head>
 <body>
   <a id="back" href="../index.html" title="Back to the CostBot Arcade">
     <img src="../shared/assets/costbot.png" alt="">← Arcade</a>
+  <button id="mute" title="Mute (M)">🔊</button>
   <div id="game"></div>
   <div id="boot"><img src="../shared/assets/costbot.png" alt=""><div>Opening the gates…</div></div>
 
   <script src="../shared/arcade-sync.js"></script>
   <script src="../shared/arcade-music.js"></script>
   <script src="../shared/arcade-biomes.js"></script>
-  <script src="cl-content.js"></script>
-  <script src="cl-game.js"></script>
+  <script src="cl-content.js?v=3"></script>
+  <script src="cl-game.js?v=5"></script>
   <script>
     let game;
     (async () => {
@@ -49,6 +55,8 @@
           const back = document.getElementById('back');
           if (back && type === 'run:start') back.classList.add('dim');
           if (back && type === 'run:end') back.classList.remove('dim');
+          if (type === 'mute') { const mb = document.getElementById('mute');
+            if (mb) mb.textContent = payload.muted ? '🔇' : '🔊'; }
         },
         onComplete(result) {
           console.log('[CostBotLand] day complete', result);
@@ -59,6 +67,8 @@
         },
       });
       window.game = game;
+      const mb = document.getElementById('mute');
+      if (mb) { mb.textContent = game.muted ? '🔇' : '🔊'; mb.onclick = () => game.toggleMute(); }
       if (session.enabled) {
         setInterval(() => window.ArcadeSync.saveGame('costbotland', game.meta), 20000);
       }

@@ -18,7 +18,10 @@
   // carry a singable lead line, so they chart cleanly.
   const SONGS = [
     { key: 'ch_avengers', name: 'The Savengers',   sub: 'Avengers, rocked · 148',   tag: '' },
-    { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Villain march · 104',      tag: '' },
+    // Slow quarter-note march — sparse by nature, so Hard speeds the approach and
+    // drops the freebie holds (all taps) to bring it up to the other two.
+    { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Villain march · 104',      tag: '',
+      hard: { fall: 1.15, holdGap: 99, missCost: 10 } },
     { key: 'ch_small',    name: "It's a Small Cost", sub: 'Electro light parade · 126', tag: '' },
   ];
 
@@ -28,7 +31,7 @@
     //          is a REAL melody onset, so the chart always tracks the tune; a
     //          bigger gap just thins dense runs (easier) without moving notes.
     easy:   { label: 'Easy',   lanes: 3, fall: 2.15, minGap: 4, holdGap: 99, traps: false, missCost: 5,  color: '#39d98a' },
-    medium: { label: 'Medium', lanes: 4, fall: 1.90, minGap: 3, holdGap: 8,  traps: false, missCost: 7,  color: '#f5c451' },
+    medium: { label: 'Normal', lanes: 4, fall: 1.90, minGap: 3, holdGap: 8,  traps: false, missCost: 7,  color: '#f5c451' },
     hard:   { label: 'Hard',   lanes: 4, fall: 1.45, minGap: 2, holdGap: 5,  traps: true,  missCost: 9,  color: '#ff5d6c' },
   };
 
@@ -36,10 +39,10 @@
   // Distinct hues per lane (a nod to each vendor's brand, but spread around the
   // wheel so adjacent lanes never read as the same colour): AWS orange, GCP blue,
   // Azure teal, Databricks red, Snowflake ice-blue.
-  const PALETTE = ['#ff9900', '#4285f4', '#00e0b8', '#ff3b30', '#29b5e8'];
-  const VENDORS = ['AWS', 'GCP', 'Azure', 'Databricks', 'Snowflake'];
+  const PALETTE = ['#ff9900', '#4285f4', '#00e0b8', '#ff3b30'];
+  const VENDORS = ['AWS', 'GCP', 'Azure', 'Databricks'];
   // stylized (non-trademark) vendor glyphs shown on brand-coloured badges
-  const BADGES = ['a', 'G', '▲', 'D', '❄'];
+  const BADGES = ['a', 'G', '▲', 'D'];
   // Real vendor logo paths (24x24 SVG), reused from mudslides ms-content.js.
   // AWS has no mark in that set, so it keeps the monogram badge below.
   const VENDOR_PATHS = [
@@ -47,13 +50,12 @@
     "M12.19 2.38a9.344 9.344 0 0 0-9.234 6.893c.053-.02-.055.013 0 0-3.875 2.551-3.922 8.11-.247 10.941l.006-.007-.007.03a6.717 6.717 0 0 0 4.077 1.356h5.173l.03.03h5.192c6.687.053 9.376-8.605 3.835-12.35a9.365 9.365 0 0 0-2.821-4.552l-.043.043.006-.05A9.344 9.344 0 0 0 12.19 2.38zm-.358 4.146c1.244-.04 2.518.368 3.486 1.15a5.186 5.186 0 0 1 1.862 4.078v.518c3.53-.07 3.53 5.262 0 5.193h-5.193l-.008.009v-.04H6.785a2.59 2.59 0 0 1-1.067-.23h.001a2.597 2.597 0 1 1 3.437-3.437l3.013-3.012A6.747 6.747 0 0 0 8.11 8.24c.018-.01.04-.026.054-.023a5.186 5.186 0 0 1 3.67-1.69z",        // GCP
     "M22.379 23.343a1.62 1.62 0 0 0 1.536-2.14v.002L17.35 1.76A1.62 1.62 0 0 0 15.816.657H8.184A1.62 1.62 0 0 0 6.65 1.76L.086 21.204a1.62 1.62 0 0 0 1.536 2.139h4.741a1.62 1.62 0 0 0 1.535-1.103l.977-2.892l4.947 3.675c.28.208.618.32.966.32m-3.084-12.531l3.624 10.739a.54.54 0 0 1-.51.713v-.001h-.03a.54.54 0 0 1-.322-.106l-9.287-6.9h4.853m6.313 7.006c.116-.326.13-.694.007-1.058L9.79 1.76l-.007-.02h6.034a.54.54 0 0 1 .512.366l6.562 19.445a.54.54 0 0 1-.338.684",      // Azure
     "M.95 14.184L12 20.403l9.919-5.55v2.21L12 22.662l-10.484-5.96-.565.308v.77L12 24l11.05-6.218v-4.317l-.515-.309L12 19.118l-9.867-5.653v-2.21L12 16.805l11.05-6.218V6.32l-.515-.308L12 11.974 2.647 6.681 12 1.388l7.76 4.368.668-.411v-.566L12 0 .95 6.27v.72L12 13.207l9.919-5.55v2.26L12 15.52 1.516 9.56l-.565.308Z", // Databricks
-    "M24 3.459c0 .646-.418 1.18-1.141 1.18-.723 0-1.142-.534-1.142-1.18 0-.647.419-1.18 1.142-1.18.723 0 1.141.533 1.141 1.18zm-.228 0c0-.533-.38-.951-.913-.951s-.913.38-.913.95c0 .533.38.952.913.952.57 0 .913-.419.913-.951zm-1.37-.533h.495c.266 0 .456.152.456.38 0 .153-.076.229-.19.305l.19.266v.038h-.266l-.19-.266h-.229v.266h-.266zm.495.228h-.229v.267h.229c.114 0 .152-.038.152-.114.038-.077-.038-.153-.152-.153zM7.602 12.4c.038-.151.076-.304.076-.456 0-.114-.038-.228-.038-.342-.114-.343-.304-.647-.646-.838l-4.87-2.777c-.685-.38-1.56-.152-1.94.533-.381.685-.153 1.56.532 1.94l2.701 1.56-2.701 1.56c-.685.38-.913 1.256-.533 1.94.38.685 1.256.914 1.94.533l4.832-2.777c.343-.267.571-.533.647-.876zm1.332 2.626c-.266-.038-.57.038-.837.19l-4.832 2.777c-.685.38-.913 1.256-.532 1.94.38.686 1.255.914 1.94.533l2.701-1.56v3.12c0 .8.647 1.408 1.446 1.408.799 0 1.407-.647 1.407-1.408v-5.592c0-.761-.57-1.37-1.293-1.408zm4.946-6.088c.266.038.57-.038.837-.19l4.832-2.777c.685-.38.913-1.256.532-1.94-.38-.686-1.255-.914-1.94-.533l-2.701 1.56V1.975c0-.799-.647-1.408-1.446-1.408-.799 0-1.446.609-1.446 1.408V7.53c0 .76.609 1.37 1.332 1.407zM3.265 5.97l4.832 2.777c.266.152.533.19.837.19.723-.038 1.331-.684 1.331-1.407V1.975c0-.799-.646-1.408-1.407-1.408-.799 0-1.446.647-1.446 1.408v3.12l-2.701-1.56c-.685-.38-1.56-.152-1.94.533-.419.646-.19 1.521.494 1.902zm9.093 6.011a.412.412 0 00-.114-.266l-.57-.571a.346.346 0 00-.267-.114.412.412 0 00-.266.114l-.571.57a.411.411 0 00-.114.267c0 .076.038.19.114.267l.57.57a.345.345 0 00.267.114c.076 0 .19-.038.266-.114l.571-.57a.412.412 0 00.114-.267zm1.598.533L11.94 14.53c-.039.038-.153.114-.229.114h-.608a.411.411 0 01-.267-.114L8.82 12.514a.408.408 0 01-.076-.229v-.608c0-.076.038-.19.114-.267l2.016-2.016a.41.41 0 01.267-.114h.608a.41.41 0 01.267.114l2.016 2.016a.347.347 0 01.114.267v.608c-.076.077-.114.19-.19.229zm5.593 5.44l-4.832-2.777c-.266-.152-.57-.19-.837-.152-.723.038-1.332.684-1.332 1.408v5.554c0 .8.647 1.408 1.408 1.408.799 0 1.446-.647 1.446-1.408v-3.12l2.7 1.56c.686.38 1.561.152 1.941-.533.419-.646.19-1.521-.494-1.94zm2.549-7.533l-2.701 1.56 2.7 1.56c.686.38.914 1.256.533 1.94-.38.685-1.255.913-1.94.533l-4.832-2.778a1.644 1.644 0 01-.647-.798c-.037-.153-.076-.305-.076-.457 0-.114.039-.228.039-.342.114-.343.342-.647.646-.837l4.832-2.778c.685-.38 1.56-.152 1.94.533.457.609.19 1.484-.494 1.864",  // Snowflake
   ];
   const VENDOR_ICONS = VENDOR_PATHS.map(p => { try { return p ? new Path2D(p) : null; } catch { return null; } });
   // savings-lever icons shown on the note faces (rightsize, delete idle, schedule
   // off, commit/RI, cold storage, cleanup, consolidate, cut)
   const SAVINGS = ['📉', '🗑️', '⏸️', '🔒', '❄️', '🧹', '📦', '🔻'];
-  const KEYS = { 3: ['s', 'd', 'f'], 4: ['a', 's', 'd', 'f'], 5: ['a', 's', 'd', 'f', 'g'] };
+  const KEYS = { 3: ['s', 'd', 'f'], 4: ['a', 's', 'd', 'f'] };
 
   // FinOps-flavoured judgment names.
   const JUDGE = { perfect: 'OPTIMIZED!', great: 'RIGHTSIZED', ok: 'TRIMMED', miss: 'OVERRUN', trap: "PROD — DON'T CUT" };
@@ -80,7 +82,6 @@
     'GCP: set Committed Use Discounts and BigQuery slot reservations.',
     'Azure: use Reservations + Hybrid Benefit; deallocate idle VMs.',
     'Databricks: autoscale, auto-terminate clusters, and use spot workers.',
-    'Snowflake: auto-suspend warehouses and right-size — don’t oversize.',
   ];
   // savings-plan / commitment tips, shown on gold "Savings Plan" notes and holds
   const PLAN_TIPS = [
@@ -173,7 +174,7 @@
 
     // ---- persistent meta ----
     const store = loadStore();
-    const meta = Object.assign({ records: {}, plays: 0, lastSong: 0, lastDiff: 'medium', calibMs: 0 },
+    const meta = Object.assign({ records: {}, plays: 0, lastSong: 0, lastDiff: 'medium', calibMs: 0, muted: false },
       opts.meta || store.meta || {});
     function persist() {
       if (opts.persist === false) return;
@@ -186,10 +187,13 @@
       if (actx) { if (actx.state === 'suspended') actx.resume(); return; }
       const AC = global.AudioContext || global.webkitAudioContext;
       actx = new AC();
-      master = actx.createGain(); master.gain.value = 0.9; master.connect(actx.destination);
+      master = actx.createGain(); master.gain.value = meta.muted ? 0 : 0.9; master.connect(actx.destination);
       sfxBus = actx.createGain(); sfxBus.gain.value = 0.6; sfxBus.connect(master);
       if (global.ArcadeMusic) music = global.ArcadeMusic.create(() => ({ ctx: actx, master }));
     }
+    // mute rides the master bus, so it kills music + SFX together and survives reloads
+    function applyMute() { if (master) master.gain.value = meta.muted ? 0 : 0.9; }
+    function toggleMute() { meta.muted = !meta.muted; applyMute(); persist(); emit('mute', { muted: !!meta.muted }); return !!meta.muted; }
     // crisp one-shot feedback blips, kept out of the music mix
     function blip(freq, dur, type, gain, slideTo) {
       if (!actx) return;
@@ -215,8 +219,10 @@
 
     // ---- game state ----
     let state = 'menu';         // menu | count | play | result
-    let songIdx = clamp(meta.lastSong | 0, 0, SONGS.length - 1);
-    let diffKey = DIFFS[meta.lastDiff] ? meta.lastDiff : 'medium';
+    // Default selection is always The Savengers on Normal — the title screen
+    // opens there every load rather than remembering the last pick.
+    let songIdx = 0;
+    let diffKey = 'medium';
     let run = null;             // active run object
     const keysDown = new Set(); // lane keys currently held
     const pointers = new Map(); // pointerId -> laneIndex
@@ -316,7 +322,8 @@
       if (!track) return;
       meta.lastSong = songIdx; meta.lastDiff = diffKey; persist();
 
-      const diff = DIFFS[diffKey];
+      // per-song Hard tuning (e.g. Imperial Markup) layers over the base difficulty
+      const diff = Object.assign({}, DIFFS[diffKey], (diffKey === 'hard' && song.hard) ? song.hard : {});
       const stepDur = 60 / track.bpm / 4;
       const LL = (track.bars || 4) * 16;
 
@@ -470,6 +477,7 @@
     // keyboard
     function onKey(down, e) {
       const k = (e.key || '').toLowerCase();
+      if (down && k === 'm') { toggleMute(); return; }   // mute hotkey, any state
       if (state === 'menu') {
         if (!down) return;
         if (k === 'arrowup') { songIdx = (songIdx + SONGS.length - 1) % SONGS.length; SFX.ui(); }
@@ -481,6 +489,7 @@
         } else if (k === '[' || k === ']') {
           meta.calibMs = clamp((meta.calibMs || 0) + (k === ']' ? 5 : -5), -300, 300); persist(); SFX.ui();
         } else if (k === 'enter' || k === ' ') { e.preventDefault(); startSong(); }
+        syncMenu();
         return;
       }
       if (state === 'result') {
@@ -534,11 +543,10 @@
       const g = geom(r.diff.lanes);
       r.pops.push({ x: g.x0 + g.lw * (lane + 0.5), y: hitY() + (dy || -30), text, color, life: 1 });
     }
-    // surface an educational tip, rate-limited so they don't spam
-    function showTip(r, text) {
-      if (!r || (r.tip && r.tip.life > 3.2)) return;   // don't stomp a fresh tip
-      r.tip = { text, life: 4.5 };
-    }
+    // Tips now rotate under the host in the left gutter (see drawHost); the old
+    // event-driven top-of-screen popups were removed. Kept as a no-op so the
+    // call sites (combos, gold notes, holds, anomaly) still read cleanly.
+    function showTip() {}
     function burst(r, lane, n) {
       const g = geom(r.diff.lanes);
       const cx = g.x0 + g.lw * (lane + 0.5);
@@ -659,7 +667,11 @@
       ctx2d.fillStyle = bg; ctx2d.fillRect(0, 0, W, H);
       drawStars();
 
-      if (state === 'menu') { drawMenu(); drawOverlay(); return; }
+      if (state === 'menu') {
+        if (menuEl) { menuEl.style.display = 'flex'; if (!wasMenu) { syncMenu(); wasMenu = true; } }
+        return;
+      }
+      if (menuEl && wasMenu) { menuEl.style.display = 'none'; wasMenu = false; }
       if (!run) return;
 
       ctx2d.save();
@@ -999,6 +1011,18 @@
       const say = hot > 0.75 ? 'BUDGET!!' : run.combo >= 50 ? 'LEGENDARY' : run.combo >= 25 ? "LET'S GO!"
         : run.combo >= 10 ? 'nice cuts' : 'cut the spend!';
       ctx2d.fillText(say, cx, cy + size / 2 + 18);
+
+      // rotating FinOps tip beneath the host, cycling every 5s — this replaces
+      // the old top-of-screen popups that fired when something good happened.
+      const maxW = g.x0 - 16;
+      if (maxW > 96) {
+        let ty = cy + size / 2 + 46;
+        ctx2d.fillStyle = '#8fbfb2'; ctx2d.font = '800 12px Segoe UI, system-ui, sans-serif';
+        ctx2d.fillText('💡 FINOPS TIP', cx, ty); ty += 20;
+        ctx2d.fillStyle = '#c3cee6'; ctx2d.font = '600 14px Segoe UI, system-ui, sans-serif';
+        const tip = TIPS[Math.floor(performance.now() / 5000) % TIPS.length];
+        for (const ln of wrapText(tip, maxW)) { ctx2d.fillText(ln, cx, ty); ty += 18; }
+      }
     }
 
     // ---- hud ----
@@ -1060,19 +1084,7 @@
         ctx2d.globalAlpha = 1;
       }
 
-      // educational cost-saving tip, surfaced on a good streak
-      if (run.tip) {
-        const a = Math.min(1, run.tip.life / 0.6);       // fade in/out at the ends
-        ctx2d.globalAlpha = a;
-        ctx2d.font = '700 14px Segoe UI, system-ui, sans-serif';
-        const tw = ctx2d.measureText('💡  ' + run.tip.text).width + 28;
-        const bw = Math.min(W - 40, tw), bx = (W - bw) / 2, by = 84;
-        ctx2d.fillStyle = 'rgba(10,16,30,.82)'; rrect(bx, by, bw, 30, 8); ctx2d.fill();
-        ctx2d.strokeStyle = 'rgba(127,214,196,.5)'; ctx2d.lineWidth = 1; rrect(bx, by, bw, 30, 8); ctx2d.stroke();
-        ctx2d.fillStyle = '#cfe9e2'; ctx2d.textAlign = 'center';
-        ctx2d.fillText('💡  ' + run.tip.text, W / 2, by + 20);
-        ctx2d.globalAlpha = 1;
-      }
+      // (FinOps tips moved to the left gutter under the host — see drawHost.)
     }
 
     function drawCountdown() {
@@ -1161,12 +1173,161 @@
       const n = parseInt(hex.slice(1), 16);
       return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
     }
+    // word-wrap a string to a pixel width, using the ctx's current font
+    function wrapText(text, maxW) {
+      const words = String(text).split(' '); const lines = []; let line = '';
+      for (const w of words) {
+        const t = line ? line + ' ' + w : w;
+        if (line && ctx2d.measureText(t).width > maxW) { lines.push(line); line = w; }
+        else line = t;
+      }
+      if (line) lines.push(line);
+      return lines;
+    }
+
+    // ---- DOM title screen -------------------------------------------------
+    // Canvas draws the starfield backdrop; the menu itself is a DOM overlay
+    // (banner + song/difficulty + how-to), matching the other cabinets. Shown
+    // only in the 'menu' state and hidden the instant a run starts.
+    let menuEl = null, wasMenu = false;
+    function buildMenu() {
+      if (!document.getElementById('ch-menu-style')) {
+        const st = document.createElement('style'); st.id = 'ch-menu-style';
+        st.textContent = `
+        .ch-menu{position:absolute;inset:0;z-index:4;display:none;flex-direction:column;
+          align-items:center;overflow:auto;padding:22px 16px 40px;box-sizing:border-box;
+          font-family:'Segoe UI',system-ui,sans-serif;color:#dfe8f7;-webkit-overflow-scrolling:touch;}
+        .ch-menu .ch-veil{position:fixed;inset:0;z-index:-1;
+          background:radial-gradient(circle at 50% -10%,rgba(30,38,90,.55),rgba(5,6,15,.9));}
+        .ch-panel{width:min(780px,100%);display:flex;flex-direction:column;gap:16px;}
+        .ch-hero{border-radius:16px;overflow:hidden;border:1px solid #2b3f66;
+          box-shadow:0 14px 44px rgba(0,0,0,.55);}
+        .ch-hero img{width:100%;display:block;}
+        .ch-head{text-align:center;}
+        .ch-head h1{margin:0;font-size:30px;font-weight:800;color:#ffd76a;letter-spacing:.4px;}
+        .ch-head p{margin:5px 0 0;color:#8ea3cc;font-size:14px;}
+        .ch-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+        @media(max-width:640px){.ch-cols{grid-template-columns:1fr;}}
+        .ch-lbl{font-size:11px;font-weight:800;letter-spacing:1.6px;color:#8194b6;margin-bottom:8px;}
+        .ch-songs{display:flex;flex-direction:column;gap:8px;}
+        .ch-song{display:flex;justify-content:space-between;align-items:center;gap:10px;
+          padding:10px 14px;border-radius:11px;border:1px solid #26324f;background:rgba(255,255,255,.03);
+          cursor:pointer;transition:border-color .12s,background .12s;}
+        .ch-song:hover{border-color:#5a7cb5;}
+        .ch-song.sel{border-color:#ffd76a;background:rgba(255,215,106,.12);}
+        .ch-song .nm{font-weight:700;font-size:15px;color:#eaf1ff;}
+        .ch-song .sub{font-size:12px;color:#8194b6;margin-top:1px;}
+        .ch-song .best{font-size:12px;font-weight:700;color:#ffd76a;white-space:nowrap;}
+        .ch-diffs{display:flex;gap:8px;}
+        .ch-diff{flex:1;padding:11px 0;border-radius:10px;border:1px solid #26324f;
+          background:rgba(255,255,255,.04);text-align:center;font-weight:800;font-size:14px;
+          color:#c4d0e8;cursor:pointer;transition:.12s;}
+        .ch-how{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+        @media(max-width:460px){.ch-how{grid-template-columns:1fr;}}
+        .ch-card{padding:9px 11px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid #1e2942;}
+        .ch-card .k{font-weight:800;font-size:12px;color:#eaf1ff;margin-bottom:2px;}
+        .ch-card .d{font-size:11px;color:#8ea3cc;line-height:1.38;}
+        .ch-play{align-self:center;margin-top:2px;padding:14px 50px;border:none;border-radius:12px;
+          background:#ffd76a;color:#06121a;font-weight:800;font-size:19px;cursor:pointer;
+          box-shadow:0 8px 24px rgba(255,215,106,.3);transition:transform .1s;}
+        .ch-play:hover{transform:translateY(-2px);}
+        .ch-board{align-self:center;text-decoration:none;color:#c4d0e8;font-weight:700;font-size:13px;
+          padding:8px 18px;border-radius:9px;border:1px solid #2b3f66;background:rgba(255,255,255,.04);
+          transition:border-color .12s,color .12s;}
+        .ch-board:hover{border-color:#5a7cb5;color:#fff;}
+        .ch-calib{display:flex;align-items:center;justify-content:center;gap:10px;color:#8194b6;font-size:12px;flex-wrap:wrap;}
+        .ch-calib button{width:30px;height:28px;border-radius:8px;border:1px solid #2b3f66;
+          background:rgba(255,255,255,.06);color:#dfe8f7;font-weight:800;font-size:16px;cursor:pointer;}
+        .ch-calib b{color:#c4d0e8;min-width:62px;text-align:center;}
+        .ch-foot{text-align:center;color:#5b6b8c;font-size:11px;}`;
+        document.head.appendChild(st);
+      }
+      menuEl = document.createElement('div');
+      menuEl.className = 'ch-menu';
+      menuEl.innerHTML = `
+        <div class="ch-veil"></div>
+        <div class="ch-panel">
+          <div class="ch-hero"><img src="../shared/assets/cb_hero_banner_wide_logos.jpg" alt="CostBot Hero"></div>
+          <div class="ch-head">
+            <h1>CostBot Hero</h1>
+            <p>Cut the spend on the beat — every note you nail is money off the cloud bill.</p>
+          </div>
+          <div class="ch-cols">
+            <div>
+              <div class="ch-lbl">SONG</div>
+              <div class="ch-songs" id="ch-songs"></div>
+              <div class="ch-lbl" style="margin-top:16px">DIFFICULTY</div>
+              <div class="ch-diffs" id="ch-diffs"></div>
+            </div>
+            <div>
+              <div class="ch-lbl">HOW TO PLAY</div>
+              <div class="ch-how">
+                <div class="ch-card"><div class="k">🎯 Hit on the beat</div><div class="d">Notes fall down vendor lanes — AWS, GCP, Azure, Databricks. Tap the lane key as each note crosses the line.</div></div>
+                <div class="ch-card"><div class="k">⌨️ Controls</div><div class="d">A S D F, or tap the lanes on a touchscreen. Press M to mute.</div></div>
+                <div class="ch-card"><div class="k">🔒 Holds = commitments</div><div class="d">Hold through the tail to lock in a Savings Plan / RI. Longer holds pay more.</div></div>
+                <div class="ch-card"><div class="k">💰 Gold notes</div><div class="d">The song's peak note pays ×3 — a big savings win. Build combos for up to ×8.</div></div>
+                <div class="ch-card"><div class="k">📈 Mind the bill</div><div class="d">Misses balloon the bill meter. Blow the budget and the run ends early.</div></div>
+                <div class="ch-card"><div class="k">🚫 Don't cut PROD</div><div class="d">On Hard, ✕ trap notes are production — hit one and the bill jumps. Let them fall past.</div></div>
+              </div>
+            </div>
+          </div>
+          <button class="ch-play" id="ch-play">▶&nbsp;&nbsp;PLAY</button>
+          <a class="ch-board" href="../leaderboard/index.html#costbot-hero">🏆 Leaderboard</a>
+          <div class="ch-calib">
+            <span>Audio sync</span>
+            <button id="ch-cal-down">−</button><b id="ch-cal-val">0 ms</b><button id="ch-cal-up">+</button>
+            <span style="opacity:.7">tiles landing early? +&nbsp;&nbsp;·&nbsp;&nbsp;late? −</span>
+          </div>
+          <div class="ch-foot">↑↓ song&nbsp;·&nbsp;←→ difficulty&nbsp;·&nbsp;Enter to play&nbsp;·&nbsp;high scores post to the arcade leaderboard</div>
+        </div>`;
+      host.appendChild(menuEl);
+
+      const songsWrap = menuEl.querySelector('#ch-songs');
+      SONGS.forEach((s, i) => {
+        const el = document.createElement('div');
+        el.className = 'ch-song'; el.dataset.i = i;
+        el.innerHTML = `<div><div class="nm">${s.name}</div><div class="sub">${s.sub}</div></div><div class="best" data-best></div>`;
+        el.onclick = () => { songIdx = i; SFX.ui(); syncMenu(); };
+        songsWrap.appendChild(el);
+      });
+      const diffsWrap = menuEl.querySelector('#ch-diffs');
+      ['easy', 'medium', 'hard'].forEach((dk) => {
+        const el = document.createElement('div');
+        el.className = 'ch-diff'; el.dataset.dk = dk; el.textContent = DIFFS[dk].label;
+        el.onclick = () => { diffKey = dk; SFX.ui(); syncMenu(); };
+        diffsWrap.appendChild(el);
+      });
+      menuEl.querySelector('#ch-play').onclick = () => { initAudio(); startSong(); };
+      menuEl.querySelector('#ch-cal-down').onclick = () => { meta.calibMs = clamp((meta.calibMs || 0) - 5, -300, 300); persist(); SFX.ui(); syncMenu(); };
+      menuEl.querySelector('#ch-cal-up').onclick = () => { meta.calibMs = clamp((meta.calibMs || 0) + 5, -300, 300); persist(); SFX.ui(); syncMenu(); };
+    }
+    function syncMenu() {
+      if (!menuEl) return;
+      menuEl.querySelectorAll('.ch-song').forEach((el) => {
+        const i = +el.dataset.i;
+        el.classList.toggle('sel', i === songIdx);
+        const rec = meta.records[SONGS[i].key] && meta.records[SONGS[i].key][diffKey];
+        el.querySelector('[data-best]').textContent = rec ? rec.grade + ' · ' + fmt$(rec.score) : '';
+      });
+      menuEl.querySelectorAll('.ch-diff').forEach((el) => {
+        const dk = el.dataset.dk, sel = dk === diffKey;
+        el.classList.toggle('sel', sel);
+        el.style.background = sel ? DIFFS[dk].color : '';
+        el.style.borderColor = sel ? DIFFS[dk].color : '';
+        el.style.color = sel ? '#06121a' : '';
+      });
+      const cv = menuEl.querySelector('#ch-cal-val');
+      if (cv) cv.textContent = (meta.calibMs > 0 ? '+' : '') + (meta.calibMs || 0) + ' ms';
+    }
+    buildMenu();
 
     requestAnimationFrame(frame);
     emit('ready', {});
 
     return {
       get meta() { return meta; },
+      get muted() { return !!meta.muted; },
+      toggleMute,
       destroy() { if (music) music.stop(); cv.remove(); },
     };
   }

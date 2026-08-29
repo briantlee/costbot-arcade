@@ -153,6 +153,11 @@ async function initStore() {
     await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS uptime_pct INT NOT NULL DEFAULT 0');
     await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS combo INT NOT NULL DEFAULT 0');
     await p.query('CREATE INDEX IF NOT EXISTS runs_game_guests ON runs (game, guests DESC)');
+    // CostBot Hero ranks on the run score (the spend cut on the beat) plus
+    // accuracy; combo and tokens ride the shared columns above.
+    await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS score BIGINT NOT NULL DEFAULT 0');
+    await p.query('ALTER TABLE runs ADD COLUMN IF NOT EXISTS accuracy_pct INT NOT NULL DEFAULT 0');
+    await p.query('CREATE INDEX IF NOT EXISTS runs_game_score ON runs (game, score DESC)');
     // One row per housekeeping fact. Only `reset_epoch` lives here today; it is a
     // table rather than an env var because it has to survive a pod restart and be
     // readable by both replicas.
@@ -390,6 +395,9 @@ async function recordRun(hubId, team, r) {
     combo: num(r.combo, 1e4),
     // Board Meeting: the player's cumulative earnings (monotonic).
     total_earned: num(r.totalEarned, 1e12),
+    // CostBot Hero: best single-run score + accuracy (0–100).
+    score: num(r.score, 1e12),
+    accuracy_pct: num(r.accuracy, 100),
   };
   if (!pool) {
     mem.runs.push(run);
@@ -401,13 +409,15 @@ async function recordRun(hubId, team, r) {
                          level, kills, quiz_correct, quiz_wrong, team,
                          distance, near_misses, top_speed, duration_s,
                          streak, heaviest_g, fish,
-                         guests, stars_x10, uptime_pct, combo, total_earned)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)`,
+                         guests, stars_x10, uptime_pct, combo, total_earned,
+                         score, accuracy_pct)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)`,
       [run.hub_id, run.game, run.stage_id, run.seed, run.outcome, run.dollars,
         run.tokens, run.level, run.kills, run.quiz_correct, run.quiz_wrong, run.team,
         run.distance, run.near_misses, run.top_speed, run.duration_s,
         run.streak, run.heaviest_g, run.fish,
-        run.guests, run.stars_x10, run.uptime_pct, run.combo, run.total_earned],
+        run.guests, run.stars_x10, run.uptime_pct, run.combo, run.total_earned,
+        run.score, run.accuracy_pct],
     );
   } catch (err) {
     console.error('arcade: recordRun failed:', err.message);
@@ -688,7 +698,51 @@ const GAME_METRICS = {
   combo: { col: 'combo', label: 'Best combo' },
   // Board Meeting. Monotonic client total, so MAX-per-player is the running sum.
   totalEarned: { col: 'total_earned', label: 'Total earnings' },
+  // CostBot Hero. Others carry 0 in these columns and are filtered by the `> 0`
+  // guard, so they only surface on the rhythm cabinet's own board.
+  score: { col: 'score', label: 'Best score' },
+  accuracy: { col: 'accuracy_pct', label: 'Accuracy %' },
 };
+
+// CostBot Hero's board wants the SONG + DIFFICULTY of each player's top score,
+// which a per-metric MAX throws away. So it gets its own per-player best-RUN
+// board that carries the run's stage_id (encoded as "<songKey>:<diffKey>").
+const HERO_SONG_NAMES = { ch_avengers: 'The Savengers', ch_imperial: 'Imperial Markup', ch_small: "It's a Small Cost" };
+const HERO_DIFF_NAMES = { easy: 'Easy', medium: 'Normal', hard: 'Hard' };
+function heroRow(stageId, score, combo, accuracy, tokens, player) {
+  const parts = String(stageId || '').split(':');
+  return {
+    player, score, combo, accuracy, tokens,
+    song: HERO_SONG_NAMES[parts[0]] || parts[0] || '—',
+    difficulty: HERO_DIFF_NAMES[parts[1]] || parts[1] || '—',
+  };
+}
+function memHeroRecords() {
+  const label = (hubId) => playerLabel(mem.players.get(hubId), hubId);
+  const best = new Map();
+  for (const r of mem.runs) {
+    if (r.game !== 'costbot-hero') continue;
+    const v = Number(r.score || 0);
+    if (v <= 0) continue;
+    const cur = best.get(r.hub_id);
+    if (!cur || cur.score < v) {
+      best.set(r.hub_id, heroRow(r.stage_id, v, Number(r.combo || 0),
+        Number(r.accuracy_pct || 0), Number(r.tokens || 0), label(r.hub_id)));
+    }
+  }
+  return [...best.values()].sort((a, b) => b.score - a.score).slice(0, BOARD_LIMIT);
+}
+async function heroRecords() {
+  const q = await pool.query(
+    `SELECT DISTINCT ON (hub_id) hub_id, score, stage_id, combo, accuracy_pct, tokens
+       FROM runs WHERE game = 'costbot-hero' AND score > 0
+      ORDER BY hub_id, score DESC`);
+  const names = await nameMap(q.rows.map((r) => r.hub_id));
+  return q.rows
+    .map((r) => heroRow(r.stage_id, Number(r.score), Number(r.combo || 0),
+      Number(r.accuracy_pct || 0), Number(r.tokens || 0), names[r.hub_id] || r.hub_id))
+    .sort((a, b) => b.score - a.score).slice(0, BOARD_LIMIT);
+}
 
 function memGameBoards(game) {
   const label = (hubId) => playerLabel(mem.players.get(hubId), hubId);
@@ -706,7 +760,8 @@ function memGameBoards(game) {
       .sort((a, b) => b.value - a.value)
       .slice(0, BOARD_LIMIT);
   }
-  return { game, metrics: out, source: 'memory' };
+  const records = game === 'costbot-hero' ? memHeroRecords() : undefined;
+  return { game, metrics: out, records, source: 'memory' };
 }
 
 async function gameBoards(game) {
@@ -728,7 +783,8 @@ async function gameBoards(game) {
         value: Number(r.best) / div,
       }));
     });
-    return { game, metrics, source: 'db' };
+    const records = game === 'costbot-hero' ? await heroRecords() : undefined;
+    return { game, metrics, records, source: 'db' };
   } catch (err) {
     console.error('arcade: gameBoards failed:', err.message);
     return memGameBoards(game);

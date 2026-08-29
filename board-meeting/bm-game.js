@@ -256,21 +256,23 @@
       stopMusic();
       root.innerHTML = `
         <div class="bm-screen bm-menu">
-          <img class="bm-mascot" src="../shared/assets/costbot.png" alt="">
-          <h1>Board&nbsp;Meeting</h1>
-          <p class="bm-tag">CostBot's cloud-cost game show. You versus the clock.</p>
-          <ul class="bm-rules">
-            <li>💸 Answer fast — the payout <b>decays</b> as the clock runs.</li>
-            <li>⏱️ Run the clock out and the clue is <b>gone</b> — no bank.</li>
-            <li>🔒 A <b>Commitment</b> tile makes you wager first — nail it or <b>lose the wager</b>.</li>
-            <li>🔥 Correct streaks <b>overclock</b> your payout up to ×2.</li>
-            <li>🏁 It ends on <b>Final Forecast</b> — one clue, your whole bank on the line.</li>
-          </ul>
-          <button class="bm-btn bm-play">▶ &nbsp;Call the meeting to order</button>
+          <img class="bm-mascot" src="../shared/assets/costbot_jeopardy.jpg" alt="">
+          <h1>CostBot&nbsp;Quiz&nbsp;Show</h1>
+          <p class="bm-tag">CostBot's cloud-cost game show — you versus the clock.</p>
+          <div class="bm-lbl">HOW TO PLAY</div>
+          <div class="bm-how">
+            <div class="bm-card"><div class="k">💸 Beat the clock</div><div class="d">Pick a clue off the board and answer fast — the payout decays every second you dither.</div></div>
+            <div class="bm-card"><div class="k">⏱️ Don't stall</div><div class="d">Let the clock run out and the clue is gone — no bank. A wrong buzz costs you too.</div></div>
+            <div class="bm-card"><div class="k">🔒 Commitment tiles</div><div class="d">Wager first, then answer — nail it for a bonus, miss it and lose the wager.</div></div>
+            <div class="bm-card"><div class="k">🔥 Overclock</div><div class="d">Correct streaks overclock your payout up to ×2. Keep the run alive.</div></div>
+            <div class="bm-card"><div class="k">🏁 Final Forecast</div><div class="d">The last clue — bet your whole bank on one answer to close the show.</div></div>
+            <div class="bm-card"><div class="k">🎛️ Controls</div><div class="d">Click a tile, then an answer. 🔊 top-right or M mutes · Esc quits a game.</div></div>
+          </div>
+          <button class="bm-btn bm-play hot">▶ &nbsp;Start the show</button>
+          <a class="bm-board" href="../leaderboard/index.html#board-meeting">🏆 Leaderboard</a>
           <div class="bm-best">${meta.best
             ? 'Best round <b>' + fmt$(meta.best) + '</b> &nbsp;·&nbsp; total earned <b>' + fmt$(meta.totalEarned || 0) + '</b>'
             : 'No score yet — go get one.'}</div>
-          <div class="bm-best" style="opacity:.65;font-size:12px;">🔊 top-right toggles sound (M) &nbsp;·&nbsp; Esc quits a game</div>
         </div>`;
       root.querySelector('.bm-play').onclick = () => { initAudio(); startGame(); };
     }
@@ -698,7 +700,7 @@
 
   /* menu */
   .bm-menu{align-items:center;text-align:center;}
-  .bm-mascot{width:84px;filter:drop-shadow(0 6px 18px rgba(90,120,255,.5));animation:bmfloat 3s ease-in-out infinite;}
+  .bm-mascot{width:min(440px,82vw);height:auto;border-radius:14px;filter:drop-shadow(0 6px 18px rgba(90,120,255,.5));animation:bmfloat 3s ease-in-out infinite;}
   @keyframes bmfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
   .bm-menu h1{margin:2px 0 0;font-family:'Oswald','Arial Narrow',Arial,sans-serif;font-size:56px;font-weight:700;
     letter-spacing:1px;text-transform:uppercase;color:var(--jgold-lt);
@@ -711,6 +713,15 @@
   .bm-play{font-size:18px;padding:16px 26px;}
   .bm-best{color:#9fb0e8;font-size:13px;}
   .bm-best b{color:var(--jgold-lt);}
+  .bm-lbl{font-size:11px;font-weight:800;letter-spacing:1.6px;color:#8fa0dc;align-self:flex-start;}
+  .bm-how{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;text-align:left;}
+  @media(max-width:560px){.bm-how{grid-template-columns:1fr;}}
+  .bm-card{padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid #2a3aa8;}
+  .bm-card .k{font-weight:800;font-size:12.5px;color:#eaf0ff;margin-bottom:2px;}
+  .bm-card .d{font-size:11.5px;color:#aeb9e6;line-height:1.4;}
+  .bm-board{text-decoration:none;color:#bcc8ff;font-weight:700;font-size:13px;padding:8px 18px;border-radius:9px;
+    border:1px solid #2a3aa8;background:rgba(255,255,255,.05);transition:border-color .12s,color .12s;}
+  .bm-board:hover{border-color:#6b7fe0;color:#fff;}
 
   /* scorebar */
   .bm-scorebar{display:flex;align-items:center;gap:10px;background:var(--jnavy);border:2px solid #22308f;

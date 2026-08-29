@@ -124,13 +124,15 @@
         { key: 'combo', label: 'Best combo' },
       ],
       note: 'Guests kept happy is the score — how many incidents you cleared before a land went dark. Park rating is the brag.' },
-    { id: 'board-meeting', tab: '🏢 Board Meeting', kind: 'metrics', sort: 'totalEarned',
+    { id: 'board-meeting', tab: '📺 CostBot Quiz Show', kind: 'metrics', sort: 'totalEarned',
       cols: [
         { key: 'totalEarned', label: 'Total earnings', unit: 'money' },
         { key: 'streak', label: 'Best streak' },
         { key: 'tokens', label: 'Tokens' },
       ],
       note: 'Total earnings is every round you have banked, added up — beat Max Tokens often enough and you climb.' },
+    { id: 'costbot-hero', tab: '🎸 CostBot Hero', kind: 'hero',
+      note: 'Best score is the biggest single run — the song and difficulty it was set on ride along, so a Hard run stands apart from an Easy one.' },
   ];
 
   const STAGE_NAMES = {
@@ -141,7 +143,10 @@
     lake: 'The Lake',
   };
 
-  let stagesData = null, me = null, tab = GAMES[0].id;
+  // Deep link: a #<game-id> hash (e.g. from a cabinet's "🏆 Leaderboard" button)
+  // opens straight to that board.
+  const hashTab = (location.hash || '').replace(/^#/, '');
+  let stagesData = null, me = null, tab = GAMES.some((g) => g.id === hashTab) ? hashTab : GAMES[0].id;
   // gameBoards() is one fetch per cabinet, so cache what came back — flipping
   // between tabs should not re-hit the API every time.
   const metricCache = {};
@@ -220,6 +225,22 @@
       head(g.cols, sort), sorted, (r) => g.cols.map((c) => cell(r, c, sort)).join(''));
   }
 
+  // CostBot Hero: one row per player's best RUN, carrying the song + difficulty
+  // it was set on (which a per-metric fold would lose).
+  function renderHero(g) {
+    const rows = metricCache[g.id];
+    if (!rows) return `<div class="empty">Loading…</div>`;
+    const sorted = rows.slice().sort((a, b) => (b.score || 0) - (a.score || 0));
+    const headHtml = `<th class="n on">Best score</th><th>Song</th><th>Difficulty</th>`
+      + `<th class="n">Combo</th><th class="n">Accuracy</th>`;
+    return table('Top scores — highest single run', g.note, headHtml, sorted, (r) =>
+      `<td class="n on">${money(r.score || 0)}</td>`
+      + `<td>${esc(r.song || '—')}</td>`
+      + `<td>${esc(r.difficulty || '—')}</td>`
+      + `<td class="n">${Math.round(r.combo || 0).toLocaleString('en-US')}</td>`
+      + `<td class="n">${Math.round(r.accuracy || 0)}%</td>`);
+  }
+
   function render() {
     const panel = document.getElementById('panel');
     if (!stagesData) {
@@ -230,7 +251,9 @@
       return;
     }
     const g = GAMES.find((x) => x.id === tab) || GAMES[0];
-    panel.innerHTML = g.kind === 'stages' ? renderStages(g) : renderMetrics(g);
+    panel.innerHTML = g.kind === 'stages' ? renderStages(g)
+      : g.kind === 'hero' ? renderHero(g)
+      : renderMetrics(g);
   }
 
   // Clicking a metric header re-ranks that cabinet's board. Delegated on the
@@ -257,7 +280,7 @@
       document.querySelectorAll('.tab').forEach((t) => { t.classList.remove('on'); });
       b.classList.add('on');
       render();
-      if (g.kind === 'metrics' && !metricCache[g.id]) loadMetrics(g);
+      if (g.kind !== 'stages' && !metricCache[g.id]) loadMetrics(g);
     };
     tabBox.appendChild(b);
   });
@@ -265,7 +288,9 @@
   async function loadMetrics(g) {
     const keys = [g.id, ...(g.also || [])];
     const payloads = await Promise.all(keys.map((k) => window.ArcadeSync.gameBoards(k)));
-    metricCache[g.id] = foldMetrics(payloads, g.cols);
+    metricCache[g.id] = g.kind === 'hero'
+      ? ((payloads[0] && payloads[0].records) || [])
+      : foldMetrics(payloads, g.cols);
     if (tab === g.id) render();
   }
 
@@ -285,7 +310,7 @@
       render();
       // Warm every cabinet's board up front: three small requests, and flipping
       // tabs then costs nothing.
-      GAMES.filter((g) => g.kind === 'metrics').forEach(loadMetrics);
+      GAMES.filter((g) => g.kind !== 'stages').forEach(loadMetrics);
     } else {
       document.getElementById('note').innerHTML =
         'Served statically, so there is no scores API here. The full arcade lives on aix-proto.';

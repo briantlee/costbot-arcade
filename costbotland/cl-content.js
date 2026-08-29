@@ -69,11 +69,18 @@
     goalEvery: 3,
     landStart: 100,          // each land opens fully happy
     landMax: 100,
-    baseDecay: 1.15,         // happiness lost per second, always ticking
+    baseDecay: 1.15,         // happiness a land with an ACTIVE incident loses per second
+    recoverRate: 3.5,        // happiness an idle (running-fine) land recovers per second
     repairGain: 26,          // happiness restored when an incident is resolved
-    downSeconds: 5,          // how long a land stays dark after hitting zero
-    reopenAt: 45,            // happiness a land reopens with
-    downPenalty: 12,         // park-rating hit (also breaks combo) when a land goes dark
+    // Rides no longer close. Instead, every circle goal carries its OWN countdown:
+    // clear it before the ring runs out or it vanishes and you lose park cash.
+    goalTtl: 5.5,            // seconds a circle goal stays up before it's missed
+    goalMissPenalty: 450,    // park cash lost when a goal times out unresolved
+    // Final-stretch rush: for the last `rushWindow` seconds every countdown ticks
+    // `finaleRush`× faster (goals, tickets, the lost child, churro spawns) — the
+    // day's clock itself is unchanged, it just gets frantic.
+    rushWindow: 30,
+    finaleRush: 1.7,
     comboStep: 0.2,          // multiplier added per unbroken resolve
     comboMax: 4,
     tokensPerGuest: 0.5,
@@ -103,7 +110,9 @@
     drainPerGuest: 0.7,      // ...plus this much per guest currently in line
     scanGain: 9,             // happiness restored per guest admitted
     score: 260,              // cash earned per guest admitted
-    patience: 13,            // seconds a guest waits in line before abandoning it
+    // Only the guest at the FRONT is on the clock: scan them within `patience`
+    // seconds or they leave, the line shuffles up, and the timer resets.
+    patience: 5,             // seconds the front guest waits before walking out
     start: 100,
   };
 
