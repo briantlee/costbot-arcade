@@ -299,7 +299,7 @@
       ],
     },
     {
-      id: 'tokenomics', name: 'Tokenomics', icon: '🪙',
+      id: 'tokenomics', name: 'Tokenomics', icon: '<img src="../shared/assets/token-coin-64.png" alt="" style="height:1em;width:1em;vertical-align:-0.15em">',
       tiers: [
         [ // $400 — the fundamentals
           { q: 'One “token” in LLM billing is roughly…', c: ['One word', 'About 4 characters', 'One sentence', 'One byte'], a: 1, why: '~4 characters of English; ~750 words ≈ 1,000 tokens.' },
@@ -377,9 +377,9 @@
           { q: 'A “task budget” differs from max_tokens because it…', c: ['Is an advisory ceiling the model paces itself against', 'Is a hard per-response cap the model can’t see', 'Sets temperature', 'Picks the model'], a: 0, why: 'max_tokens is the enforced cap; a task budget is model-aware guidance.' },
           { q: 'For a 5,000-token context reused twice with 5-min caching, total cost vs two uncached calls is roughly…', c: ['~1.35× one call vs 2× uncached — cheaper', 'More expensive', 'Identical', 'Free'], a: 0, why: 'Write 1.25× + read 0.1× beats 2× uncached.' },
           { q: 'Which most reduces cost on a long autonomous agent run?', c: ['Context editing/compaction + caching the stable prefix', 'Re-sending full history uncached', 'A bigger window only', 'More retries'], a: 0, why: 'Prune stale context and cache what’s stable.' },
-          { q: 'The HS (Ham Sandwich) 30-day figure is a ROLLING window, so calendar MTD requires…', c: ['A token-split of the rolling window', 'Just dividing by 30', 'Nothing', 'A bigger model'], a: 0, why: 'You must extract the calendar-month slice.' },
+          { q: 'Unlike Anthropic’s explicit cache-write premium, OpenAI’s prompt caching is…', c: ['Automatic and free to write — only cached reads are discounted', 'Not available for GPT models', 'More expensive than Anthropic’s', 'Manual, requiring a separate write call'], a: 0, why: 'OpenAI auto-caches repeated prefixes over 1,024 tokens with no write fee, just a discount on cache hits.' },
           { q: 'Cursor cost was historically OVERSTATED because a formula…', c: ['Added +$40/user on top of a view that already included the license', 'Undercounted seats', 'Ignored Bedrock', 'Double-billed Haiku'], a: 0, why: 'AI_TOOL_COST_SUMMARY already includes the $40 Cursor license.' },
-          { q: 'On DCyphr, GCP/Azure AI queries must NOT filter by SEGMENT because…', c: ['It loses 16–93% of the spend', 'It’s faster', 'It’s required', 'Segment is free'], a: 0, why: 'Segment filtering drops large chunks of AI spend.' },
+          { q: 'Extended “thinking” tokens Claude spends before answering are billed as…', c: ['Output tokens', 'Free', 'A separate flat fee', 'Input tokens'], a: 0, why: 'Thinking tokens count toward the output-token rate, same as the visible answer.' },
           { q: 'A speculative-decoding “draft” model is chosen to be…', c: ['Small and cheap, to propose tokens fast', 'Bigger than the target', 'Slower', 'Untrained'], a: 0, why: 'The big model then verifies the cheap draft in bulk.' },
           { q: 'Which is the correct order of Claude tiers from cheapest to priciest?', c: ['Haiku, Sonnet, Opus', 'Opus, Sonnet, Haiku', 'Sonnet, Haiku, Opus', 'All equal'], a: 0, why: 'Roughly $1/$5, $3/$15, $5/$25 per million (in/out).' },
           { q: 'Prompt caching “20-block lookback” means a breakpoint searches back at most…', c: ['20 content blocks for a prior entry', '20 seconds', '20 requests', '20 tokens'], a: 0, why: 'Long turns need intermediate breakpoints or they miss.' },

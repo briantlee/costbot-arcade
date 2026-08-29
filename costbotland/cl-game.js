@@ -67,18 +67,130 @@
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       o.start(t); o.stop(t + dur);
     }
+    // A short burst of filtered white noise, scheduled at absolute AudioContext
+    // time `t` — used for percussive "thunk"/"boom"/crackle textures that a plain
+    // oscillator can't produce (cash-drawer thunk, firework boom + sparkle tail).
+    function noiseBurst(a, t, dur, freq, gain, filterType) {
+      const n = Math.max(1, Math.floor(a.sampleRate * dur));
+      const buf = a.createBuffer(1, n, a.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n) ** 1.4;
+      const src = a.createBufferSource(); src.buffer = buf;
+      const f = a.createBiquadFilter(); f.type = filterType || 'lowpass'; f.frequency.value = freq || 1200;
+      const g = a.createGain(); g.gain.value = gain == null ? 0.15 : gain;
+      src.connect(f); f.connect(g); g.connect(master);
+      src.start(t);
+    }
     function ensureMusic() {
       const a = actx(); if (!a || !global.ArcadeMusic) return null;
       if (!music) music = global.ArcadeMusic.create(() => ({ ctx: a, master }));
       return music;
     }
     return {
-      fix(combo) { const b = 620 + combo * 55; blip(b, 0.09, 'triangle', 0.06); setTimeout(() => blip(b * 1.5, 0.11, 'triangle', 0.05), 60); },
+      fix(combo) {
+        const a = actx(); if (!a) return;
+        const c = Math.min(6, combo);
+        const root = 880 + c * 70; // bright, climbs with combo
+        const t0 = a.currentTime;
+        const coinNote = (freq, delay, dur, peak) => {
+          const t = t0 + delay;
+          const o1 = a.createOscillator(), o2 = a.createOscillator();
+          const g = a.createGain(), sparkle = a.createGain();
+          o1.type = 'square'; o1.frequency.value = freq;
+          o2.type = 'triangle'; o2.frequency.value = freq * 2;
+          sparkle.gain.value = 0.35;
+          o1.connect(g); o2.connect(sparkle); sparkle.connect(g);
+          g.connect(master);
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(peak, t + 0.006);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          o1.start(t); o1.stop(t + dur);
+          o2.start(t); o2.stop(t + dur);
+        };
+        coinNote(root, 0, 0.09, 0.13);
+        coinNote(root * 1.5, 0.07, 0.12, 0.16);
+      },
       grab() { blip(540, 0.07, 'triangle', 0.05); },
       board() { blip(300, 0.12, 'square', 0.05); },
       churro() { blip(760, 0.08, 'triangle', 0.06); setTimeout(() => blip(1010, 0.1, 'triangle', 0.05), 70); },
       down() { blip(120, 0.4, 'sawtooth', 0.07); },
-      firework() { blip(400 + Math.round(200 * (now() % 5) / 5), 0.18, 'triangle', 0.04); },
+      // Acting with nothing nearby to act on — a quick flat "no" buzz. Lighter
+      // than down() on purpose: whiffing a keypress is a much smaller mistake
+      // than losing a goal/child/ticket, so it shouldn't sound as costly.
+      whiff() { blip(180, 0.09, 'square', 0.1, 130); },
+      // Ticket gate admit: a low mechanical "cha-CHUNK" — a squat bell/ding
+      // followed a beat later by a short lowpassed noise "drawer thunk".
+      // Deliberately lower and more mechanical than the bright coin fix().
+      cashRegister() {
+        const a = actx(); if (!a) return;
+        const t0 = a.currentTime;
+        // A clean two-strike till bell — "cha-CHING". The previous version
+        // paired the bell with low-passed noise bursts meant to read as a
+        // drawer/mechanism, but in practice that landed as a dull percussive
+        // knock (reported: "a pickaxe on a rock"), not a register. Dropping
+        // the noise entirely and leaning on just the bright bell strikes.
+        [[1568, 0, 0.16, 0.24], [2093, 0.09, 0.20, 0.20]].forEach(([freq, delay, dur, peak]) => {
+          const t = t0 + delay;
+          const o = a.createOscillator(), g = a.createGain();
+          o.type = 'triangle'; o.frequency.value = freq;
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(peak, t + 0.006);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          o.connect(g); g.connect(master);
+          o.start(t); o.stop(t + dur + 0.02);
+        });
+      },
+      // Token milestone: a light two-note "ding-ding", quicker and airier than
+      // fix()'s coin-combo chime and cheer()'s four-note fanfare, so a token
+      // landing mid-run reads as its own small event, not a duplicate of either.
+      token() {
+        const a = actx(); if (!a) return;
+        const t0 = a.currentTime;
+        [1318.5, 1760].forEach((freq, i) => {
+          const t = t0 + i * 0.055;
+          const o = a.createOscillator(), g = a.createGain();
+          o.type = 'sine'; o.frequency.value = freq;
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(0.16, t + 0.006);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+          o.connect(g); g.connect(master);
+          o.start(t); o.stop(t + 0.1);
+        });
+      },
+      // Lost child reunited: a quick bright ascending arpeggio — more "hooray"
+      // than a cash reward, distinct from both fix() and cashRegister().
+      cheer() {
+        const a = actx(); if (!a) return;
+        const t0 = a.currentTime;
+        [660, 880, 1046.5, 1318.5].forEach((freq, i) => {
+          const t = t0 + i * 0.07;
+          const o = a.createOscillator(), g = a.createGain();
+          o.type = 'triangle'; o.frequency.value = freq;
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(0.2, t + 0.015);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+          o.connect(g); g.connect(master);
+          o.start(t); o.stop(t + 0.18);
+        });
+      },
+      // Finale firework: a rising launch whistle, a percussive boom a beat
+      // later, and a brief decaying sparkle tail — paired 1:1 with a visual burst.
+      firework() {
+        const a = actx(); if (!a) return;
+        const t0 = a.currentTime;
+        const o = a.createOscillator(), g = a.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(500, t0);
+        o.frequency.exponentialRampToValueAtTime(1600, t0 + 0.32);
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.05, t0 + 0.05);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.32);
+        o.connect(g); g.connect(master);
+        o.start(t0); o.stop(t0 + 0.32);
+        const boomT = t0 + 0.34;
+        noiseBurst(a, boomT, 0.26, 850, 0.22, 'lowpass');        // boom
+        noiseBurst(a, boomT + 0.04, 0.4, 3400, 0.05, 'highpass'); // sparkle/crackle tail
+      },
       resume() { actx(); },
       playMusic(key) { const m = ensureMusic(); if (m) { m.setVolume(0.6); m.playTrack(key); } },
       stopMusic() { if (music) music.stop(); },
@@ -223,6 +335,10 @@
       goalT: 1.5, phase: C.PHASES[0],
       // scoring
       guests: 0, score: 0, combo: 0, longestCombo: 0, peakStars: 0, burnFloats: [],
+      // tokenWatermark is the highest $dollarsPerToken step already paid out (see
+      // awardTokens below); tokensEarned is the running lifetime total of tokens
+      // actually paid this run — reported at round end instead of a lump sum.
+      tokenWatermark: 0, tokensEarned: 0,
       openLandSec: 0, totalLandSec: 0,
       floats: [], sparks: [],
       result: null, hint: null,
@@ -236,6 +352,7 @@
       G.churro = null; G.churroT = C.CHURRO.every;
       G.goalT = 1.5; G.phase = C.PHASES[0];
       G.guests = 0; G.score = 0; G.combo = 0; G.longestCombo = 0; G.peakStars = 0;
+      G.tokenWatermark = 0; G.tokensEarned = 0;
       G.openLandSec = 0; G.totalLandSec = 0;
       G.floats = []; G.sparks = []; G.result = null; G.hint = null;
     }
@@ -245,6 +362,23 @@
     function toggleMute() { const m = audio.setMuted(!audio.isMuted()); api.meta.muted = m; saveMeta(); onEvent('mute', { muted: m }); return m; }
 
     function addFloat(x, y, text, color, big) { G.floats.push({ x, y, text, color: color || '#fff', life: 1, big: !!big }); }
+
+    // Tokens accrue LIVE, in step with park cash, instead of waiting for the
+    // results screen: every S.dollarsPerToken of net G.score pays out a token the
+    // instant the player crosses a new watermark. The watermark only ever climbs
+    // — a penalty that drags the score back down doesn't claw back tokens already
+    // paid, it just delays the next payout until the score recovers past the old
+    // high point. Called after every G.score increase.
+    function awardTokens() {
+      const level = Math.floor(G.score / S.dollarsPerToken);
+      if (level <= G.tokenWatermark) return;
+      const n = level - G.tokenWatermark;
+      G.tokenWatermark = level;
+      G.tokensEarned += n;
+      if (global.ArcadeWallet) global.ArcadeWallet.earn(n, 'costbotland');
+      addFloat(G.chef.x, G.chef.y - 50, '+' + n + ' 🪙', '#7dd3fc', true);
+      audio.token();
+    }
     function burst(x, y, color, n) {
       for (let i = 0; i < (n || 10); i++) {
         const a = Math.random() * Math.PI * 2, sp = 60 + Math.random() * 140;
@@ -320,7 +454,7 @@
     function primaryAction() {
       if (G.state === 'menu' || G.state === 'over') { startRun(); return; }
       if (G.state !== 'playing') return;
-      const h = G.hint; if (!h) return;
+      const h = G.hint; if (!h) { audio.whiff(); return; }
       if (h.kind === 'scan') scanGate();
       else if (h.kind === 'child_pickup') pickupChild();
       else if (h.kind === 'child_drop') dropChild();
@@ -344,6 +478,7 @@
       if (mult >= 1.5) addFloat(a.x, a.y - 62, 'x' + mult.toFixed(1) + ' COMBO', '#fbbf24');
       burst(a.x, a.y, land.def.color, 12);
       audio.fix(Math.min(6, G.combo));
+      awardTokens();
     }
 
     // A circle goal timed out unresolved: it vanishes and the park loses cash.
@@ -367,7 +502,8 @@
       G.gate.happy = Math.min(S.landMax, G.gate.happy + C.GATE.scanGain);
       G.guests += 1; G.score += Math.round(C.GATE.score * G.phase.scoreMult);
       addFloat(C.GATE.x + 30, C.GATE.y - 26, '🎟 +' + C.GATE.score, '#7fd8c4');
-      audio.grab();
+      audio.cashRegister();
+      awardTokens();
     }
 
     // ---- lost child escort --------------------------------------------------
@@ -392,7 +528,8 @@
       if (land && land.downT <= 0) land.happy = Math.min(S.landMax, land.happy + C.CHILD.gain);
       const a = land ? land.def.attract : { x: G.chef.x, y: G.chef.y };
       addFloat(a.x, a.y - 34, '🧒 REUNITED +' + gain.toLocaleString(), '#fde047', true);
-      burst(a.x, a.y, '#fde047', 16); audio.fix(Math.min(6, G.combo));
+      burst(a.x, a.y, '#fde047', 16); audio.cheer();
+      awardTokens();
     }
     function loseChild() {
       const c = G.child; if (!c) return;
@@ -466,6 +603,7 @@
       // ticket gate: a line builds, and ONLY the front guest is on the clock.
       // Scan them in time or they walk out, the line shuffles up, and the timer
       // resets for whoever is now at the front. The gate never jams shut.
+      // (No on-screen countdown for this one — the pressure is real, the readout isn't.)
       const gate = G.gate;
       gate.spawnT -= dt * rush;
       if (gate.spawnT <= 0) {
@@ -539,7 +677,10 @@
       saveMeta();
       const result = {
         stageId: 'park', outcome, dollarsSaved: 0,
-        tokensEarned: Math.floor(G.guests * S.tokensPerGuest),
+        // Tokens already landed in the wallet in real time via awardTokens() as
+        // G.score crossed each $dollarsPerToken step — this just reports the
+        // lifetime total for this run, it does not pay out again.
+        tokensEarned: G.tokensEarned,
         guests: G.guests, stars: +G.peakStars.toFixed(1), combo: G.longestCombo,
         uptime, score: G.score,
       };
@@ -1033,14 +1174,17 @@
       const phaseTxt = G.state === 'playing' ? (G.rush ? '⚡ FINAL RUSH' : G.phase.name) : '';
       ctx.fillStyle = G.rush ? '#fbbf24' : '#cbb3e0'; ctx.font = '700 13px system-ui,sans-serif';
       ctx.fillText('🎟 ' + G.guests + ' guests   ·   ' + phaseTxt, view.cw / 2, HUD_H / 2 + 12);
-      // park cash (right) — always shown; red when you're in the red
+      // park cash (right) — always shown; red when you're in the red. Nudged left
+      // while playing to leave room for the fixed #quit button (DOM overlay) that
+      // sits in this same corner during a run.
       ctx.textAlign = 'right';
       const combo = G.combo > 1;
+      const padR = pad + (G.state === 'playing' ? 44 : 0);
       ctx.fillStyle = G.score < 0 ? '#f87171' : '#6ee7a0'; ctx.font = '800 17px system-ui,sans-serif';
-      ctx.fillText('💰 ' + money(G.score), view.cw - pad, HUD_H / 2 + (combo ? -8 : 0));
+      ctx.fillText('💰 ' + money(G.score), view.cw - padR, HUD_H / 2 + (combo ? -8 : 0));
       if (combo) { const mult = Math.min(S.comboMax, 1 + (G.combo - 1) * S.comboStep);
         ctx.fillStyle = '#fbbf24'; ctx.font = '800 12px system-ui,sans-serif';
-        ctx.fillText('COMBO x' + mult.toFixed(1), view.cw - pad, HUD_H / 2 + 11); }
+        ctx.fillText('COMBO x' + mult.toFixed(1), view.cw - padR, HUD_H / 2 + 11); }
     }
     function money(n) { return (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString(); }
 
@@ -1081,30 +1225,31 @@
     }
     function drawOver() {
       const r = G.result || {};
-      const cx = view.cw / 2, cy = view.ch / 2, w = Math.min(440, view.cw - 40), h = 372;
+      const cx = view.cw / 2, cy = view.ch / 2, w = Math.min(440, view.cw - 40), h = 400;
       panel(cx, cy, w, h);
       ctx.textAlign = 'center';
       ctx.fillStyle = r.outcome === 'closed' ? '#f87171' : '#fde68a'; ctx.font = '800 28px system-ui,sans-serif';
-      ctx.fillText(r.outcome === 'closed' ? '🚧 Park Shut Down' : '🎆 Day Complete!', cx, cy - 132);
+      ctx.fillText(r.outcome === 'closed' ? '🚧 Park Shut Down' : '🎆 Day Complete!', cx, cy - 146);
       // star rating big
       ctx.font = '34px system-ui'; ctx.fillStyle = '#fbbf24';
       let ss = ''; for (let i = 0; i < 5; i++) ss += i < Math.round(r.stars || 0) ? '★' : '☆';
-      ctx.fillText(ss, cx, cy - 84);
+      ctx.fillText(ss, cx, cy - 98);
       const rows = [
         ['🎟 Guests kept happy', (r.guests || 0)],
         ['★ Peak rating', (r.stars || 0) + ' / 5'],
         ['🔥 Best combo', 'x' + (r.combo || 0)],
         ['💰 Park cash', money(r.score || 0)],
+        ['🪙 Tokens earned', (r.tokensEarned || 0)],
       ];
-      ctx.font = '600 15px system-ui,sans-serif'; let ry = cy - 34;
+      ctx.font = '600 15px system-ui,sans-serif'; let ry = cy - 48;
       for (const [k, v] of rows) {
         ctx.textAlign = 'left'; ctx.fillStyle = '#b79ccb'; ctx.fillText(k, cx - w / 2 + 40, ry);
         ctx.textAlign = 'right'; ctx.fillStyle = '#fff'; ctx.fillText(String(v), cx + w / 2 - 40, ry);
         ry += 28;
       }
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#7c3aed'; rrect(ctx, cx - 100, cy + 124, 200, 50, 25); ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.font = '800 18px system-ui,sans-serif'; ctx.fillText('▶ OPEN AGAIN', cx, cy + 150);
+      ctx.fillStyle = '#7c3aed'; rrect(ctx, cx - 100, cy + 138, 200, 50, 25); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = '800 18px system-ui,sans-serif'; ctx.fillText('▶ OPEN AGAIN', cx, cy + 164);
     }
 
     // ---- DOM intro screen ---------------------------------------------------
@@ -1160,7 +1305,7 @@
               <div class="cl-card"><div class="k">🕹️ Move &amp; act</div><div class="d">WASD / arrows to move, Space (or tap) to act. Esc quits, M mutes.</div></div>
               <div class="cl-card"><div class="k">⭕ Circle goals</div><div class="d">Incidents pop as glowing circles with a countdown ring. Reach one and act before the ring empties.</div></div>
               <div class="cl-card"><div class="k">⏳ Beat the timer</div><div class="d">Miss a goal's timer and it vanishes — and the park loses cash. Rides never close, so just keep clearing.</div></div>
-              <div class="cl-card"><div class="k">🎟️ Ticket line</div><div class="d">Scan the guest at the front within 5s or they walk out (−cash). The line then shuffles up.</div></div>
+              <div class="cl-card"><div class="k">🎟️ Ticket line</div><div class="d">Scan the guest at the front of the line to admit them and earn cash. The line shuffles up.</div></div>
               <div class="cl-card"><div class="k">🧒 Lost child</div><div class="d">Lift a lost child and carry them to the marked ride before their patience runs out. Hands full = can't fix.</div></div>
               <div class="cl-card"><div class="k">⚡ Speed lane &amp; 🌯</div><div class="d">Ride the glowing ring track to move faster; grab a churro for a boost. Can't cross the castle.</div></div>
             </div>
@@ -1198,6 +1343,7 @@
       get state() { return G.state; },
       get muted() { return audio.isMuted(); },
       toggleMute,
+      quit: quitToMenu,
       _debug: G,
       act: primaryAction,
       destroy() {

@@ -233,7 +233,7 @@
     // where the Fable lives. Four fish, four bands, and the ladder is the whole
     // tutorial — you never have to be told that deeper is better.
     { id: 'haiku45', name: 'Haikuda', species: 'Haiku 4.5', tier: 'haiku', band: 0, art: 'herring',
-      kg: 1.4, tokens: 5, rarity: 24, rate: [1, 5],
+      kg: 1.4, tokens: 2, rarity: 24, rate: [1, 5],
       tips: [
         'Haiku 4.5 lists at $1/$5 per million tokens — a fifth of Sonnet on input '
           + 'and a fifth on output. Most classification, extraction and routing work '
@@ -246,7 +246,7 @@
       ],
       note: 'Small, fast and everywhere. Darts the moment you look at it. $1/$5 per Mtok.' },
     { id: 'sonnet5', name: 'Sonnet Sailfish', species: 'Sonnet 5', tier: 'sonnet', band: 1, art: 'sailfish',
-      kg: 6.5, tokens: 13, rarity: 18, rate: [3, 15],
+      kg: 6.5, tokens: 6, rarity: 18, rate: [3, 15],
       tips: [
         'Sonnet has held the same $3/$15 per million tokens across generations — the '
           + 'model got better, the price did not move.',
@@ -258,7 +258,7 @@
       ],
       note: 'The workhorse. Fights in a straight line and rarely lets go. $3/$15 per Mtok.' },
     { id: 'opus5', name: 'King Opah', species: 'Opus 5', tier: 'opus', band: 2, art: 'opah',
-      kg: 21, tokens: 32, rarity: 11, rate: [5, 25],
+      kg: 21, tokens: 14, rarity: 11, rate: [5, 25],
       tips: [
         'Opus lists at $5/$25 per million tokens today. Claude 3 Opus and Opus 4.0 '
           + 'billed around $15/$75 — the tier got roughly three times cheaper as it '
@@ -271,7 +271,7 @@
       ],
       note: 'Deep water. Slow, enormous, and it sounds the moment it feels the hook. $5/$25 per Mtok.' },
     { id: 'fable5', name: 'The Fabled Sablefish', species: 'Fable 5', tier: 'fable', band: 3, art: 'sablefish',
-      kg: 44, tokens: 105, rarity: 4, legendary: true, rate: [10, 50],
+      kg: 44, tokens: 46, rarity: 4, legendary: true, rate: [10, 50],
       tips: [
         'Fable 5 lists at $10/$50 per million tokens — twice Opus, and ten times '
           + 'Haiku. Reserve it for the work that genuinely needs it.',
@@ -290,7 +290,7 @@
   // cast is a miserable way to spend your last bait.
   const JUNK = [
     { id: 'ebs', name: 'Unattached EBS Volume', icon: '🥾', band: 0, kg: 2.0,
-      tokens: 2, rarity: 10, junk: true,
+      tokens: 1, rarity: 10, junk: true,
       tips: [
         'A gp3 volume bills at about $0.08 per GB-month whether or not anything is '
           + 'attached to it. A 500 GB orphan is roughly $40 every month, forever.',
@@ -299,7 +299,7 @@
       ],
       note: 'Its instance died two years ago. Still billing.' },
     { id: 'tire', name: 'Idle Instance', icon: '🛞', band: 0, kg: 3.5,
-      tokens: 3, rarity: 8, junk: true,
+      tokens: 1, rarity: 8, junk: true,
       tips: [
         'An instance at 1% CPU costs exactly the same as one at 90%. Utilization is '
           + 'not billed — provisioned capacity is.',
@@ -308,7 +308,7 @@
       ],
       note: 'Running at 0.4% CPU since the last reorg.' },
     { id: 'natgw', name: 'Zombie NAT Gateway', icon: '🧟', band: 1, kg: 4.0,
-      tokens: 4, rarity: 7, junk: true,
+      tokens: 2, rarity: 7, junk: true,
       tips: [
         'A NAT Gateway costs roughly $0.045 an hour — about $32 a month — before a '
           + 'single byte passes through it, plus a per-GB data processing charge on '
@@ -319,7 +319,7 @@
       ],
       note: 'Nothing routes through it. It charges by the hour anyway.' },
     { id: 'untagged', name: 'Untagged Resource', icon: '📦', band: 2, kg: 1.0,
-      tokens: 6, rarity: 5, junk: true,
+      tokens: 3, rarity: 5, junk: true,
       tips: [
         'Untagged resources do not stop costing money, they just stop being anyone\'s '
           + 'problem. Unallocated spend is the hardest kind to reduce because nobody '
@@ -338,16 +338,20 @@
   // SCORING
   // ---------------------------------------------------------------------------
   const SCORING = {
-    // Balanced by MEASURED tokens-per-minute, not by vibes. Optimal fishing was
-    // clearing 722 tokens/min against roughly 90 for a cleared Waste Hunter
-    // stage — an eight-to-one gap that made every other cabinet pointless. The
-    // fix was applied at both ends: Waste Hunter's conversion doubled, and these
-    // values came down about a third, which lands fishing near 230/min.
+    // Balanced by MEASURED tokens-per-minute, not by vibes. That earlier pass
+    // (Waste Hunter's conversion doubled, these fish/junk `tokens` cut about a
+    // third) landed fishing near 230/min for a competent Abyss/Deep-Water
+    // angler — a rarity-weighted average catch of ~20 tokens every ~10s cycle
+    // (cast + bite + hook + fight, per the TIER_FIGHT timings above), lifted by
+    // streak/clean-hook/perfect-cast mult. That is still ~2.3x the ~100/min
+    // every other cabinet now targets, alongside CostBot Hero, CostBotLand and
+    // the Quiz Show. Every FISH/JUNK `tokens` value (and firstCatchBonus) is
+    // divided by ~2.3 again here, landing the same angler near 100/min.
     streakStep: 0.15,
     streakCap: 2.5,
     cleanHookBonus: 0.10,   // extra multiplier for a clean hook
     perfectCastBonus: 0.10,
-    firstCatchBonus: 25,    // one-off, the first time you land a new species
+    firstCatchBonus: 11,    // one-off, the first time you land a new species
     historyKept: 50,
   };
 
