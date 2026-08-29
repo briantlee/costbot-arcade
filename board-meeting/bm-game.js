@@ -1,13 +1,12 @@
 /* ==========================================================================
  * Board Meeting — a Jeopardy-style game show for the CostBot Arcade.
  *
- * Pick a tile off the board, beat the clock, and beat Max Tokens — the rival AI
- * that buzzes in if you hesitate. The twist that makes it FinOps: every clue is a
- * COMMITMENT. Answer fast for the full payout; the longer you wait the more it
- * decays, and if you wait too long Max Tokens steals the whole tile. "The
- * Commitment" tiles make you WAGER before you see the clue — the Reserved-Instance
- * bet in miniature. It closes on Final Forecast: pick a category, wager your bank,
- * one clue, one timer.
+ * Pick a tile off the board and race the clock: answer fast for the full payout,
+ * because it decays as the timer runs and vanishes if it hits zero. "The
+ * Commitment" tiles are Daily Doubles — WAGER before you see the clue, and a miss
+ * comes out of your own bank (the Reserved-Instance bet in miniature). Correct
+ * streaks overclock the payout. It closes on Final Forecast: pick a category,
+ * wager your bank, one clue, one timer.
  *
  * DOM-rendered (trivia is text and buttons, not a canvas), but wired the same way
  * every cabinet is: ArcadeMusic for the soundtrack, ArcadeWallet for tokens,
@@ -21,13 +20,6 @@
   const VALUES = [400, 800, 1200, 1600];    // row tiers, easy → hard (4×4 board)
   const CLUE_SECS = 10;                      // per-clue clock
   const FINAL_SECS = 15;
-  const RIVAL_NAME = 'Max Tokens';
-  // Rival's odds of nailing a stolen clue, per tier. Harder clues it flubs more,
-  // so a patient player can win a rebound — at the cost of a smaller payout.
-  // Rival's odds of landing a stolen clue, per row ($400 → $1600). Eased down so
-  // Max Tokens is beatable — and given a 4th entry now that the board is 4 rows
-  // (it was undefined before, so the top row never resolved a steal).
-  const RIVAL_SKILL = [0.62, 0.52, 0.44, 0.36];
 
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
   const fmt$ = (n) => '$' + Math.round(n).toLocaleString('en-US');
@@ -44,10 +36,8 @@
   // Host lines, by moment.
   const SAY = {
     correct: ['Optimized.', 'Booked it.', 'Under budget.', 'Clean cut.', 'That’ll ship.'],
-    wrong: ['Ouch — over budget.', 'That’s waste.', 'Max Tokens loves that.', 'Write it off.'],
-    stolen: [RIVAL_NAME + ' buzzed in!', 'Stolen. Too slow!', RIVAL_NAME + ' grabbed it.'],
-    rebound: [RIVAL_NAME + ' whiffed — rebound!', 'It’s back — go!', 'Open again, be quick!'],
-    timeout: ['Time. ' + RIVAL_NAME + ' takes it.', 'The clock wins that one.'],
+    wrong: ['Ouch — over budget.', 'That’s waste.', 'Write it off.', 'Not this time.'],
+    timeout: ['Time — the clue’s gone.', 'The clock wins that one.', 'Out of time.'],
   };
   const pick1 = (a) => a[(Math.random() * a.length) | 0];
 
@@ -122,8 +112,6 @@
       correct: () => { [880, 1174, 1568].forEach((f, i) => setTimeout(() => blip(f, 0.11, 'triangle', 0.42, f * 1.2), i * 70)); },
       // Wrong — the flat "eehhh" buzzer.
       wrong: () => { blip(196, 0.32, 'sawtooth', 0.42, 120); setTimeout(() => blip(155, 0.30, 'square', 0.3, 100), 20); },
-      rival: () => { blip(220, 0.10, 'square', 0.4, 90); setTimeout(() => blip(180, 0.12, 'sawtooth', 0.35, 70), 70); },
-      rebound: () => { blip(523, 0.10, 'triangle', 0.35, 784); setTimeout(() => blip(784, 0.10, 'sine', 0.3, 1046), 80); },
       tick: () => blip(1200, 0.03, 'square', 0.16),
       overclock: () => { blip(784, 0.08, 'triangle', 0.35, 1046); setTimeout(() => blip(1046, 0.08, 'sine', 0.3, 1568), 70); },
       ship: () => { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => blip(f, 0.14, 'triangle', 0.35), i * 90)); },
@@ -234,7 +222,7 @@
       bigTiles.slice(0, 2).forEach((t) => { t.commitment = true; });
       run = {
         cats, tiles,
-        score: 0, rival: 0, streak: 0, maxStreak: 0,
+        score: 0, streak: 0, maxStreak: 0,
         remaining: tiles.length,
         clue: null,          // active clue view
       };
@@ -255,13 +243,12 @@
       const oc = overclockOf(run.streak);
       return `
         <div class="bm-scorebar">
-          <div class="bm-you"><span class="bm-lbl">YOU</span><b>${fmt$(run.score)}</b></div>
+          <div class="bm-you"><span class="bm-lbl">BANKED</span><b>${fmt$(run.score)}</b></div>
           <div class="bm-oc ${oc > 1 ? 'hot' : ''}">
             <span>OVERCLOCK</span>
             <div class="bm-ocbar"><i style="width:${((oc - 1) / 1) * 100}%"></i></div>
             <b>×${oc}</b>
           </div>
-          <div class="bm-rival"><span class="bm-lbl">${RIVAL_NAME.toUpperCase()}</span><b>${fmt$(run.rival)}</b></div>
         </div>`;
     }
 
@@ -271,11 +258,11 @@
         <div class="bm-screen bm-menu">
           <img class="bm-mascot" src="../shared/assets/costbot.png" alt="">
           <h1>Board&nbsp;Meeting</h1>
-          <p class="bm-tag">CostBot's cloud-cost game show. Beat the clock, beat <b>${RIVAL_NAME}</b>.</p>
+          <p class="bm-tag">CostBot's cloud-cost game show. You versus the clock.</p>
           <ul class="bm-rules">
             <li>💸 Answer fast — the payout <b>decays</b> as the clock runs.</li>
-            <li>⚡ Hesitate and <b>${RIVAL_NAME}</b> buzzes in and steals the tile.</li>
-            <li>🔒 A <b>Commitment</b> tile makes you wager before you see the clue.</li>
+            <li>⏱️ Run the clock out and the clue is <b>gone</b> — no bank.</li>
+            <li>🔒 A <b>Commitment</b> tile makes you wager first — nail it or <b>lose the wager</b>.</li>
             <li>🔥 Correct streaks <b>overclock</b> your payout up to ×2.</li>
             <li>🏁 It ends on <b>Final Forecast</b> — one clue, your whole bank on the line.</li>
           </ul>
@@ -335,7 +322,7 @@
         <div class="bm-screen bm-commit">
           <div class="bm-commit-badge">🔒 THE COMMITMENT</div>
           <h2>${t.cat.icon} ${t.cat.name}</h2>
-          <p>Wager before you see the clue. Nail it for the payout — miss and ${RIVAL_NAME} banks it.</p>
+          <p>Wager before you see the clue. Nail it for the payout — miss it and the wager comes out of your bank.</p>
           <div class="bm-wagers">
             <button class="bm-btn bm-wager" data-m="1">×1<small>${fmt$(t.value)}</small></button>
             <button class="bm-btn bm-wager" data-m="2">×2<small>${fmt$(t.value * 2)}</small></button>
@@ -356,8 +343,7 @@
       run.clue = {
         tile: t, stake, wagerMult: wagerMult || 0,
         time: 0, dur: CLUE_SECS,
-        rivalAt: rand(5.0, 8.0),   // when Max Tokens buzzes if unanswered (later = more room)
-        phase: 'live',             // live | rebound | resolved
+        phase: 'live',             // live | resolved
         answered: false, choices,
         lastTickSec: 99,
       };
@@ -385,7 +371,6 @@
             <span class="bm-payout" id="bm-payout">${cl.wagerMult ? '×' + cl.wagerMult + ' · ' : ''}${fmt$(pay)}</span>
           </div>
           <div class="bm-timer"><i id="bm-timerbar" style="width:100%"></i></div>
-          <div class="bm-rivalwarn" id="bm-rivalwarn"></div>
           <div class="bm-q">${t.clue.q}</div>
           <div class="bm-answers" id="bm-answers">${answers}</div>
           <div class="bm-feedback" id="bm-feedback"></div>
@@ -426,23 +411,7 @@
       const secLeft = Math.ceil(cl.dur - cl.time);
       if (secLeft <= 3 && secLeft > 0 && secLeft !== cl.lastTickSec) { cl.lastTickSec = secLeft; SFX.tick(); }
 
-      // rival buzz-in
-      if (cl.phase === 'live' && cl.time >= cl.rivalAt) {
-        const warn = document.getElementById('bm-rivalwarn');
-        const hit = Math.random() < RIVAL_SKILL[cl.tile.row];
-        SFX.rival();
-        if (hit) {
-          if (warn) warn.innerHTML = `⚡ <b>${RIVAL_NAME}</b> buzzed in and answered!`;
-          resolveClue('stolen');
-          return;
-        }
-        // rival whiffed → rebound: clue stays open for the remaining time
-        cl.phase = 'rebound';
-        SFX.rebound();
-        if (warn) { warn.className = 'bm-rivalwarn rebound'; warn.innerHTML = `⚡ <b>${RIVAL_NAME}</b> whiffed — <b>rebound!</b> Grab it!`; }
-      }
-
-      // timeout
+      // timeout — the clue is gone
       if (cl.time >= cl.dur) { resolveClue('timeout'); }
     }
 
@@ -468,9 +437,9 @@
       const t = cl.tile;
       const fb = document.getElementById('bm-feedback');
       const pay = livePayout(cl);
-      // A Commitment stakes the full wager to the rival on a loss, so the bet has
-      // real downside — the Reserved-Instance swing cuts both ways.
-      const atRisk = cl.wagerMult ? cl.stake : t.value;
+      // A Commitment is a Daily Double: miss it and the wager comes out of your
+      // own bank. A normal miss just banks nothing — no penalty.
+      const penalty = cl.wagerMult ? cl.stake : 0;
       let note = '';
 
       if (kind === 'correct') {
@@ -481,21 +450,13 @@
         SFX.correct();
         if (oc > overclockOf(run.streak - 1) && oc > 1) SFX.overclock();
         note = `<span class="ok">✔ ${pick1(SAY.correct)}</span> +${fmt$(pay)}${oc > 1 ? ' · ×' + oc + ' overclock' : ''}`;
-      } else if (kind === 'wrong') {
-        run.rival += atRisk;
+      } else {
         run.streak = 0;
         SFX.wrong();
-        note = `<span class="bad">✗ ${pick1(SAY.wrong)}</span> ${RIVAL_NAME} +${fmt$(atRisk)}`;
-      } else if (kind === 'stolen') {
-        run.rival += atRisk;
-        run.streak = 0;
-        markAnswerReveal();
-        note = `<span class="bad">⚡ ${pick1(SAY.stolen)}</span> ${RIVAL_NAME} +${fmt$(atRisk)}`;
-      } else { // timeout
-        run.rival += Math.round(atRisk * 0.5);
-        run.streak = 0;
-        markAnswerReveal();
-        note = `<span class="bad">⏰ ${pick1(SAY.timeout)}</span>`;
+        if (penalty) run.score = Math.max(0, run.score - penalty);
+        const lead = kind === 'wrong' ? '✗ ' + pick1(SAY.wrong) : '⏰ ' + pick1(SAY.timeout);
+        if (kind !== 'wrong') markAnswerReveal();
+        note = `<span class="bad">${lead}</span>${penalty ? ' −' + fmt$(penalty) + ' (commitment)' : ''}`;
       }
       if (fb) fb.innerHTML = `${note}<div class="bm-why">${t.clue.why}</div>`;
 
@@ -533,7 +494,7 @@
           <div class="bm-screen bm-final">
             ${scoreBar()}
             <div class="bm-final-badge">🏁 FINAL FORECAST</div>
-            <p>Pick your category. Then wager your bank on one clue — beat ${RIVAL_NAME} or lose it.</p>
+            <p>Pick your category, then wager your bank on one last clue. Nail it to double up, miss it and it's gone.</p>
             <div class="bm-final-cats">
               ${F.picks.map((f, i) => `<button class="bm-btn bm-fcat" data-i="${i}">${f.cat}</button>`).join('')}
             </div>
@@ -633,7 +594,6 @@
       if (correct) { run.score += F.wager; SFX.correct(); }
       else {
         run.score = Math.max(0, run.score - F.wager);
-        run.rival += F.wager;
         SFX.wrong();
         root.querySelectorAll('.bm-ans').forEach((b, idx) => { if (cl.choices[idx].correct) b.classList.add('right'); });
       }
@@ -644,27 +604,24 @@
     // ---- result -------------------------------------------------------------
     function finish() {
       stopMusic();
-      const won = run.score > run.rival;
       const tokens = Math.max(0, Math.floor(run.score / 500));
       if (global.ArcadeWallet && tokens) global.ArcadeWallet.earn(tokens, 'board-meeting');
       meta.plays++;
-      if (won) meta.wins++;
       meta.totalEarned = (meta.totalEarned || 0) + run.score;
       const best = run.score > (meta.best || 0);
-      if (best) meta.best = run.score;
+      if (best) { meta.best = run.score; meta.wins++; }   // "wins" now = personal-best games
       persist();
-      run.outcome = { won, tokens, best };
+      run.outcome = { tokens, best };
       state = 'result';
       emit('run:end', {});
 
       const payload = {
         game: 'board-meeting',
         stageId: run.cats.map((c) => c.id).sort().join('+'),
-        outcome: won ? 'clear' : 'fail',
+        outcome: 'clear',         // solo run: finishing the board is a clear
         tokensEarned: tokens,
         dollarsSaved: 0,          // fun-first: this cabinet does not save real money
         score: run.score,
-        rivalScore: run.rival,
         streak: run.maxStreak,
         // The leaderboard ranks on cumulative earnings. It is monotonic, so the
         // server's MAX-per-player is exactly the player's running total.
@@ -678,18 +635,16 @@
       const o = run.outcome;
       root.innerHTML = `
         <div class="bm-screen bm-result">
-          <div class="bm-result-verdict ${o.won ? 'win' : 'lose'}">${o.won ? '🏆 You beat ' + RIVAL_NAME : '🤖 ' + RIVAL_NAME + ' wins this one'}</div>
+          <div class="bm-result-verdict win">${o.best ? '🏆 New personal best!' : '🏁 Meeting adjourned'}</div>
           <div class="bm-result-scores">
-            <div class="you"><span>YOU</span><b>${fmt$(run.score)}</b></div>
-            <div class="vs">vs</div>
-            <div class="rival"><span>${RIVAL_NAME.toUpperCase()}</span><b>${fmt$(run.rival)}</b></div>
+            <div class="you"><span>FINAL SCORE</span><b>${fmt$(run.score)}</b></div>
           </div>
           <div class="bm-result-meta">
             Best streak ×${overclockOf(run.maxStreak)} (${run.maxStreak} in a row) &nbsp;·&nbsp; <b>+${o.tokens} 🪙</b>
-            ${o.best ? '<div class="bm-newbest">★ NEW PERSONAL BEST</div>' : ''}
+            ${o.best && meta.plays > 1 ? '<div class="bm-newbest">★ NEW PERSONAL BEST</div>' : ''}
           </div>
           <div class="bm-result-btns">
-            <button class="bm-btn bm-again">↻ &nbsp;Rematch</button>
+            <button class="bm-btn bm-again">↻ &nbsp;Play again</button>
             <button class="bm-btn ghost bm-menu">Main stage</button>
           </div>
         </div>`;
@@ -762,9 +717,7 @@
     border-radius:10px;padding:9px 12px;}
   .bm-scorebar .bm-lbl{display:block;font-size:9px;letter-spacing:1.5px;color:#8896d8;text-transform:uppercase;}
   .bm-you b{color:var(--jgold-lt);font-size:22px;font-variant-numeric:tabular-nums;}
-  .bm-rival{text-align:right;margin-left:auto;}
-  .bm-rival b{color:#ff8a9c;font-size:22px;font-variant-numeric:tabular-nums;}
-  .bm-oc{flex:1;text-align:center;font-size:9px;letter-spacing:1.5px;color:#8896d8;max-width:180px;text-transform:uppercase;}
+  .bm-oc{flex:1;text-align:right;font-size:9px;letter-spacing:1.5px;color:#8896d8;text-transform:uppercase;}
   .bm-oc b{display:inline;color:#7f8cc8;font-size:14px;margin-left:6px;}
   .bm-oc.hot b{color:var(--jgold-lt);}
   .bm-ocbar{height:5px;border-radius:3px;background:rgba(255,255,255,.12);margin:3px auto;overflow:hidden;}
@@ -804,9 +757,6 @@
   .bm-timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#f5cd63,#d9a441);transition:width .08s linear;}
   .bm-timer i.warn{background:linear-gradient(90deg,#ffd76a,#ff9a3d);}
   .bm-timer i.danger{background:linear-gradient(90deg,#ff8a5a,#ff5d6c);}
-  .bm-rivalwarn{min-height:18px;text-align:center;font-size:14px;color:#ff8a9c;font-weight:700;}
-  .bm-rivalwarn.rebound{color:var(--jgold-lt);animation:bmpulse .5s ease-in-out 2;}
-  @keyframes bmpulse{50%{transform:scale(1.06)}}
   /* The clue itself — white caps on Jeopardy blue, the signature look. */
   .bm-q{background:var(--jblue);border:2px solid #22308f;border-radius:8px;padding:26px 22px;font-size:21px;
     font-weight:700;line-height:1.32;text-align:center;min-height:70px;text-transform:uppercase;letter-spacing:.4px;
@@ -843,8 +793,6 @@
   .bm-result-scores>div{display:flex;flex-direction:column;}
   .bm-result-scores span{font-size:11px;letter-spacing:1.5px;color:#8896d8;text-transform:uppercase;}
   .bm-result-scores .you b{font-family:'Oswald',Arial,sans-serif;font-size:40px;color:var(--jgold-lt);}
-  .bm-result-scores .rival b{font-family:'Oswald',Arial,sans-serif;font-size:40px;color:#ff8a9c;}
-  .bm-result-scores .vs{color:#7f8cc8;font-weight:800;font-size:14px;align-self:center;}
   .bm-result-meta{color:#bcc8ff;font-size:14px;}
   .bm-result-meta b{color:var(--jgold-lt);}
   .bm-newbest{color:var(--jgold-lt);font-weight:800;margin-top:6px;}
