@@ -42,8 +42,12 @@
     // maxLoops: 2 (not the shared MAX_LOOPS of 3) — even at the shared cap this
     // was the longest song in the roster (~1:51 vs ~1:14-1:31 for the others);
     // dropping one loop brings it to ~1:14, in line with the rest.
+    // preroll: extra lead-in before the first note is judged — the shared 2.6s
+    // is fine for a single-note opener, but bar 0's downbeat is ALWAYS a chord
+    // now (2-3 keys at once), so the standard countdown left no time to get
+    // fingers ready for it as the very first input in the whole game.
     { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Villain march · 118',      tag: '', biome: 'dusk', art: 'darth_cb.png',
-      maxLoops: 2,
+      maxLoops: 2, preroll: 4.2,
       medium: { chordSize: 2 },
       hard: { fall: 1.15, holdGap: 99, missCost: 10, chordSize: 3 } },
     { key: 'ch_small',    name: "It's a Small Cost", sub: 'Electro light parade · 126', tag: '', biome: 'datacenter', art: 'cb_smallworld.jpg' },
@@ -449,13 +453,18 @@
 
       // Pass 1: keep real melody onsets, thinned only by the difficulty's minGap.
       // No ramp — every kept note is a note you actually hear, so chart == tune.
+      // Exception: on a chorded song, a bar-start note is the real backing pad-
+      // chord hit (see isChordEligible below) and must never be swallowed by
+      // minGap thinning just because the previous bar's tail note sits close to
+      // it — that hit happens in the music every single bar, chart included.
       const kept = [];
       let lastKept = -Infinity;
       for (let S = 0; S < noteCut; S++) {
         const src = (startStepAbs + S) % LL;
         const m = lead[src];
         if (m == null) continue;
-        if (S - lastKept < diff.minGap) continue;
+        const isBarStart = diff.chordSize >= 2 && src % STEPS_PER_BAR === 0;
+        if (S - lastKept < diff.minGap && !isBarStart) continue;
         lastKept = S;
         kept.push({ src, midi: m, time: firstStep0 + (startStepAbs + S) * stepDur + lat });
       }
@@ -655,7 +664,10 @@
             firstStep0 = now + 0.08;
           }
           // first charted step = first whole grid step at least PREROLL ahead
-          startStepAbs = Math.ceil((now + PREROLL - firstStep0) / stepDur);
+          // (song.preroll overrides the shared default when a song needs more
+          // lead-in — see ch_imperial's chord-on-the-downbeat note)
+          const preroll = song.preroll || PREROLL;
+          startStepAbs = Math.ceil((now + preroll - firstStep0) / stepDur);
           if (startStepAbs < 0) startStepAbs = 0;
           beginRun(firstStep0, startStepAbs);
         });
