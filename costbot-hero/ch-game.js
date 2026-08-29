@@ -38,6 +38,18 @@
   // Azure teal, Databricks red, Snowflake ice-blue.
   const PALETTE = ['#ff9900', '#4285f4', '#00e0b8', '#ff3b30', '#29b5e8'];
   const VENDORS = ['AWS', 'GCP', 'Azure', 'Databricks', 'Snowflake'];
+  // stylized (non-trademark) vendor glyphs shown on brand-coloured badges
+  const BADGES = ['a', 'G', '▲', 'D', '❄'];
+  // Real vendor logo paths (24x24 SVG), reused from mudslides ms-content.js.
+  // AWS has no mark in that set, so it keeps the monogram badge below.
+  const VENDOR_PATHS = [
+    null,                                   // AWS (monogram fallback)
+    "M12.19 2.38a9.344 9.344 0 0 0-9.234 6.893c.053-.02-.055.013 0 0-3.875 2.551-3.922 8.11-.247 10.941l.006-.007-.007.03a6.717 6.717 0 0 0 4.077 1.356h5.173l.03.03h5.192c6.687.053 9.376-8.605 3.835-12.35a9.365 9.365 0 0 0-2.821-4.552l-.043.043.006-.05A9.344 9.344 0 0 0 12.19 2.38zm-.358 4.146c1.244-.04 2.518.368 3.486 1.15a5.186 5.186 0 0 1 1.862 4.078v.518c3.53-.07 3.53 5.262 0 5.193h-5.193l-.008.009v-.04H6.785a2.59 2.59 0 0 1-1.067-.23h.001a2.597 2.597 0 1 1 3.437-3.437l3.013-3.012A6.747 6.747 0 0 0 8.11 8.24c.018-.01.04-.026.054-.023a5.186 5.186 0 0 1 3.67-1.69z",        // GCP
+    "M22.379 23.343a1.62 1.62 0 0 0 1.536-2.14v.002L17.35 1.76A1.62 1.62 0 0 0 15.816.657H8.184A1.62 1.62 0 0 0 6.65 1.76L.086 21.204a1.62 1.62 0 0 0 1.536 2.139h4.741a1.62 1.62 0 0 0 1.535-1.103l.977-2.892l4.947 3.675c.28.208.618.32.966.32m-3.084-12.531l3.624 10.739a.54.54 0 0 1-.51.713v-.001h-.03a.54.54 0 0 1-.322-.106l-9.287-6.9h4.853m6.313 7.006c.116-.326.13-.694.007-1.058L9.79 1.76l-.007-.02h6.034a.54.54 0 0 1 .512.366l6.562 19.445a.54.54 0 0 1-.338.684",      // Azure
+    "M.95 14.184L12 20.403l9.919-5.55v2.21L12 22.662l-10.484-5.96-.565.308v.77L12 24l11.05-6.218v-4.317l-.515-.309L12 19.118l-9.867-5.653v-2.21L12 16.805l11.05-6.218V6.32l-.515-.308L12 11.974 2.647 6.681 12 1.388l7.76 4.368.668-.411v-.566L12 0 .95 6.27v.72L12 13.207l9.919-5.55v2.26L12 15.52 1.516 9.56l-.565.308Z", // Databricks
+    "M24 3.459c0 .646-.418 1.18-1.141 1.18-.723 0-1.142-.534-1.142-1.18 0-.647.419-1.18 1.142-1.18.723 0 1.141.533 1.141 1.18zm-.228 0c0-.533-.38-.951-.913-.951s-.913.38-.913.95c0 .533.38.952.913.952.57 0 .913-.419.913-.951zm-1.37-.533h.495c.266 0 .456.152.456.38 0 .153-.076.229-.19.305l.19.266v.038h-.266l-.19-.266h-.229v.266h-.266zm.495.228h-.229v.267h.229c.114 0 .152-.038.152-.114.038-.077-.038-.153-.152-.153zM7.602 12.4c.038-.151.076-.304.076-.456 0-.114-.038-.228-.038-.342-.114-.343-.304-.647-.646-.838l-4.87-2.777c-.685-.38-1.56-.152-1.94.533-.381.685-.153 1.56.532 1.94l2.701 1.56-2.701 1.56c-.685.38-.913 1.256-.533 1.94.38.685 1.256.914 1.94.533l4.832-2.777c.343-.267.571-.533.647-.876zm1.332 2.626c-.266-.038-.57.038-.837.19l-4.832 2.777c-.685.38-.913 1.256-.532 1.94.38.686 1.255.914 1.94.533l2.701-1.56v3.12c0 .8.647 1.408 1.446 1.408.799 0 1.407-.647 1.407-1.408v-5.592c0-.761-.57-1.37-1.293-1.408zm4.946-6.088c.266.038.57-.038.837-.19l4.832-2.777c.685-.38.913-1.256.532-1.94-.38-.686-1.255-.914-1.94-.533l-2.701 1.56V1.975c0-.799-.647-1.408-1.446-1.408-.799 0-1.446.609-1.446 1.408V7.53c0 .76.609 1.37 1.332 1.407zM3.265 5.97l4.832 2.777c.266.152.533.19.837.19.723-.038 1.331-.684 1.331-1.407V1.975c0-.799-.646-1.408-1.407-1.408-.799 0-1.446.647-1.446 1.408v3.12l-2.701-1.56c-.685-.38-1.56-.152-1.94.533-.419.646-.19 1.521.494 1.902zm9.093 6.011a.412.412 0 00-.114-.266l-.57-.571a.346.346 0 00-.267-.114.412.412 0 00-.266.114l-.571.57a.411.411 0 00-.114.267c0 .076.038.19.114.267l.57.57a.345.345 0 00.267.114c.076 0 .19-.038.266-.114l.571-.57a.412.412 0 00.114-.267zm1.598.533L11.94 14.53c-.039.038-.153.114-.229.114h-.608a.411.411 0 01-.267-.114L8.82 12.514a.408.408 0 01-.076-.229v-.608c0-.076.038-.19.114-.267l2.016-2.016a.41.41 0 01.267-.114h.608a.41.41 0 01.267.114l2.016 2.016a.347.347 0 01.114.267v.608c-.076.077-.114.19-.19.229zm5.593 5.44l-4.832-2.777c-.266-.152-.57-.19-.837-.152-.723.038-1.332.684-1.332 1.408v5.554c0 .8.647 1.408 1.408 1.408.799 0 1.446-.647 1.446-1.408v-3.12l2.7 1.56c.686.38 1.561.152 1.941-.533.419-.646.19-1.521-.494-1.94zm2.549-7.533l-2.701 1.56 2.7 1.56c.686.38.914 1.256.533 1.94-.38.685-1.255.913-1.94.533l-4.832-2.778a1.644 1.644 0 01-.647-.798c-.037-.153-.076-.305-.076-.457 0-.114.039-.228.039-.342.114-.343.342-.647.646-.837l4.832-2.778c.685-.38 1.56-.152 1.94.533.457.609.19 1.484-.494 1.864",  // Snowflake
+  ];
+  const VENDOR_ICONS = VENDOR_PATHS.map(p => { try { return p ? new Path2D(p) : null; } catch { return null; } });
   // savings-lever icons shown on the note faces (rightsize, delete idle, schedule
   // off, commit/RI, cold storage, cleanup, consolidate, cut)
   const SAVINGS = ['📉', '🗑️', '⏸️', '🔒', '❄️', '🧹', '📦', '🔻'];
@@ -46,6 +58,45 @@
   // FinOps-flavoured judgment names.
   const JUDGE = { perfect: 'OPTIMIZED!', great: 'RIGHTSIZED', ok: 'TRIMMED', miss: 'OVERRUN', trap: "PROD — DON'T CUT" };
   const COMBO_CALLS = { 10: 'ON THE BOOKS', 25: 'QUARTERLY SAVINGS!', 50: 'FISCAL LEGEND!' };
+
+  // Real FinOps tips — surfaced on good moments so the game teaches while you play.
+  const TIPS = [
+    'Rightsize idle EC2 — most instances run under 40% CPU.',
+    'Savings Plans / Reserved Instances cut steady compute up to ~72%.',
+    'Delete unattached EBS volumes and stale snapshots — you pay for them idle.',
+    'Schedule non-prod off nights & weekends for ~65% fewer hours.',
+    'Tier cold S3 data to Infrequent Access or Glacier.',
+    'Graviton (ARM) runs the same work for ~20% less.',
+    'Kill idle NAT gateways and load balancers with no targets.',
+    'Auto-suspend Snowflake & BigQuery so warehouses never idle.',
+    'Tag everything — you can’t cut what you can’t attribute.',
+    'Right-size Databricks clusters and turn on autoscaling.',
+    'Use Spot / preemptible VMs for fault-tolerant jobs — up to ~90% off.',
+    'Set budgets & anomaly alerts so spend surprises get caught early.',
+  ];
+  // per-vendor tips (index-aligned with VENDORS), shown when you cut that lane
+  const VENDOR_TIPS = [
+    'AWS: Graviton, Savings Plans and S3 lifecycle rules are the big three.',
+    'GCP: set Committed Use Discounts and BigQuery slot reservations.',
+    'Azure: use Reservations + Hybrid Benefit; deallocate idle VMs.',
+    'Databricks: autoscale, auto-terminate clusters, and use spot workers.',
+    'Snowflake: auto-suspend warehouses and right-size — don’t oversize.',
+  ];
+  // savings-plan / commitment tips, shown on gold "Savings Plan" notes and holds
+  const PLAN_TIPS = [
+    'Savings Plans lock in up to ~72% off for a 1- or 3-year commit.',
+    'Reserved Instances suit steady, predictable workloads.',
+    'Commit your steady baseline; keep bursty load on on-demand or spot.',
+    'The longer the commitment, the deeper the discount.',
+  ];
+  // "Did you know?" stats shown on the song-select screen (between runs)
+  const DYK = [
+    'Idle resources are roughly 30% of typical cloud spend.',
+    'Untagged spend is spend you can’t optimize.',
+    'Non-prod rarely needs to run nights or weekends.',
+    'A forgotten NAT gateway can cost $1,000+/yr doing nothing.',
+    'Most EC2 instances run under 40% CPU — room to rightsize.',
+  ];
 
   const BILL_MAX = 100;
   const TARGET_SECS = 105;    // aimed note span; capped so a whole run stays under ~2 min
@@ -253,7 +304,8 @@
       // end on the loop boundary (a downbeat), just after the last phrase resolves,
       // so the finish feels intentional; the music fades out into this point
       const outroEnd = firstStep0 + (startStepAbs + total) * stepDur + lat + 0.4;
-      return { notes, stepDur, endTime: outroEnd };
+      const lastNote = notes.length ? notes[notes.length - 1].time : firstStep0;
+      return { notes, stepDur, endTime: outroEnd, lastNote };
     }
 
     // ---- start a song -----------------------------------------------------
@@ -303,7 +355,7 @@
           counts: { perfect: 0, great: 0, ok: 0, miss: 0, trap: 0 },
           total: chart.notes.filter(n => n.type !== 'trap').length,
           laneFlash: new Array(diff.lanes).fill(0),
-          pops: [], parts: [], shake: 0, tint: 0, hostBob: 0,
+          pops: [], parts: [], shake: 0, tint: 0, hostBob: 0, tip: null, tipN: 0, anom: false,
           failed: false,
         };
         state = 'count';
@@ -329,7 +381,14 @@
       if (better) rec[diffKey] = { score: r.score, grade, combo: r.maxCombo, acc: Math.round(acc * 100) };
       meta.plays++; persist();
 
-      run.result = { grade, acc: Math.round(acc * 100), tokens, best: better };
+      // "lesson of the run" — tie the takeaway to how it went
+      const missRatio = r.total ? c.miss / r.total : 0;
+      const lesson = r.failed
+        ? 'Budget blown — set anomaly alerts so runaway spend is caught fast.'
+        : missRatio > 0.25
+          ? 'Consistency compounds: steady small cuts beat big one-offs.'
+          : TIPS[(r.tipN + r.maxCombo) % TIPS.length];
+      run.result = { grade, acc: Math.round(acc * 100), tokens, best: better, tip: lesson };
       run.resultAt = performance.now();   // for the crossfade into the results screen
       state = 'result';
       emit('run:end', { song: r.song.key, diff: diffKey });
@@ -376,8 +435,13 @@
       const newMult = multFor(run.combo);
       if (newMult > run.mult) { run.mult = newMult; SFX.combo(); }
       run.mult = newMult;
-      if (COMBO_CALLS[run.combo]) { run.callout = { text: COMBO_CALLS[run.combo], life: 1.4 }; shake(run, 6); }
-      const gain = base * run.mult * goldX;
+      if (COMBO_CALLS[run.combo]) {
+        run.callout = { text: COMBO_CALLS[run.combo], life: 1.4 }; shake(run, 6);
+        // teach on a good streak — alternate a vendor tip (for the lane you cut) and a general one
+        showTip(run, (run.tipN++ % 2 === 0) ? VENDOR_TIPS[lane] : TIPS[run.tipN % TIPS.length]);
+      }
+      let gain = base * run.mult * goldX;
+      if (anomOn(now)) gain = Math.round(gain * 1.5);   // anomaly finale: cuts pay more
       run.score += gain;
       run.counts[j]++;
       run.bill = clamp(run.bill - (j === 'perfect' ? 2 : j === 'great' ? 1 : 0), 0, BILL_MAX);
@@ -386,7 +450,8 @@
       const label = best.type === 'gold' ? '💰 SAVINGS PLAN' : JUDGE[j];
       pop(run, lane, label + '  +' + fmt$(gain), best.type === 'gold' ? '#ffd76a' : LANE_COLOR(run, lane));
       burst(run, lane, best.type === 'gold' ? 22 : j === 'perfect' ? 14 : 8);
-      if (best.type === 'gold') SFX.gold(); else SFX[j]();
+      if (best.type === 'gold') { SFX.gold(); showTip(run, PLAN_TIPS[run.tipN++ % PLAN_TIPS.length]); }
+      else SFX[j]();
       if (j === 'perfect') shake(run, 4);
 
       if (best.type === 'hold') { best.held = true; best.judged = true; }
@@ -469,6 +534,11 @@
       const g = geom(r.diff.lanes);
       r.pops.push({ x: g.x0 + g.lw * (lane + 0.5), y: hitY() + (dy || -30), text, color, life: 1 });
     }
+    // surface an educational tip, rate-limited so they don't spam
+    function showTip(r, text) {
+      if (!r || (r.tip && r.tip.life > 3.2)) return;   // don't stomp a fresh tip
+      r.tip = { text, life: 4.5 };
+    }
     function burst(r, lane, n) {
       const g = geom(r.diff.lanes);
       const cx = g.x0 + g.lw * (lane + 0.5);
@@ -481,6 +551,9 @@
     }
     function shake(r, amt) { r.shake = Math.min(16, r.shake + amt); }
     function checkFail() { if (run && run.bill >= BILL_MAX) { run.failed = true; endSong(); } }
+    // the final ~12s of notes are a "cost anomaly" — cuts pay 1.5x, misses hurt more
+    const ANOM_LEN = 12;
+    function anomOn(now) { return !!(run && run.chart && now >= run.chart.lastNote - ANOM_LEN && now < run.chart.lastNote + 0.3); }
 
     // ---- geometry ----
     function geom(lanes) {
@@ -519,6 +592,12 @@
       const now = actx ? actx.currentTime : 0;
 
       if (state === 'play') {
+        // cost-anomaly finale kicks in for the last stretch of notes
+        if (!run.anom && anomOn(now)) {
+          run.anom = true;
+          run.callout = { text: '⚠ COST ANOMALY', life: 2.2 }; shake(run, 9);
+          showTip(run, 'Anomaly detection catches runaway spend before it compounds.');
+        }
         // A jump in the audio clock means the frame loop stalled — the tab was
         // backgrounded or throttled. Notes that passed during a stall were never the
         // player's to hit, so retire them silently instead of raining down misses.
@@ -538,7 +617,7 @@
             if (n.type === 'trap') { if (now - n.time > 0.15) n.judged = true; continue; } // avoided = good
             if (now - n.time > 0.15) {
               n.judged = true; run.counts.miss++; run.combo = 0; run.mult = 1;
-              run.bill = clamp(run.bill + run.diff.missCost, 0, BILL_MAX);
+              run.bill = clamp(run.bill + run.diff.missCost * (anomOn(now) ? 1.5 : 1), 0, BILL_MAX);
               run.tint = Math.max(0, run.tint - 0.2);
               pop(run, n.lane, JUDGE.miss, '#7d8aa8'); SFX.miss(); checkFail();
             }
@@ -549,7 +628,7 @@
           if (n.type === 'hold' && n.judged && !n.holdScored && now >= n.holdEnd) {
             n.holdScored = true;
             // hold bonus scales with how long it was held, so long holds pay off
-            if (n.held) { const secs = n.holdEnd - n.time; const g = Math.round((60 + secs * 90) * run.mult / 5) * 5; run.score += g; pop(run, n.lane, 'HOLD +' + fmt$(g), '#8fe'); burst(run, n.lane, 10); SFX.great(); }
+            if (n.held) { const secs = n.holdEnd - n.time; const g = Math.round((60 + secs * 90) * run.mult / 5) * 5; run.score += g; pop(run, n.lane, 'COMMITMENT +' + fmt$(g), '#8fe'); burst(run, n.lane, 10); SFX.great(); showTip(run, PLAN_TIPS[run.tipN++ % PLAN_TIPS.length]); }
           }
         }
         // fade the music out over the final ~2.8s so the song doesn't cut abruptly
@@ -567,6 +646,7 @@
       for (const p of run.pops) { p.life -= dt * 1.2; p.y -= dt * 34; }
       run.pops = run.pops.filter(p => p.life > 0);
       if (run.callout) { run.callout.life -= dt; if (run.callout.life <= 0) run.callout = null; }
+      if (run.tip) { run.tip.life -= dt; if (run.tip.life <= 0) run.tip = null; }
       for (const p of run.parts) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 640 * dt; p.life -= dt * 1.3; }
       run.parts = run.parts.filter(p => p.life > 0);
     }
@@ -682,6 +762,11 @@
       ctx2d.fillStyle = '#5b6b8c'; ctx2d.font = '500 11px Segoe UI, system-ui, sans-serif';
       ctx2d.fillText('tiles landing early? +   ·   late? −   ·   (or press [ and ])', cx, yc + 48);
       ctx2d.fillText('↑↓ song · ←→ difficulty · Enter to play', cx, yc + 66);
+
+      // rotating "Did you know?" FinOps stat
+      const dyk = DYK[Math.floor(performance.now() / 6000) % DYK.length];
+      ctx2d.fillStyle = '#cfe9e2'; ctx2d.font = '600 12px Segoe UI, system-ui, sans-serif';
+      ctx2d.fillText('💡  Did you know?  ' + dyk, cx, yc + 96);
     }
     function handleMenuClick(x, y) {
       for (const h of menuHit) {
@@ -768,9 +853,33 @@
         ctx2d.fillStyle = down ? '#06121a' : '#dfe8f7'; ctx2d.textAlign = 'center';
         ctx2d.font = '800 16px Segoe UI, system-ui, sans-serif';
         ctx2d.fillText(run.keys[i].toUpperCase(), cx, hy + 6);
-        // vendor label above the target
-        ctx2d.fillStyle = hexA(PALETTE[i], 0.95); ctx2d.font = '800 11px Segoe UI, system-ui, sans-serif';
-        ctx2d.fillText(VENDORS[i].toUpperCase(), cx, hy - 30);
+        // vendor logo + name, below the target (out of the note path)
+        const vlabel = VENDORS[i].toUpperCase();
+        const base = hy + 44;
+        ctx2d.font = '800 10px Segoe UI, system-ui, sans-serif';
+        const tw = ctx2d.measureText(vlabel).width;
+        const bs = 16, gp = 5, gw = bs + gp + tw, gx = cx - gw / 2;
+        const icon = VENDOR_ICONS[i];
+        if (icon) {
+          // real vendor logo (from mudslides), drawn in the lane colour
+          ctx2d.save();
+          ctx2d.translate(gx + bs / 2, base - 5);
+          ctx2d.scale(bs / 24, bs / 24);
+          ctx2d.translate(-12, -12);
+          ctx2d.fillStyle = PALETTE[i];
+          ctx2d.fill(icon);
+          ctx2d.restore();
+        } else {
+          // AWS has no logo in the set — a brand-coloured chip with a monogram
+          ctx2d.fillStyle = PALETTE[i]; rrect(gx, base - 13, bs, bs, 4); ctx2d.fill();
+          ctx2d.fillStyle = '#06121a'; ctx2d.textAlign = 'center';
+          ctx2d.font = '800 11px Segoe UI, system-ui, sans-serif';
+          ctx2d.fillText(BADGES[i], gx + bs / 2, base - 1);
+        }
+        // name
+        ctx2d.textAlign = 'left'; ctx2d.fillStyle = hexA(PALETTE[i], 0.95);
+        ctx2d.font = '800 10px Segoe UI, system-ui, sans-serif';
+        ctx2d.fillText(vlabel, gx + bs + gp, base);
       }
 
       // notes — projected in perspective, drawn far -> near so nearer ones overlap
@@ -809,27 +918,45 @@
           }
         } else {
           const gold = n.type === 'gold';
-          const col = gold ? '#ffd76a' : PALETTE[n.lane];
+          const col = PALETTE[n.lane];               // gold notes keep the lane colour...
           const tlen = 82 * s;                       // comet trail toward the horizon
           const tg = ctx2d.createLinearGradient(0, y - tlen, 0, y);
-          tg.addColorStop(0, 'rgba(0,0,0,0)'); tg.addColorStop(1, hexA(col, 0.30));
+          tg.addColorStop(0, 'rgba(0,0,0,0)'); tg.addColorStop(1, hexA(gold ? '#ffd76a' : col, 0.30));
           ctx2d.fillStyle = tg; ctx2d.fillRect(cx - rW * 0.24, y - tlen, rW * 0.48, tlen);
-          ctx2d.shadowColor = col; ctx2d.shadowBlur = (gold ? 18 : 9) * s;
+          // ...but glow gold so they still read as the ×3 bonus
+          ctx2d.shadowColor = gold ? '#ffd76a' : col; ctx2d.shadowBlur = (gold ? 22 : 9) * s;
           ctx2d.fillStyle = col; rrect(cx - rW / 2, y - rH / 2, rW, rH, 6); ctx2d.fill();
           ctx2d.shadowBlur = 0;
-          ctx2d.fillStyle = 'rgba(255,255,255,.85)'; rrect(cx - rW / 2, y - rH / 2, rW, 4 * s + 1, 2); ctx2d.fill();
+          if (gold) {                                // gold rim marks the bonus note
+            ctx2d.strokeStyle = '#ffd76a'; ctx2d.lineWidth = Math.max(1.5, 2.6 * s);
+            rrect(cx - rW / 2, y - rH / 2, rW, rH, 6); ctx2d.stroke();
+          }
+          ctx2d.fillStyle = gold ? '#ffe9a8' : 'rgba(255,255,255,.85)';
+          rrect(cx - rW / 2, y - rH / 2, rW, 4 * s + 1, 2); ctx2d.fill();
           ctx2d.textAlign = 'center';
+          const vic = VENDOR_ICONS[n.lane];
+          // block face: 🔒 on holds (Commitment/RI lever), 💰 on gold (Savings Plan),
+          // otherwise the vendor's own logo (emoji fallback for AWS)
+          const lever = n.type === 'hold' ? '🔒' : gold ? '💰' : null;
+          const drawFace = (lx, ly, sz) => {
+            if (lever) {
+              ctx2d.font = sz + 'px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+              ctx2d.fillText(lever, lx, ly + sz * 0.35);
+            } else if (vic) {
+              ctx2d.save(); ctx2d.translate(lx, ly); ctx2d.scale(sz / 24, sz / 24); ctx2d.translate(-12, -12);
+              ctx2d.fillStyle = 'rgba(6,12,22,.82)'; ctx2d.fill(vic); ctx2d.restore();
+            } else {
+              ctx2d.font = sz + 'px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+              ctx2d.fillStyle = 'rgba(6,12,22,.85)'; ctx2d.fillText(n.icon, lx, ly + sz * 0.35);
+            }
+          };
           if (s > 0.72) {
-            // near: savings-type icon + the spend to cut
-            ctx2d.font = Math.round(15 * s) + 'px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
-            ctx2d.fillText(n.icon, cx - rW * 0.22, y + 5 * s);
-            ctx2d.fillStyle = gold ? '#5a4300' : 'rgba(6,12,22,.9)';
+            drawFace(cx - rW * 0.24, y, Math.round(16 * s));
+            ctx2d.fillStyle = 'rgba(6,12,22,.9)';
             ctx2d.font = '800 ' + Math.round(12 * s) + 'px Segoe UI, system-ui, sans-serif';
             ctx2d.fillText(fmtK(n.spend), cx + rW * 0.14, y + 4 * s);
           } else if (s > 0.45) {
-            // farther: just the icon
-            ctx2d.font = Math.round(16 * s) + 'px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
-            ctx2d.fillText(n.icon, cx, y + 5 * s);
+            drawFace(cx, y, Math.round(17 * s));
           }
         }
       }
@@ -877,6 +1004,12 @@
     // ---- hud ----
     function drawHud() {
       if (!run) return;
+      // cost-anomaly finale: pulse a red alert border around the playfield
+      if (state === 'play' && anomOn(actx.currentTime)) {
+        const ap = 0.35 + 0.35 * Math.sin(actx.currentTime * 8);
+        ctx2d.strokeStyle = 'rgba(255,93,108,' + ap.toFixed(2) + ')'; ctx2d.lineWidth = 6;
+        ctx2d.strokeRect(3, 3, W - 6, H - 6);
+      }
       // song progress line across the very top (fills left->right as the song plays)
       const prog = clamp((actx.currentTime - run.beginTime) / Math.max(0.001, run.chart.endTime - run.beginTime), 0, 1);
       ctx2d.fillStyle = 'rgba(255,255,255,.07)'; ctx2d.fillRect(0, 0, W, 4);
@@ -924,6 +1057,20 @@
         ctx2d.globalAlpha = Math.min(1, run.callout.life);
         ctx2d.fillStyle = '#ffd76a'; ctx2d.font = '800 40px Segoe UI, system-ui, sans-serif';
         ctx2d.fillText(run.callout.text, W / 2, H * 0.36);
+        ctx2d.globalAlpha = 1;
+      }
+
+      // educational cost-saving tip, surfaced on a good streak
+      if (run.tip) {
+        const a = Math.min(1, run.tip.life / 0.6);       // fade in/out at the ends
+        ctx2d.globalAlpha = a;
+        ctx2d.font = '700 14px Segoe UI, system-ui, sans-serif';
+        const tw = ctx2d.measureText('💡  ' + run.tip.text).width + 28;
+        const bw = Math.min(W - 40, tw), bx = (W - bw) / 2, by = 84;
+        ctx2d.fillStyle = 'rgba(10,16,30,.82)'; rrect(bx, by, bw, 30, 8); ctx2d.fill();
+        ctx2d.strokeStyle = 'rgba(127,214,196,.5)'; ctx2d.lineWidth = 1; rrect(bx, by, bw, 30, 8); ctx2d.stroke();
+        ctx2d.fillStyle = '#cfe9e2'; ctx2d.textAlign = 'center';
+        ctx2d.fillText('💡  ' + run.tip.text, W / 2, by + 20);
         ctx2d.globalAlpha = 1;
       }
     }
@@ -978,6 +1125,17 @@
       ctx2d.fillStyle = 'rgba(255,255,255,.1)'; rrect(bx + bw + gap, by, bw, 46, 11); ctx2d.fill();
       ctx2d.fillStyle = '#dfe8f7'; ctx2d.fillText('Song select', bx + bw + gap + bw / 2, by + 30);
       resultHit.push({ x: bx + bw + gap, y: by, w: bw, h: 46, kind: 'menu' });
+
+      // a cost-saving tip to take away
+      if (r.tip) {
+        ctx2d.font = '700 13px Segoe UI, system-ui, sans-serif';
+        const tw = ctx2d.measureText('💡  ' + r.tip).width + 28;
+        const tbw = Math.min(W - 60, tw), tbx = cx - tbw / 2, tby = by + 66;
+        ctx2d.fillStyle = 'rgba(127,214,196,.12)'; rrect(tbx, tby, tbw, 32, 8); ctx2d.fill();
+        ctx2d.strokeStyle = 'rgba(127,214,196,.5)'; ctx2d.lineWidth = 1; rrect(tbx, tby, tbw, 32, 8); ctx2d.stroke();
+        ctx2d.fillStyle = '#cfe9e2'; ctx2d.textAlign = 'center';
+        ctx2d.fillText('💡  ' + r.tip, cx, tby + 21);
+      }
       ctx2d.globalAlpha = 1;
     }
     function handleResultClick(x, y) {
