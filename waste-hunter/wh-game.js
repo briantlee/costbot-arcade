@@ -973,11 +973,13 @@
     const m = this.meta;
     const interest = 1 + 0.08 * (m.upgrades.interest || 0);
     const clearBonus = outcome === 'clear' ? 1.5 : 1;
-    // $250 saved = 1 token. Started at $1,000, went to $500 on measurement, and
-    // is here now because a three-minute stage should pay like three minutes of
-    // work: a cleared run lands in the low thousands rather than under one, so
-    // the 10,000 needed to ship a product is a handful of runs and not a grind.
-    const tokens = Math.round((r.dollars / 250) * interest * clearBonus);
+    // $425 saved = 1 token. History: $1,000 -> $500 on measurement -> $250 to
+    // make a cleared run pay "three minutes of work". But $250 measured out to
+    // ~170 tokens/min for a middling clear (a mid-run ~$80K in kill/quiz
+    // dollars against the XP curve in wh-content.js, not the ~$147K "maxed
+    // pace" figure in that file's own comment) — 1.7x the ~100/min every other
+    // cabinet now targets. $425 lands the same run at ~100/min.
+    const tokens = Math.round((r.dollars / 425) * interest * clearBonus);
 
     // The spendable balance lives in the shared arcade wallet, NOT in `m.tokens`
     // — that field predates the wallet and is dead (see screenBay). `m` keeps

@@ -31,13 +31,23 @@
 
   // ---------------------------------------------------------------------------
   // TOKENS — the score, and the whole reason CostBot is on the hill
-  // ---------------------------------------------------------------------------
+  //
+  // r.tokens is live-accrued (HUD shows it mid-run) AND is the exact wallet
+  // credit at crash — there is no separate end-of-run conversion, unlike Waste
+  // Hunter's dollars-to-tokens divisor. So the per-item values here ARE the
+  // conversion rate. Modeled against the real spawn/speed constants below (row
+  // cadence from DIFFICULTY.reactionAt, token odds from tokenChance/trailChance,
+  // distance payout from SCORING.distanceTokensPer): a competent-not-perfect
+  // run was clearing ~600-900 tokens/min and climbing as speed ramped toward
+  // maxSpeed — 6-9x the ~100/min every other cabinet targets. These values (and
+  // distanceTokensPer below) are divided by 6, landing a ~60-90s run near
+  // 90-110/min.
   const TOKENS = {
-    input: { name: 'Input token', value: 1, color: '#7fd6c4', glow: '#3fa891', r: 15 },
-    output: { name: 'Output token', value: 5, color: '#ffd76b', glow: '#f0a52c', r: 19 },
-    cached: { name: 'Cached token', value: 2, color: '#a06bff', glow: '#7b3fe0', r: 15,
+    input: { name: 'Input token', value: 0.17, color: '#7fd6c4', glow: '#3fa891', r: 15 },
+    output: { name: 'Output token', value: 0.83, color: '#ffd76b', glow: '#f0a52c', r: 19 },
+    cached: { name: 'Cached token', value: 0.33, color: '#a06bff', glow: '#7b3fe0', r: 15,
       // cached tokens arrive in trails; clearing a whole trail pays the streak
-      streakBonus: 12 },
+      streakBonus: 2 },
   };
 
   // ---------------------------------------------------------------------------
@@ -197,8 +207,8 @@
   // ---------------------------------------------------------------------------
   const SCORING = {
     dodgeWindow: 900,        // world units since the lane change that still counts as a dodge
-    nearMissTokens: 3,
-    distanceTokensPer: 30,   // a token every N metres survived
+    nearMissTokens: 0.5,
+    distanceTokensPer: 180,  // a token every N metres survived — was 30, /6 with TOKENS above
     speedBonusAt: 2200,      // above this speed, pickups pay double
     historyKept: 50,         // runs retained locally for the board
   };

@@ -45,7 +45,7 @@
   // (0 = instant grab). `sev` is how fast an unresolved incident drains its land.
   const INCIDENTS = {
     breakdown:   { id: 'breakdown',   label: 'Reset ride',  emoji: '🛠️', icon: '🎢', hold: 0.75, sev: 4.3, score: 800, verb: 'FIX' },
-    obstruction: { id: 'obstruction', label: 'Clear track', emoji: '🎩', icon: '🎩', hold: 0.0,  sev: 3.4, score: 450, verb: 'GRAB' },
+    obstruction: { id: 'obstruction', label: 'Clear track', emoji: '🧢', icon: '🧢', hold: 0.0,  sev: 3.4, score: 450, verb: 'GRAB' },
     hungry:      { id: 'hungry',      label: 'Serve food',  emoji: '🍔', icon: '🍔', hold: 0.35, sev: 2.7, score: 550, verb: 'SERVE' },
     spill:       { id: 'spill',       label: 'Clean up',    emoji: '🧹', icon: '🗑️', hold: 0.3,  sev: 2.1, score: 350, verb: 'CLEAN' },
   };
@@ -83,7 +83,13 @@
     finaleRush: 1.7,
     comboStep: 0.2,          // multiplier added per unbroken resolve
     comboMax: 4,
-    tokensPerGuest: 0.5,
+    // Tokens accrue LIVE as park cash (G.score) is earned, one token per this many
+    // dollars of net score — see cl-game.js's tokenWatermark logic. Originally
+    // $1,000/token (tuned for ~15 tokens/min cross-arcade parity); raised to a
+    // flat ~100 tokens/min target per direct user request — a good ~90s round
+    // nets roughly $12k-$28k, so at $140/token that's ~85-200 tokens/round,
+    // ~100/min at the middle of that range.
+    dollarsPerToken: 140,
     // Monetary penalties — park cash you LOSE when things aren't handled in time.
     childPenalty: 1400,      // a lost child gives up and leaves unescorted
     ticketPenalty: 500,      // a guest abandons the ticket line
@@ -110,9 +116,11 @@
     drainPerGuest: 0.7,      // ...plus this much per guest currently in line
     scanGain: 9,             // happiness restored per guest admitted
     score: 260,              // cash earned per guest admitted
-    // Only the guest at the FRONT is on the clock: scan them within `patience`
-    // seconds or they leave, the line shuffles up, and the timer resets.
-    patience: 5,             // seconds the front guest waits before walking out
+    // Only the front guest is on the clock — scan them within `patience`
+    // seconds or they walk out (a cash penalty) and the line shuffles up.
+    // There's no on-screen countdown for this one; the pressure is real,
+    // the readout isn't (removed per playtest feedback).
+    patience: 5,
     start: 100,
   };
 

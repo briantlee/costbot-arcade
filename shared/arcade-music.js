@@ -137,16 +137,17 @@
                { root: 48, tones: [0, 4, 7] }, { root: 53, tones: [0, 4, 7] },
                { root: 48, tones: [0, 4, 7] }, { root: 53, tones: [0, 4, 7] },
                { root: 53, tones: [0, 4, 7] }, { root: 46, tones: [0, 4, 7] }],
-    // "Blind Hero" (dd.mid). i–VI–iv–i in C minor — Cm Ab Fm Cm, two bars each,
-    // twice through the 16-bar loop. Matches the source's bass exactly.
-    blindHero:[{ root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },  // Cm Cm
-               { root: 44, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },  // Ab Ab
-               { root: 41, tones: [0, 3, 7] }, { root: 41, tones: [0, 3, 7] },  // Fm Fm
-               { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },  // Cm Cm
-               { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },  // Cm Cm
-               { root: 44, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },  // Ab Ab
-               { root: 41, tones: [0, 3, 7] }, { root: 41, tones: [0, 3, 7] },  // Fm Fm
-               { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] }], // Cm Cm
+    // "Blind Spend" (dd.mid), dropped an octave and sped up for a faster, more
+    // frantic feel. i–VI–iv–i in C minor — Cm Ab Fm Cm, two bars each,
+    // twice through the 16-bar loop. Matches the source's bass, an octave down.
+    blindHero:[{ root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] },  // Cm Cm
+               { root: 32, tones: [0, 4, 7] }, { root: 32, tones: [0, 4, 7] },  // Ab Ab
+               { root: 29, tones: [0, 3, 7] }, { root: 29, tones: [0, 3, 7] },  // Fm Fm
+               { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] },  // Cm Cm
+               { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] },  // Cm Cm
+               { root: 32, tones: [0, 4, 7] }, { root: 32, tones: [0, 4, 7] },  // Ab Ab
+               { root: 29, tones: [0, 3, 7] }, { root: 29, tones: [0, 3, 7] },  // Fm Fm
+               { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] }], // Cm Cm
   };
 
   // ===========================================================================
@@ -402,34 +403,35 @@
       87, _, _, _, _, _, 84, _, 82, _, _, _, 80, _, _, _,
       79, _, _, _, _, _, _, _, 77, _, _, _, _, _, _, _,
     ],
-    // "Blind Hero" (dd.mid), transcribed from MIDI: an 8-bar 8th-note ostinato
-    // (G–Eb–D–C, the top note lifting a semitone under the Ab/Fm bars), then the
-    // sparse, held-note theme that answers it. Faithful to the source's rests.
+    // "Blind Spend" (dd.mid), transcribed from MIDI and dropped an octave for a
+    // deeper, less shrill lead: an 8-bar 8th-note ostinato (G–Eb–D–C, the top
+    // note lifting a semitone under the Ab/Fm bars), then the sparse, held-note
+    // theme that answers it. Faithful to the source's rests, an octave down.
     blindHero: [
       // -- ostinato, bars 1-8 (top note tracks the chord: G over Cm, G# over Ab/Fm) --
-      67, _, 63, _, 62, _, 60, _, 67, _, 63, _, 62, _, 60, _,
-      67, _, 63, _, 62, _, 60, _, 67, _, 63, _, 62, _, 60, _,
-      68, _, 63, _, 62, _, 60, _, 68, _, 63, _, 62, _, 60, _,
-      68, _, 63, _, 62, _, 60, _, 68, _, 63, _, 62, _, 60, _,
-      68, _, 63, _, 62, _, 60, _, 68, _, 63, _, 62, _, 60, _,
-      68, _, 63, _, 62, _, 60, _, 68, _, 63, _, 62, _, 60, _,
-      67, _, 63, _, 62, _, 60, _, 67, _, 63, _, 62, _, 60, _,
-      67, _, 63, _, 62, _, 60, _, 67, _, 63, _, 62, _, 60, _,
+      55, _, 51, _, 50, _, 48, _, 55, _, 51, _, 50, _, 48, _,
+      55, _, 51, _, 50, _, 48, _, 55, _, 51, _, 50, _, 48, _,
+      56, _, 51, _, 50, _, 48, _, 56, _, 51, _, 50, _, 48, _,
+      56, _, 51, _, 50, _, 48, _, 56, _, 51, _, 50, _, 48, _,
+      56, _, 51, _, 50, _, 48, _, 56, _, 51, _, 50, _, 48, _,
+      56, _, 51, _, 50, _, 48, _, 56, _, 51, _, 50, _, 48, _,
+      55, _, 51, _, 50, _, 48, _, 55, _, 51, _, 50, _, 48, _,
+      55, _, 51, _, 50, _, 48, _, 55, _, 51, _, 50, _, 48, _,
       // -- the theme, bars 9-16 (sparse, held) ------------------------------
-      75, _, _, _, _, _, _, _, 74, _, _, _, _, _, _, _,
+      63, _, _, _, _, _, _, _, 62, _, _, _, _, _, _, _,
       _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-      75, _, _, _, 79, _, _, _, 77, _, _, _, _, _, _, _,
+      63, _, _, _, 67, _, _, _, 65, _, _, _, _, _, _, _,
       _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-      77, _, _, _, _, _, _, _, 72, _, _, _, _, _, _, _,
+      65, _, _, _, _, _, _, _, 60, _, _, _, _, _, _, _,
       _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-      75, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-      74, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      63, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      62, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
     ],
   };
 
   // ===========================================================================
   // TRACKS
-  //   drums: 'four' | 'double' | 'march' | 'rock' | 'chamber' | 'break' | false
+  //   drums: 'four' | 'double' | 'march' | 'rock' | 'chamber' | 'break' | 'bossa' | 'heartbeat' | false
   //   voices: which synth is used for lead / pad
   // ===========================================================================
   const TRACKS = {
@@ -557,7 +559,7 @@
     // chords and a martial kit through the theme, a lyrical middle, a big octave-up
     // statement, then a dark bridge where the kit drops and a fill back in.
     ch_imperial: {
-      title: 'Imperial Markup', influence: 'Star Wars · Imperial March', bpm: 104, key: 'G minor',
+      title: 'Imperial Markup', influence: 'Star Wars · Imperial March', bpm: 118, key: 'G minor',
       desc: 'CostBot Hero villain march, ~37s: the menacing G–G–G / Eb–Bb theme, a lyrical middle, '
           + 'a huge octave-up statement, then a dark bridge that drops out before the march returns.',
       prog: P.chImperial, lead: L.chImperial, drums: 'march', pad: 'power', bars: 16,
@@ -608,15 +610,18 @@
       arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'saw' },
     },
     // Daredevil, given the same treatment as The Savengers: transcribed from MIDI,
-    // then cranked — double-kick drive under a dark string pad, distorted lead on
-    // the 8-bar ostinato hook, then the sparse theme answers it.
+    // then cranked and dropped an octave — frantic tempo, a deep bass, and a
+    // relentless lub-dub heartbeat kick under a dark string pad, distorted lead
+    // on the 8-bar ostinato hook, then the sparse theme answers it.
     ch_blindhero: {
-      title: 'Blind Hero', influence: 'Daredevil, dark ostinato', bpm: 114, key: 'C minor',
-      desc: 'Daredevil theme, cranked up: an 8-bar 8th-note ostinato hook driving over a double-kick '
-          + 'pulse and dark strings, i–VI–iv–i in C minor, before a sparse, moody theme answers it.',
-      prog: P.blindHero, lead: L.blindHero, drums: 'double', pad: 'strings', bars: 16,
+      title: 'Blind Spend', influence: 'Daredevil, dark ostinato', bpm: 156, key: 'C minor',
+      desc: 'Daredevil theme, cranked up and pitched down: a frantic 8-bar 8th-note ostinato hook '
+          + 'driving over a deep bass and a pounding lub-dub heartbeat kick, dark strings, '
+          + 'i–VI–iv–i in C minor, before a sparse, moody theme answers it.',
+      prog: P.blindHero, lead: L.blindHero, drums: 'heartbeat', pad: 'strings', bars: 16,
       fillBar: 15, crashBars: [0, 8],
-      arpEvery: 1, bassEvery: 1, gain: 0.9, voices: { lead: 'dist' },
+      arpEvery: 1, bassEvery: 1, gain: 0.98, voices: { lead: 'dist' },
+      bassGain: 0.48, bassSubGain: 1.0, bassCutoffStart: 480, bassCutoffEnd: 110,
     },
   };
 
@@ -734,18 +739,23 @@
     }
 
     // ---- tonal voices -------------------------------------------------------
-    function bass(t, midi, dur) {
+    function bass(t, midi, dur, o) {
+      o = o || {};
+      const gain = o.gain != null ? o.gain : 0.30;
+      const subGain = o.subGain != null ? o.subGain : 0.55;
+      const cutoffStart = o.cutoffStart != null ? o.cutoffStart : 760;
+      const cutoffEnd = o.cutoffEnd != null ? o.cutoffEnd : 190;
       const f = ctx.createBiquadFilter();
       f.type = 'lowpass';
-      f.frequency.setValueAtTime(760, t);
-      f.frequency.exponentialRampToValueAtTime(190, t + Math.max(0.05, dur * 0.9));
+      f.frequency.setValueAtTime(cutoffStart, t);
+      f.frequency.exponentialRampToValueAtTime(cutoffEnd, t + Math.max(0.05, dur * 0.9));
       f.Q.value = 7;
-      const g = ctx.createGain(); env(g, t, 0.006, dur, 0.30);
-      const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = mtof(midi);
+      const g = ctx.createGain(); env(g, t, 0.006, dur, gain);
+      const osc = ctx.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = mtof(midi);
       const sub = ctx.createOscillator(); sub.type = 'sine'; sub.frequency.value = mtof(midi - 12);
-      const sg = ctx.createGain(); sg.gain.value = 0.55;
-      o.connect(f); sub.connect(sg); sg.connect(f); f.connect(g); g.connect(out);
-      o.start(t); sub.start(t); o.stop(t + dur + 0.1); sub.stop(t + dur + 0.1);
+      const sg = ctx.createGain(); sg.gain.value = subGain;
+      osc.connect(f); sub.connect(sg); sg.connect(f); f.connect(g); g.connect(out);
+      osc.start(t); sub.start(t); osc.stop(t + dur + 0.1); sub.stop(t + dur + 0.1);
     }
     function arpNote(t, midi, voice) {
       if (voice === 'piano') return piano(t, midi, 0.7, 0.055);
@@ -932,6 +942,17 @@
           if (inBar % 2 === 0) hat(t, inBar === 14, inBar % 4 === 0);
           if (bar === 0 && inBar === 0) crash(t);
           break;
+        case 'heartbeat':
+          // A literal lub-dub pulse, once per beat, every beat of every bar —
+          // the dominant, unmistakable element of the cue. "Lub" is a hard low
+          // kick on the beat; "dub" is a softer second kick one 16th later;
+          // the remaining two 16ths of the beat rest before the next lub.
+          if (inBar % 4 === 0) kick(t, true);   // lub
+          if (inBar % 4 === 1) kick(t, false);  // dub
+          if (inBar === 4 || inBar === 12) snare(t);
+          if (inBar % 4 === 2) hat(t, false, false);
+          if (bar === 0 && inBar === 0) crash(t);
+          break;
         default: break;
       }
 
@@ -939,7 +960,10 @@
 
       if (cfg.bassEvery && !quiet && i % cfg.bassEvery === 0) {
         const oct = (inBar % 8 === 4) ? 12 : 0;
-        bass(t, chord.root + oct, stepDur * cfg.bassEvery * 0.92);
+        bass(t, chord.root + oct, stepDur * cfg.bassEvery * 0.92, {
+          gain: cfg.bassGain, subGain: cfg.bassSubGain,
+          cutoffStart: cfg.bassCutoffStart, cutoffEnd: cfg.bassCutoffEnd,
+        });
       }
 
       if (cfg.arpEvery && i % cfg.arpEvery === 0) {

@@ -10,7 +10,9 @@
     -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
     overscroll-behavior:none;}
   #game{position:absolute;inset:0;
-    background:radial-gradient(circle at 50% 0%,#0a1150,#04061c 72%);}
+    background:radial-gradient(circle at 50% 0%,#0a1150,#04061c 72%);
+    background-size:140% 140%;animation:qsbg 24s ease-in-out infinite;}
+  @keyframes qsbg{0%,100%{background-position:50% 0%}50%{background-position:44% 8%}}
   #boot{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
     background:#04061c;color:#f5cd63;font-family:'Segoe UI',system-ui,sans-serif;gap:14px;z-index:5;}
   #boot img{width:96px;animation:b 2s ease-in-out infinite}
@@ -34,7 +36,7 @@
   <script src="../shared/arcade-wallet.js"></script>
   <script src="../shared/arcade-music.js"></script>
   <script src="qs-content.js"></script>
-  <script src="qs-game.js"></script>
+  <script src="qs-game.js?v=8"></script>
   <script>
     let game;
     (async () => {
@@ -47,9 +49,10 @@
           : undefined,
         onEvent(type, payload) {
           if (type !== 'ready') console.log('[QuizShow]', type, payload);
-          const back = document.getElementById('back');
-          if (back && type === 'run:start') back.classList.add('dim');
-          if (back && type === 'run:end') back.classList.remove('dim');
+          // Quiz Show is turn-based, not real-time — there's no reason to hide
+          // the way out mid-round the way a rhythm/action cabinet would, so
+          // #back stays visible for the whole session (menu, board, clue,
+          // Final Forecast, result).
         },
         onComplete(result) {
           console.log('[QuizShow] game complete', result);

@@ -47,6 +47,18 @@
     const emit = (t, p) => { try { opts.onEvent && opts.onEvent(t, p); } catch {} };
 
     host.innerHTML = '';
+    // Ambient decoration lives on the host (outside root, like the sound
+    // toggle) so it survives root.innerHTML being rewritten every screen
+    // change, and fills the dead space around the centered card.
+    const ambient = document.createElement('div');
+    ambient.className = 'qs-ambient';
+    ambient.innerHTML = `
+      <span class="qs-amb qs-amb1">💸</span>
+      <span class="qs-amb qs-amb2">☁️</span>
+      <span class="qs-amb qs-amb3">✨</span>
+      <span class="qs-amb qs-amb4">🪙</span>
+      <span class="qs-amb qs-amb5">📊</span>`;
+    host.appendChild(ambient);
     const root = document.createElement('div');
     root.className = 'qs-root';
     host.appendChild(root);
@@ -64,7 +76,7 @@
     soundBtn.className = 'qs-sound'; soundBtn.type = 'button';
     host.appendChild(soundBtn);
     function paintSound() { soundBtn.textContent = meta.muted ? '🔇' : '🔊'; soundBtn.title = (meta.muted ? 'Sound off' : 'Sound on') + ' (M)'; }
-    function applyMute() { if (master) master.gain.value = meta.muted ? 0 : 0.9; }
+    function applyMute() { if (master) master.gain.value = meta.muted ? 0 : 0.45; }
     function toggleMuted() { meta.muted = !meta.muted; persist(); if (!meta.muted && !actx) initAudio(); applyMute(); paintSound(); }
     soundBtn.onclick = toggleMuted;
     paintSound();
@@ -79,6 +91,11 @@
       else if ((e.key === 'm' || e.key === 'M') && !e.metaKey && !e.ctrlKey) { toggleMuted(); }
     }
     global.addEventListener('keydown', onKeyGlobal);
+    // Delegated so it keeps working across every re-render of root.innerHTML —
+    // the scorebar (and its quit button) is redrawn on every screen change.
+    root.addEventListener('click', (e) => {
+      if (e.target.closest && e.target.closest('.qs-quit')) { SFX.ui(); quitToMenu(); }
+    });
 
     // ---- audio (own context for sfx; ArcadeMusic for the soundtrack) --------
     let actx = null, master = null, sfxBus = null, music = null;
@@ -87,7 +104,7 @@
       const AC = global.AudioContext || global.webkitAudioContext;
       if (!AC) return;
       actx = new AC();
-      master = actx.createGain(); master.gain.value = meta.muted ? 0 : 0.9; master.connect(actx.destination);
+      master = actx.createGain(); master.gain.value = meta.muted ? 0 : 0.45; master.connect(actx.destination);
       sfxBus = actx.createGain(); sfxBus.gain.value = 0.5; sfxBus.connect(master);
       if (global.ArcadeMusic) music = global.ArcadeMusic.create(() => ({ ctx: actx, master }));
     }
@@ -129,8 +146,71 @@
 
     const C = global.QuizShowContent;
 
+    // Per-category accent so the board isn't 16 identical blue rectangles.
+    // Keyed to the category's position in the full content pool (not the
+    // 4 drawn this game), so a given category always reads the same color.
+    const CAT_PALETTE = [
+      { top: '#4a63ff', tint: 'rgba(74,99,255,.24)' },
+      { top: '#2fd9ff', tint: 'rgba(47,217,255,.22)' },
+      { top: '#3fe0a0', tint: 'rgba(63,224,160,.20)' },
+      { top: '#c77bff', tint: 'rgba(199,123,255,.22)' },
+      { top: '#ffd76a', tint: 'rgba(255,215,106,.22)' },
+      { top: '#ff8a5a', tint: 'rgba(255,138,90,.22)' },
+    ];
+    function catAccent(cat) {
+      const idx = C.CATEGORIES.findIndex((c) => c.id === cat.id);
+      return CAT_PALETTE[(idx < 0 ? 0 : idx) % CAT_PALETTE.length];
+    }
+
+    // ---- juice helpers: shake / score-pop / overclock toast -----------------
+    function shakeRoot(kind) {
+      const cls = kind === 'sm' ? 'qs-shake-sm' : kind === 'hard' ? 'qs-shake-hard' : 'qs-shake-md';
+      root.classList.remove('qs-shake-sm', 'qs-shake-md', 'qs-shake-hard');
+      void root.offsetWidth; // restart animation even if the same class is reused back-to-back
+      root.classList.add(cls);
+      clearTimeout(shakeRoot._t);
+      const dur = kind === 'sm' ? 280 : kind === 'hard' ? 600 : 400;
+      shakeRoot._t = setTimeout(() => root.classList.remove(cls), dur);
+    }
+    function flashVignette() {
+      root.classList.remove('qs-vignette');
+      void root.offsetWidth;
+      root.classList.add('qs-vignette');
+      clearTimeout(flashVignette._t);
+      flashVignette._t = setTimeout(() => root.classList.remove('qs-vignette'), 650);
+    }
+    function bumpScore(bad) {
+      const el = root.querySelector('.qs-you b');
+      if (el) {
+        el.textContent = fmt$(run.score);
+        el.classList.remove('qs-pop', 'qs-pop-bad');
+        void el.offsetWidth;
+        el.classList.add(bad ? 'qs-pop-bad' : 'qs-pop');
+      }
+      // Podium "screen" overlay — same live number, painted onto the blank
+      // panel of cb_jep_transparent.png. Purely cosmetic, mirrors .qs-you b.
+      const pod = root.querySelector('.qs-podium-score');
+      if (pod) {
+        pod.textContent = fmt$(run.score);
+        pod.classList.remove('qs-pop', 'qs-pop-bad');
+        void pod.offsetWidth;
+        pod.classList.add(bad ? 'qs-pop-bad' : 'qs-pop');
+      }
+    }
+    function showOverclockToast(oc) {
+      const old = root.querySelector('.qs-overclock-toast');
+      if (old) old.remove();
+      const el = document.createElement('div');
+      el.className = 'qs-overclock-toast';
+      el.textContent = `×${oc} OVERCLOCK!`;
+      root.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+      setTimeout(() => el.classList.add('fade'), 900);
+      setTimeout(() => el.remove(), 1450);
+    }
+
     function newRun() {
-      const cats = shuffle(C.CATEGORIES.slice()).slice(0, 4);
+      const cats = shuffle(C.CATEGORIES.slice()).slice(0, 3);
       const tiles = [];
       cats.forEach((cat, col) => VALUES.forEach((val, row) => {
         // Each tier holds several clues; draw one at random so a tile is a
@@ -161,10 +241,23 @@
       if (state === 'result') return renderResult();
     }
 
+    // Decorative game-show podium flanking the board/clue card. The blank
+    // blue panel in the source art (below "CostBot!", above the shield
+    // logo) gets the live score painted on top of it — cosmetic only, kept
+    // in sync with .qs-you b by bumpScore().
+    function podiumDecor() {
+      return `
+        <div class="qs-podium-decor">
+          <img class="qs-board-decor" src="../shared/assets/cb_jep_transparent.png" alt="">
+          <div class="qs-podium-score">${fmt$(run.score)}</div>
+        </div>`;
+    }
+
     function scoreBar() {
       const oc = overclockOf(run.streak);
       return `
         <div class="qs-scorebar">
+          <button class="qs-quit" type="button" title="Quit to Quiz Show menu (Esc)">✕</button>
           <div class="qs-you"><span class="qs-lbl">BANKED</span><b>${fmt$(run.score)}</b></div>
           <div class="qs-oc ${oc > 1 ? 'hot' : ''}">
             <span>OVERCLOCK</span>
@@ -209,17 +302,26 @@
     }
 
     function renderBoard() {
-      const cols = run.cats.map((c) => `<div class="qs-cat"><span class="qs-icon">${c.icon}</span>${c.name}</div>`).join('');
+      const accents = run.cats.map(catAccent);
+      const cols = run.cats.map((c, i) => {
+        const ac = accents[i];
+        return `<div class="qs-cat" style="--cat-accent:${ac.top};--cat-tint:${ac.tint};animation-delay:${i * 30}ms"><span class="qs-icon">${c.icon}</span>${c.name}</div>`;
+      }).join('');
       let grid = '';
+      let idx = 0;
       for (let row = 0; row < VALUES.length; row++) {
         for (let col = 0; col < run.cats.length; col++) {
           const t = run.tiles.find((x) => x.col === col && x.row === row);
-          if (t.done) grid += `<div class="qs-tile done">✓</div>`;
-          else grid += `<button class="qs-tile" data-col="${col}" data-row="${row}">${t.commitment ? '🔒' : '$' + t.value}</button>`;
+          const ac = accents[col];
+          const style = `--cat-accent:${ac.top};--cat-tint:${ac.tint};animation-delay:${idx * 22}ms`;
+          if (t.done) grid += `<div class="qs-tile done" style="${style}">✓</div>`;
+          else grid += `<button class="qs-tile" data-col="${col}" data-row="${row}" style="${style}">${t.commitment ? '🔒' : '$' + t.value}</button>`;
+          idx++;
         }
       }
       root.innerHTML = `
-        <div class="qs-screen qs-board">
+        <div class="qs-screen qs-board" style="--qs-cols:${run.cats.length}">
+          ${podiumDecor()}
           ${scoreBar()}
           <div class="qs-cats">${cols}</div>
           <div class="qs-grid">${grid}</div>
@@ -289,6 +391,7 @@
         `<button class="qs-ans" data-i="${i}" ${cl.phase === 'resolved' ? 'disabled' : ''}>${ch.text}</button>`).join('');
       root.innerHTML = `
         <div class="qs-screen qs-clue">
+          ${podiumDecor()}
           ${scoreBar()}
           <div class="qs-cluehead">
             <span class="qs-clue-cat">${t.cat.icon} ${t.cat.name}</span>
@@ -372,12 +475,18 @@
         run.maxStreak = Math.max(run.maxStreak, run.streak);
         const oc = overclockOf(run.streak);
         SFX.correct();
-        if (oc > overclockOf(run.streak - 1) && oc > 1) SFX.overclock();
+        shakeRoot('sm');
+        bumpScore();
+        if (oc > overclockOf(run.streak - 1) && oc > 1) { SFX.overclock(); showOverclockToast(oc); }
         note = `<span class="ok">✔ ${pick1(SAY.correct)}</span> +${fmt$(pay)}${oc > 1 ? ' · ×' + oc + ' overclock' : ''}`;
       } else {
         run.streak = 0;
         SFX.wrong();
         if (penalty) run.score = Math.max(0, run.score - penalty);
+        // Commitment (Daily-Double) losses are higher-stakes than a routine
+        // miss/timeout — read that harder in the shake + a red vignette flash.
+        if (penalty) { shakeRoot('hard'); flashVignette(); } else { shakeRoot('md'); }
+        if (penalty) bumpScore(true);
         const lead = kind === 'wrong' ? '✗ ' + pick1(SAY.wrong) : '⏰ ' + pick1(SAY.timeout);
         if (kind !== 'wrong') markAnswerReveal();
         note = `<span class="bad">${lead}</span>${penalty ? ' −' + fmt$(penalty) + ' (commitment)' : ''}`;
@@ -528,7 +637,7 @@
     // ---- result -------------------------------------------------------------
     function finish() {
       stopMusic();
-      const tokens = Math.max(0, Math.floor(run.score / 500));
+      const tokens = Math.max(0, Math.floor(run.score / 62));
       if (global.ArcadeWallet && tokens) global.ArcadeWallet.earn(tokens, 'quiz-show');
       meta.plays++;
       meta.totalEarned = (meta.totalEarned || 0) + run.score;
@@ -559,12 +668,15 @@
       const o = run.outcome;
       root.innerHTML = `
         <div class="qs-screen qs-result">
-          <div class="qs-result-verdict win">${o.best ? '🏆 New personal best!' : '🏁 Meeting adjourned'}</div>
+          <div class="qs-result-verdict win">${o.best ? '🏆 New personal best!' : '🎬 That’s a wrap!'}</div>
           <div class="qs-result-scores">
-            <div class="you"><span>FINAL SCORE</span><b>${fmt$(run.score)}</b></div>
+            <div class="you"><span>FINAL SCORE</span><b>${fmt$(run.score)}</b>
+              <small class="qs-lifetime">Lifetime earned: ${fmt$(meta.totalEarned || 0)}</small>
+            </div>
           </div>
           <div class="qs-result-meta">
-            Best streak ×${overclockOf(run.maxStreak)} (${run.maxStreak} in a row) &nbsp;·&nbsp; <b>+${o.tokens} 🪙</b>
+            Best streak ×${overclockOf(run.maxStreak)} (${run.maxStreak} in a row) &nbsp;·&nbsp;
+            <b>+${o.tokens} <img src="../shared/assets/token-coin-64.png" alt="" style="height:1em;width:1em;vertical-align:-0.15em"></b>
             ${o.best && meta.plays > 1 ? '<div class="qs-newbest">★ NEW PERSONAL BEST</div>' : ''}
           </div>
           <div class="qs-result-btns">
@@ -593,7 +705,7 @@
       destroy() {
         cancelAnimationFrame(raf); stopMusic();
         global.removeEventListener('keydown', onKeyGlobal);
-        soundBtn.remove(); root.remove();
+        soundBtn.remove(); ambient.remove(); root.remove();
       },
     };
   }
@@ -601,10 +713,52 @@
   const QS_CSS = `
   /* Jeopardy!-style palette: deep-blue board, gold values, condensed caps. */
   .qs-root{--jblue:#060CE9;--jblue-d:#0611b0;--jnavy:#040726;--jgold:#d9a441;--jgold-lt:#f5cd63;
-    position:absolute;inset:0;font-family:'Helvetica Neue',Arial,system-ui,sans-serif;color:#fff;
+    position:absolute;inset:0;z-index:1;font-family:'Helvetica Neue',Arial,system-ui,sans-serif;color:#fff;
     display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:14px;box-sizing:border-box;}
+
+  /* screen-shake + high-stakes vignette (resolveClue juice) */
+  @keyframes qs-shake-sm{0%,100%{transform:translate(0,0)}30%{transform:translate(-3px,1px)}60%{transform:translate(2px,-2px)}}
+  @keyframes qs-shake-md{0%,100%{transform:translate(0,0)}20%{transform:translate(-6px,2px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-4px,3px)}80%{transform:translate(3px,-2px)}}
+  @keyframes qs-shake-hard{0%,100%{transform:translate(0,0)}15%{transform:translate(-11px,5px)}30%{transform:translate(10px,-7px)}45%{transform:translate(-9px,6px)}60%{transform:translate(8px,-5px)}75%{transform:translate(-5px,3px)}90%{transform:translate(3px,-2px)}}
+  .qs-root.qs-shake-sm{animation:qs-shake-sm .28s ease-in-out;}
+  .qs-root.qs-shake-md{animation:qs-shake-md .4s ease-in-out;}
+  .qs-root.qs-shake-hard{animation:qs-shake-hard .6s ease-in-out;}
+  @keyframes qs-vignette-flash{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+  .qs-root.qs-vignette::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:8;
+    background:radial-gradient(ellipse at center,rgba(255,40,60,0) 38%,rgba(255,20,40,.5) 100%);
+    animation:qs-vignette-flash .65s ease-out;}
+
+  /* ambient motion behind the central card — fills the dead space, stays subtle */
+  .qs-ambient{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+  .qs-amb{position:absolute;font-size:32px;opacity:.13;animation:qs-amb-float 8s ease-in-out infinite;}
+  .qs-amb1{top:9%;left:6%;font-size:30px;animation-duration:8.5s;}
+  .qs-amb2{top:72%;left:9%;font-size:24px;animation-duration:9.5s;animation-delay:-2.4s;}
+  .qs-amb3{top:12%;right:7%;font-size:28px;animation-duration:7.5s;animation-delay:-4.1s;}
+  .qs-amb4{top:62%;right:8%;font-size:22px;animation-duration:6.8s;animation-delay:-1.2s;}
+  .qs-amb5{bottom:6%;left:46%;font-size:22px;animation-duration:10.5s;animation-delay:-3.3s;}
+  @keyframes qs-amb-float{0%,100%{transform:translateY(0) translateX(0) rotate(0deg);}33%{transform:translateY(-18px) translateX(7px) rotate(5deg);}66%{transform:translateY(11px) translateX(-9px) rotate(-4deg);}}
+  @media(max-width:700px){.qs-ambient{display:none;}}
   .qs-cond{font-family:'Oswald','Arial Narrow','Helvetica Neue',Arial,sans-serif;}
-  .qs-screen{width:100%;max-width:760px;margin:auto;display:flex;flex-direction:column;gap:14px;}
+  .qs-screen{position:relative;width:100%;max-width:760px;margin:auto;display:flex;flex-direction:column;gap:14px;}
+
+  /* game-show set piece flanking the board/clue card — decorative, plus a
+     live-score readout painted onto the podium screen's blank blue panel
+     (below "CostBot!", above the shield logo in cb_jep_transparent.png). */
+  .qs-podium-decor{position:absolute;top:50%;left:calc(100% + 22px);
+    width:min(280px,23vw);pointer-events:none;animation:qs-podium-bob 4s ease-in-out infinite;}
+  @media(max-width:1150px){.qs-podium-decor{display:none;}}
+  /* the bob lives on the wrapper (not the image) so the score overlay — a sibling
+     positioned by percentage inside this same box — rides along with it instead
+     of drifting out of the blue panel as the podium moves. */
+  @keyframes qs-podium-bob{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 9px))}}
+  .qs-board-decor{display:block;width:100%;height:auto;max-height:74vh;object-fit:contain;
+    filter:drop-shadow(0 10px 22px rgba(0,0,0,.55));}
+  .qs-podium-score{position:absolute;top:50.5%;left:50%;transform:translate(-50%,-50%);
+    width:42%;text-align:center;font-family:'Oswald','Arial Narrow',Arial,sans-serif;font-weight:700;
+    letter-spacing:.5px;color:var(--jgold-lt);text-shadow:0 0 5px rgba(0,0,0,.8),0 1px 2px rgba(0,0,0,.9);
+    font-size:clamp(12px,2vw,22px);font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1;}
+  .qs-podium-score.qs-pop{animation:qs-score-pop .5s ease;}
+  .qs-podium-score.qs-pop-bad{animation:qs-score-pop-bad .5s ease;}
   .qs-btn{cursor:pointer;border:none;border-radius:8px;padding:14px 20px;font:800 16px 'Helvetica Neue',Arial,sans-serif;
     background:linear-gradient(180deg,#f5cd63,#d9a441);color:#161007;box-shadow:0 5px 0 #8a6516,0 8px 18px rgba(0,0,0,.5);
     text-transform:uppercase;letter-spacing:1px;transition:transform .08s,filter .12s;}
@@ -646,10 +800,30 @@
   .qs-board:hover{border-color:#6b7fe0;color:#fff;}
 
   /* scorebar */
-  .qs-scorebar{display:flex;align-items:center;gap:10px;background:var(--jnavy);border:2px solid #22308f;
+  .qs-scorebar{display:flex;align-items:flex-end;gap:10px;background:var(--jnavy);border:2px solid #22308f;
     border-radius:10px;padding:9px 12px;}
   .qs-scorebar .qs-lbl{display:block;font-size:9px;letter-spacing:1.5px;color:#8896d8;text-transform:uppercase;}
+  /* explicit in-round exit — surfaces the Esc-quit-to-menu path that otherwise
+     has no visible affordance once a round is underway */
+  .qs-quit{flex:0 0 auto;width:26px;height:26px;border-radius:50%;cursor:pointer;align-self:center;
+    border:1px solid #2a3aa8;background:rgba(255,255,255,.06);color:#9fb0e8;font-size:13px;line-height:1;
+    display:flex;align-items:center;justify-content:center;padding:0;transition:background .12s,border-color .12s,color .12s;}
+  .qs-quit:hover{background:#8a1f2c;border-color:#ff5d6c;color:#fff;}
+
   .qs-you b{color:var(--jgold-lt);font-size:22px;font-variant-numeric:tabular-nums;}
+  @keyframes qs-score-pop{0%{transform:scale(1)}30%{transform:scale(1.38);color:#fff;}100%{transform:scale(1)}}
+  @keyframes qs-score-pop-bad{0%{transform:scale(1)}30%{transform:scale(1.3);color:#ff8a9c;}100%{transform:scale(1)}}
+  .qs-you b.qs-pop{animation:qs-score-pop .5s ease;}
+  .qs-you b.qs-pop-bad{animation:qs-score-pop-bad .5s ease;}
+
+  /* overclock toast — the visual half of SFX.overclock() */
+  .qs-overclock-toast{position:absolute;top:16%;left:50%;transform:translate(-50%,-10px) scale(.82);z-index:6;
+    font-family:'Oswald','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:26px;letter-spacing:1.5px;
+    text-transform:uppercase;color:var(--jgold-lt);text-shadow:2px 3px 0 #06104f,0 0 20px rgba(255,215,106,.75);
+    background:rgba(6,16,80,.88);border:2px solid var(--jgold);border-radius:12px;padding:9px 22px;
+    opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;white-space:nowrap;}
+  .qs-overclock-toast.show{opacity:1;transform:translate(-50%,0) scale(1);}
+  .qs-overclock-toast.fade{opacity:0;transform:translate(-50%,-16px) scale(.92);transition:opacity .5s ease,transform .5s ease;}
   .qs-oc{flex:1;text-align:right;font-size:9px;letter-spacing:1.5px;color:#8896d8;text-transform:uppercase;}
   .qs-oc b{display:inline;color:#7f8cc8;font-size:14px;margin-left:6px;}
   .qs-oc.hot b{color:var(--jgold-lt);}
@@ -657,19 +831,24 @@
   .qs-ocbar i{display:block;height:100%;background:linear-gradient(90deg,#ffd76a,#e08a2a);transition:width .3s;}
 
   /* board */
-  .qs-cats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
-  .qs-cat{background:var(--jblue);border:1px solid #06104f;border-radius:4px;padding:10px 6px;text-align:center;
+  .qs-cats{display:grid;grid-template-columns:repeat(var(--qs-cols,4),1fr);gap:6px;}
+  @keyframes qs-tile-in{from{opacity:0;transform:translateY(9px) scale(.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+  .qs-cat{background-color:var(--jblue);background-image:linear-gradient(180deg,var(--cat-tint,transparent),transparent 75%);
+    border:1px solid #06104f;box-shadow:inset 0 3px 0 var(--cat-accent,transparent);border-radius:4px;padding:10px 6px;text-align:center;
     font-family:'Oswald','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:13px;line-height:1.15;letter-spacing:.3px;
     text-transform:uppercase;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    color:#fff;text-shadow:1px 1px 0 #05093a;}
+    color:#fff;text-shadow:1px 1px 0 #05093a;opacity:0;animation:qs-tile-in .32s ease both;}
   .qs-icon{font-size:19px;display:block;margin-bottom:3px;}
-  .qs-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:6px;}
+  .qs-grid{display:grid;grid-template-columns:repeat(var(--qs-cols,4),1fr);grid-auto-rows:1fr;gap:6px;}
   .qs-tile{aspect-ratio:16/9;border:none;border-radius:4px;cursor:pointer;
     font-family:'Oswald','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:30px;letter-spacing:.5px;
-    color:var(--jgold);background:var(--jblue);box-shadow:inset 0 0 0 1px #06104f;
-    text-shadow:2px 2px 0 #05093a,3px 3px 4px rgba(0,0,0,.5);transition:transform .1s,filter .12s;}
+    color:var(--jgold);background-color:var(--jblue);background-image:linear-gradient(180deg,var(--cat-tint,transparent),transparent 60%);
+    box-shadow:inset 0 0 0 1px #06104f,inset 0 3px 0 var(--cat-accent,transparent);
+    text-shadow:2px 2px 0 #05093a,3px 3px 4px rgba(0,0,0,.5);transition:transform .1s,filter .12s;
+    opacity:0;animation:qs-tile-in .32s ease both;}
   .qs-tile:hover{transform:scale(1.05);filter:brightness(1.15);color:var(--jgold-lt);z-index:1;}
-  .qs-tile.done{color:transparent;background:#05093a;cursor:default;box-shadow:inset 0 0 0 1px #101a5a;text-shadow:none;}
+  .qs-tile.done{color:transparent;background-color:#05093a;background-image:none;cursor:default;
+    box-shadow:inset 0 0 0 1px #101a5a;text-shadow:none;}
   .qs-hint{text-align:center;color:#9fb0e8;font-size:12.5px;}
 
   /* commitment */
@@ -689,7 +868,8 @@
   .qs-timer{height:10px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden;}
   .qs-timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#f5cd63,#d9a441);transition:width .08s linear;}
   .qs-timer i.warn{background:linear-gradient(90deg,#ffd76a,#ff9a3d);}
-  .qs-timer i.danger{background:linear-gradient(90deg,#ff8a5a,#ff5d6c);}
+  @keyframes qs-timer-pulse{0%,100%{opacity:1;transform:scaleY(1);}50%{opacity:.5;transform:scaleY(1.7);}}
+  .qs-timer i.danger{background:linear-gradient(90deg,#ff8a5a,#ff5d6c);animation:qs-timer-pulse 1s ease-in-out infinite;transform-origin:center;}
   /* The clue itself — white caps on Jeopardy blue, the signature look. */
   .qs-q{background:var(--jblue);border:2px solid #22308f;border-radius:8px;padding:26px 22px;font-size:21px;
     font-weight:700;line-height:1.32;text-align:center;min-height:70px;text-transform:uppercase;letter-spacing:.4px;
@@ -726,6 +906,8 @@
   .qs-result-scores>div{display:flex;flex-direction:column;}
   .qs-result-scores span{font-size:11px;letter-spacing:1.5px;color:#8896d8;text-transform:uppercase;}
   .qs-result-scores .you b{font-family:'Oswald',Arial,sans-serif;font-size:40px;color:var(--jgold-lt);}
+  .qs-result-scores .qs-lifetime{display:block;margin-top:2px;font-size:12px;font-weight:600;letter-spacing:.2px;
+    text-transform:none;color:#8fa0dc;}
   .qs-result-meta{color:#bcc8ff;font-size:14px;}
   .qs-result-meta b{color:var(--jgold-lt);}
   .qs-newbest{color:var(--jgold-lt);font-weight:800;margin-top:6px;}
