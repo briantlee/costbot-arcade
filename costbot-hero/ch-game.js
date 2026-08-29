@@ -20,7 +20,6 @@
     { key: 'ch_avengers', name: 'The Savengers',   sub: 'Avengers, rocked · 148',   tag: '' },
     { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Villain march · 104',      tag: '' },
     { key: 'ch_small',    name: "It's a Small Cost", sub: 'Electro light parade · 126', tag: '' },
-    { key: 'ch_jeopardy', name: 'Fiscal Jeopardy',  sub: "Think! electro · 132",       tag: 'NEW' },
   ];
 
   const DIFFS = {
@@ -34,7 +33,10 @@
   };
 
   // Lanes are vendors — colour + name read left-to-right across the highway.
-  const PALETTE = ['#ff9900', '#4285f4', '#00b7ff', '#ff3621', '#29b5e8'];
+  // Distinct hues per lane (a nod to each vendor's brand, but spread around the
+  // wheel so adjacent lanes never read as the same colour): AWS orange, GCP blue,
+  // Azure teal, Databricks red, Snowflake ice-blue.
+  const PALETTE = ['#ff9900', '#4285f4', '#00e0b8', '#ff3b30', '#29b5e8'];
   const VENDORS = ['AWS', 'GCP', 'Azure', 'Databricks', 'Snowflake'];
   // savings-lever icons shown on the note faces (rightsize, delete idle, schedule
   // off, commit/RI, cold storage, cleanup, consolidate, cut)
