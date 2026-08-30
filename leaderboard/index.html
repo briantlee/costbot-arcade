@@ -131,14 +131,15 @@
         { key: 'tokens', label: 'Tokens' },
       ],
       note: 'Streak is the skill — it cannot be got by luck, only by not losing a fish. Heaviest is the brag.' },
-    { id: 'costbotland', tab: '🎢 CostBotLand', kind: 'metrics', sort: 'guests',
+    { id: 'costbotland', tab: '🎢 CostBotLand', kind: 'metrics', sort: 'score',
       cols: [
+        { key: 'score', label: 'Dollars earned', unit: 'money' },
         { key: 'guests', label: 'Guests kept happy' },
         { key: 'stars', label: 'Park rating' },
         { key: 'uptime', label: 'Ride uptime', unit: '%' },
         { key: 'combo', label: 'Best combo' },
       ],
-      note: 'Guests kept happy is the score — how many incidents you cleared before a land went dark. Park rating is the brag.' },
+      note: 'Dollars earned is the score — every ticket, gate check, and reunited kid pays out real park cash. Guests kept happy is the volume; park rating is the brag.' },
     { id: 'quiz-show', tab: '📺 CostBot Quiz Show', kind: 'metrics', sort: 'totalEarned',
       cols: [
         { key: 'totalEarned', label: 'Total earnings', unit: 'money' },
@@ -376,12 +377,12 @@
   // don't give "Park rating" one), so a decimal average would just silently
   // round away here; keep the mock consistent with what the board can show.
   const MOCK_COSTBOTLAND_ROWS = [
-    { player: 'nrodriguez',  guests: 48200, stars: 5, uptime: 97, combo: 62 },
-    { player: 'aokafor',     guests: 41900, stars: 5, uptime: 95, combo: 54 },
-    { player: 'jchen',       guests: 37650, stars: 5, uptime: 93, combo: 49 },
-    { player: 'mschmidt',    guests: 33100, stars: 4, uptime: 91, combo: 41 },
-    { player: 'Player 4417', guests: 28800, stars: 5, uptime: 89, combo: 38 },
-    { player: 'bpatel',      guests: 21400, stars: 4, uptime: 86, combo: 30 },
+    { player: 'nrodriguez',  score: 48200, guests: 184, stars: 5, uptime: 97, combo: 62 },
+    { player: 'aokafor',     score: 41900, guests: 167, stars: 5, uptime: 95, combo: 54 },
+    { player: 'jchen',       score: 37650, guests: 151, stars: 5, uptime: 93, combo: 49 },
+    { player: 'mschmidt',    score: 33100, guests: 139, stars: 4, uptime: 91, combo: 41 },
+    { player: 'Player 4417', score: 28800, guests: 122, stars: 5, uptime: 89, combo: 38 },
+    { player: 'bpatel',      score: 21400, guests: 98,  stars: 4, uptime: 86, combo: 30 },
   ];
   const MOCK_QUIZSHOW_ROWS = [
     { player: 'jchen',       totalEarned: 184600, streak: 22, tokens: 740 },
