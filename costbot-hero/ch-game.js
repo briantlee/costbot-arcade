@@ -75,7 +75,7 @@
     // way past the ~60s this song wants; 2 loops still ends on the tune's own
     // loop seam (a full pass, not a mid-phrase cut) and the existing outro
     // fade covers the last ~2.8s into that point.
-    { key: 'ch_fairyfountain', name: 'Finance Fairy', sub: 'Zelda, lofi house · 112', tag: '', biome: 'field',
+    { key: 'ch_fairyfountain', name: 'Finance Fairy', sub: 'Zelda, lofi house · 112', tag: '', biome: 'field', art: 'legend_of_costbot.jpg', artDim: 0.35,
       experimental: true,
       maxLoops: 2,
       medium: { minGap: 2, fall: 2.05 },
@@ -93,36 +93,41 @@
     // Hard is now a genuinely new tier — minGap: 1 keeps EVERY real onset,
     // no thinning at all, so it's as true to the song's actual beat as the
     // chart can get (same fall/minGap/missCost recipe as Blind Spend's Hard).
-    { key: 'ch_goldsaucer', name: 'Gold Sauce', sub: 'FF7, fairground band · 104', tag: '', biome: 'arena',
+    { key: 'ch_goldsaucer', name: 'Gold Sauce', sub: 'FF7, fairground band · 104', tag: '', biome: 'arena', art: 'cb7.png', artDim: 0.3,
       experimental: true,
       maxLoops: 1,
       easy:   { fall: 1.90, minGap: 3, holdGap: 8, missCost: 7 },
       medium: { fall: 1.45, minGap: 2, holdGap: 5, missCost: 9 },
       hard:   { fall: 1.05, minGap: 1, missCost: 12 } },
-    // Playtest entry — no art yet. Lead is a dropped-octave distorted
-    // guitar/bass tone (see arcade-music.js) instead of the flutey chip lead
-    // from the plain baseline — that part landed well. The invented
-    // connecting melody added for the transcription's long rests didn't, so
-    // it's back to the real transcription's own silences. 17 bars (the
-    // source's own length) instead of the usual 16; maxLoops: 2 keeps a
-    // single loop's ~28s from feeling too short.
-    { key: 'ch_lostwoods', name: 'Cost Woods', sub: 'Zelda, guitar · 145', tag: '', biome: 'field',
+    // Lead is a dropped-octave distorted guitar/bass tone (see arcade-music.js)
+    // instead of the flutey chip lead from the plain baseline — that part
+    // landed well. The invented connecting melody added for the
+    // transcription's long rests didn't, so it's back to the real
+    // transcription's own silences. 17 bars (the source's own length)
+    // instead of the usual 16; maxLoops: 2 keeps a single loop's ~28s from
+    // feeling too short.
+    { key: 'ch_lostwoods', name: 'Cost Woods', sub: 'Zelda, guitar · 145', tag: '', biome: 'field', art: 'legend_of_costbot.jpg', artDim: 0.35,
       experimental: true,
       maxLoops: 2 },
     // Playtest entry — no art yet. 28 bars (the source's own loop length, minus
     // its silent 2-bar intro) runs ~56s on its own, so maxLoops: 1.
-    { key: 'ch_xmen', name: 'X-Penses', sub: 'X-Men arcade, distortion riff · 120', tag: '', biome: 'foundry',
+    { key: 'ch_xmen', name: 'X-pense Men', sub: 'X-Men arcade, distortion riff · 120', tag: '', biome: 'foundry',
       experimental: true,
       maxLoops: 1 },
     // Playtest entry — no art yet. 16 bars at 170bpm loop in ~22.6s, so the
     // shared MAX_LOOPS of 3 already lands at a normal ~68s — no override needed.
-    { key: 'ch_fightOn', name: 'Write-Off!', sub: 'FF battle theme · 170', tag: '', biome: 'arena',
+    { key: 'ch_fightOn', name: 'Write-Off!', sub: 'FF battle theme · 170', tag: '', biome: 'arena', art: 'cb_buster.jpg', artDim: 0.3,
       experimental: true },
     // Playtest entry — no art yet. 22 bars at 144bpm loop in ~36.7s (trimmed
     // to end right before the source file's own bar-22 repeat); the shared
     // MAX_LOOPS of 3 would run ~110s, so maxLoops: 2 brings it to ~73s —
     // coincidentally close to the original file's own ~73.4s length.
-    { key: 'ch_legendOfCostbot', name: 'Legend of CostBot', sub: 'Original theme, solo piano · 144', tag: '', biome: 'field',
+    { key: 'ch_legendOfCostbot', name: 'Legend of CostBot', sub: 'Original theme, solo piano · 144', tag: '', biome: 'field', art: 'legend_of_costbot.jpg', artDim: 0.35,
+      experimental: true,
+      maxLoops: 2 },
+    // Playtest entry — no art yet. 17 bars at 104bpm loop in ~39.2s; maxLoops: 2
+    // brings a run to ~78.5s, in line with the rest of the roster.
+    { key: 'ch_kalm', name: 'Kalm Before the Bill', sub: 'FF7, revved lofi bass · 104', tag: '', biome: 'field', art: 'cb_meteor.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 2 },
   ];
@@ -1712,20 +1717,25 @@
       const dw = iw * scale, dh = ih * scale;
       const dx = (W - dw) / 2, dy = (H - dh) / 2;
 
+      // artDim: same per-song extra-darkening knob as the menu wash (see
+      // updateArtWash) — for images that read as too bright/busy at the
+      // default 0.65 opacity + light scrim (e.g. legend_of_costbot.jpg).
+      const dim = run.song.artDim || 0;
       ctx2d.save();
-      ctx2d.globalAlpha = 0.65;
+      ctx2d.globalAlpha = Math.max(0.25, 0.65 - dim);
       ctx2d.drawImage(img, dx, dy, dw, dh);
       ctx2d.restore();
 
       // light dark scrim, heavier toward the edges than the centre, so the
       // highway/notes/HUD keep reliable contrast regardless of how bright or
       // busy the source image is — kept subtle so the art still reads as
-      // vivid "wallpaper" rather than faded.
+      // vivid "wallpaper" rather than faded. artDim boosts both stops for
+      // songs whose art needs to sit further back.
       const scrim = ctx2d.createRadialGradient(
         W / 2, H * 0.45, Math.min(W, H) * 0.18,
         W / 2, H * 0.5, Math.max(W, H) * 0.75);
-      scrim.addColorStop(0, 'rgba(5,6,15,.12)');
-      scrim.addColorStop(1, 'rgba(5,6,15,.32)');
+      scrim.addColorStop(0, 'rgba(5,6,15,' + Math.min(0.6, 0.12 + dim) + ')');
+      scrim.addColorStop(1, 'rgba(5,6,15,' + Math.min(0.8, 0.32 + dim) + ')');
       ctx2d.fillStyle = scrim;
       ctx2d.fillRect(0, 0, W, H);
     }
@@ -2123,9 +2133,14 @@
         }
         const bio = global.ArcadeBiomes ? global.ArcadeBiomes.get(song.biome) : null;
         wash.style.backgroundColor = (bio && bio.floor) || '#0b0d14';
+        // artDim: extra darkening for images that read as too bright/busy
+        // against the menu text at the default scrim (e.g. legend_of_costbot.jpg,
+        // a vivid full-colour painted cover). 0 (default) keeps the original look.
+        const dim = song.artDim || 0;
+        const a1 = Math.min(0.9, 0.35 + dim), a2 = Math.min(0.94, 0.58 + dim);
         wash.style.backgroundImage =
-          'linear-gradient(rgba(5,6,15,.35),rgba(8,10,20,.58)), url("../shared/assets/' + file + '")';
-        wash.style.opacity = '1';
+          'linear-gradient(rgba(5,6,15,' + a1 + '),rgba(8,10,20,' + a2 + ')), url("../shared/assets/' + file + '")';
+        wash.style.opacity = String(1 - dim * 0.25);
         menuEl.classList.add('has-art');
       };
       if (artWashFile === undefined) { apply(); return; } // first paint: no fade needed

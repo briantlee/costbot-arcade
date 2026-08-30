@@ -197,7 +197,7 @@
       { root: 43, tones: [0, 4, 7] },                                  // G
       { root: 40, tones: [0, 3, 7] },                                  // Em
     ],
-    // CostBot Hero — "X-Penses". Transcribed from MIDI, all 30 bars including
+    // CostBot Hero — "X-pense". Transcribed from MIDI, all 30 bars including
     // the 2-bar "Metro Bass" solo intro (bars 1-2) — the Strings/lead melody
     // is silent there in the source, so it's the driving bass ostinato alone
     // up front, same part it plays under the tune for the rest of the song
@@ -259,6 +259,24 @@
       { root: 40, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },   // E F
       { root: 40, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },   // E F
       { root: 47, tones: [0, 4, 7] }, { root: 46, tones: [0, 3, 7] },   // B Bbm
+    ],
+    // CostBot Hero — "Kalm Before the Bill". Transcribed from MIDI (FF7 ·
+    // Kalm), then pumped up per feedback rather than played straight: real
+    // 17-bar chord progression and bass pattern (root read off the first
+    // bass note of each bar), but at a revved-up tempo with dance drums and
+    // a synth lead instead of the source's own sleepy solo-piano tempo and
+    // tone (see TRACKS.ch_kalm). G-Em-Am-Bm-C-G-Am-Am, twice, plus a 1-bar
+    // tag — a classic descending-then-circling folk progression.
+    kalm: [
+      { root: 43, tones: [0, 4, 7] }, { root: 40, tones: [0, 3, 7] },   // G Em
+      { root: 45, tones: [0, 3, 7] }, { root: 47, tones: [0, 3, 7] },   // Am Bm
+      { root: 48, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },   // C G
+      { root: 45, tones: [0, 3, 7] }, { root: 45, tones: [0, 3, 7] },   // Am Am
+      { root: 43, tones: [0, 4, 7] }, { root: 40, tones: [0, 3, 7] },   // G Em
+      { root: 45, tones: [0, 3, 7] }, { root: 47, tones: [0, 3, 7] },   // Am Bm
+      { root: 48, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },   // C G
+      { root: 45, tones: [0, 3, 7] }, { root: 43, tones: [0, 4, 7] },   // Am G
+      { root: 43, tones: [0, 4, 7] },                                  // G (1-bar tag)
     ],
   };
 
@@ -622,7 +640,7 @@
       71, _, 69, _, 72, _, 71, _, 74, _, 72, _, 76, 77, 76, 74,
       76, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
     ],
-    // "X-Penses", transcribed from MIDI. Bars 1-2 are the file's own intro —
+    // "X-pense", transcribed from MIDI. Bars 1-2 are the file's own intro —
     // the Strings lead hasn't entered yet, only the "Metro Bass" ostinato
     // plays (see L.xmenBass) — so those two bars here are that same ostinato
     // duplicated into the lead line, making it the charted, playable opening
@@ -762,6 +780,52 @@
       81, _, _, _, 77, _, 41, 41, 41, _, _, _, 74, _, _, _,
       75, _, _, _, 47, _, 47, 46, 47, _, _, _, 78, _, 47, 47,
       77, _, _, _, 73, _, 46, 44, 46, _, _, _, 70, _, 46, 46,
+    ],
+    // "Kalm Before the Bill", transcribed from MIDI (FF7 · Kalm). The source
+    // is a solo fingerstyle-guitar arrangement on one track — this is the
+    // upper voice (register >= 70), the actual tune, note-for-note. The full
+    // 17-bar source (the whole file — it's short) rather than an excerpt.
+    kalm: [
+      81, _, 79, _, 78, _, 79, _, 81, _, _, _, 71, _, 74, _,
+      78, _, 76, _, 76, _, _, _, _, _, _, _, _, _, _, _,
+      76, _, 83, _, 81, _, 79, _, 81, _, _, _, _, _, 83, 85,
+      86, _, 83, _, 83, _, _, _, _, _, _, _, _, _, _, _,
+      83, _, 84, _, 83, _, 81, _, 79, _, _, _, 81, _, _, _,
+      83, _, 71, _, 72, _, 74, _, 78, _, 76, _, _, _, _, _,
+      _, _, 76, _, 78, _, 79, _, 81, _, _, _, _, _, _, _,
+      _, _, 79, _, 81, _, 83, _, 84, _, _, _, _, _, _, _,
+      81, _, 79, _, 78, _, 79, _, 81, _, _, _, 71, _, 74, _,
+      78, _, 76, _, 76, _, _, _, 73, _, _, _, _, _, _, _,
+      76, _, 83, _, 81, _, 79, _, 81, _, _, _, _, _, 83, 85,
+      86, _, 83, _, 83, _, _, _, _, _, _, _, _, _, _, _,
+      83, _, 84, _, 83, _, 81, _, 79, _, _, _, 81, _, _, _,
+      83, _, 71, _, 72, _, 74, _, 78, _, 76, _, _, _, _, _,
+      76, _, 83, _, 81, _, 79, _, 81, _, _, _, _, _, 78, _,
+      78, _, 79, _, 79, _, _, _, _, _, _, _, _, _, _, _,
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+    ],
+    // The left-hand accompaniment for "Kalm Before the Bill" — the source's
+    // own alternating Travis-picking bass (register < 70), transcribed
+    // note-for-note; tuned to a heavily-filtered, muffled "lofi bass" tone
+    // via bassLine (see TRACKS.ch_kalm) rather than a bright acoustic pluck.
+    kalmBass: [
+      43, _, 55, _, 59, _, 55, _, 67, _, 55, _, 59, _, 55, _,
+      40, _, 55, _, 59, _, 55, _, 64, _, 55, _, 59, _, 55, _,
+      45, _, 57, _, 60, _, 64, _, 38, _, 57, _, 62, _, 66, _,
+      47, _, 59, _, 62, _, 59, _, 66, _, 59, _, 62, _, 59, _,
+      48, _, 60, _, 64, _, 67, _, 48, _, 58, _, 63, _, 67, _,
+      43, _, 55, _, 59, _, 67, _, 40, _, 55, _, 59, _, 64, _,
+      45, _, 57, _, 60, _, 57, _, 64, _, 57, _, 60, _, 57, _,
+      45, _, 51, _, 57, _, 60, _, 50, _, 57, _, 60, _, 66, _,
+      43, _, 55, _, 59, _, 55, _, 67, _, 55, _, 59, _, 55, _,
+      40, _, 55, _, 59, _, 55, _, 64, _, 55, _, 59, _, 55, _,
+      45, _, 57, _, 60, _, 64, _, 38, _, 57, _, 62, _, 66, _,
+      47, _, 59, _, 62, _, 59, _, 66, _, 59, _, 62, _, 59, _,
+      48, _, 60, _, 64, _, 67, _, 48, _, 58, _, 63, _, 67, _,
+      43, _, 55, _, 59, _, 67, _, 40, _, 55, _, 59, _, 64, _,
+      45, _, 57, _, 60, _, 64, _, 50, _, 57, _, 62, _, 66, _,
+      43, _, 55, _, 59, _, 55, _, 67, _, 55, _, 59, _, 55, _,
+      43, _, 55, _, 59, _, 55, _, 67, _, 55, _, 59, _, 55, _,
     ],
   };
 
@@ -995,7 +1059,7 @@
       prog: P.lostWoods, lead: L.lostWoods, drums: 'four', pad: 'strings', bars: 17,
       arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'dist', arp: 'piano' },
     },
-    // "X-Penses", transcribed from MIDI. The source is a full rock-band
+    // "X-pense", transcribed from MIDI. The source is a full rock-band
     // arrangement (distortion guitar, synth bass, drum kit); a power-chord
     // pad and 'rock' drums keep that crunch under the lead, voiced 'dist' to
     // match the guitar rather than reading as a soft orchestral line.
@@ -1007,7 +1071,7 @@
     // aren't competing with a brighter synth layer — keeps it reading as
     // guitar, not chiptune.
     ch_xmen: {
-      title: 'X-Penses', influence: 'X-Men Arcade Game theme', bpm: 120, key: 'C minor',
+      title: 'X-pense Men', influence: 'X-Men Arcade Game theme', bpm: 120, key: 'C minor',
       prog: P.xmen, lead: L.xmen, bassLine: L.xmenBass, drums: 'rock', pad: 'power', bars: 30,
       arpEvery: 0, gain: 0.9, voices: { lead: 'dist' },
       // Louder + more sub than the bass() defaults (0.30/0.55) — it's the
@@ -1034,6 +1098,21 @@
       title: 'Legend of CostBot', influence: 'Original CostBot theme, solo piano', bpm: 144, key: 'Bb major',
       prog: P.legendOfCostbot, lead: L.legendOfCostbot, drums: 'chamber', pad: 'strings', bars: 22,
       arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'piano', arp: 'piano' },
+    },
+    // "Kalm Before the Bill", transcribed from MIDI (FF7 · Kalm) then pumped
+    // up per feedback: the source is a slow (66bpm) solo fingerstyle-guitar
+    // piece, played straight here would read as sleepy. Revved to 104bpm,
+    // 'four' dance drums, and a brighter 'saw' lead instead of the source's
+    // own acoustic tone. bassLine: L.kalmBass carries the real transcribed
+    // Travis-picking bass, but heavily lowpassed (same "muffled lofi low
+    // end" recipe as Finance Fairy) instead of a bright acoustic pluck —
+    // that's the "lofi bass" without losing the actual bassline. arpEvery: 2
+    // adds motion under the lead for extra energy.
+    ch_kalm: {
+      title: 'Kalm Before the Bill', influence: 'FF7 · Kalm, revved & lofi-bassed', bpm: 104, key: 'G major',
+      prog: P.kalm, lead: L.kalm, bassLine: L.kalmBass, drums: 'four', pad: 'strings', bars: 17,
+      arpEvery: 2, gain: 0.9, voices: { lead: 'saw', arp: 'square' },
+      bassGain: 0.44, bassSubGain: 1.0, bassCutoffStart: 600, bassCutoffEnd: 120,
     },
   };
 
