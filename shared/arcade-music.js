@@ -278,6 +278,38 @@
       { root: 45, tones: [0, 3, 7] }, { root: 43, tones: [0, 4, 7] },   // Am G
       { root: 43, tones: [0, 4, 7] },                                  // G (1-bar tag)
     ],
+    // CostBot Hero — "Fiscalicia". Transcribed from MIDI. No track name,
+    // lyrics, or other identifying text in the source file (one track,
+    // "Electric Piano", program 5, ~3 minutes) — key and harmony are the
+    // only evidence, so the root here is read off the source's own lowest
+    // bass note each bar (same approach as ch_kalm/ch_gameofloans), same C
+    // natural minor as ch_gameofloans. i-i-i-i (bars 0-3) states the tonic,
+    // iv-iv (4-5) into III-III (6-7) is the first turn, iv-iv (8-9) resolves
+    // back to i-i (10-11); bVII-bVI (12-13) climbs into a repeat of the
+    // III-III/iv-iv turn (14-17); III-V (18-19) is the only cadence with the
+    // raised leading tone (B natural, the one accidental in the whole
+    // excerpt) and resolves back to i (20), recapping the opening quietly.
+    // Bars 21-31 restate bVII-III-bVI-iv-V-V-i-bVII-III-V-iv once more before
+    // the excerpt cuts off mid-phrase on iv (bar 31) — the source is a full
+    // ~3-minute piece and this is only its first 32 bars, not the whole thing.
+    fiscalicia: [
+      { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },   // Cm Cm
+      { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },   // Cm Cm
+      { root: 41, tones: [0, 3, 7] }, { root: 41, tones: [0, 3, 7] },   // Fm Fm
+      { root: 39, tones: [0, 4, 7] }, { root: 39, tones: [0, 4, 7] },   // Eb Eb
+      { root: 41, tones: [0, 3, 7] }, { root: 41, tones: [0, 3, 7] },   // Fm Fm
+      { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },   // Cm Cm
+      { root: 46, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },   // Bb Ab
+      { root: 39, tones: [0, 4, 7] }, { root: 39, tones: [0, 4, 7] },   // Eb Eb
+      { root: 41, tones: [0, 3, 7] }, { root: 41, tones: [0, 3, 7] },   // Fm Fm
+      { root: 39, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },   // Eb G
+      { root: 48, tones: [0, 3, 7] }, { root: 46, tones: [0, 4, 7] },   // Cm Bb
+      { root: 39, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },   // Eb Ab
+      { root: 41, tones: [0, 3, 7] }, { root: 43, tones: [0, 4, 7] },   // Fm G
+      { root: 43, tones: [0, 4, 7] }, { root: 48, tones: [0, 3, 7] },   // G Cm
+      { root: 46, tones: [0, 4, 7] }, { root: 39, tones: [0, 4, 7] },   // Bb Eb
+      { root: 43, tones: [0, 4, 7] }, { root: 41, tones: [0, 3, 7] },   // G Fm
+    ],
     // CostBot Hero — "Game of Loans". Transcribed from MIDI (Game of Thrones ·
     // main title theme): the low string ostinato's own harmony — five bars of
     // i, then the answering v-VII-VII-v figure (three times through, i-i
@@ -303,6 +335,54 @@
       { root: 39, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },   // Eb Ab
       { root: 44, tones: [0, 4, 7] }, { root: 41, tones: [0, 3, 7] },   // Ab Fm
       { root: 48, tones: [0, 3, 7] },                                  // Cm
+    ],
+    // CostBot Hero — "Tariffa". Transcribed from MIDI (tifa.mid, a solo "Grand
+    // Piano" performance track — no separate melody/bass tracks to splice, so
+    // register and attack timing are what separate tune from accompaniment
+    // here, same problem as ch_kalm/ch_legendOfCostbot's solo-piano sources).
+    // The source's declared tempo (72bpm) checks out as real — note-onsets
+    // land cleanly on its own 8th-note grid (192 ticks at ticks_per_beat=384),
+    // no sign of the retrigger-quantization artifact ch_gameofloans had, so no
+    // collapsing was needed either: this transcription's onset-then-rest shape
+    // falls out directly from reading note-on events, not a workaround.
+    // The file is a full 85-bar, 4:43 arrangement — bars 0-19 are just the
+    // famous rolling piano-arpeggio intro (no independent melody yet, single
+    // broken-chord line ascending bass-to-treble each bar); the tune itself
+    // only enters at bar 20 (the arpeggiated pickup into the hook, F2-D3-A3-
+    // D4-F4-A4-A5, outlining D minor). This loop is bars 21-40 of the source
+    // (20 bars) — bar 20's pickup is deliberately EXCLUDED from the looped
+    // content: it's a one-time intro flourish, and looping it in made it
+    // recur mid-song every time the loop restarted, reading as a jarring
+    // "speeds up for a few notes" right after the cadence at the end of bar
+    // 40 (confirmed by ear — the pickup is a continuous run of 8th-notes
+    // butting straight up against bar 40's held final note, no breathing
+    // room). Dropping it means every loop restart goes straight from that
+    // cadence back into the hook, matching how the source's own hook repeats
+    // (bar 37) elsewhere in this excerpt. Bars 21-31 state the hook and its
+    // answering phrase, bars 30-31 are the excerpt's emotional peak (the
+    // melody leaps to F6/D6, the highest notes in the whole file), bars
+    // 32-40 are a second idea that resolves back into a restatement of the
+    // hook (bar 37 is a note-for-note repeat of bar 21 — confirms this
+    // really is the source's real recurring melodic hook, not a
+    // transcription error) plus a variant close (bar 39 tops out on C6
+    // instead of Bb5). Roots read off each bar's first-attacked bass note;
+    // quality read off whichever third is actually sounding in that bar
+    // (several bars carry no 3rd at all in the sustained accompaniment —
+    // those default to the diatonic F-major quality for that scale degree).
+    // Bbm at bar 34 and the D major "backdoor" chords at bars 21/37 (Eb) and
+    // 36 (D) are genuine chromatic reaches in the source, not typos.
+    tariffa: [
+      { root: 39, tones: [0, 4, 7] },                                  // Eb   (bar 21 hook)
+      { root: 38, tones: [0, 3, 7] }, { root: 43, tones: [0, 4, 7] },   // Dm  G
+      { root: 48, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },   // C   F
+      { root: 41, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },   // F   F
+      { root: 43, tones: [0, 3, 7] }, { root: 41, tones: [0, 4, 7] },   // Gm  F
+      { root: 45, tones: [0, 3, 7] }, { root: 46, tones: [0, 4, 7] },   // Am  Bb   (bars 30-31, the peak)
+      { root: 43, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },   // Gm  Gm
+      { root: 46, tones: [0, 3, 7] }, { root: 45, tones: [0, 3, 7] },   // Bbm Am
+      { root: 38, tones: [0, 4, 7] }, { root: 39, tones: [0, 4, 7] },   // D   Eb   (bar 37 hook restatement)
+      { root: 38, tones: [0, 3, 7] }, { root: 39, tones: [0, 4, 7] },   // Dm  Eb   (bar 39 hook variant, tops on C6)
+      { root: 38, tones: [0, 3, 7] },                                  // Dm       (bar 40, cadence back toward the top)
     ],
   };
 
@@ -853,6 +933,68 @@
       43, _, 55, _, 59, _, 55, _, 67, _, 55, _, 59, _, 55, _,
       43, _, 55, _, 59, _, 55, _, 67, _, 55, _, 59, _, 55, _,
     ],
+    // "Fiscalicia" — straight off the source's top note each step (the
+    // source is a single polyphonic piano track, not separate instrument
+    // tracks like ch_gameofloans, so there's no second voice to splice in
+    // for the two sparse bars below; the sustain-pedalled arpeggio itself
+    // never repeats an identical pitch back-to-back anywhere in these 32
+    // bars, so — unlike ch_gameofloans/ch_kalm's source files — there's no
+    // quantization-retrigger artifact here to collapse; every onset below is
+    // already a genuine, distinct melodic event straight off the MIDI).
+    // Bars 0-3 (i): the sparse, high opening — a falling C6-G5-F5 arpeggio
+    // each bar, answered by a low D4/Eb4 close. Bars 4-9 (iv-iv/III-III/
+    // iv-iv): the texture thickens as the phrase turns over. Bars 10-11 (i)
+    // return to the opening register. Bars 12-13 (bVII-bVI) are the widest
+    // statement so far (up to D6/Eb6). Bars 14-17 repeat the 6-9 turn.
+    // Bars 18-19 (III-V) are the cadence — bar 19 is almost silent (a single
+    // D5 dyad), the one real "breath" in the excerpt, resolving quietly to
+    // the bar-20 (i) recap, itself just as sparse. Bars 21-31 build back up
+    // through the same turnaround harmony, climbing into the top of the
+    // register (D6/Eb6 recur constantly) right where the excerpt cuts off.
+    // Onset-to-onset gap histogram (138 gaps between the 139 onsets, in
+    // 16th-note steps): 1:11, 2:29, 3:59, 4:14, 5:5, 6:3, 7:4, 8:1, 9:3,
+    // 10:6, 11:1, 12:1, 19:1. Median gap is 3 steps (typical); 13 gaps of
+    // 8+ steps (bars 6-7, 9-12, 18-22, 24-26, 28-29 — spread across the
+    // piece, not one isolated spot) total 137 steps, 26.8% of the excerpt's
+    // runtime — a genuinely sparse chart in places, not a chart-thinning
+    // artifact (same picture holds at every minGap, including Ultra's 1,
+    // which keeps all 139 real onsets). See TRACKS.ch_fiscalicia's "Round 3"
+    // comment for how this was used to pick a tempo fix over a sustain-only
+    // one.
+    fiscalicia: [
+      84, _, _, 79, _, _, 77, _, 62, _, _, _, 63, _, _, _,  // bar 0
+      _, _, _, 84, _, 82, _, _, 75, _, _, 63, _, _, 65, _,  // bar 1
+      _, _, _, _, _, 79, _, _, 77, _, 68, _, _, 62, _, _,  // bar 2
+      63, _, _, 65, _, 67, 75, _, _, 74, _, 67, _, _, 75, 63,  // bar 3
+      _, _, 74, _, _, 75, _, _, _, _, 72, 79, _, _, _, _,  // bar 4
+      75, _, 77, _, _, 60, _, _, 65, _, _, _, _, 80, _, _,  // bar 5
+      79, _, 77, _, _, 75, _, _, 74, _, _, 70, _, _, _, _,  // bar 6
+      _, _, _, _, _, 67, _, _, _, _, 75, _, 74, _, _, 67,  // bar 7
+      _, _, 64, _, _, 73, _, _, 72, _, _, _, _, _, 68, _,  // bar 8
+      72, _, 77, _, 80, _, _, 84, _, _, 74, 86, _, _, _, _,  // bar 9
+      _, _, _, _, 84, _, _, 83, _, _, 72, 79, 84, _, _, _,  // bar 10
+      _, _, _, _, _, _, _, 79, _, _, 65, 70, 77, _, _, _,  // bar 11
+      _, _, _, _, _, _, 86, _, 84, _, _, 65, 75, _, _, _,  // bar 12
+      _, _, 67, _, _, _, _, _, _, 82, _, _, 80, _, _, 72,  // bar 13
+      _, _, 84, _, 79, _, 77, _, 75, _, _, 74, _, _, 72, _,  // bar 14
+      _, 72, _, 75, _, _, 79, _, 84, _, 87, _, _, 77, 86, _,  // bar 15
+      _, _, _, _, 60, _, _, 62, _, 87, _, _, 86, _, 62, _,  // bar 16
+      _, 65, _, 71, _, 74, _, _, 77, _, _, 79, _, 80, _, _,  // bar 17
+      79, _, _, 77, _, _, _, _, _, _, _, _, _, _, _, 75,  // bar 18
+      _, _, _, _, _, _, _, _, 74, _, _, _, _, _, _, _,  // bar 19
+      _, _, _, _, _, _, _, _, _, _, _, 79, _, _, 84, _,  // bar 20
+      _, _, 87, _, _, 86, _, _, _, _, _, _, _, _, _, 87,  // bar 21
+      _, 86, _, _, 79, _, _, _, _, _, _, _, _, _, 82, _,  // bar 22
+      _, _, 84, _, _, _, _, _, _, 67, _, _, _, 65, _, _,  // bar 23
+      _, 68, _, _, 77, _, _, _, 80, _, _, 84, _, _, 80, 84,  // bar 24
+      _, _, _, _, _, _, _, 83, _, _, 84, _, 86, _, _, _,  // bar 25
+      _, _, _, _, _, _, 84, _, _, _, 83, _, _, 62, _, _,  // bar 26
+      _, 67, _, _, _, 65, _, _, _, 63, _, _, 79, _, _, _,  // bar 27
+      84, _, _, 87, _, _, _, 86, _, _, _, _, _, _, _, _,  // bar 28
+      87, _, 86, _, _, 79, _, _, _, _, _, _, _, _, _, 82,  // bar 29
+      _, _, _, 83, _, _, 79, _, 83, _, 84, _, _, 86, _, 87,  // bar 30
+      _, _, 87, _, _, _, _, 72, _, _, 68, _, _, _, 65, _,  // bar 31
+    ],
     // "Game of Loans", transcribed from MIDI (Game of Thrones · main title
     // theme). Violin carries the tune, and whenever it drops out Cello is
     // actually still sounding underneath (continuing the same line, not
@@ -881,6 +1023,17 @@
     // (bars 15-20, the "triumphant" restatement), then the rising stepwise
     // middle section over the VI-III-iv chords. 33 bars — the source's own
     // length, a single pass already runs ~90s (see ch_gameofloans).
+    // Bars 21-32 switch primary voice to Cello (up an octave, to land in the
+    // same 55-86 range as the rest): Violin just holds one long pad tone per
+    // bar here, but Cello never stops moving underneath it — a real,
+    // independent arpeggio/countermelody, not filler — and charting Violin's
+    // static pad instead (the first attempt) made this whole 12-bar stretch
+    // (over a third of the song) read as the song grinding to a near-halt:
+    // 15 onsets across 192 steps vs. ~8-11 onsets/bar everywhere else. Cello
+    // keeps it moving (132 onsets) and lands the same 55-86 register as the
+    // rest of the piece. Violin fills in the two spots where Cello itself
+    // rests (bar 27 beats 1-2, bar 30's three rests) — same per-step splice
+    // as bars 4-14 above, just with the roles swapped for this section.
     gameOfLoans: [
       // -- bars 0-2: the ostinato hook (Violin) --------------------------------
       67, _, 60, _, 63, 65, 67, _, 60, _, 63, 65, 67, _, 60, _,
@@ -911,19 +1064,81 @@
       77, _, _, _, _, _, 70, _, _, _, _, _, 74, _, _, 75,
       _, _, 74, _, _, 70, _, _, 72, _, 67, _, 68, 70, 72, _,
       67, _, 68, 70, 72, _, 79, _, 80, 82, 84, _, 79, _, 80, 82,
-      // -- bars 21-32: the rising middle section (Violin, VI-III-iv-...) ------
-      72, _, _, _, _, _, _, _, _, _, _, _, 70, _, _, _,
-      _, _, _, _, _, _, _, _, 60, _, _, _, _, _, _, _,
-      _, _, _, _, 67, _, _, _, _, _, _, _, _, _, _, _,
-      56, _, _, _, _, _, _, _, _, _, _, _, 63, _, _, _,
-      _, _, 65, _, _, _, _, _, 67, _, _, _, _, _, _, _,
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-      84, _, _, _, _, _, _, _, _, _, _, _, 82, _, _, _,
-      _, _, _, _, _, _, _, _, 72, _, _, _, _, _, _, _,
-      _, _, _, _, 79, _, _, _, _, _, _, _, _, _, _, _,
-      68, _, _, _, _, _, _, _, _, _, _, _, 75, _, _, _,
-      _, _, 74, _, _, _, _, _, 72, _, _, _, _, _, _, _,
-      _, _, _, _, _, _, 79, _, 80, 82, 84, _, 79, _, 80, 82,
+      // -- bars 21-32: the rising middle section (Cello countermelody, +8ve) --
+      63, _, _, _, 68, 70, 72, _, 63, _, 70, 72, 70, _, 63, _,
+      67, 68, 70, _, 63, _, 67, 68, 67, _, 60, _, 65, 67, 68, _,
+      60, _, 67, 68, 67, _, 60, _, 63, 65, 67, _, 60, _, 67, 68,
+      56, _, 63, _, 56, _, 63, _, 56, _, 63, _, 65, 56, 65, 56,
+      65, 56, 65, 56, 65, 56, 65, 56, 72, _, 67, _, 68, 70, 72, _,
+      67, _, 68, 70, 72, 60, 79, _, 80, 82, 84, _, 79, _, 80, 82,
+      84, _, 75, _, 80, 82, 84, _, 75, _, 82, 84, 82, _, 75, _,
+      79, 80, 82, _, 75, _, 79, 80, 79, _, 72, _, 77, 79, 80, _,
+      72, _, 79, 80, 79, _, 72, _, 75, 77, 79, _, 72, _, 79, 80,
+      68, _, 75, _, 68, _, 75, _, 68, _, 75, _, 77, 68, 77, 68,
+      77, 68, 77, 68, 77, 68, 77, 68, 72, _, 67, _, 68, 70, 72, _,
+      67, _, 68, 70, 72, _, 67, _, 68, 70, 72, _, 67, _, 68, 82,
+    ],
+    // "Tariffa", transcribed from MIDI (tifa.mid), bars 21-40 of the source
+    // (see P.tariffa for why bar 20's arpeggiated pickup is excluded from the
+    // loop). One track, both hands, so the melody is read off the TOP note
+    // of each new attack rather than a named instrument — but taking the
+    // literal top of every attack verbatim would wrongly chart inner-voice/
+    // bass motion as "tune" during the bars where the real melody is a long
+    // held note or resting (e.g. bar 22: F5 rings for 8 steps while a bass
+    // line re-enters underneath it at register 50-65 — those low attacks are
+    // rests here, not new melody notes, since F5 is still sounding above
+    // them). So each step below is the top attack ONLY when it's actually in
+    // the tune's own register (roughly D5 and up for this excerpt) or is the
+    // sole voice sounding; lower attacks that land while a held high note is
+    // still ringing are read as rests, matching what the ear actually tracks
+    // as "the melody" versus the accompaniment moving underneath it. Bars 21
+    // and 37 are identical (the hook restated verbatim, confirmed against
+    // the source) and bar 39 is the same hook with a higher C6 turn at its
+    // climax instead of Bb5 — both transcribed note-for-note from those
+    // exact bars, not copy-pasted as a shortcut.
+    tariffa: [
+      // bar 21 — the hook: A-G-F#-G, a chromatic Bb turn, back down to A-G
+      81, _, 79, _, 78, _, 79, _, 82, _, _, _, 81, _, 79, _,
+      // bar 22 — answering phrase, G5 falling to a held F5 (rests under it)
+      79, _, _, _, 77, _, _, _, _, _, _, _, _, _, _, _,
+      // bar 23 — accompaniment carries alone for a bar and a half, then the
+      // melody re-enters right at the end (G5, F5)
+      _, _, _, _, _, _, _, _, _, _, _, _, 79, _, 77, _,
+      // bar 24 — F5 holds, then a descending run: E5-C5-A5-G5
+      77, _, _, _, _, _, _, _, 76, _, 72, _, 81, _, 79, _,
+      // bar 25 — A5 down to a held C5, back up through C5-A5-G5
+      81, _, 72, _, _, _, _, _, _, _, 72, _, 81, _, 79, _,
+      // bar 26 — same shape a step up: A5, held C#5, C#5-D#5-C#5
+      81, _, 73, _, _, _, _, _, _, _, 73, _, 75, _, 73, _,
+      // bar 27 — a single long C5, held almost the whole bar, re-struck at the end
+      72, _, _, _, _, _, _, _, _, _, _, _, _, _, 72, _,
+      // bar 28 — the connecting phrase dips down (Bb4-A4-F4) before climbing
+      // back up into the next statement (C5-A5-G5)
+      70, _, _, _, 69, _, _, _, 65, _, 72, _, 81, _, 79, _,
+      // bar 29 — repeats bar 25's shape exactly (the source's own pedal figure)
+      81, _, 72, _, _, _, _, _, _, _, 72, _, 81, _, 79, _,
+      // bar 30 — the climb to the excerpt's peak: A5, C6, A5, then the leap to F6/E6
+      81, _, 84, _, _, _, _, _, _, _, 81, _, 89, _, 88, _,
+      // bar 31 — the peak resolves: a held D6, falling through D5-D4-C5-D4
+      86, _, _, _, _, _, _, _, 74, _, 62, _, 72, _, 62, _,
+      // bar 32 — new idea, held Bb4, then climbs D5-Bb5-A5
+      70, _, _, _, _, _, _, _, _, _, 74, _, 82, _, 81, _,
+      // bar 33 — Bb5 down to held D5, back up D5-Bb5-A5
+      82, _, 74, _, _, _, _, _, _, _, 74, _, 82, _, 81, _,
+      // bar 34 — Bb5 down to held G5, back up G5-F5-G5
+      82, _, 79, _, _, _, _, _, _, _, 79, _, 77, _, 79, _,
+      // bar 35 — held A5 then held G5, one attack each — the idea thins out
+      81, _, _, _, _, _, _, _, 79, _, _, _, _, _, _, _,
+      // bar 36 — a long held F#5, then a single A5 upbeat into the hook's return
+      78, _, _, _, _, _, _, _, _, _, _, _, 81, _, _, _,
+      // bar 37 — the hook restated verbatim (identical to bar 21 in the source)
+      81, _, 79, _, 78, _, 79, _, 82, _, _, _, 81, _, 79, _,
+      // bar 38 — G5 to a held F5, then climbing back up A5-Bb5
+      79, _, _, _, 77, _, _, _, _, _, _, _, 81, _, 82, _,
+      // bar 39 — the hook's climactic variant: same A-G-F#-G, but turns on C6
+      81, _, 79, _, 78, _, 79, _, 84, _, 81, _, 79, _, 81, _,
+      // bar 40 — the cadence out: G5, a quick A5 grace-turn, held F5, D5, F5
+      79, _, _, 81, 77, _, _, _, _, _, _, _, 74, _, 77, _,
     ],
   };
 
@@ -1169,7 +1384,7 @@
     // aren't competing with a brighter synth layer — keeps it reading as
     // guitar, not chiptune.
     ch_xmen: {
-      title: 'X-pense Men', influence: 'X-Men Arcade Game theme', bpm: 120, key: 'C minor',
+      title: 'X-pense Men', influence: "X-Men '97, distortion riff", bpm: 120, key: 'C minor',
       prog: P.xmen, lead: L.xmen, bassLine: L.xmenBass, drums: 'rock', pad: 'power', bars: 30,
       arpEvery: 0, gain: 0.9, voices: { lead: 'dist' },
       // Louder + more sub than the bass() defaults (0.30/0.55) — it's the
@@ -1183,7 +1398,7 @@
     // instrument in that unison), a 'strings' pad for the orchestral wash
     // under it, and 'rock' drums for the source's actual kit part.
     ch_fightOn: {
-      title: 'Write-Off!', influence: 'Final Fantasy · battle theme', bpm: 170, key: 'A minor',
+      title: 'Write-Off!', influence: 'FF7 · Battle Theme', bpm: 170, key: 'A minor',
       prog: P.ffFightOn, lead: L.ffFightOn, drums: 'rock', pad: 'strings', bars: 16,
       arpEvery: 0, bassEvery: 2, gain: 0.95, voices: { lead: 'brass' },
     },
@@ -1193,7 +1408,7 @@
     // a piano piece into a rock song, and a light 'strings' pad fills out the
     // held chords the two hands were already implying.
     ch_legendOfCostbot: {
-      title: 'Legend of CostBot', influence: 'Original CostBot theme, solo piano', bpm: 144, key: 'Bb major',
+      title: 'Legend of CostBot', influence: 'Zelda, solo piano', bpm: 144, key: 'Bb major',
       prog: P.legendOfCostbot, lead: L.legendOfCostbot, drums: 'chamber', pad: 'strings', bars: 22,
       arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'piano', arp: 'piano' },
     },
@@ -1212,6 +1427,104 @@
       arpEvery: 2, gain: 0.9, voices: { lead: 'saw', arp: 'square' },
       bassGain: 0.44, bassSubGain: 1.0, bassCutoffStart: 600, bassCutoffEnd: 120,
     },
+    // "Fiscalicia" — the original piece "Alicia", inspired by Clair Obscur:
+    // Expedition 33 (same influence as TRACKS.expedition/"Depreciation"
+    // above — hence art: 'expense33.jpg' on the SONGS entry). Transcribed
+    // from MIDI; the source file has no track name, lyrics, or other
+    // identifying text (one track, "Electric Piano", program 5, ~3 minutes
+    // long) beyond its own key/tempo/texture: C natural minor, a rolling
+    // sustain-pedalled broken-chord figure spanning almost two octaves a
+    // bar. voices.lead: 'piano' keeps the solo-keyboard character (same call
+    // as ch_legendOfCostbot); 'chamber' drums add just enough pulse without
+    // turning a solo-piano ballad into a rock song; 'strings' pad for a
+    // little wash under the chords. 32 bars is this excerpt's own length,
+    // not the source's — see L.fiscalicia.
+    // Mix balance (feedback: backing beat read as too loud/fast, piano
+    // should be the star): 'chamber' is already the sparsest drum pattern in
+    // the roster (kick on beats 1/3, soft snare on 2/4 — see playStep's
+    // 'chamber' case) so the "rushed" feeling wasn't note density, it was
+    // raw loudness — kickRaw's peak (0.85, unscaled) is ~8x the piano lead's
+    // default peak (0.11), tuned for rock/synthwave tracks, not a solo-piano
+    // ballad. drumGain/padGain/leadGain are new per-track knobs (default 1,
+    // so every other track is unaffected — see playStep's drumMul/padMul/
+    // leadMul) mirroring the existing bassGain/bassSubGain pattern on the
+    // bass layer: drumGain: 0.45 pulls kick/snare/hat well back, padGain:
+    // 0.75 keeps the strings wash from competing.
+    // Round 2 (feedback: melody still reads short/staccato even after the
+    // gain boost, "loud AND long"; bass 10-20% softer): the staccato read
+    // wasn't gain, it was note DURATION. playStep's lead call passed
+    // `stepDur * (cfg.drums ? 3 : 6)` as the piano() voice's `dur` — and
+    // piano()'s own gain envelope decays fully to silence over exactly that
+    // `dur` (see piano()'s `exponentialRampToValueAtTime(0.0001, t + dur)`),
+    // independent of gain. With drums truthy ('chamber'), that was stepDur*3
+    // (~0.43s at the source's own 104bpm) — so every note rang for under
+    // half a second no matter how long the actual melodic gap to the next
+    // note was. leadSustainMul (new knob, default 1, only touches playStep's
+    // `sustainMul` — every other track is unaffected) fixed that by
+    // stretching the ring independent of gain. leadGain bumped 1.6 -> 2.2
+    // (piano peak 0.11 -> 0.242) per "still too quiet, push louder".
+    // bassGain/bassSubGain added at ~83% of bass()'s own defaults (0.30/0.55
+    // -> 0.25/0.46, a 16-17% cut) so the bass sits back for the louder,
+    // longer piano.
+    // Round 3 (feedback: "even longer notes, OR closer together/faster —
+    // it's too spaced out"): investigated whether this is audio (ring vs.
+    // gap) or chart (genuinely sparse real onsets) before picking a fix — see
+    // the gap histogram in L.fiscalicia's own comment. Verdict: mostly
+    // chart. L.fiscalicia's 139 onsets have a MEDIAN gap of only 3 steps
+    // (0.43s at 104bpm) — perfectly normal — but 13 of the 138 onset-to-onset
+    // gaps are 8-19 steps (1.15-2.74s), and together those long gaps eat
+    // 26.8% of the excerpt's total runtime (19.76s of 73.8s). That rules out
+    // Option A (push leadSustainMul alone): the ring/gap ratio in step units
+    // is bpm-independent (both scale by the same stepDur), so a mul big
+    // enough to meaningfully cover the ~19-step worst gap (mul ~6.3) would
+    // make the ring ~19 steps long against the 73 "typical" 3-4 step gaps
+    // that make up 45% of the song's transitions — smearing the majority of
+    // the tune to fix a minority of it. Also checked for a second MIDI track
+    // to splice in (the Game of Loans Cello fix) — alicia2.mid only ever had
+    // the one "Electric Piano" track/channel (confirmed during the original
+    // transcription), so there's nothing real to splice; inventing notes
+    // isn't on the table. And minGap doesn't help either — it only decides
+    // how many of the 139 REAL onsets survive per difficulty; it can't
+    // shorten a gap that has no onset in it at any minGap setting, so the
+    // 26.8%-long-gap number is a property of the transcription itself, not
+    // the chart thinning (confirmed: at Ultra's minGap 1, ALL 139 onsets
+    // survive and the long gaps are still there).
+    // So: bpm 104 -> 130 (x1.25, a clean, moderate revv — the same fix
+    // ch_kalm used for an analogous "too sparse/slow" complaint on ITS
+    // source, just proportionally smaller here since 104 wasn't nearly as
+    // slow as Kalm's 66bpm source). This compresses every real gap
+    // uniformly, including the long tail (2.74s -> 2.19s worst case; 0.53s
+    // -> 0.43s average), without inventing or reordering a single note.
+    // Calibration: post-revv, fiscalicia's avg gap (0.43s) lands almost
+    // exactly on ch_kalm's own (0.43s) — kalm being the closest sibling
+    // precedent for "revved to fix sparse/slow" — while its max gap (2.19s)
+    // stays well under ch_gameofloans' (4.09s) and ch_lostwoods' (4.55s),
+    // both unflagged in the existing roster despite bigger gaps than ours.
+    // bars*16*(60/bpm/4) at the new bpm is 512*(60/130/4) ≈ 59.1s — just
+    // under the roster's usual ~60s floor but in line with ch_xmen's
+    // accepted ~56s single pass, so maxLoops stays 1 (no change needed).
+    // leadSustainMul bumped 3.5 -> 4.5 alongside the revv: since stepDur
+    // shrinks at the higher bpm, holding the multiplier at 3.5 would have
+    // quietly SHORTENED the round-2 ring back down (stepDur*3*3.5 ≈ 1.20s
+    // at 130bpm, vs. the 1.51s it was at 104bpm) — undoing "longer notes"
+    // right as the tempo fix landed. 4.5 restores and modestly extends it:
+    // stepDur*3*4.5 ≈ 1.56s. Mush check (ring/gap ratio, bpm-independent):
+    // the single-step gaps (11 of 138, 8%, isolated rather than run
+    // together — this isn't a fast 16th-note passage) are still the
+    // densest case at ~13.5 ring-steps vs. 1 gap-step, but exponential decay
+    // to piano()'s near-zero target (0.0001) means the audible tail (down to
+    // roughly -40dB) is really only ~59% of the nominal duration, so the
+    // practical overlap is closer to 8 steps of decaying tail, not a full
+    // 13.5 — reads as pedal-lush on these rare isolated moments, not
+    // sustained mud, while the far more common 3-4 step gaps (45% of
+    // transitions) get a comfortably-covering, not smearing, ring.
+    ch_fiscalicia: {
+      title: 'Fiscalicia', influence: 'Expedition 33, piano ballad', bpm: 130, key: 'C minor',
+      prog: P.fiscalicia, lead: L.fiscalicia, drums: 'chamber', pad: 'strings', bars: 32,
+      arpEvery: 0, bassEvery: 1, gain: 0.9, voices: { lead: 'piano' },
+      drumGain: 0.45, padGain: 0.75, leadGain: 2.2, leadSustainMul: 4.5,
+      bassGain: 0.25, bassSubGain: 0.46,
+    },
     // "Game of Loans", transcribed from MIDI (Game of Thrones · main title
     // theme, C minor, at the source's own pulse). 'brass' lead for the
     // horn-like hook, 'strings' pad for the orchestral wash under it, and
@@ -1223,6 +1536,28 @@
       title: 'Game of Loans', influence: 'Game of Thrones, main title theme', bpm: 88, key: 'C minor',
       prog: P.gameOfLoans, lead: L.gameOfLoans, drums: 'heartbeat', pad: 'strings', bars: 33,
       arpEvery: 0, bassEvery: 1, gain: 0.95, voices: { lead: 'brass' },
+    },
+    // "Tariffa", transcribed from MIDI (FF7 · Tifa's Theme), but a deliberately
+    // unfaithful dance-club rendition rather than a gentle arrangement (per
+    // feedback: recent additions leaned on the melody as the star with light
+    // backing — this one goes the other way). The source is a slow (72bpm)
+    // solo-piano ballad; revved to 128 (a plain club/house tempo, ~1.8x) —
+    // more of a jump than ch_kalm's 66->104 revamp, since "dance club" was
+    // asked for more directly than "revved up" was there. 'four' drums, a
+    // 'saw' lead + 'square' arp (electronic, not the source's piano tone —
+    // same swap ch_fairyfountain/ch_goldsaucer made) and a 'saw' pad instead
+    // of strings, so the whole thing reads as an electronic club track with
+    // the transcribed tune riding on top, not a piano piece with a beat added.
+    // bassGain/bassSubGain/bassCutoffStart/bassCutoffEnd push louder and
+    // subbier than the bass() defaults (0.30/0.55/760/190), same recipe as
+    // ch_kalm/ch_fairyfountain's lofi bass — but with a brighter cutoff (850
+    // vs. their 600) since this wants a present, forward club sub, not a
+    // muffled lofi one: "more bass", not "darker bass".
+    ch_tariffa: {
+      title: 'Tariffa', influence: "FF7 · Tifa's Theme, dance club remix", bpm: 128, key: 'F major / D minor',
+      prog: P.tariffa, lead: L.tariffa, drums: 'four', pad: 'saw', bars: 20,
+      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'saw', arp: 'square' },
+      bassGain: 0.48, bassSubGain: 0.92, bassCutoffStart: 850, bassCutoffEnd: 200,
     },
   };
 
@@ -1307,35 +1642,44 @@
     }
 
     // ---- percussion ---------------------------------------------------------
-    function kick(t, hard) {
+    // kickRaw/snareRaw/hatRaw/crashRaw take an optional trailing `mul` (default
+    // 1) that scales the hit's peak gain — playStep() shadows these with local
+    // kick/snare/hat/crash wrappers that inject cfg.drumGain, so every drum
+    // pattern's call sites below are untouched and every existing track (which
+    // has no drumGain set) sounds exactly as before.
+    function kickRaw(t, hard, mul) {
+      mul = mul == null ? 1 : mul;
       const o = ctx.createOscillator(), g = ctx.createGain();
       o.type = 'sine';
       o.frequency.setValueAtTime(hard ? 185 : 150, t);
       o.frequency.exponentialRampToValueAtTime(44, t + 0.09);
-      env(g, t, 0.004, hard ? 0.26 : 0.2, hard ? 1.0 : 0.85);
+      env(g, t, 0.004, hard ? 0.26 : 0.2, (hard ? 1.0 : 0.85) * mul);
       o.connect(g); g.connect(out); o.start(t); o.stop(t + 0.34);
     }
-    function snare(t, soft) {
+    function snareRaw(t, soft, mul) {
+      mul = mul == null ? 1 : mul;
       const s = ctx.createBufferSource(); s.buffer = noiseBuf(0.18);
       const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 1300;
-      const g = ctx.createGain(); env(g, t, 0.003, 0.15, soft ? 0.16 : 0.42);
+      const g = ctx.createGain(); env(g, t, 0.003, 0.15, (soft ? 0.16 : 0.42) * mul);
       s.connect(f); f.connect(g); g.connect(out); s.start(t);
       const o = ctx.createOscillator(), og = ctx.createGain();
       o.type = 'triangle'; o.frequency.setValueAtTime(190, t);
-      env(og, t, 0.003, 0.09, soft ? 0.09 : 0.22);
+      env(og, t, 0.003, 0.09, (soft ? 0.09 : 0.22) * mul);
       o.connect(og); og.connect(out); o.start(t); o.stop(t + 0.14);
     }
-    function hat(t, open, accent) {
+    function hatRaw(t, open, accent, mul) {
+      mul = mul == null ? 1 : mul;
       const s = ctx.createBufferSource(); s.buffer = noiseBuf(open ? 0.13 : 0.035);
       const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 7600;
       const g = ctx.createGain();
-      env(g, t, 0.002, open ? 0.12 : 0.03, accent ? 0.20 : 0.11);
+      env(g, t, 0.002, open ? 0.12 : 0.03, (accent ? 0.20 : 0.11) * mul);
       s.connect(f); f.connect(g); g.connect(out); s.start(t);
     }
-    function crash(t) {
+    function crashRaw(t, mul) {
+      mul = mul == null ? 1 : mul;
       const s = ctx.createBufferSource(); s.buffer = noiseBuf(0.9);
       const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 5200;
-      const g = ctx.createGain(); env(g, t, 0.004, 0.85, 0.20);
+      const g = ctx.createGain(); env(g, t, 0.004, 0.85, 0.20 * mul);
       s.connect(f); f.connect(g); g.connect(out); s.start(t);
     }
 
@@ -1365,8 +1709,9 @@
       const g = ctx.createGain(); env(g, t, 0.004, 0.11, 0.085);
       o.connect(f); f.connect(g); g.connect(out); o.start(t); o.stop(t + 0.2);
     }
-    function leadSaw(t, midi, dur) {
-      const g = ctx.createGain(); env(g, t, 0.012, dur, 0.13);
+    function leadSaw(t, midi, dur, mul) {
+      mul = mul == null ? 1 : mul;
+      const g = ctx.createGain(); env(g, t, 0.012, dur, 0.13 * mul);
       const f = ctx.createBiquadFilter(); f.type = 'lowpass';
       f.frequency.setValueAtTime(3400, t);
       f.frequency.exponentialRampToValueAtTime(1500, t + dur);
@@ -1377,8 +1722,9 @@
       });
       f.connect(g); g.connect(out); g.connect(delay);
     }
-    function leadDist(t, midi, dur) {
-      const g = ctx.createGain(); env(g, t, 0.006, dur, 0.16);
+    function leadDist(t, midi, dur, mul) {
+      mul = mul == null ? 1 : mul;
+      const g = ctx.createGain(); env(g, t, 0.006, dur, 0.16 * mul);
       const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 2800; f.Q.value = 2;
       [-11, 0, 11].forEach((cents) => {
         const o = ctx.createOscillator();
@@ -1387,11 +1733,12 @@
       });
       f.connect(g); g.connect(shaper); g.connect(delay);
     }
-    function leadBrass(t, midi, dur) {
+    function leadBrass(t, midi, dur, mul) {
+      mul = mul == null ? 1 : mul;
       const g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.15, t + 0.05);      // slower brass attack
-      g.gain.setValueAtTime(0.15, t + dur * 0.6);
+      g.gain.exponentialRampToValueAtTime(0.15 * mul, t + 0.05);      // slower brass attack
+      g.gain.setValueAtTime(0.15 * mul, t + dur * 0.6);
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       const f = ctx.createBiquadFilter(); f.type = 'lowpass';
       f.frequency.setValueAtTime(900, t);
@@ -1404,14 +1751,15 @@
       o1.connect(f); o2.connect(o2g); o2g.connect(f); f.connect(g); g.connect(out); g.connect(delay);
       o1.start(t); o2.start(t); o1.stop(t + dur + 0.1); o2.stop(t + dur + 0.1);
     }
-    function leadChip(t, midi, dur) {
+    function leadChip(t, midi, dur, mul) {
       // A single square wave with a fast attack, a short sustain and a touch of
       // vibrato — a hand-played NES lead. Runs through the delay like the other
       // arcade leads so it sits in the same space.
+      mul = mul == null ? 1 : mul;
       const g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.15, t + 0.006);
-      g.gain.setValueAtTime(0.15, t + Math.max(0.03, dur * 0.55));
+      g.gain.exponentialRampToValueAtTime(0.15 * mul, t + 0.006);
+      g.gain.setValueAtTime(0.15 * mul, t + Math.max(0.03, dur * 0.55));
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       const o = ctx.createOscillator(); o.type = 'square'; o.frequency.value = mtof(midi);
       const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 5.5;
@@ -1433,10 +1781,11 @@
       o1.connect(f); o2.connect(o2g); o2g.connect(f); f.connect(g); g.connect(out); g.connect(delay);
       o1.start(t); o2.start(t); o1.stop(t + dur + 0.1); o2.stop(t + dur + 0.1);
     }
-    function padChord(t, chord, dur, kind) {
-      if (kind === 'power') return powerChord(t, chord, dur);
+    function padChord(t, chord, dur, kind, mul) {
+      mul = mul == null ? 1 : mul;
+      if (kind === 'power') return powerChord(t, chord, dur, mul);
       const g = ctx.createGain();
-      const peak = kind === 'strings' ? 0.065 : 0.05;
+      const peak = (kind === 'strings' ? 0.065 : 0.05) * mul;
       g.gain.setValueAtTime(0.0001, t);
       g.gain.exponentialRampToValueAtTime(peak, t + dur * (kind === 'strings' ? 0.5 : 0.35));
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
@@ -1452,8 +1801,9 @@
       });
       f.connect(g); g.connect(out);
     }
-    function powerChord(t, chord, dur) {
-      const g = ctx.createGain(); env(g, t, 0.01, dur * 0.9, 0.11);
+    function powerChord(t, chord, dur, mul) {
+      mul = mul == null ? 1 : mul;
+      const g = ctx.createGain(); env(g, t, 0.01, dur * 0.9, 0.11 * mul);
       const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 2200;
       [0, 7, 12].forEach((s) => {
         [-8, 8].forEach((cents) => {
@@ -1466,7 +1816,7 @@
     }
 
     const LEADS = { saw: leadSaw, dist: leadDist, brass: leadBrass, chip: leadChip,
-                    piano: (t, m, d) => piano(t, m, d) };
+                    piano: (t, m, d, mul) => piano(t, m, d, 0.11 * (mul == null ? 1 : mul)) };
 
     // ---- sequencer ----------------------------------------------------------
     function playStep(i, t) {
@@ -1476,6 +1826,19 @@
       const stepDur = 60 / cfg.bpm / 4;
       const v = cfg.voices || {};
 
+      // Per-layer mix knobs, same idea as bassGain/bassSubGain on the bass
+      // layer below: default to 1 (no change) so every existing track — none
+      // of which set these — sounds exactly as before. kick/snare/hat/crash
+      // are shadowed here (not edited at each call site in the switch below)
+      // so drumGain reaches every drum pattern's existing calls for free.
+      const drumMul = cfg.drumGain != null ? cfg.drumGain : 1;
+      const padMul  = cfg.padGain  != null ? cfg.padGain  : 1;
+      const leadMul = cfg.leadGain != null ? cfg.leadGain : 1;
+      const kick  = (tt, hard) => kickRaw(tt, hard, drumMul);
+      const snare = (tt, soft) => snareRaw(tt, soft, drumMul);
+      const hat   = (tt, open, accent) => hatRaw(tt, open, accent, drumMul);
+      const crash = (tt) => crashRaw(tt, drumMul);
+
       // A long loop needs shape, not just length. `breakBars` drops the kit and
       // the bass for a bar or two so the loop breathes; `fillBar` runs a snare
       // crescendo into the next section; `crashBars` marks the downbeats that
@@ -1484,7 +1847,7 @@
       const quiet = cfg.breakBars ? cfg.breakBars.indexOf(bar) !== -1 : false;
       const filling = cfg.fillBar === bar;
 
-      if (cfg.pad && inBar === 0) padChord(t, chord, stepDur * STEPS_PER_BAR * 0.98, cfg.pad);
+      if (cfg.pad && inBar === 0) padChord(t, chord, stepDur * STEPS_PER_BAR * 0.98, cfg.pad, padMul);
 
       if (quiet) {
         // keep the pulse alive with an open hat on the backbeat, nothing more
@@ -1585,7 +1948,11 @@
 
       if (cfg.lead) {
         const n = cfg.lead[i % cfg.lead.length];
-        if (n != null) (LEADS[v.lead] || leadSaw)(t, n, stepDur * (cfg.drums ? 3 : 6));
+        // leadSustainMul (default 1, so every track without it behaves exactly
+        // as before) stretches the note's own ring time independent of gain —
+        // gain controls how LOUD the decay is, this controls how LONG it is.
+        const sustainMul = cfg.leadSustainMul != null ? cfg.leadSustainMul : 1;
+        if (n != null) (LEADS[v.lead] || leadSaw)(t, n, stepDur * (cfg.drums ? 3 : 6) * sustainMul, leadMul);
       }
     }
 

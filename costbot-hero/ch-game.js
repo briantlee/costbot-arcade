@@ -25,7 +25,7 @@
     // illustration, drawn as a full-canvas "wallpaper" background (cover-fit,
     // dimmed + scrimmed for legibility — see drawSongArt()) instead of the
     // plain biome color/glow wash. Songs with no `art` keep the wash unaffected.
-    { key: 'ch_avengers', name: 'The Savengers',   sub: 'Avengers, rocked · 148',   tag: '', biome: 'arena', art: 'cb_snapped.jpg' },
+    { key: 'ch_avengers', name: 'The Savengers',   sub: 'Avengers, rocked · 78s',   tag: '', biome: 'arena', art: 'cb_snapped.jpg' },
     // Slow quarter-note march — sparse by nature, so Hard speeds the approach and
     // drops the freebie holds (all taps) to bring it up to the other two.
     // chordSize: on notes that land on the FIRST step of a bar — the exact
@@ -46,11 +46,11 @@
     // is fine for a single-note opener, but bar 0's downbeat is ALWAYS a chord
     // now (2-3 keys at once), so the standard countdown left no time to get
     // fingers ready for it as the very first input in the whole game.
-    { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Villain march · 118',      tag: '', biome: 'dusk', art: 'darth_cb.png',
+    { key: 'ch_imperial', name: 'Imperial Markup', sub: 'Star Wars, villain march · 65s', tag: '', biome: 'dusk', art: 'darth_cb.png',
       maxLoops: 2, preroll: 4.2,
       medium: { chordSize: 2 },
       hard: { fall: 1.15, holdGap: 99, missCost: 10, chordSize: 3 } },
-    { key: 'ch_small',    name: "It's a Small Cost", sub: 'Electro light parade · 126', tag: '', biome: 'datacenter', art: 'cb_smallworld.jpg' },
+    { key: 'ch_small',    name: "It's a Small Cost", sub: 'Disneyland, electro light parade · 91s', tag: '', biome: 'datacenter', art: 'cb_smallworld.jpg' },
     // Foundry (cool industrial steel) instead of dusk — keeps this visually
     // distinct from Imperial Markup's purple ashen dusk while still reading dark/gritty.
     // The ostinato's real onsets land every 2 steps (8th notes), so the shared
@@ -62,9 +62,22 @@
     // minGap of 2, so there's no more density to claim; the escalation comes
     // from a much faster fall and a harsher missCost — deliberately harder than
     // the other songs' Hard, since this one is meant to be the roster's darkest.
-    { key: 'ch_blindhero', name: 'Blind Spend', sub: 'Daredevil, dark ostinato · 156', tag: '', biome: 'foundry', art: 'cb_justice.jpg',
+    { key: 'ch_blindhero', name: 'Blind Spend', sub: 'Daredevil, dark ostinato · 74s', tag: '', biome: 'foundry', art: 'cb_justice.jpg',
       medium: { fall: 2.0, minGap: 3, missCost: 7 },
       hard:   { fall: 1.05, minGap: 1, missCost: 12 } },
+    // 28 bars (the source's own loop length, minus its silent 2-bar intro)
+    // runs ~56s on its own, so maxLoops: 1. Onsets are dense (217 of 480
+    // steps, mostly 1-2 step gaps), so the shared Normal minGap of 3 barely
+    // thins anything past Easy's minGap of 4 (44.2% kept vs. 42.9%) — same
+    // collapse other songs in this roster hit. minGap: 2 fixes Normal (69.6%
+    // kept); Hard then needs minGap: 1 to keep escalating past Normal, which
+    // leaves it at the same 100%-kept density as Ultra's own shared minGap: 1
+    // — left as-is (no chords/holds added) per feedback that Ultra already
+    // plays hard enough as-is.
+    { key: 'ch_xmen', name: 'X-pense Men', sub: "X-Men '97, distortion riff · 60s", tag: '', biome: 'foundry', art: 'cb_logan.jpg', artDim: 0.3,
+      maxLoops: 1,
+      medium: { minGap: 2 },
+      hard:   { minGap: 1 } },
     // Playtest entry — no art yet. Lofi-house remix (see arcade-music.js) —
     // slowed from the source's 140 to 112 to ease the relentless 8th-note
     // stream. Same density issue as Blind Spend above (onsets every 2 steps),
@@ -75,7 +88,7 @@
     // way past the ~60s this song wants; 2 loops still ends on the tune's own
     // loop seam (a full pass, not a mid-phrase cut) and the existing outro
     // fade covers the last ~2.8s into that point.
-    { key: 'ch_fairyfountain', name: 'Finance Fairy', sub: 'Zelda, lofi house · 112', tag: '', biome: 'field', art: 'legend_of_costbot.jpg', artDim: 0.35,
+    { key: 'ch_fairyfountain', name: 'Finance Fairy', sub: 'Zelda, lofi house · 69s', tag: '', biome: 'field', art: 'cb_fairy_fountaing.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 2,
       medium: { minGap: 2, fall: 2.05 },
@@ -93,7 +106,7 @@
     // Hard is now a genuinely new tier — minGap: 1 keeps EVERY real onset,
     // no thinning at all, so it's as true to the song's actual beat as the
     // chart can get (same fall/minGap/missCost recipe as Blind Spend's Hard).
-    { key: 'ch_goldsaucer', name: 'Gold Sauce', sub: 'FF7, fairground band · 104', tag: '', biome: 'arena', art: 'cb7.png', artDim: 0.3,
+    { key: 'ch_goldsaucer', name: 'Gold Sauce', sub: 'FF7, fairground band · 51s', tag: '', biome: 'arena', art: 'cb7.png', artDim: 0.3,
       experimental: true,
       maxLoops: 1,
       easy:   { fall: 1.90, minGap: 3, holdGap: 8, missCost: 7 },
@@ -106,30 +119,61 @@
     // transcription's own silences. 17 bars (the source's own length)
     // instead of the usual 16; maxLoops: 2 keeps a single loop's ~28s from
     // feeling too short.
-    { key: 'ch_lostwoods', name: 'Cost Woods', sub: 'Zelda, guitar · 145', tag: '', biome: 'field', art: 'legend_of_costbot.jpg', artDim: 0.35,
+    { key: 'ch_lostwoods', name: 'Cost Woods', sub: 'Zelda, guitar · 56s', tag: '', biome: 'field', art: 'cb_lost_woods.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 2 },
-    // 28 bars (the source's own loop length, minus its silent 2-bar intro)
-    // runs ~56s on its own, so maxLoops: 1.
-    { key: 'ch_xmen', name: 'X-pense Men', sub: 'X-Men arcade, distortion riff · 120', tag: '', biome: 'foundry', art: 'cb_logan.jpg', artDim: 0.3,
-      experimental: true,
-      maxLoops: 1 },
     // Playtest entry — no art yet. 16 bars at 170bpm loop in ~22.6s, so the
     // shared MAX_LOOPS of 3 already lands at a normal ~68s — no override needed.
-    { key: 'ch_fightOn', name: 'Write-Off!', sub: 'FF battle theme · 170', tag: '', biome: 'arena', art: 'cb_buster.jpg', artDim: 0.3,
+    { key: 'ch_fightOn', name: 'Write-Off!', sub: 'FF7, battle theme · 68s', tag: '', biome: 'arena', art: 'cb_buster.jpg', artDim: 0.3,
       experimental: true },
     // Playtest entry — no art yet. 22 bars at 144bpm loop in ~36.7s (trimmed
     // to end right before the source file's own bar-22 repeat); the shared
     // MAX_LOOPS of 3 would run ~110s, so maxLoops: 2 brings it to ~73s —
     // coincidentally close to the original file's own ~73.4s length.
-    { key: 'ch_legendOfCostbot', name: 'Legend of CostBot', sub: 'Original theme, solo piano · 144', tag: '', biome: 'field', art: 'legend_of_costbot.jpg', artDim: 0.35,
+    { key: 'ch_legendOfCostbot', name: 'Legend of CostBot', sub: 'Zelda, solo piano · 73s', tag: '', biome: 'field', art: 'legend_of_costbot.jpg', artDim: 0.35,
       experimental: true,
       maxLoops: 2 },
     // Playtest entry — no art yet. 17 bars at 104bpm loop in ~39.2s; maxLoops: 2
     // brings a run to ~78.5s, in line with the rest of the roster.
-    { key: 'ch_kalm', name: 'Kalm Before the Bill', sub: 'FF7, revved lofi bass · 104', tag: '', biome: 'field', art: 'cb_meteor.jpg', artDim: 0.3,
+    { key: 'ch_kalm', name: 'Kalm Before the Bill', sub: 'FF7, revved lofi bass · 78s', tag: '', biome: 'field', art: 'cb_meteor.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 2 },
+    // "Fiscalicia" — the original piece "Alicia", inspired by Clair Obscur:
+    // Expedition 33 (see TRACKS.ch_fiscalicia for the source MIDI's own
+    // key/texture evidence and the "Round 3" comment for why bpm is 130,
+    // not the source's own 104; art: 'expense33.jpg' is the Expedition 33
+    // nod). 32 bars at 130bpm (this excerpt's own length, not the full
+    // ~3-minute source) is ~59s in a single pass — just under the roster's
+    // usual ~60s floor but in line with ch_xmen's accepted ~56s — so
+    // maxLoops stays 1.
+    // Round 4 (feedback: "get the game notes matching the melody the best
+    // we can" — fidelity prioritized over an escalating density ladder).
+    // easy/medium/hard all get minGap: 1 (Ultra already defaults there), so
+    // EVERY difficulty keeps all 139 real onsets (100%, up from the shared
+    // defaults' 57.6/75.5/93.5%) — same move as ch_gameofloans converging
+    // Normal/Hard/Ultra to 1, just carried one step further to include Easy
+    // too, since this per-round ask explicitly asks for max fidelity as the
+    // priority. Checked whether Easy (only 3 lanes vs. 4 for the rest)
+    // needed to stay held back the way ch_gameofloans' Easy did (minGap: 2,
+    // 75-79%): buildChart's pitchToLane already displaces same-lane repeats
+    // to an adjacent lane (see `if (lane === prevLane && diff.lanes > 1)`),
+    // so fewer lanes doesn't force awkward same-key double-hits the way it
+    // might without that spread logic, and the song's own full-fidelity
+    // pace is gentle (139 onsets/512 steps, ~0.34s average gap at 130bpm) —
+    // not dense enough to read as overwhelming even fully kept. No clear
+    // reason to hold Easy back here, so it converges with the rest. The
+    // progression across tiers now comes entirely from the shared DIFFS'
+    // own fall/holdGap/missCost (unchanged, not overridden): fall eases
+    // 2.15 -> 1.0 (more reaction time on Easy), holdGap 99 -> 4 means
+    // Easy gets zero hold notes while Ultra gets the most (0/13/25/39 across
+    // easy/medium/hard/ultra), and missCost climbs 5 -> 15 — a real,
+    // feelable ladder without holding back note accuracy on any tier.
+    { key: 'ch_fiscalicia', name: 'Fiscalicia', sub: 'Expedition 33, piano ballad · 59s', tag: '', biome: 'field', art: 'expense33.jpg', artDim: 0.3,
+      experimental: true,
+      maxLoops: 1,
+      easy:   { minGap: 1 },
+      medium: { minGap: 1 },
+      hard:   { minGap: 1 } },
     // 33 bars at 88bpm (the source's own pulse) is already a single ~90s pass
     // through the whole main title theme — in line with the roster's longest
     // (Avengers, ~1:51) — so maxLoops: 1.
@@ -137,20 +181,49 @@
     // own comment) specifically so minGap thinning never trades a real note
     // for a same-pitch repeat — every difficulty here is 100% real melody,
     // never "the beat". minGap still trades note COUNT for difficulty: Easy
-    // at the shared 4 collapses to a mere 47% of the real note-changes (long
-    // stretches read as missing beats), so it's loosened to 2 (79% kept) —
+    // at the shared 4 collapses to a mere 40% of the real note-changes (long
+    // stretches read as missing beats), so it's loosened to 2 (75% kept) —
     // still visibly sparser than the rest, just not mangled. Normal and Hard
     // are both bumped to 1 (matching Ultra, 100% kept, same note set as each
     // other and Ultra) — this song's real melody just doesn't have enough
     // events to make a meaningful 3-way density split above Easy, so Normal/
     // Hard/Ultra differ from here by fall speed, holdGap and missCost only
     // (same trade as Gold Saucer's Hard).
-    { key: 'ch_gameofloans', name: 'Game of Loans', sub: 'Game of Thrones, epic march · 88', tag: '', biome: 'dusk', art: 'game_of_loans.jpg', artDim: 0.3,
+    // Easy also gets a taste of holds here (unlike the shared holdGap: 99,
+    // which is "never") — a hold's head is judged exactly like a tap and
+    // releasing early costs nothing (no bill hit, no combo break, you just
+    // miss the bonus), so it's a strictly lower-risk mechanic, not a harder
+    // one; the shared roster still gates it off Easy because tracking "am I
+    // still holding this" while reading the next note is real multitasking.
+    // holdGap: 6 catches the 6-step gaps in the hook-widens-under-Gm turns
+    // (bars 3, 6, 9, 12, 15, 18) — 14 gentle, occasional holds — without
+    // reaching the busier stretches, so Easy stays visibly calmer than the
+    // tiers above it (Hard/Ultra pick up the same 14 via their own minGap/
+    // holdGap plus more from elsewhere: 14 and 23 respectively).
+    { key: 'ch_gameofloans', name: 'Game of Loans', sub: 'Game of Thrones, epic march · 90s', tag: '', biome: 'dusk', art: 'game_of_loans.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1,
-      easy:   { minGap: 2 },
+      easy:   { minGap: 2, holdGap: 6 },
       medium: { minGap: 1 },
       hard:   { minGap: 1 } },
+    // Dance-club rendition of FF7's Tifa's Theme (see arcade-music.js) — 20
+    // bars at 128bpm loop in ~37.5s (bar 20's arpeggiated intro pickup is
+    // deliberately excluded from the loop; see L.tariffa — looping it in made
+    // it recur mid-song every restart, reading as a jarring "speeds up for a
+    // few notes" right after the cadence at the end of the excerpt); the
+    // shared MAX_LOOPS of 3 would run ~112.5s, past the roster's usual
+    // ~60-110s, so maxLoops: 2 brings it to ~75s, in line with Kalm Before
+    // the Bill. The tune's real onsets are 8th-note spaced (every 2 steps)
+    // almost throughout, so the shared Normal minGap of 3 collapses to the
+    // exact same 59% of onsets as Easy's minGap of 4 — the same collision
+    // Blind Spend's data hit. minGap: 2 fixes it (99% kept, same set Hard
+    // already keeps at its own shared minGap) — Normal and Hard end up
+    // tracking the same notes here, differing only by fall speed and
+    // missCost, same trade as Game of Loans' Normal/Hard above.
+    { key: 'ch_tariffa', name: 'Tariffa', sub: "FF7 · Tifa's Theme, dance club remix · 75s", tag: '', biome: 'datacenter', art: 'tarrifa.png', artDim: 0.3,
+      experimental: true,
+      maxLoops: 2,
+      medium: { minGap: 2 } },
   ];
 
   const DIFFS = {
@@ -173,6 +246,19 @@
   // Distinct hues per lane (a nod to each vendor's brand, but spread around the
   // wheel so adjacent lanes never read as the same colour): AWS orange, GCP blue,
   // Azure teal, Databricks red, Snowflake ice-blue.
+  // A BUDGET BLOWN screen you will see hundreds of times wants more than one
+  // picture — same idea (and same three images) as Mudslides' WIPEOUT_SHOTS.
+  // Rotated at random rather than cycled: a cycle is predictable enough that
+  // the third one stops registering. Never the same shot twice running (pure
+  // random over three repeats about a third of the time, which reads as "it
+  // isn't rotating").
+  const WIPEOUT_SHOTS = ['wipeout.jpg', 'wipeout-surgery.jpg', 'wipeout-megabill.jpg'];
+  let lastWipeoutShot = null;
+  function pickWipeoutShot() {
+    const choices = WIPEOUT_SHOTS.filter((s) => s !== lastWipeoutShot);
+    lastWipeoutShot = choices[(Math.random() * choices.length) | 0];
+    return lastWipeoutShot;
+  }
   const PALETTE = ['#ff9900', '#4285f4', '#00e0b8', '#ff3b30'];
   const VENDORS = ['AWS', 'GCP', 'Azure', 'Databricks'];
   // stylized (non-trademark) vendor glyphs shown on brand-coloured badges
@@ -264,6 +350,12 @@
   const coinImg = new Image(); let coinReady = false;
   coinImg.onload = () => { coinReady = true; };
   coinImg.src = '../shared/assets/token-coin-64.png';
+
+  // x50-combo flash art (same "CB T-1000" piece Waste Hunter's Terminate All
+  // nuke pickup flashes full-screen).
+  const t1000Img = new Image(); let t1000Ready = false;
+  t1000Img.onload = () => { t1000Ready = true; };
+  t1000Img.src = '../shared/assets/cb_t1000.png';
 
   // Per-song full-background artwork (SONGS[i].art). Loaded lazily on first
   // reference and cached by filename so switching songs (or retrying) never
@@ -427,6 +519,71 @@
       combo:   () => { blip(784, 0.08, 'triangle', 0.4, 1046); },
       ui:      () => blip(520, 0.05, 'square', 0.25),
     };
+
+    // ---- SONG CLEAR fanfare (applause + cheer + a little victory chime) -----
+    // Procedural, same as everything else here — no samples, so "clapping" and
+    // "cheering" are stylized noise-synthesis approximations, not real crowd
+    // audio: a clap is the classic multi-transient trick (a few tightly-spaced
+    // bandpassed noise bursts, which is what actually makes a burst of noise
+    // read as a hand-clap and not a hiss), and a "cheer" is a bright noise
+    // swell with a rising-then-settling bandpass sweep standing in for a
+    // wordless crowd "whoo".
+    function fanfareNoiseBuf(dur) {
+      const n = Math.max(1, Math.floor(actx.sampleRate * dur));
+      const b = actx.createBuffer(1, n, actx.sampleRate);
+      const d = b.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+      return b;
+    }
+    function clapHit(t, gain) {
+      [0, 0.008, 0.018].forEach((delay, i) => {
+        const s = actx.createBufferSource(); s.buffer = fanfareNoiseBuf(0.05);
+        const f = actx.createBiquadFilter(); f.type = 'bandpass';
+        f.frequency.value = 1200 + Math.random() * 900; f.Q.value = 1.1;
+        const g = actx.createGain();
+        g.gain.setValueAtTime(0.0001, t + delay);
+        g.gain.exponentialRampToValueAtTime(gain * (i === 0 ? 1 : 0.7), t + delay + 0.003);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + delay + 0.07);
+        s.connect(f); f.connect(g); g.connect(sfxBus); s.start(t + delay);
+      });
+    }
+    function chime(delay, freq, dur, slideTo) {
+      const t = actx.currentTime + delay;
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'triangle'; o.frequency.setValueAtTime(freq, t);
+      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.65, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(sfxBus); o.start(t); o.stop(t + dur + 0.03);
+    }
+    function playFanfare() {
+      if (!actx) return;
+      const t0 = actx.currentTime;
+      // Applause: ~56 randomly-timed claps over ~3s (up from 40/2.2s — bigger
+      // crowd, and stretched to roughly match the now-longer fireworks show).
+      // Math.random()**1.5 biases timing early (denser at the start, thinning
+      // toward the end), the shape a real round of applause has — an abrupt
+      // onset, then tapering off.
+      for (let i = 0; i < 56; i++) {
+        clapHit(t0 + Math.pow(Math.random(), 1.5) * 3.0, 0.30 + Math.random() * 0.28);
+      }
+      // Cheer: one long noise swell, its bandpass sweeping up then settling —
+      // reads as a wordless crowd "whoo" under the applause.
+      const s = actx.createBufferSource(); s.buffer = fanfareNoiseBuf(1.8);
+      const f = actx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.8;
+      f.frequency.setValueAtTime(500, t0);
+      f.frequency.exponentialRampToValueAtTime(2600, t0 + 1.1);
+      f.frequency.exponentialRampToValueAtTime(900, t0 + 1.8);
+      const g = actx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.4, t0 + 0.5);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.8);
+      s.connect(f); f.connect(g); g.connect(sfxBus); s.start(t0);
+      // A quick ascending C-E-G-C-C "ta-da" arpeggio on top, landing on the
+      // octave twice (a fuller flourish than the plain 4-note version).
+      [523.25, 659.25, 784.0, 1046.5, 1318.5].forEach((freq, i) => chime(i * 0.09, freq, 0.3));
+    }
 
     // ---- game state ----
     let state = 'menu';         // menu | count | play | result
@@ -719,7 +876,7 @@
           counts: { perfect: 0, great: 0, ok: 0, miss: 0, trap: 0 },
           total: chart.notes.filter(n => n.type !== 'trap').length,
           laneFlash: new Array(diff.lanes).fill(0),
-          pops: [], parts: [], shake: 0, tint: 0, hostBob: 0, tip: null, tipN: 0, anom: false,
+          pops: [], parts: [], shake: 0, tint: 0, hostBob: 0, tip: null, tipN: 0, anom: false, flash: null,
           // hot-streak visuals: heat eases toward the current combo tier (see
           // multFor) so notes/highway "catch fire" smoothly rather than
           // snapping in/out at the exact combo thresholds; embers are the
@@ -814,9 +971,12 @@
         : missRatio > 0.25
           ? 'Consistency compounds: steady small cuts beat big one-offs.'
           : TIPS[(r.tipN + r.maxCombo) % TIPS.length];
-      run.result = { grade, acc: Math.round(acc * 100), tokens, best: better, tip: lesson };
+      run.result = { grade, acc: Math.round(acc * 100), tokens, best: better, tip: lesson,
+        wipeoutShot: r.failed ? pickWipeoutShot() : null };
       run.resultAt = performance.now();   // for the crossfade into the results screen
       state = 'result';
+      // SONG CLEAR only — a budget-blown fail ending early shouldn't cheer.
+      if (!r.failed) { playFanfare(); scheduleFireworks(r); }
       emit('run:end', { song: r.song.key, diff: diffKey });
 
       const payload = {
@@ -892,6 +1052,10 @@
         run.callout = { text: COMBO_CALLS[run.combo], life: 1.4 }; shake(run, 6);
         // teach on a good streak — alternate a vendor tip (for the lane you cut) and a general one
         showTip(run, (run.tipN++ % 2 === 0) ? VENDOR_TIPS[lane] : TIPS[run.tipN % TIPS.length]);
+        // x50 gets the big moment: a harder shake + the full-screen CB-T1000
+        // flash, same trick as Waste Hunter's "Terminate All" nuke pickup
+        // (shake(22) + a fading red flash with the art scaled/glowing in).
+        if (run.combo === 50) { shake(run, 16); run.flash = { life: 1.2, max: 1.2 }; }
       }
       let gain = base * run.mult * goldX;
       if (anomOn(now)) gain = Math.round(gain * 1.5);   // anomaly finale: cuts pay more
@@ -958,8 +1122,10 @@
         else { keysDown.delete(k); laneUp(lane); }
       }
     }
-    global.addEventListener('keydown', (e) => onKey(true, e));
-    global.addEventListener('keyup', (e) => onKey(false, e));
+    function onKeyDown(e) { onKey(true, e); }
+    function onKeyUp(e) { onKey(false, e); }
+    global.addEventListener('keydown', onKeyDown);
+    global.addEventListener('keyup', onKeyUp);
 
     // pointer / touch
     function laneAt(x) {
@@ -1009,6 +1175,47 @@
     }
     function shake(r, amt) { r.shake = Math.min(16, r.shake + amt); }
     function checkFail() { if (run && run.bill >= BILL_MAX) { run.failed = true; endSong(); } }
+
+    // ---- SONG CLEAR fireworks ------------------------------------------------
+    // Same r.parts array/physics the hit-bursts already use (see burst() above)
+    // — a full 360° radial spray instead of burst()'s upward-biased one, and
+    // not anchored to a lane, so a firework can land anywhere on the canvas.
+    const FIREWORK_COLORS = PALETTE.concat(['#ffd76a', '#ffffff', '#ff6ec7']);
+    // size/firework/decay are per-particle so this shares run.parts' physics
+    // with the plain hit-bursts (burst() above) without changing their look:
+    // a hit-burst particle has no `size`/`firework`/`decay` set, so it falls
+    // through to the existing defaults everywhere those are read.
+    function spawnFirework(r, x, y) {
+      const color = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
+      const n = 46 + Math.floor(Math.random() * 20);
+      for (let i = 0; i < n; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const speed = 90 + Math.random() * 260;
+        r.parts.push({
+          x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, life: 1, color,
+          size: 6 + Math.random() * 4, firework: true, decay: 0.7,
+        });
+      }
+    }
+    // Queues a scattered fireworks show rather than one simultaneous flash: a
+    // couple-dozen bursts at random screen positions, staggered over ~4.5s so
+    // it reads as an ongoing celebration. r.fireworks is drained in update(dt)
+    // (see the "decay effects" block, which already runs whenever a run exists,
+    // result screen included) so this keeps firing after endSong() has already
+    // switched state to 'result'.
+    function scheduleFireworks(r) {
+      r.fireworks = [];
+      r.fireworksElapsed = 0;
+      const count = 19;   // 22, cut ~15% per feedback ("cut down the amount of fireworks")
+      for (let i = 0; i < count; i++) {
+        r.fireworks.push({
+          t: (i / count) * 4.5 + Math.random() * 0.25,
+          x: W * (0.08 + Math.random() * 0.84),
+          y: H * (0.1 + Math.random() * 0.45),
+        });
+      }
+      r.fireworks.sort((a, b) => a.t - b.t);
+    }
     // the final ~12s of notes are a "cost anomaly" — cuts pay 1.5x, misses hurt more
     const ANOM_LEN = 12;
     function anomOn(now) { return !!(run && run.chart && now >= run.chart.lastNote - ANOM_LEN && now < run.chart.lastNote + 0.3); }
@@ -1025,11 +1232,12 @@
     // update + draw
     // =====================================================================
     let last = performance.now();
+    let raf = 0;
     function frame(t) {
       const dt = Math.min(0.05, (t - last) / 1000); last = t;
       update(dt);
       draw();
-      requestAnimationFrame(frame);
+      raf = requestAnimationFrame(frame);
     }
 
     function update(dt) {
@@ -1106,9 +1314,17 @@
       for (const p of run.pops) { p.life -= dt * 1.2; p.y -= dt * 34; }
       run.pops = run.pops.filter(p => p.life > 0);
       if (run.callout) { run.callout.life -= dt; if (run.callout.life <= 0) run.callout = null; }
+      if (run.flash) { run.flash.life -= dt; if (run.flash.life <= 0) run.flash = null; }
       if (run.tip) { run.tip.life -= dt; if (run.tip.life <= 0) run.tip = null; }
-      for (const p of run.parts) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 640 * dt; p.life -= dt * 1.3; }
+      for (const p of run.parts) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 640 * dt; p.life -= dt * (p.decay || 1.3); }
       run.parts = run.parts.filter(p => p.life > 0);
+      if (run.fireworks && run.fireworks.length) {
+        run.fireworksElapsed += dt;
+        while (run.fireworks.length && run.fireworks[0].t <= run.fireworksElapsed) {
+          const fw = run.fireworks.shift();
+          spawnFirework(run, fw.x, fw.y);
+        }
+      }
 
       // hot-streak heat: eased toward the CURRENT combo tier (not the peak),
       // so a miss that resets run.mult back to 1 cools the highway back down
@@ -1181,7 +1397,9 @@
       ctx2d.save();
       if (run.shake > 0) ctx2d.translate((Math.random() - 0.5) * run.shake, (Math.random() - 0.5) * run.shake);
       drawHighway();
+      drawFlash();   // x50-combo CB-T1000 flash, over the highway
       if (state === 'result') drawResult();
+      drawFireworks();   // on top of the result panel, not under it
       ctx2d.restore();
 
       if (state === 'count') drawCountdown();
@@ -1585,8 +1803,10 @@
       drawEmbers();
       drawHost();
 
-      // particles + pops
+      // particles + pops (fireworks are flagged and drawn separately, on top
+      // of the result screen — see drawFireworks(), called after drawResult())
       for (const p of run.parts) {
+        if (p.firework) continue;
         ctx2d.globalAlpha = Math.max(0, p.life); ctx2d.fillStyle = p.color;
         ctx2d.fillRect(p.x, p.y, 4, 4);
       }
@@ -1926,6 +2146,73 @@
         ctx2d.fillStyle = '#cfe9e2'; ctx2d.textAlign = 'center';
         ctx2d.fillText('💡  ' + r.tip, cx, tby + 21);
       }
+      // On a fail, the wipeout shot goes under the tip, in the otherwise-empty
+      // lower half of the results screen (same "contain"-fit + rounded-clip
+      // treatment as the per-song wallpaper art in drawSongArt()).
+      if (run.failed && r.wipeoutShot) {
+        const entry = getArtImage(r.wipeoutShot);
+        if (entry && entry.ready) {
+          const top = by + 66 + 32 + 16, bottom = H - 160;
+          const maxW = Math.min(W - 80, 260), maxH = Math.max(40, bottom - top);
+          const ar = entry.img.naturalWidth / entry.img.naturalHeight;
+          let dw = maxW, dh = dw / ar;
+          if (dh > maxH) { dh = maxH; dw = dh * ar; }
+          const dx = cx - dw / 2, dy = top;
+          ctx2d.save();
+          rrect(dx, dy, dw, dh, 10); ctx2d.clip();
+          ctx2d.drawImage(entry.img, dx, dy, dw, dh);
+          ctx2d.restore();
+          ctx2d.strokeStyle = 'rgba(255,255,255,.18)'; ctx2d.lineWidth = 1.5;
+          rrect(dx, dy, dw, dh, 10); ctx2d.stroke();
+        }
+      }
+      ctx2d.globalAlpha = 1;
+    }
+    // Full-screen x50-combo flash: a red-tinted overlay + the CB-T1000 art
+    // popping in and shuddering, same recipe as Waste Hunter's "Terminate
+    // All" nuke flash (drawFlash() there) — a red rgba wash scaled by the
+    // fade, the art scaled in with a glow, cross-faded out over its own life.
+    function drawFlash() {
+      if (!run || !run.flash) return;
+      const f = run.flash;
+      const a = clamp(f.life / f.max, 0, 1);
+      const progress = 1 - a;
+      ctx2d.fillStyle = 'rgba(255,64,42,' + (0.38 * a) + ')';
+      ctx2d.fillRect(0, 0, W, H);
+      if (!t1000Ready) return;
+      const pop = 0.82 + 0.18 * Math.min(1, progress * 7);
+      const shudder = a > 0.75 ? (Math.random() * 2 - 1) * 6 * a : 0;
+      ctx2d.save();
+      ctx2d.globalAlpha = Math.min(1, a * 1.7);
+      ctx2d.translate(W / 2 + shudder, H / 2);
+      ctx2d.scale(pop, pop);
+      const sc = Math.min(W * 0.46 / t1000Img.naturalWidth, H * 0.42 / t1000Img.naturalHeight);
+      const iw = t1000Img.naturalWidth * sc, ih = t1000Img.naturalHeight * sc;
+      ctx2d.shadowColor = '#ff3b3b'; ctx2d.shadowBlur = 46;
+      ctx2d.drawImage(t1000Img, -iw / 2, -ih / 2, iw, ih);
+      ctx2d.shadowBlur = 0;
+      ctx2d.restore();
+    }
+    // Fireworks particles are flagged (spawnFirework()) and skipped by the
+    // regular particle loop in drawHighway() specifically so they can be drawn
+    // HERE instead — after drawResult()'s dark panel, not before it — so a
+    // SONG CLEAR celebration reads on top of the score screen, not smothered
+    // under its ~82%-opaque backdrop. Bigger than a hit-burst particle: a
+    // tight, low-alpha glow (small + faint, not a haze) behind a crisp solid
+    // core, plus a small bright-white hot-center dot for definition — three
+    // thin layers read as a sharp spark, not a blurry blob.
+    function drawFireworks() {
+      if (!run) return;
+      for (const p of run.parts) {
+        if (!p.firework) continue;
+        const a = Math.max(0, p.life);
+        ctx2d.globalAlpha = a * 0.28; ctx2d.fillStyle = p.color;
+        ctx2d.beginPath(); ctx2d.arc(p.x, p.y, p.size * 1.25, 0, Math.PI * 2); ctx2d.fill();
+        ctx2d.globalAlpha = a; ctx2d.fillStyle = p.color;
+        ctx2d.beginPath(); ctx2d.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx2d.fill();
+        ctx2d.globalAlpha = a; ctx2d.fillStyle = '#fff';
+        ctx2d.beginPath(); ctx2d.arc(p.x, p.y, p.size * 0.35, 0, Math.PI * 2); ctx2d.fill();
+      }
       ctx2d.globalAlpha = 1;
     }
     function handleResultClick(x, y) {
@@ -2018,7 +2305,20 @@
         .ch-song .nm{font-weight:700;font-size:15px;color:#eaf1ff;}
         .ch-song .sub{font-size:12px;color:#8194b6;margin-top:1px;}
         .ch-song .best{font-size:12px;font-weight:700;color:#ffd76a;white-space:nowrap;}
-        .ch-diffs{display:flex;gap:8px;}
+        /* Experimental songs: alphabetical, split into two single-column
+           lists sitting in their own 2-column row BELOW the experimental
+           toggle (see .ch-cols-exp in the template) — separated from the
+           regular curated song list above. A dashed purple border (matching
+           the toggle's own accent colour) marks them as experimental too. */
+        .ch-cols-exp{margin-top:12px;}
+        .ch-song.exp{border-style:dashed;border-color:#6a3f96;background:rgba(192,77,255,.05);}
+        .ch-song.exp:hover{border-color:#c04dff;}
+        .ch-song.exp.sel{border-color:#ffd76a;background:rgba(255,215,106,.12);}
+        .ch-song.exp .nm{display:flex;align-items:center;gap:5px;}
+        .ch-song.exp .nm::after{content:'EXP';font-size:9px;font-weight:800;letter-spacing:.6px;
+          color:#c04dff;border:1px solid #6a3f96;border-radius:5px;padding:1px 4px;}
+        .ch-diffs-row{display:flex;gap:10px;align-items:stretch;}
+        .ch-diffs{display:flex;gap:8px;flex:1;}
         .ch-diff{flex:1;padding:11px 0;border-radius:10px;border:1px solid #26324f;
           background:rgba(255,255,255,.04);text-align:center;font-weight:800;font-size:14px;
           color:#c4d0e8;cursor:pointer;transition:.12s;}
@@ -2027,10 +2327,11 @@
         .ch-card{padding:9px 11px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid #1e2942;}
         .ch-card .k{font-weight:800;font-size:12px;color:#eaf1ff;margin-bottom:2px;}
         .ch-card .d{font-size:11px;color:#8ea3cc;line-height:1.38;}
-        .ch-play{align-self:center;margin-top:2px;padding:14px 50px;border:none;border-radius:12px;
-          background:#ffd76a;color:#06121a;font-weight:800;font-size:19px;cursor:pointer;
-          box-shadow:0 8px 24px rgba(255,215,106,.3);transition:transform .1s;}
-        .ch-play:hover{transform:translateY(-2px);}
+        .ch-play{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:6px;
+          padding:0 38px;border:2px solid rgba(255,255,255,.35);border-radius:12px;
+          background:#2fa8ff;color:#06121a;font-weight:900;font-size:18px;letter-spacing:.3px;cursor:pointer;
+          box-shadow:0 10px 28px rgba(47,168,255,.55);transition:transform .1s,box-shadow .15s;white-space:nowrap;}
+        .ch-play:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(47,168,255,.7);}
         .ch-board{align-self:center;text-decoration:none;color:#c4d0e8;font-weight:700;font-size:13px;
           padding:8px 18px;border-radius:9px;border:1px solid #2b3f66;background:rgba(255,255,255,.04);
           transition:border-color .12s,color .12s;}
@@ -2058,7 +2359,10 @@
               <div class="ch-lbl">SONG</div>
               <div class="ch-songs" id="ch-songs"></div>
               <div class="ch-lbl" style="margin-top:16px">DIFFICULTY</div>
-              <div class="ch-diffs" id="ch-diffs"></div>
+              <div class="ch-diffs-row">
+                <div class="ch-diffs" id="ch-diffs"></div>
+                <button class="ch-play" id="ch-play">▶&nbsp;PLAY</button>
+              </div>
             </div>
             <div>
               <div class="ch-lbl">HOW TO PLAY</div>
@@ -2070,10 +2374,13 @@
                 <div class="ch-card"><div class="k">📈 Mind the bill</div><div class="d">Misses balloon the bill meter. Blow the budget and the run ends early.</div></div>
                 <div class="ch-card"><div class="k">🚫 Don't cut PROD</div><div class="d">On Hard, ✕ trap notes are production — hit one and the bill jumps. Let them fall past.</div></div>
               </div>
-              <label class="ch-exp"><input type="checkbox" id="ch-exp-check"> 🧪 Experimental (unreleased songs + Ultra difficulty)</label>
             </div>
           </div>
-          <button class="ch-play" id="ch-play">▶&nbsp;&nbsp;PLAY</button>
+          <label class="ch-exp"><input type="checkbox" id="ch-exp-check"> 🧪 Experimental (unreleased songs + Ultra difficulty)</label>
+          <div class="ch-cols ch-cols-exp" id="ch-cols-exp">
+            <div class="ch-songs ch-songs-exp" id="ch-songs-exp"></div>
+            <div class="ch-songs ch-songs-exp2" id="ch-songs-exp2"></div>
+          </div>
           <a class="ch-board" href="../leaderboard/index.html#costbot-hero">🏆 Leaderboard</a>
           <div class="ch-calib">
             <span>Audio sync</span>
@@ -2085,19 +2392,32 @@
       host.appendChild(menuEl);
 
       const songsWrap = menuEl.querySelector('#ch-songs');
+      const expWrap = menuEl.querySelector('#ch-songs-exp');
+      const expWrap2 = menuEl.querySelector('#ch-songs-exp2');
       const diffsWrap = menuEl.querySelector('#ch-diffs');
       // Rebuilt (not just re-styled) whenever the experimental toggle flips,
       // since the SET of rows/buttons changes, not just which one is selected.
+      // The curated list keeps SONGS' own order; experimental songs sort
+      // alphabetically and split across two columns in their own row BELOW
+      // the experimental toggle, separated from the curated song list above.
+      function makeSongRow(s) {
+        const i = SONGS.indexOf(s);
+        const el = document.createElement('div');
+        el.className = 'ch-song' + (s.experimental ? ' exp' : ''); el.dataset.i = i;
+        el.innerHTML = `<div><div class="nm">${s.name}</div><div class="sub">${s.sub}</div></div><div class="best" data-best></div>`;
+        el.onclick = () => { songIdx = i; SFX.ui(); syncMenu(); };
+        return el;
+      }
       function renderSongRows() {
         songsWrap.innerHTML = '';
-        visibleSongs().forEach((s) => {
-          const i = SONGS.indexOf(s);
-          const el = document.createElement('div');
-          el.className = 'ch-song'; el.dataset.i = i;
-          el.innerHTML = `<div><div class="nm">${s.name}</div><div class="sub">${s.sub}</div></div><div class="best" data-best></div>`;
-          el.onclick = () => { songIdx = i; SFX.ui(); syncMenu(); };
-          songsWrap.appendChild(el);
-        });
+        expWrap.innerHTML = '';
+        expWrap2.innerHTML = '';
+        const vis = visibleSongs();
+        vis.filter((s) => !s.experimental).forEach((s) => songsWrap.appendChild(makeSongRow(s)));
+        const experimental = vis.filter((s) => s.experimental).sort((a, b) => a.name.localeCompare(b.name));
+        const half = Math.ceil(experimental.length / 2);
+        experimental.slice(0, half).forEach((s) => expWrap.appendChild(makeSongRow(s)));
+        experimental.slice(half).forEach((s) => expWrap2.appendChild(makeSongRow(s)));
       }
       function renderDiffButtons() {
         diffsWrap.innerHTML = '';
@@ -2189,14 +2509,21 @@
     }
     buildMenu();
 
-    requestAnimationFrame(frame);
+    raf = requestAnimationFrame(frame);
     emit('ready', {});
 
     return {
       get meta() { return meta; },
       get muted() { return !!meta.muted; },
       toggleMute,
-      destroy() { stopRunAudio(run); cv.remove(); },
+      destroy() {
+        cancelAnimationFrame(raf);
+        stopRunAudio(run);
+        global.removeEventListener('keydown', onKeyDown);
+        global.removeEventListener('keyup', onKeyUp);
+        global.removeEventListener('resize', resize);
+        cv.remove();
+      },
     };
   }
 

@@ -27,6 +27,21 @@
   .tab:hover{background:#22355c;color:#fff}
   .tab.on{background:linear-gradient(180deg,#f0a52c,#d4821a);border-color:#ffc866;color:#241403}
 
+  /* CostBot Hero's own song+difficulty filter — a couple dozen songs x 4
+     difficulties is too many combinations to show as separate always-visible
+     tables, so one focused table + these two filters (instead of a giant
+     everything-at-once list) is what keeps the board on one screen. */
+  .hero-filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;
+    padding:14px 18px 4px}
+  .hero-filters select{background:#0f1830;border:1px solid var(--line);color:var(--fg);
+    font-size:13px;font-family:inherit;padding:7px 10px;border-radius:9px;cursor:pointer;
+    max-width:220px}
+  .diff-pills{display:flex;gap:6px}
+  .diff-pill{background:rgba(255,255,255,.04);border:1px solid #31456b;color:#a9bad6;
+    padding:6px 13px;border-radius:16px;font-size:12.5px;font-weight:650;cursor:pointer;
+    font-family:inherit;transition:.14s}
+  .diff-pill:hover{background:#22355c;color:#fff}
+  .diff-pill.on{background:linear-gradient(180deg,#f0a52c,#d4821a);border-color:#ffc866;color:#241403}
   .panel{background:linear-gradient(180deg,#141d33,#0c1220);border:1px solid var(--line);
     border-radius:14px;padding:6px 4px;box-shadow:0 16px 40px rgba(0,0,0,.45)}
   .board-title{font-size:12px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;
@@ -225,18 +240,38 @@
       head(g.cols, sort), sorted, (r) => g.cols.map((c) => cell(r, c, sort)).join(''));
   }
 
-  // CostBot Hero: one row per player's best RUN, carrying the song + difficulty
-  // it was set on (which a per-metric fold would lose).
+  // CostBot Hero: leaders for one song+difficulty combination at a time.
+  // There are enough songs x 4 difficulties now that a single everything-
+  // at-once list stopped being a real "leaderboard" for any one of them — two
+  // filters (a song dropdown, since there are too many for a pill row; a
+  // difficulty pill row, since there are only 4) keep it to one focused table
+  // per combination, on one screen.
+  const HERO_DIFFS = ['Easy', 'Normal', 'Hard', 'Ultra'];
+  let heroSong = 'all', heroDiff = 'all';
   function renderHero(g) {
     const rows = metricCache[g.id];
     if (!rows) return `<div class="empty">Loading…</div>`;
-    const sorted = rows.slice().sort((a, b) => (b.score || 0) - (a.score || 0));
-    const headHtml = `<th class="n on">Best score</th><th>Song</th><th>Difficulty</th>`
-      + `<th class="n">Combo</th><th class="n">Accuracy</th>`;
-    return table('Top scores — highest single run', g.note, headHtml, sorted, (r) =>
+    const songs = [...new Set(rows.map((r) => r.song).filter(Boolean))].sort();
+    const filtered = rows.filter((r) =>
+      (heroSong === 'all' || r.song === heroSong) && (heroDiff === 'all' || r.difficulty === heroDiff));
+    const sorted = filtered.sort((a, b) => (b.score || 0) - (a.score || 0));
+    const filtersHtml = `<div class="hero-filters">
+        <select id="hero-song-filter">
+          <option value="all"${heroSong === 'all' ? ' selected' : ''}>All songs</option>
+          ${songs.map((s) => `<option value="${esc(s)}"${s === heroSong ? ' selected' : ''}>${esc(s)}</option>`).join('')}
+        </select>
+        <div class="diff-pills">
+          <button type="button" class="diff-pill${heroDiff === 'all' ? ' on' : ''}" data-diff="all">All</button>
+          ${HERO_DIFFS.map((d) => `<button type="button" class="diff-pill${d === heroDiff ? ' on' : ''}" data-diff="${d}">${d}</button>`).join('')}
+        </div>
+      </div>`;
+    const headHtml = `<th class="n on">Best score</th>` + (heroSong === 'all' ? `<th>Song</th>` : '')
+      + (heroDiff === 'all' ? `<th>Difficulty</th>` : '') + `<th class="n">Combo</th><th class="n">Accuracy</th>`;
+    const title = 'Top scores' + (heroSong !== 'all' ? ` — ${heroSong}` : '') + (heroDiff !== 'all' ? ` (${heroDiff})` : '');
+    return filtersHtml + table(title, g.note, headHtml, sorted, (r) =>
       `<td class="n on">${money(r.score || 0)}</td>`
-      + `<td>${esc(r.song || '—')}</td>`
-      + `<td>${esc(r.difficulty || '—')}</td>`
+      + (heroSong === 'all' ? `<td>${esc(r.song || '—')}</td>` : '')
+      + (heroDiff === 'all' ? `<td>${esc(r.difficulty || '—')}</td>` : '')
       + `<td class="n">${Math.round(r.combo || 0).toLocaleString('en-US')}</td>`
       + `<td class="n">${Math.round(r.accuracy || 0)}%</td>`);
   }
@@ -256,15 +291,22 @@
       : renderMetrics(g);
   }
 
-  // Clicking a metric header re-ranks that cabinet's board. Delegated on the
-  // panel because render() replaces its contents wholesale.
+  // Clicking a metric header re-ranks that cabinet's board, and clicking a
+  // CostBot Hero difficulty pill re-filters it. Both delegated on the panel
+  // because render() replaces its contents wholesale.
   document.getElementById('panel').addEventListener('click', (e) => {
+    const pill = e.target.closest('.diff-pill[data-diff]');
+    if (pill) { heroDiff = pill.dataset.diff; render(); return; }
     const th = e.target.closest('th[data-sort]');
     if (!th) return;
     const g = GAMES.find((x) => x.id === tab);
     if (!g || g.kind !== 'metrics') return;
     g.sort = th.dataset.sort;
     render();
+  });
+  // Picking a song in the CostBot Hero filter re-renders to just that song.
+  document.getElementById('panel').addEventListener('change', (e) => {
+    if (e.target.id === 'hero-song-filter') { heroSong = e.target.value; render(); }
   });
 
   // Quiz accuracy used to be a tab here. It ranked how well people answered
@@ -294,6 +336,62 @@
     if (tab === g.id) render();
   }
 
+  // ---------------------------------------------------------------------------
+  // LOCAL PREVIEW MOCK — this page has no scores API when served statically
+  // (see the `else` branch below), which normally means an empty CostBot Hero
+  // board with nothing to actually review. Seeding representative fake rows
+  // here (real song names, a plausible score/combo/accuracy spread across
+  // difficulties) lets the board's layout/columns be checked locally without
+  // needing the real aix-proto-hosted app. Mock rows never touch `me`, so
+  // nothing is ever highlighted as "your" row, and the note below makes clear
+  // this isn't live data.
+  const MOCK_HERO_ROWS = [
+    // Game of Loans gets rows across all 4 difficulties, several with more
+    // than one player, so the song+difficulty filters have something real to
+    // narrow down to (not just one row per combination).
+    { player: 'Player 4417', score: 1701800, song: 'Game of Loans', difficulty: 'Hard',   combo: 176, accuracy: 91 },
+    { player: 'nrodriguez',  score: 1688300, song: 'Game of Loans', difficulty: 'Hard',   combo: 171, accuracy: 90 },
+    { player: 'jchen',       score: 1520900, song: 'Game of Loans', difficulty: 'Hard',   combo: 158, accuracy: 87 },
+    { player: 'aokafor',     score: 2091400, song: 'Game of Loans', difficulty: 'Ultra',  combo: 209, accuracy: 96 },
+    { player: 'mschmidt',    score: 1974600, song: 'Game of Loans', difficulty: 'Ultra',  combo: 197, accuracy: 94 },
+    { player: 'bpatel',      score: 1102300, song: 'Game of Loans', difficulty: 'Normal', combo: 130, accuracy: 89 },
+    { player: 'Player 8802', score: 1054700, song: 'Game of Loans', difficulty: 'Normal', combo: 118, accuracy: 86 },
+    { player: 'kolawale',    score: 611200,  song: 'Game of Loans', difficulty: 'Easy',   combo: 88,  accuracy: 92 },
+    { player: 'nrodriguez',  score: 2184500, song: 'Write-Off!',              difficulty: 'Ultra',  combo: 214, accuracy: 97 },
+    { player: 'aokafor',     score: 1889200, song: 'Write-Off!',              difficulty: 'Ultra',  combo: 190, accuracy: 93 },
+    { player: 'jchen',       score: 1963200, song: "It's a Small Cost",       difficulty: 'Hard',   combo: 188, accuracy: 95 },
+    { player: 'bpatel',      score: 1745600, song: "It's a Small Cost",       difficulty: 'Hard',   combo: 169, accuracy: 92 },
+    { player: 'aokafor',     score: 1522000, song: 'The Savengers',           difficulty: 'Hard',   combo: 163, accuracy: 93 },
+    { player: 'mschmidt',    score: 1340600, song: 'Tariffa',                 difficulty: 'Normal', combo: 152, accuracy: 89 },
+    { player: 'Player 5510', score: 1288400, song: 'Tariffa',                 difficulty: 'Normal', combo: 145, accuracy: 87 },
+    { player: 'bpatel',      score: 1198400, song: 'Imperial Markup',         difficulty: 'Normal', combo: 140, accuracy: 88 },
+    { player: 'Player 8802', score: 964700,  song: 'Blind Spend',             difficulty: 'Normal', combo: 121, accuracy: 84 },
+    { player: 'kolawale',    score: 742300,  song: 'Kalm Before the Bill',    difficulty: 'Easy',   combo: 98,  accuracy: 90 },
+    { player: 'jchen',       score: 683100,  song: 'Kalm Before the Bill',    difficulty: 'Easy',   combo: 91,  accuracy: 88 },
+  ];
+  // Same local-preview-mock idea as CostBot Hero above, shaped to each
+  // cabinet's own `cols` (see GAMES) so renderMetrics() needs no changes.
+  // stars are whole numbers (out of 5) — the shared cell() renderer rounds
+  // any column with no declared `unit` (see GAMES' costbotland cols, which
+  // don't give "Park rating" one), so a decimal average would just silently
+  // round away here; keep the mock consistent with what the board can show.
+  const MOCK_COSTBOTLAND_ROWS = [
+    { player: 'nrodriguez',  guests: 48200, stars: 5, uptime: 97, combo: 62 },
+    { player: 'aokafor',     guests: 41900, stars: 5, uptime: 95, combo: 54 },
+    { player: 'jchen',       guests: 37650, stars: 5, uptime: 93, combo: 49 },
+    { player: 'mschmidt',    guests: 33100, stars: 4, uptime: 91, combo: 41 },
+    { player: 'Player 4417', guests: 28800, stars: 5, uptime: 89, combo: 38 },
+    { player: 'bpatel',      guests: 21400, stars: 4, uptime: 86, combo: 30 },
+  ];
+  const MOCK_QUIZSHOW_ROWS = [
+    { player: 'jchen',       totalEarned: 184600, streak: 22, tokens: 740 },
+    { player: 'kolawale',    totalEarned: 156200, streak: 18, tokens: 625 },
+    { player: 'nrodriguez',  totalEarned: 129800, streak: 15, tokens: 519 },
+    { player: 'Player 8802', totalEarned: 98400,  streak: 12, tokens: 394 },
+    { player: 'aokafor',     totalEarned: 74100,  streak: 9,  tokens: 296 },
+    { player: 'mschmidt',    totalEarned: 52300,  streak: 7,  tokens: 209 },
+  ];
+
   (async () => {
     const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
     if (s.enabled) {
@@ -312,8 +410,23 @@
       // tabs then costs nothing.
       GAMES.filter((g) => g.kind !== 'stages').forEach(loadMetrics);
     } else {
+      // No scores API locally — open straight on CostBot Hero (unless a hash
+      // already picked a different tab) and seed it with mock rows so the
+      // board itself is actually reviewable, not just an empty state.
+      if (!GAMES.some((g) => g.id === hashTab)) {
+        tab = 'costbot-hero';
+        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('on'));
+        const heroBtn = [...document.querySelectorAll('.tab')].find((t) => t.textContent === '🎸 CostBot Hero');
+        if (heroBtn) heroBtn.classList.add('on');
+      }
+      stagesData = { stages: {}, source: 'mock' };
+      metricCache['costbot-hero'] = MOCK_HERO_ROWS;
+      metricCache['costbotland'] = MOCK_COSTBOTLAND_ROWS;
+      metricCache['quiz-show'] = MOCK_QUIZSHOW_ROWS;
       document.getElementById('note').innerHTML =
-        'Served statically, so there is no scores API here. The full arcade lives on aix-proto.';
+        'Served statically, so there is no scores API here — CostBot Hero, CostBotLand and CostBot Quiz ' +
+        'Show below are showing mock rows for local preview, not real scores. The full arcade with live ' +
+        'boards lives on aix-proto.';
       render();
     }
   })();
