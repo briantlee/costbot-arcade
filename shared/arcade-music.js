@@ -148,6 +148,96 @@
                { root: 32, tones: [0, 4, 7] }, { root: 32, tones: [0, 4, 7] },  // Ab Ab
                { root: 29, tones: [0, 3, 7] }, { root: 29, tones: [0, 3, 7] },  // Fm Fm
                { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] }], // Cm Cm
+    // CostBot Hero — "Great Fairy Fountain". Transcribed from a music-box MIDI
+    // arrangement: the bottom two notes of each broken chord in the lead give
+    // the harmony directly — G minor, dipping through a diminished passing
+    // chord (E and later C) on the way to F and D minor, so it keeps the
+    // fountain's magic-sparkle wobble instead of resolving too plainly.
+    chFairy:  [{ root: 43, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },  // Gm Gm
+               { root: 41, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },  // F F
+               { root: 40, tones: [0, 3, 6] }, { root: 40, tones: [0, 3, 6] },  // Edim Edim
+               { root: 38, tones: [0, 3, 7] }, { root: 38, tones: [0, 3, 7] },  // Dm Dm
+               { root: 43, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },  // Gm Gm
+               { root: 36, tones: [0, 3, 6] }, { root: 36, tones: [0, 3, 6] },  // Cdim Cdim
+               { root: 43, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },  // Gm Gm
+               { root: 40, tones: [0, 3, 6] }, { root: 40, tones: [0, 3, 6] }], // Edim Edim
+    // CostBot Hero — "The Gold Saucer". Transcribed from MIDI: 22 bars, the
+    // source's own loop unit (a "Loop" marker in the file marks this exact
+    // span repeating). G major throughout the A section (bars 1-8, 2x a
+    // 4-bar phrase over a G pedal walking bass), a diatonic bridge through
+    // D-Bm-Am-D-D-Bm-Em-Em (bars 9-16), then G/Em for the final statement
+    // (bars 17-22) — all read straight off the bass track's own roots.
+    chGoldSaucer: [
+      { root: 43, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },   // G G
+      { root: 43, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },   // G G
+      { root: 43, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },   // G G
+      { root: 43, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },   // G G
+      { root: 38, tones: [0, 4, 7] }, { root: 47, tones: [0, 3, 7] },   // D Bm
+      { root: 45, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] },   // A D
+      { root: 38, tones: [0, 4, 7] }, { root: 47, tones: [0, 3, 7] },   // D Bm
+      { root: 40, tones: [0, 3, 7] }, { root: 40, tones: [0, 3, 7] },   // Em Em
+      { root: 43, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },   // G G
+      { root: 40, tones: [0, 3, 7] }, { root: 40, tones: [0, 3, 7] },   // Em Em
+      { root: 43, tones: [0, 4, 7] }, { root: 43, tones: [0, 4, 7] },   // G G
+    ],
+    // CostBot Hero — "Lost Woods". Transcribed from MIDI: 17 bars, read off
+    // the Pizzicato ostinato's own roots. F-F-C-C-F-F-C-C for the 8-bar A
+    // section (the flute's call-and-rest phrase, played twice), a 6-bar
+    // Dm-Am wandering bridge under the flute's silent bars, then G-Em for the
+    // closing tag.
+    lostWoods: [
+      { root: 41, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },   // F F
+      { root: 48, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },   // C C
+      { root: 41, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },   // F F
+      { root: 48, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },   // C C
+      { root: 38, tones: [0, 3, 7] }, { root: 45, tones: [0, 3, 7] },   // Dm Am
+      { root: 38, tones: [0, 3, 7] }, { root: 45, tones: [0, 3, 7] },   // Dm Am
+      { root: 38, tones: [0, 3, 7] }, { root: 45, tones: [0, 3, 7] },   // Dm Am
+      { root: 38, tones: [0, 3, 7] },                                  // Dm
+      { root: 43, tones: [0, 4, 7] },                                  // G
+      { root: 40, tones: [0, 3, 7] },                                  // Em
+    ],
+    // CostBot Hero — "X-Penses". Transcribed from MIDI, all 30 bars including
+    // the 2-bar "Metro Bass" solo intro (bars 1-2) — the Strings/lead melody
+    // is silent there in the source, so it's the driving bass ostinato alone
+    // up front, same part it plays under the tune for the rest of the song
+    // (see L.xmenBass and TRACKS.ch_xmen's bassLine). C minor pedal for the A
+    // section (bars 3-8, 16-21), a brief Fm lift (bars 9-10, 22-23), then a
+    // chromatic G-Ab-Fm-G turnaround bridge (bars 13-16, 26-29) straight off
+    // the bass's own walk — all read off the Synth Bass track's root on beat
+    // 1 of each bar (the bass itself alternates root/bVI within most bars;
+    // see the fully transcribed L.xmenBass for that detail).
+    xmen: [
+      { root: 36, tones: [0, 3, 7] }, { root: 32, tones: [0, 4, 7] },     // Cm Ab — intro
+      { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] },   // Cm Cm
+      { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] },   // Cm Cm
+      { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] },   // Cm Cm
+      { root: 41, tones: [0, 3, 7] }, { root: 41, tones: [0, 3, 7] },   // Fm Fm
+      { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] },   // Cm Cm
+      { root: 31, tones: [0, 3, 7] }, { root: 32, tones: [0, 4, 7] },   // Gm Ab
+      { root: 29, tones: [0, 3, 7] }, { root: 31, tones: [0, 3, 7] },   // Fm Gm
+      { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] },   // Cm Cm
+      { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] },   // Cm Cm
+      { root: 41, tones: [0, 3, 7] }, { root: 41, tones: [0, 3, 7] },   // Fm Fm
+      { root: 36, tones: [0, 3, 7] }, { root: 36, tones: [0, 3, 7] },   // Cm Cm
+      { root: 31, tones: [0, 3, 7] }, { root: 32, tones: [0, 4, 7] },   // Gm Ab
+      { root: 29, tones: [0, 3, 7] }, { root: 31, tones: [0, 3, 7] },   // Fm Gm
+      { root: 36, tones: [0, 3, 7] }, { root: 24, tones: [0, 3, 7] },   // Cm Cm
+    ],
+    // CostBot Hero — "Fight On!". Transcribed from MIDI: the source's own
+    // 16-bar opening (a 3-bar pedal + 1-bar chromatic walk-up, four times) —
+    // Am for bars 1-4, Cm for 5-8, Gm for 9-12, Bm for 13-16 — read off the
+    // Bass Guitar track's own roots.
+    ffFightOn: [
+      { root: 45, tones: [0, 3, 7] }, { root: 45, tones: [0, 3, 7] },   // Am Am
+      { root: 45, tones: [0, 3, 7] }, { root: 45, tones: [0, 3, 7] },   // Am Am
+      { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },   // Cm Cm
+      { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },   // Cm Cm
+      { root: 43, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },   // Gm Gm
+      { root: 43, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },   // Gm Gm
+      { root: 47, tones: [0, 3, 7] }, { root: 47, tones: [0, 3, 7] },   // Bm Bm
+      { root: 47, tones: [0, 3, 7] }, { root: 47, tones: [0, 3, 7] },   // Bm Bm
+    ],
   };
 
   // ===========================================================================
@@ -427,6 +517,199 @@
       63, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
       62, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
     ],
+    // "Great Fairy Fountain" (music-box arrangement), transcribed from MIDI note
+    // for note: a constant 8th-note broken-chord cascade (the source's own
+    // "music box" track), 16 bars, looping straight back to the top. The last
+    // group's tail is completed to close the loop cleanly (the source file cuts
+    // off mid-chord at the loop point).
+    chFairy: [
+      81, _, 74, _, 70, _, 67, _, 79, _, 74, _, 70, _, 67, _,
+      78, _, 74, _, 70, _, 67, _, 79, _, 74, _, 70, _, 67, _,
+      79, _, 72, _, 69, _, 65, _, 77, _, 72, _, 69, _, 65, _,
+      76, _, 72, _, 69, _, 65, _, 77, _, 72, _, 69, _, 65, _,
+      77, _, 70, _, 67, _, 64, _, 76, _, 70, _, 67, _, 64, _,
+      75, _, 70, _, 67, _, 64, _, 76, _, 70, _, 67, _, 64, _,
+      76, _, 69, _, 65, _, 62, _, 74, _, 69, _, 65, _, 62, _,
+      73, _, 69, _, 65, _, 62, _, 74, _, 69, _, 65, _, 62, _,
+      81, _, 74, _, 70, _, 67, _, 79, _, 74, _, 70, _, 67, _,
+      78, _, 74, _, 70, _, 67, _, 79, _, 74, _, 70, _, 67, _,
+      82, _, 75, _, 72, _, 66, _, 81, _, 75, _, 72, _, 66, _,
+      80, _, 75, _, 72, _, 66, _, 81, _, 75, _, 72, _, 66, _,
+      84, _, 74, _, 70, _, 67, _, 82, _, 74, _, 70, _, 67, _,
+      81, _, 74, _, 70, _, 67, _, 82, _, 74, _, 70, _, 67, _,
+      81, _, 70, _, 67, _, 64, _, 79, _, 70, _, 67, _, 64, _,
+      77, _, 70, _, 67, _, 64, _, 76, _, 70, _, 67, _, 64, _,
+    ],
+    // "The Gold Saucer", transcribed from MIDI (dropped an octave — the source
+    // sat up around C6-E7, too shrill at pitch). The file carries a second
+    // melodic layer alongside this one (a smoother scalar line, doubled by
+    // Strings + a 2-step delay echo) that reads as more conventionally
+    // "tune-like" on paper, but ear-checked against the source it's the
+    // decorative countermelody — THIS wide-leap, chromatic-inflected line
+    // (Clarinet/Synth/Synth-oct, all three doubling it) is the real hook.
+    // 22 bars: an 8-bar A section (a 4-bar phrase stated twice) over the G
+    // pedal, an 8-bar diatonic bridge, then a 6-bar close that echoes the top
+    // of the A section.
+    chGoldSaucer: [
+      74, _, 79, _, 78, _, 79, 81, 83, _, 79, _, 81, 83, 84, 88,
+      86, _, 79, _, 86, _, 79, _, 81, 79, 78, 79, 81, _, 76, _,
+      74, _, 79, _, 78, _, 79, 81, 83, _, 79, _, 81, _, 83, 84,
+      86, _, 79, _, 88, _, 79, _, 83, 81, 79, 78, 79, _, _, _,
+      74, _, 79, _, 78, _, 79, 81, 83, _, 79, _, 81, 83, 84, 88,
+      86, _, 79, _, 86, _, 79, _, 81, 79, 78, 79, 81, _, 76, _,
+      74, _, 79, _, 78, _, 79, 81, 83, _, 79, _, 81, _, 83, 84,
+      86, _, 79, _, 88, _, 79, _, 83, 81, 79, 78, 79, _, _, _,
+      78, 79, 81, 83, 81, _, 86, _, 85, _, 88, _, 81, _, 83, 85,
+      86, _, 83, _, 81, _, 79, _, 78, _, 76, 79, 78, _, 74, _,
+      73, _, 74, _, 76, _, _, 74, 76, _, 78, _, 79, _, _, 78,
+      79, _, 81, _, 83, 81, 79, 78, 76, 78, 79, 78, 76, _, _, _,
+      78, 79, 81, 83, 81, _, 86, _, 85, _, 88, _, 81, _, 83, 85,
+      86, _, 83, _, 81, _, 79, _, 78, _, 79, _, 81, _, _, _,
+      76, _, 79, _, 78, _, 74, _, 76, _, _, _, _, _, _, 74,
+      76, _, 79, _, 78, _, 74, _, 76, _, _, _, 76, _, _, _,
+      79, _, 83, _, 81, _, 78, _, 79, _, _, _, _, _, _, 78,
+      79, _, 83, _, 81, _, 78, _, 79, _, _, _, 79, _, _, _,
+      76, _, 79, _, 78, _, 74, _, 76, _, _, _, _, _, _, 74,
+      76, _, 79, _, 78, _, 74, _, 76, _, _, _, 76, _, _, _,
+      79, _, 83, _, 81, _, 78, _, 79, _, _, _, _, _, _, 78,
+      79, _, 83, _, 81, 83, 84, 88, 86, _, 79, _, 78, _, _, _,
+    ],
+    // "Lost Woods", transcribed from MIDI, dropped an octave for the
+    // "deeper, guitar" register requested — see voices.lead: 'dist' on the
+    // track config below. An earlier pass also filled the long rests (esp.
+    // the two full bars where only the source's Pizzicato ostinato carried
+    // on) with invented connecting melody; that read as unwanted, so this is
+    // back to the real transcription's own silences. The piano-voiced arp on
+    // the track config still keeps some motion through those bars.
+    lostWoods: [
+      65, _, 69, _, 71, _, _, _, 65, _, 69, _, 71, _, _, _,
+      65, _, 69, _, 71, _, 76, _, 74, _, _, _, 71, _, 72, _,
+      71, _, 67, _, 64, _, _, _, _, _, _, _, _, _, 62, _,
+      64, _, 67, _, 64, _, _, _, _, _, _, _, _, _, _, _,
+      65, _, 69, _, 71, _, _, _, 65, _, 69, _, 71, _, _, _,
+      65, _, 69, _, 71, _, 76, _, 74, _, _, _, 71, _, 72, _,
+      76, _, 71, _, 67, _, _, _, _, _, _, _, _, _, 71, _,
+      67, _, 62, _, 64, _, _, _, _, _, _, _, _, _, _, _,
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      62, _, 64, _, 65, _, _, _, 67, _, 69, _, 71, _, _, _,
+      72, _, 74, _, 79, _, _, _, _, _, _, _, _, _, _, _,
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      62, _, 60, _, 65, _, 64, _, 67, _, 65, _, 69, _, 67, _,
+      71, _, 69, _, 72, _, 71, _, 74, _, 72, _, 76, 77, 76, 74,
+      76, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+    ],
+    // "X-Penses", transcribed from MIDI. Bars 1-2 are the file's own intro —
+    // the Strings lead hasn't entered yet, only the "Metro Bass" ostinato
+    // plays (see L.xmenBass) — so those two bars here are that same ostinato
+    // duplicated into the lead line, making it the charted, playable opening
+    // hook instead of dead air before the real melody starts (it keeps
+    // playing underneath afterward regardless — see bassLine on
+    // TRACKS.ch_xmen — this is just so the iconic riff is also something you
+    // hit, not just something you hear). From bar 3 on it's the real hook:
+    // the file's melody lives in the Strings track — a chord-pad intro (bars
+    // 3-8, held C6/G6/E7 stabs) that resolves into the wide-leap riff proper
+    // (bar 9 on), stated twice, an 8th-note descending-scale bridge (bars
+    // 13-16, played twice more later), and a closing tag echoing the riff's
+    // open.
+    xmen: [
+      _, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      84, _, _, _, 84, _, _, _, 84, _, _, _, 84, _, _, _,
+      84, _, _, _, 84, _, _, _, 84, _, _, _, 72, 79, 84, 87,
+      86, _, _, _, 84, _, 79, _, _, _, _, _, 72, 79, 84, 87,
+      86, _, _, _, 84, _, 80, _, _, _, _, _, 72, 79, 84, 87,
+      86, _, _, _, 84, _, 87, _, _, _, _, _, _, _, _, _,
+      86, _, 84, _, 79, _, _, 80, 84, _, _, _, 77, 84, 89, _,
+      91, _, _, _, 89, _, 84, _, _, _, _, _, 77, 84, 89, _,
+      91, _, _, _, 89, _, 85, _, _, _, _, _, 72, 79, 84, 87,
+      86, _, _, _, 84, _, 87, _, _, _, _, _, _, _, _, _,
+      86, _, 84, _, 79, _, _, 80, 84, _, _, _, _, _, _, _,
+      80, 79, _, 77, 80, 79, _, 77, 80, 79, _, 77, 80, 79, _, 77,
+      82, 80, _, 79, 82, 80, _, 79, 82, 80, _, 79, 82, 80, _, 79,
+      84, 82, _, 80, 84, 82, _, 80, 84, 82, _, 80, 82, 84, _, _,
+      91, _, _, _, _, _, _, _, _, _, _, _, 72, 79, 84, 87,
+      86, _, _, _, 84, _, 79, _, _, _, _, _, 72, 79, 84, 87,
+      86, _, _, _, 84, _, 80, _, _, _, _, _, 72, 79, 84, 87,
+      86, _, _, _, 84, _, 87, _, _, _, _, _, _, _, _, _,
+      86, _, 84, _, 79, _, _, 80, 84, _, _, _, 77, 84, 89, _,
+      91, _, _, _, 89, _, 84, _, _, _, _, _, 77, 84, 89, _,
+      91, _, _, _, 89, _, 85, _, _, _, _, _, 72, 79, 84, 87,
+      86, _, _, _, 84, _, 87, _, _, _, _, _, _, _, _, _,
+      86, _, 84, _, 79, _, _, 80, 84, _, _, _, _, _, _, _,
+      80, 79, _, 77, 80, 79, _, 77, 80, _, _, 82, 84, 82, _, 80,
+      82, 80, _, 79, 82, 80, _, 79, 82, _, _, 84, 86, _, 84, 82,
+      84, _, 82, 80, 84, _, 82, 80, 87, _, 86, 84, 86, _, 87, _,
+      91, _, _, _, _, _, _, _, _, _, _, _, 72, 79, 84, 87,
+      86, _, _, _, 84, _, 87, _, _, _, _, _, 91, _, _, _,
+      84, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+    ],
+    // "Metro Bass" — the Synth Bass track's own ostinato (that's its actual
+    // GarageBand track name in the source file), transcribed note-for-note
+    // rather than reduced to a per-bar root: a steady 8th-note pulse that
+    // alternates the bar's root with its bVI every half-bar (C/Ab, F/Db,
+    // etc.) — the "metronome" it's named for. Runs alone for bars 1-2 (the
+    // Strings lead hasn't entered yet) and then continues unchanged as the
+    // rhythm bed under the whole song — see bassLine on TRACKS.ch_xmen.
+    xmenBass: [
+      _, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      41, 41, 41, 41, 41, 41, 41, 41, 37, 37, 37, 37, 37, 37, 37, 37,
+      41, 41, 41, 41, 41, 41, 41, 41, 37, 37, 37, 37, 37, 37, 37, 37,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
+      32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
+      29, 29, 29, 29, 29, 29, 29, 29, 26, 26, 26, 26, 26, 26, 26, 26,
+      31, 31, 31, 31, 31, 31, 31, 31, 31, _, _, _, _, _, _, _,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      41, 41, 41, 41, 41, 41, 41, 41, 37, 37, 37, 37, 37, 37, 37, 37,
+      41, 41, 41, 41, 41, 41, 41, 41, 37, 37, 37, 37, 37, 37, 37, 37,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
+      32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
+      29, 29, 29, 29, 29, 29, 29, 29, 26, 26, 26, 26, 26, 26, 26, 26,
+      31, 31, 31, 31, 31, 31, 31, 31, 31, _, _, _, _, _, _, _,
+      36, 36, 36, 36, 36, 36, 36, 36, 32, 32, 32, 32, 32, 32, 32, 32,
+      24, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+    ],
+    // "Fight On!", transcribed from MIDI. Full instrumentation, not a single
+    // isolated track: each step takes the HIGHEST note sounding across every
+    // melodic layer (Electric Guitar, French Horn, Smooth Synth, Distortion
+    // Guitar, Violin, 8-Bit Sine) — the source doubles its big hits across
+    // several instruments in unison, so no single track has the whole tune on
+    // its own. 16 bars: a quiet, rising 8th-note ostinato (bars 1-8, the pedal
+    // walking Am->Cm) that erupts into the famous unison brass/string hits
+    // (bars 9-16 — long tied notes here, syncopated 16ths in the source).
+    ffFightOn: [
+      45, 45, _, 45, 48, _, _, _, 45, 45, _, 45, 50, _, _, _,
+      45, 45, _, 45, 51, 50, _, 48, 50, 48, _, 47, 48, _, _, 47,
+      45, 45, _, 45, 48, _, _, _, 45, 45, _, 45, 50, _, _, _,
+      45, 45, _, 45, 51, 50, _, 48, 50, 48, _, 47, 48, _, _, 47,
+      48, 48, _, 48, 51, _, _, _, 48, 48, _, 48, 53, _, _, _,
+      48, 48, _, 48, 54, 53, _, 51, 53, 51, _, 50, 51, _, _, 50,
+      48, 48, _, 48, 51, _, _, _, 48, 48, _, 48, 53, _, _, _,
+      48, 48, _, 48, 54, 53, _, 51, 69, 70, 71, 50, 72, 73, 74, 75,
+      76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76,
+      76, 76, 76, 76, 76, 76, _, 48, 78, 48, _, 78, 48, 78, _, 47,
+      76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76,
+      76, 76, 76, 76, 76, 76, _, 48, 78, 48, _, 78, 48, 78, _, 47,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, _, 51, 81, 51, _, 81, 51, 81, _, 50,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, _, 51, 81, 51, _, 81, 51, 81, _, 50,
+    ],
   };
 
   // ===========================================================================
@@ -622,6 +905,72 @@
       fillBar: 15, crashBars: [0, 8],
       arpEvery: 1, bassEvery: 1, gain: 0.98, voices: { lead: 'dist' },
       bassGain: 0.48, bassSubGain: 1.0, bassCutoffStart: 480, bassCutoffEnd: 110,
+    },
+    // "Great Fairy Fountain", transcribed from a music-box MIDI arrangement,
+    // remixed as a lofi-house club edit: a four-on-the-floor kick, a constant
+    // deep sub-bass pulse (heavily filtered for that muffled lofi low end),
+    // and a square arp doubling the chord under the lead for extra motion.
+    // Slower than the source (112 vs. the source's 140) and a saw lead instead
+    // of the delicate chip bell — reads as driving rather than dainty, and the
+    // slower tempo eases the chart (same dense 8th-note stream, more time
+    // between onsets).
+    ch_fairyfountain: {
+      title: 'Finance Fairy', influence: 'Zelda · Great Fairy Fountain, lofi house remix', bpm: 112, key: 'G minor',
+      prog: P.chFairy, lead: L.chFairy, drums: 'four', pad: 'strings', bars: 16,
+      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'saw', arp: 'square' },
+      bassGain: 0.44, bassSubGain: 1.0, bassCutoffStart: 600, bassCutoffEnd: 120,
+    },
+    // "The Gold Saucer", transcribed from MIDI. Back to a plain baseline
+    // arrangement (the "rocked up" pass — 136bpm, double-kick, then 112bpm,
+    // distortion — kept obscuring the tune) at the source's own tempo, with a
+    // neutral four-on-the-floor kit and a clean saw lead, so the chart can be
+    // judged on the notes themselves. 22 bars (the source's own loop length)
+    // instead of the usual 16.
+    ch_goldsaucer: {
+      title: 'The Gold Saucer', influence: 'FF7 · The Gold Saucer', bpm: 104, key: 'G major',
+      prog: P.chGoldSaucer, lead: L.chGoldSaucer, drums: 'four', pad: 'saw', bars: 22,
+      arpEvery: 0, bassEvery: 2, gain: 0.9, voices: { lead: 'saw' },
+    },
+    // "Lost Woods", transcribed from MIDI, reworked per feedback: the plain
+    // chip-lead baseline read as too flutey/high, so the lead is now 'dist'
+    // (an electric-guitar-ish overdriven tone) matching the octave-dropped
+    // melody in L.lostWoods — reads as a guitar or bass-guitar lead instead
+    // of a piccolo. Piano-voiced arp still cycles the chord tones as a
+    // pizzicato-like rhythm layer under it.
+    ch_lostwoods: {
+      title: 'Cost Woods', influence: 'Zelda · Lost Woods', bpm: 145, key: 'C major',
+      prog: P.lostWoods, lead: L.lostWoods, drums: 'four', pad: 'strings', bars: 17,
+      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'dist', arp: 'piano' },
+    },
+    // "X-Penses", transcribed from MIDI. The source is a full rock-band
+    // arrangement (distortion guitar, synth bass, drum kit); a power-chord
+    // pad and 'rock' drums keep that crunch under the lead, voiced 'dist' to
+    // match the guitar rather than reading as a soft orchestral line.
+    // bassLine: L.xmenBass replaces the usual bassEvery root-pulse with the
+    // source's own "Metro Bass" ostinato, note-for-note — it plays alone for
+    // the first 2 bars (the real solo intro) and then carries on unchanged as
+    // the rhythm bed under the rest of the song, per feedback. arpEvery: 0
+    // (no square-wave arp) so that ostinato and the dist lead/power pad
+    // aren't competing with a brighter synth layer — keeps it reading as
+    // guitar, not chiptune.
+    ch_xmen: {
+      title: 'X-Penses', influence: 'X-Men Arcade Game theme', bpm: 120, key: 'C minor',
+      prog: P.xmen, lead: L.xmen, bassLine: L.xmenBass, drums: 'rock', pad: 'power', bars: 30,
+      arpEvery: 0, gain: 0.9, voices: { lead: 'dist' },
+      // Louder + more sub than the bass() defaults (0.30/0.55) — it's the
+      // song's signature riff, so it should read as a forward, driving
+      // presence under the guitar/drums, not a background pulse.
+      bassGain: 0.5, bassSubGain: 0.95, bassCutoffStart: 900, bassCutoffEnd: 220,
+    },
+    // "Fight On!", transcribed from MIDI (see L.ffFightOn for how the lead
+    // was built from the full ensemble rather than one track). 'brass' lead
+    // voice for the big unison hits (French Horn is the loudest single
+    // instrument in that unison), a 'strings' pad for the orchestral wash
+    // under it, and 'rock' drums for the source's actual kit part.
+    ch_fightOn: {
+      title: 'Fight On!', influence: 'Final Fantasy · battle theme', bpm: 170, key: 'A minor',
+      prog: P.ffFightOn, lead: L.ffFightOn, drums: 'rock', pad: 'strings', bars: 16,
+      arpEvery: 0, bassEvery: 2, gain: 0.95, voices: { lead: 'brass' },
     },
   };
 
@@ -958,7 +1307,15 @@
 
       if (inBar === 0 && cfg.crashBars && cfg.crashBars.indexOf(bar) !== -1) crash(t);
 
-      if (cfg.bassEvery && !quiet && i % cfg.bassEvery === 0) {
+      if (cfg.bassLine && !quiet) {
+        const bn = cfg.bassLine[i % cfg.bassLine.length];
+        if (bn != null) {
+          bass(t, bn, stepDur * 0.92, {
+            gain: cfg.bassGain, subGain: cfg.bassSubGain,
+            cutoffStart: cfg.bassCutoffStart, cutoffEnd: cfg.bassCutoffEnd,
+          });
+        }
+      } else if (cfg.bassEvery && !quiet && i % cfg.bassEvery === 0) {
         const oct = (inBar % 8 === 4) ? 12 : 0;
         bass(t, chord.root + oct, stepDur * cfg.bassEvery * 0.92, {
           gain: cfg.bassGain, subGain: cfg.bassSubGain,

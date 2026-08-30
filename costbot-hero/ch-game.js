@@ -65,6 +65,59 @@
     { key: 'ch_blindhero', name: 'Blind Spend', sub: 'Daredevil, dark ostinato · 156', tag: '', biome: 'foundry', art: 'cb_justice.jpg',
       medium: { fall: 2.0, minGap: 3, missCost: 7 },
       hard:   { fall: 1.05, minGap: 1, missCost: 12 } },
+    // Playtest entry — no art yet. Lofi-house remix (see arcade-music.js) —
+    // slowed from the source's 140 to 112 to ease the relentless 8th-note
+    // stream. Same density issue as Blind Spend above (onsets every 2 steps),
+    // so Normal still needs minGap: 2 or it collapses to Easy's chart; both
+    // Normal and Hard also get a slower fall than the shared default so the
+    // slower tempo actually buys the player some breathing room. maxLoops: 2
+    // (not the shared 3) trims the run to ~68s — the shared 3 loops ran ~1:36,
+    // way past the ~60s this song wants; 2 loops still ends on the tune's own
+    // loop seam (a full pass, not a mid-phrase cut) and the existing outro
+    // fade covers the last ~2.8s into that point.
+    { key: 'ch_fairyfountain', name: 'Finance Fairy', sub: 'Zelda, lofi house · 112', tag: '', biome: 'field',
+      experimental: true,
+      maxLoops: 2,
+      medium: { minGap: 2, fall: 2.05 },
+      hard:   { fall: 1.55 } },
+    // Playtest entry — no art yet. Back to a plain baseline arrangement (see
+    // arcade-music.js) at the source's own 104bpm — the "rocked up" attempts
+    // kept obscuring the tune, so starting over from something neutral.
+    // maxLoops: 1 (not the shared 3) — the source's own loop unit is 22 bars
+    // (vs. 16 for the rest of the roster) and runs ~51s on its own; more
+    // passes read as too long for this one.
+    // Difficulty tiers shifted per feedback: the shared Normal (minGap: 3)
+    // was thinning this song's real onsets down to where it read as missing
+    // beats, while the shared Hard (minGap: 2) tracked the tune correctly.
+    // So: old Normal's feel becomes Easy, old Hard's feel becomes Normal, and
+    // Hard is now a genuinely new tier — minGap: 1 keeps EVERY real onset,
+    // no thinning at all, so it's as true to the song's actual beat as the
+    // chart can get (same fall/minGap/missCost recipe as Blind Spend's Hard).
+    { key: 'ch_goldsaucer', name: 'The Gold Saucer', sub: 'FF7, fairground band · 104', tag: '', biome: 'arena',
+      experimental: true,
+      maxLoops: 1,
+      easy:   { fall: 1.90, minGap: 3, holdGap: 8, missCost: 7 },
+      medium: { fall: 1.45, minGap: 2, holdGap: 5, missCost: 9 },
+      hard:   { fall: 1.05, minGap: 1, missCost: 12 } },
+    // Playtest entry — no art yet. Lead is a dropped-octave distorted
+    // guitar/bass tone (see arcade-music.js) instead of the flutey chip lead
+    // from the plain baseline — that part landed well. The invented
+    // connecting melody added for the transcription's long rests didn't, so
+    // it's back to the real transcription's own silences. 17 bars (the
+    // source's own length) instead of the usual 16; maxLoops: 2 keeps a
+    // single loop's ~28s from feeling too short.
+    { key: 'ch_lostwoods', name: 'Cost Woods', sub: 'Zelda, guitar · 145', tag: '', biome: 'field',
+      experimental: true,
+      maxLoops: 2 },
+    // Playtest entry — no art yet. 28 bars (the source's own loop length, minus
+    // its silent 2-bar intro) runs ~56s on its own, so maxLoops: 1.
+    { key: 'ch_xmen', name: 'X-Penses', sub: 'X-Men arcade, distortion riff · 120', tag: '', biome: 'foundry',
+      experimental: true,
+      maxLoops: 1 },
+    // Playtest entry — no art yet. 16 bars at 170bpm loop in ~22.6s, so the
+    // shared MAX_LOOPS of 3 already lands at a normal ~68s — no override needed.
+    { key: 'ch_fightOn', name: 'Fight On!', sub: 'FF battle theme · 170', tag: '', biome: 'arena',
+      experimental: true },
   ];
 
   const DIFFS = {
@@ -75,6 +128,12 @@
     easy:   { label: 'Easy',   lanes: 3, fall: 2.15, minGap: 4, holdGap: 99, traps: false, missCost: 5,  color: '#39d98a' },
     medium: { label: 'Normal', lanes: 4, fall: 1.90, minGap: 3, holdGap: 8,  traps: false, missCost: 7,  color: '#f5c451' },
     hard:   { label: 'Hard',   lanes: 4, fall: 1.45, minGap: 2, holdGap: 5,  traps: true,  missCost: 9,  color: '#ff5d6c' },
+    // Experimental-only tier, unlocked by the same toggle that reveals the
+    // experimental songs (see meta.experimental). minGap: 1 keeps literally
+    // every real onset in the transcription — no thinning at all — plus a
+    // faster fall and a harsher missCost so it's a genuine step up from Hard,
+    // not just the same chart with less time.
+    ultra:  { label: 'Ultra',  lanes: 4, fall: 1.0,  minGap: 1, holdGap: 4,  traps: true,  missCost: 15, color: '#c04dff' },
   };
 
   // Lanes are vendors — colour + name read left-to-right across the highway.
@@ -272,12 +331,20 @@
 
     // ---- persistent meta ----
     const store = loadStore();
-    const meta = Object.assign({ records: {}, plays: 0, lastSong: 0, lastDiff: 'medium', calibMs: 0, muted: false },
+    const meta = Object.assign({ records: {}, plays: 0, lastSong: 0, lastDiff: 'medium', calibMs: 0, muted: false,
+      experimental: false },
       opts.meta || store.meta || {});
     function persist() {
       if (opts.persist === false) return;
       store.meta = meta; saveStore(store);
     }
+
+    // Experimental songs/difficulty, gated behind the menu's toggle
+    // (meta.experimental, persisted). Both helpers read live off meta so
+    // toggling immediately changes what song-up/down and diff-left/right
+    // cycle through, as well as what the menu renders.
+    function visibleSongs() { return SONGS.filter((s) => !s.experimental || meta.experimental); }
+    function diffOrder() { return meta.experimental ? ['easy', 'medium', 'hard', 'ultra'] : ['easy', 'medium', 'hard']; }
 
     // ---- audio ----
     let actx = null, master = null, music = null, sfxBus = null;
@@ -826,12 +893,16 @@
       if (down && k === 'm') { toggleMute(); return; }   // mute hotkey, any state
       if (state === 'menu') {
         if (!down) return;
-        if (k === 'arrowup') { songIdx = (songIdx + SONGS.length - 1) % SONGS.length; SFX.ui(); }
-        else if (k === 'arrowdown') { songIdx = (songIdx + 1) % SONGS.length; SFX.ui(); }
-        else if (k === 'arrowleft' || k === 'arrowright') {
-          const order = ['easy', 'medium', 'hard'];
+        if (k === 'arrowup' || k === 'arrowdown') {
+          const vis = visibleSongs();
+          let i = vis.indexOf(SONGS[songIdx]);
+          if (i === -1) i = 0;
+          i = (i + vis.length + (k === 'arrowup' ? -1 : 1)) % vis.length;
+          songIdx = SONGS.indexOf(vis[i]); SFX.ui();
+        } else if (k === 'arrowleft' || k === 'arrowright') {
+          const order = diffOrder();
           let i = order.indexOf(diffKey) + (k === 'arrowright' ? 1 : -1);
-          diffKey = order[clamp(i, 0, 2)]; SFX.ui();
+          diffKey = order[clamp(i, 0, order.length - 1)]; SFX.ui();
         } else if (k === '[' || k === ']') {
           meta.calibMs = clamp((meta.calibMs || 0) + (k === ']' ? 5 : -5), -300, 300); persist(); SFX.ui();
         } else if (k === 'enter' || k === ' ') { e.preventDefault(); startSong(); }
@@ -1896,6 +1967,10 @@
         .ch-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
         @media(max-width:640px){.ch-cols{grid-template-columns:1fr;}}
         .ch-lbl{font-size:11px;font-weight:800;letter-spacing:1.6px;color:#8194b6;margin-bottom:8px;}
+        .ch-exp{display:flex;align-items:center;gap:8px;margin-top:14px;padding:8px 12px;
+          border-radius:10px;border:1px solid #26324f;background:rgba(255,255,255,.03);
+          font-size:12px;color:#8ea3cc;cursor:pointer;user-select:none;}
+        .ch-exp input{accent-color:#c04dff;cursor:pointer;}
         .ch-songs{display:flex;flex-direction:column;gap:8px;}
         .ch-song{display:flex;justify-content:space-between;align-items:center;gap:10px;
           padding:10px 14px;border-radius:11px;border:1px solid #26324f;background:rgba(255,255,255,.03);
@@ -1957,6 +2032,7 @@
                 <div class="ch-card"><div class="k">📈 Mind the bill</div><div class="d">Misses balloon the bill meter. Blow the budget and the run ends early.</div></div>
                 <div class="ch-card"><div class="k">🚫 Don't cut PROD</div><div class="d">On Hard, ✕ trap notes are production — hit one and the bill jumps. Let them fall past.</div></div>
               </div>
+              <label class="ch-exp"><input type="checkbox" id="ch-exp-check"> 🧪 Experimental (unreleased songs + Ultra difficulty)</label>
             </div>
           </div>
           <button class="ch-play" id="ch-play">▶&nbsp;&nbsp;PLAY</button>
@@ -1971,20 +2047,48 @@
       host.appendChild(menuEl);
 
       const songsWrap = menuEl.querySelector('#ch-songs');
-      SONGS.forEach((s, i) => {
-        const el = document.createElement('div');
-        el.className = 'ch-song'; el.dataset.i = i;
-        el.innerHTML = `<div><div class="nm">${s.name}</div><div class="sub">${s.sub}</div></div><div class="best" data-best></div>`;
-        el.onclick = () => { songIdx = i; SFX.ui(); syncMenu(); };
-        songsWrap.appendChild(el);
-      });
       const diffsWrap = menuEl.querySelector('#ch-diffs');
-      ['easy', 'medium', 'hard'].forEach((dk) => {
-        const el = document.createElement('div');
-        el.className = 'ch-diff'; el.dataset.dk = dk; el.textContent = DIFFS[dk].label;
-        el.onclick = () => { diffKey = dk; SFX.ui(); syncMenu(); };
-        diffsWrap.appendChild(el);
-      });
+      // Rebuilt (not just re-styled) whenever the experimental toggle flips,
+      // since the SET of rows/buttons changes, not just which one is selected.
+      function renderSongRows() {
+        songsWrap.innerHTML = '';
+        visibleSongs().forEach((s) => {
+          const i = SONGS.indexOf(s);
+          const el = document.createElement('div');
+          el.className = 'ch-song'; el.dataset.i = i;
+          el.innerHTML = `<div><div class="nm">${s.name}</div><div class="sub">${s.sub}</div></div><div class="best" data-best></div>`;
+          el.onclick = () => { songIdx = i; SFX.ui(); syncMenu(); };
+          songsWrap.appendChild(el);
+        });
+      }
+      function renderDiffButtons() {
+        diffsWrap.innerHTML = '';
+        diffOrder().forEach((dk) => {
+          const el = document.createElement('div');
+          el.className = 'ch-diff'; el.dataset.dk = dk; el.textContent = DIFFS[dk].label;
+          el.onclick = () => { diffKey = dk; SFX.ui(); syncMenu(); };
+          diffsWrap.appendChild(el);
+        });
+      }
+      renderSongRows();
+      renderDiffButtons();
+      const expCheck = menuEl.querySelector('#ch-exp-check');
+      expCheck.checked = !!meta.experimental;
+      expCheck.onchange = () => {
+        meta.experimental = expCheck.checked;
+        persist();
+        // hiding: bounce off an experimental song/the Ultra tier back to a
+        // safe default instead of leaving the selection pointing at
+        // something no longer shown
+        if (!meta.experimental) {
+          if (SONGS[songIdx] && SONGS[songIdx].experimental) songIdx = 0;
+          if (diffKey === 'ultra') diffKey = 'hard';
+        }
+        renderSongRows();
+        renderDiffButtons();
+        syncMenu();
+        SFX.ui();
+      };
       menuEl.querySelector('#ch-play').onclick = () => { initAudio(); startSong(); };
       menuEl.querySelector('#ch-cal-down').onclick = () => { meta.calibMs = clamp((meta.calibMs || 0) - 5, -300, 300); persist(); SFX.ui(); syncMenu(); };
       menuEl.querySelector('#ch-cal-up').onclick = () => { meta.calibMs = clamp((meta.calibMs || 0) + 5, -300, 300); persist(); SFX.ui(); syncMenu(); };
