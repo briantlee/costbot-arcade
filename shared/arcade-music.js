@@ -278,6 +278,32 @@
       { root: 45, tones: [0, 3, 7] }, { root: 43, tones: [0, 4, 7] },   // Am G
       { root: 43, tones: [0, 4, 7] },                                  // G (1-bar tag)
     ],
+    // CostBot Hero — "Game of Loans". Transcribed from MIDI (Game of Thrones ·
+    // main title theme): the low string ostinato's own harmony — five bars of
+    // i, then the answering v-VII-VII-v figure (three times through, i-i
+    // restated first the two times it isn't the very first bar) — then the
+    // melody's rising middle section walks VI-III-iv-VI-iv-v-VI-III-VI-VI-iv
+    // before landing back on i. All diatonic triads of C natural minor; root
+    // read off the first bass note of each bar (same approach as ch_kalm).
+    gameOfLoans: [
+      { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },   // Cm Cm
+      { root: 48, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },   // Cm Cm
+      { root: 48, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },   // Cm Gm
+      { root: 46, tones: [0, 4, 7] }, { root: 46, tones: [0, 4, 7] },   // Bb Bb
+      { root: 43, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },   // Gm Cm
+      { root: 48, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },   // Cm Gm
+      { root: 46, tones: [0, 4, 7] }, { root: 46, tones: [0, 4, 7] },   // Bb Bb
+      { root: 43, tones: [0, 3, 7] }, { root: 48, tones: [0, 3, 7] },   // Gm Cm
+      { root: 48, tones: [0, 3, 7] }, { root: 43, tones: [0, 3, 7] },   // Cm Gm
+      { root: 46, tones: [0, 4, 7] }, { root: 46, tones: [0, 4, 7] },   // Bb Bb
+      { root: 43, tones: [0, 3, 7] }, { root: 44, tones: [0, 4, 7] },   // Gm Ab
+      { root: 39, tones: [0, 4, 7] }, { root: 41, tones: [0, 3, 7] },   // Eb Fm
+      { root: 44, tones: [0, 4, 7] }, { root: 41, tones: [0, 3, 7] },   // Ab Fm
+      { root: 43, tones: [0, 3, 7] }, { root: 44, tones: [0, 4, 7] },   // Gm Ab
+      { root: 39, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },   // Eb Ab
+      { root: 44, tones: [0, 4, 7] }, { root: 41, tones: [0, 3, 7] },   // Ab Fm
+      { root: 48, tones: [0, 3, 7] },                                  // Cm
+    ],
   };
 
   // ===========================================================================
@@ -827,6 +853,78 @@
       43, _, 55, _, 59, _, 55, _, 67, _, 55, _, 59, _, 55, _,
       43, _, 55, _, 59, _, 55, _, 67, _, 55, _, 59, _, 55, _,
     ],
+    // "Game of Loans", transcribed from MIDI (Game of Thrones · main title
+    // theme). Violin carries the tune, and whenever it drops out Cello is
+    // actually still sounding underneath (continuing the same line, not
+    // resting), so that continuation is spliced in instead (up an octave, so
+    // it reads as the same voice throughout) — a per-STEP splice, not
+    // per-bar, since bars 4, 5, 11 and 13 have Violin resting for only part
+    // of the bar while Cello carries it the rest of the way; no gap anywhere
+    // in the whole 33 bars.
+    // The source MIDI retriggers every held pitch every single step (a
+    // quantization artifact of whatever tool generated it — even a
+    // multi-beat sustained tone comes out as N identical repeated note_ons,
+    // not one long one), so a literal transcription reads as a note onset
+    // almost everywhere and buries the actual tune under that noise: any
+    // difficulty's minGap thinning ends up picking whichever repeat happens
+    // to fall in its window as often as it picks a real change in pitch, so
+    // the chart tracks "one note every N steps" (the beat) rather than the
+    // melody. Collapsed here to one onset per real pitch change — the
+    // repeated G-G/C-C of the low hook becomes one G, one C (still its own
+    // onset, just once) and the long tones in the rising middle section
+    // (bars 21-32) become genuine held notes — so every kept note at every
+    // difficulty is guaranteed to be a real melodic event, and minGap only
+    // ever decides how many of those events survive, never trades one for a
+    // same-pitch repeat.
+    // 8-bar ostinato hook (G-C-Eb-F, straight off the source), the same hook
+    // a fourth wider under the Bb/Gm turnarounds, the whole hook an octave up
+    // (bars 15-20, the "triumphant" restatement), then the rising stepwise
+    // middle section over the VI-III-iv chords. 33 bars — the source's own
+    // length, a single pass already runs ~90s (see ch_gameofloans).
+    gameOfLoans: [
+      // -- bars 0-2: the ostinato hook (Violin) --------------------------------
+      67, _, 60, _, 63, 65, 67, _, 60, _, 63, 65, 67, _, 60, _,
+      63, 65, 67, _, 60, _, 63, 65, 67, _, 60, _, 64, 65, 67, _,
+      60, _, 64, 65, 67, _, 60, _, 64, 65, 67, _, 60, _, 64, 65,
+      // -- bar 3: the hook widens under Gm (Violin) ----------------------------
+      67, _, _, _, _, _, 60, _, _, _, _, _, 63, 65, 67, _,
+      // -- bars 4-5: Cello carries the hook down a fourth (+8ve) while Violin --
+      // -- rests, then Violin re-enters mid-bar-4 with the answering figure ----
+      _, _, 60, _, _, _, 63, 65, 62, _, 55, _, 58, 60, 62, _,
+      55, _, 58, 60, 62, _, 55, _, 58, 60, 62, _, 55, _, 58, _,
+      // -- bars 6-8: Cello answers again, lower still (spliced in, +8ve) -------
+      65, _, _, _, _, _, 58, _, _, _, _, _, 63, 62, 65, _,
+      _, _, 58, _, _, _, _, _, 72, _, 65, _, 68, 70, 72, _,
+      65, _, 68, 70, 72, _, 65, _, 68, 70, 72, _, 65, _, 68, 60,
+      // -- bars 9-11: the hook returns, Cello carries the tail of bar 11 (+8ve) -
+      67, _, _, _, _, _, 60, _, _, _, _, _, 63, 65, 67, _,
+      _, _, 60, _, _, _, 63, 65, 62, _, 55, _, 58, 60, 62, _,
+      55, _, 58, 60, 62, _, 55, _, 58, 60, 62, _, 55, _, 58, _,
+      // -- bars 12-14: the wider turn; Cello carries the tail of bar 13 (+8ve) -
+      65, _, _, _, _, _, 58, _, _, _, _, _, 63, 62, 65, _,
+      _, _, 58, _, _, _, _, _, 63, 62, 60, 65, 68, 70, 72, _,
+      65, _, 68, 70, 72, _, 65, _, 68, 70, 72, _, 65, _, 68, 60,
+      // -- bars 15-20: the hook, an octave up (Violin, "triumphant") ----------
+      79, _, _, _, _, _, 72, _, _, _, _, _, 75, 77, 79, _,
+      _, _, 72, _, _, _, 75, 77, 74, _, 67, _, 70, 72, 74, _,
+      67, _, 70, 72, 74, _, 79, _, 82, 84, 86, _, 79, _, 82, _,
+      77, _, _, _, _, _, 70, _, _, _, _, _, 74, _, _, 75,
+      _, _, 74, _, _, 70, _, _, 72, _, 67, _, 68, 70, 72, _,
+      67, _, 68, 70, 72, _, 79, _, 80, 82, 84, _, 79, _, 80, 82,
+      // -- bars 21-32: the rising middle section (Violin, VI-III-iv-...) ------
+      72, _, _, _, _, _, _, _, _, _, _, _, 70, _, _, _,
+      _, _, _, _, _, _, _, _, 60, _, _, _, _, _, _, _,
+      _, _, _, _, 67, _, _, _, _, _, _, _, _, _, _, _,
+      56, _, _, _, _, _, _, _, _, _, _, _, 63, _, _, _,
+      _, _, 65, _, _, _, _, _, 67, _, _, _, _, _, _, _,
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+      84, _, _, _, _, _, _, _, _, _, _, _, 82, _, _, _,
+      _, _, _, _, _, _, _, _, 72, _, _, _, _, _, _, _,
+      _, _, _, _, 79, _, _, _, _, _, _, _, _, _, _, _,
+      68, _, _, _, _, _, _, _, _, _, _, _, 75, _, _, _,
+      _, _, 74, _, _, _, _, _, 72, _, _, _, _, _, _, _,
+      _, _, _, _, _, _, 79, _, 80, 82, 84, _, 79, _, 80, 82,
+    ],
   };
 
   // ===========================================================================
@@ -1113,6 +1211,18 @@
       prog: P.kalm, lead: L.kalm, bassLine: L.kalmBass, drums: 'four', pad: 'strings', bars: 17,
       arpEvery: 2, gain: 0.9, voices: { lead: 'saw', arp: 'square' },
       bassGain: 0.44, bassSubGain: 1.0, bassCutoffStart: 600, bassCutoffEnd: 120,
+    },
+    // "Game of Loans", transcribed from MIDI (Game of Thrones · main title
+    // theme, C minor, at the source's own pulse). 'brass' lead for the
+    // horn-like hook, 'strings' pad for the orchestral wash under it, and
+    // 'heartbeat' drums for a driving, ominous pulse (see L.gameOfLoans for
+    // how the one-line lead splices in Cello's answering phrases). 33 bars —
+    // the source's own length — already runs ~90s in a single pass, so
+    // maxLoops: 1 (see TRACKS meta; set on the CostBot Hero song entry).
+    ch_gameofloans: {
+      title: 'Game of Loans', influence: 'Game of Thrones, main title theme', bpm: 88, key: 'C minor',
+      prog: P.gameOfLoans, lead: L.gameOfLoans, drums: 'heartbeat', pad: 'strings', bars: 33,
+      arpEvery: 0, bassEvery: 1, gain: 0.95, voices: { lead: 'brass' },
     },
   };
 

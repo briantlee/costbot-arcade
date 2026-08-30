@@ -109,9 +109,9 @@
     { key: 'ch_lostwoods', name: 'Cost Woods', sub: 'Zelda, guitar · 145', tag: '', biome: 'field', art: 'legend_of_costbot.jpg', artDim: 0.35,
       experimental: true,
       maxLoops: 2 },
-    // Playtest entry — no art yet. 28 bars (the source's own loop length, minus
-    // its silent 2-bar intro) runs ~56s on its own, so maxLoops: 1.
-    { key: 'ch_xmen', name: 'X-pense Men', sub: 'X-Men arcade, distortion riff · 120', tag: '', biome: 'foundry',
+    // 28 bars (the source's own loop length, minus its silent 2-bar intro)
+    // runs ~56s on its own, so maxLoops: 1.
+    { key: 'ch_xmen', name: 'X-pense Men', sub: 'X-Men arcade, distortion riff · 120', tag: '', biome: 'foundry', art: 'cb_logan.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
     // Playtest entry — no art yet. 16 bars at 170bpm loop in ~22.6s, so the
@@ -130,6 +130,27 @@
     { key: 'ch_kalm', name: 'Kalm Before the Bill', sub: 'FF7, revved lofi bass · 104', tag: '', biome: 'field', art: 'cb_meteor.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 2 },
+    // 33 bars at 88bpm (the source's own pulse) is already a single ~90s pass
+    // through the whole main title theme — in line with the roster's longest
+    // (Avengers, ~1:51) — so maxLoops: 1.
+    // L.gameOfLoans is collapsed to one onset per real pitch change (see its
+    // own comment) specifically so minGap thinning never trades a real note
+    // for a same-pitch repeat — every difficulty here is 100% real melody,
+    // never "the beat". minGap still trades note COUNT for difficulty: Easy
+    // at the shared 4 collapses to a mere 47% of the real note-changes (long
+    // stretches read as missing beats), so it's loosened to 2 (79% kept) —
+    // still visibly sparser than the rest, just not mangled. Normal and Hard
+    // are both bumped to 1 (matching Ultra, 100% kept, same note set as each
+    // other and Ultra) — this song's real melody just doesn't have enough
+    // events to make a meaningful 3-way density split above Easy, so Normal/
+    // Hard/Ultra differ from here by fall speed, holdGap and missCost only
+    // (same trade as Gold Saucer's Hard).
+    { key: 'ch_gameofloans', name: 'Game of Loans', sub: 'Game of Thrones, epic march · 88', tag: '', biome: 'dusk', art: 'game_of_loans.jpg', artDim: 0.3,
+      experimental: true,
+      maxLoops: 1,
+      easy:   { minGap: 2 },
+      medium: { minGap: 1 },
+      hard:   { minGap: 1 } },
   ];
 
   const DIFFS = {
