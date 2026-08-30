@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CostBot Arcade — Usage</title>
+<link rel="icon" href="../shared/assets/costbot.png">
+<style>
+  :root{--gold:#f0a52c;--line:#2b3f66;--fg:#e8eef8;--muted:#93a4c4;--teal:#7fd6c4;--green:#6ee7a0;}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#1a2744,#05070d 65%);
+    color:var(--fg);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;padding:36px 20px 60px;}
+  .wrap{max-width:1040px;margin:0 auto}
+  header{text-align:center;margin-bottom:20px}
+  header img{width:74px;filter:drop-shadow(0 10px 24px rgba(74,163,255,.45))}
+  h1{font-size:36px;margin:8px 0 4px;letter-spacing:-1px;
+    background:linear-gradient(180deg,#ffd76b,#ff9e2c);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:14px;margin:0}
+  .back{display:inline-block;margin-top:14px;color:var(--teal);font-size:13px;text-decoration:none;
+    border:1px solid var(--line);padding:6px 14px;border-radius:20px}
+  .back:hover{background:#1b2740;color:#fff}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:24px 0 18px}
+  .tile{background:linear-gradient(180deg,#141d33,#0c1220);border:1px solid var(--line);
+    border-radius:12px;padding:14px 16px}
+  .tile .n{font-size:26px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+  .tile .l{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-top:2px}
+
+  .panel{background:linear-gradient(180deg,#141d33,#0c1220);border:1px solid var(--line);
+    border-radius:14px;padding:6px 4px;box-shadow:0 16px 40px rgba(0,0,0,.45);overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:760px}
+  th{text-align:left;font-size:11px;letter-spacing:1px;color:#7e8fae;text-transform:uppercase;
+    padding:10px 14px;border-bottom:1px solid #1e2c47;font-weight:700;white-space:nowrap}
+  th[data-key]{cursor:pointer;user-select:none}
+  th[data-key]:hover{color:#c3d2ee}
+  th[data-key].sorted{color:var(--gold)}
+  th .arrow{display:inline-block;margin-left:4px;font-size:9px;opacity:.85}
+  td{padding:11px 14px;font-size:14px;border-bottom:1px solid #16223a;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .name{font-weight:700}
+  .dim{color:var(--muted);font-size:12.5px}
+  .games{display:flex;gap:5px;flex-wrap:wrap}
+  .g{font-size:10.5px;font-weight:700;background:#1b2740;border:1px solid #33507f;color:#a9bad6;
+    padding:2px 7px;border-radius:20px}
+  .empty{padding:34px 18px;text-align:center;color:#6b7c9a;font-size:14px;line-height:1.7}
+  .note{margin-top:18px;font-size:12.5px;color:#6b7c9a;text-align:center;line-height:1.7}
+
+  /* Danger zone — deliberately plain and a little ugly. Nothing here should look
+     like a thing you casually click. */
+  .danger{margin-top:34px;border:1px solid #5c2530;border-radius:14px;
+    background:linear-gradient(180deg,#1d1114,#120b0e);padding:18px 20px 20px}
+  .danger h2{margin:0 0 4px;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;color:#e2707f}
+  .danger p{margin:0 0 14px;font-size:12.5px;color:#9c8189;line-height:1.65}
+  .danger p b{color:#d9b9bf}
+  .drow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:11px 0;
+    border-top:1px solid #33191f}
+  .drow .lbl{font-size:13px;color:#cbb3b8;flex:1 1 240px;line-height:1.5}
+  .drow .lbl small{display:block;color:#8d747b;font-size:11.5px;margin-top:2px}
+  .dbtn{background:#3a1620;border:1px solid #7a2f3e;color:#f0b8c1;font-family:inherit;
+    font-size:12.5px;font-weight:700;padding:8px 15px;border-radius:8px;cursor:pointer}
+  .dbtn:hover:not(:disabled){background:#5a1f2c;color:#fff}
+  .dbtn:disabled{opacity:.45;cursor:not-allowed}
+  .dbtn.armed{background:#8e2436;border-color:#c4485c;color:#fff}
+  .dtype{background:#140c0f;border:1px solid #5c2530;color:#f2dfe3;font-family:inherit;
+    font-size:12.5px;padding:8px 10px;border-radius:8px;width:110px;letter-spacing:2px}
+  .dout{margin-top:12px;font-size:12.5px;line-height:1.7;color:#8d747b;white-space:pre-wrap}
+  .dout.ok{color:var(--green)}
+  .dout.bad{color:#ff9aa8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="../shared/assets/costbot.png" alt="">
+    <h1>Arcade Usage</h1>
+    <p class="sub">Who is playing, how often, and for how long.</p>
+    <a class="back" href="../index.html">← Back to the Arcade</a>
+  </header>
+
+  <div class="tiles" id="tiles" style="display:none"></div>
+  <div class="panel" id="panel"><div class="empty">Loading…</div></div>
+  <p class="note" id="note"></p>
+
+  <section class="danger" id="danger" hidden>
+    <h2>⚠ Danger zone</h2>
+    <p>There is <b>no backup and no undo</b>. The database is in-cluster, so nothing
+      here can be recovered afterwards.</p>
+
+    <div class="drow">
+      <div class="lbl">Reset the leaderboards
+        <small>Clears every run. Wallets, the build fund and display names are left alone.</small>
+      </div>
+      <button type="button" class="dbtn" id="reset-runs">Clear runs</button>
+    </div>
+
+    <div class="drow">
+      <div class="lbl">Reset everything
+        <small>Clears runs, visits, every player's wallet and the whole build fund — and
+          tells each browser to drop its local copy on its next page load.</small>
+      </div>
+      <input class="dtype" id="confirm-box" placeholder="RESET" autocomplete="off"
+        spellcheck="false" aria-label="Type RESET to enable">
+      <button type="button" class="dbtn" id="reset-all" disabled>Wipe it all</button>
+    </div>
+
+    <div class="dout" id="dout"></div>
+  </section>
+</div>
+
+<script src="../shared/arcade-sync.js"></script>
+<script>
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const n = (v) => Math.round(v || 0).toLocaleString('en-US');
+  // Minutes read better than seconds everywhere here; hours once it gets silly.
+  const dur = (s) => {
+    s = Math.round(s || 0);
+    if (s < 60) return s + 's';
+    if (s < 3600) return Math.round(s / 60) + 'm';
+    return (s / 3600).toFixed(1) + 'h';
+  };
+  // "today" answers when-ish; this column is asked when EXACTLY, so show the
+  // stamp and keep the relative wording for the tooltip. Rendered in the
+  // reader's own timezone, which is the only one they can act on.
+  const when = (t) => {
+    if (!t) return '—';
+    const d = new Date(t);
+    if (Number.isNaN(d.getTime())) return '—';
+    const sameYear = d.getFullYear() === new Date().getFullYear();
+    // Date and time formatted separately on purpose: one combined toLocaleString
+    // renders as "Aug 4 at 7:06 AM" in some browsers and "Aug 4, 7:06 AM" in
+    // others, and the column should not change shape depending on who opens it.
+    const date = d.toLocaleDateString('en-US',
+      sameYear ? { month: 'short', day: 'numeric' }
+        : { month: 'short', day: 'numeric', year: 'numeric' });
+    const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    return `${date}, ${time}`;
+  };
+  const ago = (t) => {
+    if (!t) return '';
+    const d = new Date(t);
+    if (Number.isNaN(d.getTime())) return '';
+    const mins = Math.floor((Date.now() - d.getTime()) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    const days = Math.floor(hrs / 24);
+    return days === 1 ? 'yesterday' : days + 'd ago';
+  };
+  const GAME_NAMES = { 'waste-hunter': 'Waste Hunter', mudslides: 'Mudslides', mudsliders: 'Mudslides' };
+
+  // Columns sortable by click. `get` extracts a comparable value; `dir` is the
+  // direction a first click on that column lands on (newest/most first reads
+  // better than alphabetical-style ascending for anything time- or count-based).
+  const COLUMNS = [
+    { key: 'player', label: 'Player', get: (r) => (r.player || '').toLowerCase(), dir: 'asc' },
+    { key: 'visits', label: 'Visits', get: (r) => r.visits || 0, dir: 'desc' },
+    { key: 'runs', label: 'Runs', get: (r) => r.runs || 0, dir: 'desc' },
+    { key: 'seconds', label: 'Time in game', get: (r) => r.seconds || 0, dir: 'desc' },
+    { key: 'in_app_s', label: 'In arcade', get: (r) => r.in_app_s || 0, dir: 'desc' },
+    { key: null, label: 'Games' },
+    { key: 'quiz', label: 'Quiz', get: (r) => (r.quiz_asked ? r.quiz_correct / r.quiz_asked : -1), dir: 'desc' },
+    { key: 'tokens', label: 'Tokens', get: (r) => r.tokens || 0, dir: 'desc' },
+    { key: 'last_seen', label: 'Last seen', get: (r) => (r.last_seen ? new Date(r.last_seen).getTime() : 0), dir: 'desc' },
+  ];
+  // Default view: whoever showed up most recently first — that's the question
+  // this page gets opened to answer most often.
+  let sort = { key: 'last_seen', dir: 'desc' };
+  let lastData = null;
+
+  function render(d) {
+    lastData = d;
+    const rows = (d.players || []).slice();
+    const panel = document.getElementById('panel');
+    if (!rows.length) {
+      panel.innerHTML = '<div class="empty">Nobody has played yet.</div>';
+      return;
+    }
+
+    if (sort.key) {
+      const col = COLUMNS.find((c) => c.key === sort.key);
+      const mul = sort.dir === 'asc' ? 1 : -1;
+      rows.sort((a, b) => {
+        const va = col.get(a), vb = col.get(b);
+        if (va < vb) return -1 * mul;
+        if (va > vb) return 1 * mul;
+        return 0;
+      });
+    }
+
+    const tot = rows.reduce((t, r) => ({
+      players: t.players + 1,
+      runs: t.runs + (r.runs || 0),
+      seconds: t.seconds + (r.seconds || 0),
+      visits: t.visits + (r.visits || 0),
+      tokens: t.tokens + (r.tokens || 0),
+    }), { players: 0, runs: 0, seconds: 0, visits: 0, tokens: 0 });
+
+    document.getElementById('tiles').innerHTML = [
+      [n(tot.players), 'Players'],
+      [n(tot.visits), 'Visits'],
+      [n(tot.runs), 'Runs played'],
+      [dur(tot.seconds), 'Time in game'],
+      [n(tot.tokens), 'Tokens earned'],
+    ].map(([v, l]) => `<div class="tile"><div class="n">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join('');
+    document.getElementById('tiles').style.display = '';
+
+    panel.innerHTML = `<table>
+      <thead><tr>${COLUMNS.map((c) => {
+        if (!c.key) return `<th>${esc(c.label)}</th>`;
+        const active = sort.key === c.key;
+        const arrow = active ? `<span class="arrow">${sort.dir === 'asc' ? '▲' : '▼'}</span>` : '';
+        const cls = ['num'];
+        if (c.key === 'player') cls.length = 0;
+        if (active) cls.push('sorted');
+        return `<th${cls.length ? ` class="${cls.join(' ')}"` : ''} data-key="${c.key}">${esc(c.label)}${arrow}</th>`;
+      }).join('')}</tr></thead>
+      <tbody>${rows.map((r) => {
+        const games = Object.keys(r.games || {})
+          .sort((a, b) => r.games[b] - r.games[a])
+          .map((g) => `<span class="g">${esc(GAME_NAMES[g] || g)} ${r.games[g]}</span>`).join('');
+        const quiz = r.quiz_asked
+          ? Math.round((r.quiz_correct / r.quiz_asked) * 100) + '%'
+          : '—';
+        return `<tr>
+          <td class="name">${esc(r.player)}</td>
+          <td class="num">${n(r.visits)}</td>
+          <td class="num">${n(r.runs)}</td>
+          <td class="num">${dur(r.seconds)}</td>
+          <td class="num dim">${dur(r.in_app_s)}</td>
+          <td><div class="games">${games || '<span class="dim">—</span>'}</div></td>
+          <td class="num dim">${quiz}</td>
+          <td class="num">${n(r.tokens)}</td>
+          <td class="num dim" title="${esc(ago(r.last_seen))}">${esc(when(r.last_seen))}</td>
+        </tr>`;
+      }).join('')}</tbody></table>`;
+
+    panel.querySelectorAll('th[data-key]').forEach((th) => {
+      th.onclick = () => {
+        const key = th.dataset.key;
+        const col = COLUMNS.find((c) => c.key === key);
+        sort = { key, dir: sort.key === key ? (sort.dir === 'asc' ? 'desc' : 'asc') : col.dir };
+        render(lastData);
+      };
+    });
+
+    document.getElementById('note').textContent = d.store === 'memory'
+      ? 'Running without a database — these figures are in-memory and reset when the app restarts.'
+      : 'A visit is a page load; hits within 30 minutes count as one. "Time in game" is time inside runs; '
+        + '"in arcade" is time between first and last page load of a visit, so it counts idle tabs too. A run '
+        + 'is only recorded when it reaches its game-over screen — a cabinet left mid-run shows arcade time '
+        + 'and no game time. Timestamps are in your own timezone.';
+  }
+
+  // Resolve the API off this script's sibling, exactly as arcade-sync does — the
+  // page is served from /a/<slug>/usage/ under the front door, so neither an
+  // absolute nor a fixed relative path works.
+  const API = document.querySelector('script[src$="arcade-sync.js"]').src
+    .replace(/shared\/arcade-sync\.js.*$/, '') + 'api/';
+  const api = (path, opts) => fetch(new URL(path, API).href,
+    Object.assign({ credentials: 'same-origin' }, opts));
+
+  const out = document.getElementById('dout');
+  const say = (msg, cls) => { out.textContent = msg; out.className = 'dout' + (cls ? ' ' + cls : ''); };
+  const tally = (c) => (c ? `${c.runs} runs, ${c.sessions} visits, ${c.players} players` : 'unknown');
+
+  async function reset(body, btn) {
+    btn.disabled = true;
+    say('Working…');
+    try {
+      const r = await api('admin/reset', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const d = await r.json();
+      if (!r.ok) { say(d.error || ('failed (' + r.status + ')'), 'bad'); return; }
+      say(`Cleared ${d.cleared}.\nbefore — ${tally(d.before)}\nafter  — ${tally(d.after)}\n${d.note}`, 'ok');
+      // Reload so the table reflects reality rather than the pre-reset render, and
+      // so this browser honours its own reset stamp immediately.
+      setTimeout(() => window.location.reload(), 2600);
+    } catch (err) {
+      say('failed: ' + err.message, 'bad');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function wireDanger() {
+    document.getElementById('danger').hidden = false;
+
+    document.getElementById('reset-runs').onclick = (e) => {
+      if (!confirm('Clear every run?\n\nLeaderboards go back to empty. Wallets and the '
+        + 'build fund are not touched. This cannot be undone.')) return;
+      reset({ scope: 'runs' }, e.currentTarget);
+    };
+
+    // Typing the word is the gate; the dialog is only the last chance to back out.
+    const box = document.getElementById('confirm-box');
+    const all = document.getElementById('reset-all');
+    box.oninput = () => {
+      const ok = box.value.trim().toUpperCase() === 'RESET';
+      all.disabled = !ok;
+      all.classList.toggle('armed', ok);
+    };
+    all.onclick = (e) => {
+      if (box.value.trim().toUpperCase() !== 'RESET') return;
+      if (!confirm('Wipe EVERYTHING?\n\nEvery run, every visit, every wallet, and the '
+        + 'entire build fund. Every player\'s browser will drop its local progress '
+        + 'too. There is no backup and no undo.')) return;
+      reset({ scope: 'all', confirm: 'RESET' }, e.currentTarget);
+    };
+  }
+
+  (async () => {
+    const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
+    const panel = document.getElementById('panel');
+    if (!s.enabled) {
+      panel.innerHTML = `<div class="empty">Usage needs the arcade app.<br>
+        This page is running from static hosting, which has no API.</div>`;
+      return;
+    }
+    // The endpoint is owner-gated server-side; a 403 is the expected answer for
+    // everyone else, so say so plainly rather than showing a broken table.
+    const r = await api('admin/usage');
+    if (r.status === 403) {
+      panel.innerHTML = '<div class="empty">This page is for the arcade owner.<br>Your play still counts toward the build fund.</div>';
+      return;
+    }
+    if (!r.ok) {
+      panel.innerHTML = `<div class="empty">Could not load usage (${r.status}).</div>`;
+      return;
+    }
+    render(await r.json());
+    wireDanger();   // only ever reached by someone the API already accepted
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Holiday in Colombia — CostBot Arcade</title>
+<link rel="icon" href="../shared/assets/costbot.png">
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#05131c;overflow:hidden;}
+  #game{position:absolute;inset:0;}
+  /* Navigation belongs to the shell page, not the game. */
+  #back{position:fixed;top:12px;left:14px;z-index:6;display:flex;gap:7px;align-items:center;
+    background:rgba(6,26,38,.8);border:1px solid #2b6076;color:#cfeaf5;text-decoration:none;
+    padding:7px 14px;border-radius:20px;font:600 13px 'Segoe UI',system-ui,sans-serif;
+    backdrop-filter:blur(4px);transition:opacity .3s,background .14s;}
+  #back:hover{background:#12455c;color:#fff;opacity:1 !important;}
+  #back img{width:18px;height:18px;object-fit:contain}
+  #back.dim{opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+  <a id="back" href="../index.html" title="Back to the CostBot Arcade">
+    <img src="../shared/assets/costbot.png" alt="">← Arcade</a>
+  <div id="game"></div>
+
+  <script src="../shared/arcade-sync.js"></script>
+  <script src="../shared/arcade-wallet.js"></script>
+  <script src="../shared/arcade-music.js"></script>
+  <script src="../shared/arcade-trivia.js"></script>
+  <script src="hc-content.js"></script>
+  <script src="hc-game.js"></script>
+  <script>
+    let game;
+    (async () => {
+      const sync = window.ArcadeSync;
+      const session = sync ? await sync.init() : { enabled: false };
+      // Each game keeps its own slice of the shared server profile, so the
+      // fishdex and Waste Hunter's bot bay never overwrite one another.
+      //
+      // The slice is MERGED with this browser's copy rather than replacing it: a
+      // profile write that never lands would otherwise take back the Fable you
+      // just landed, and then save the rollback over the good local copy.
+      // `bait` is exempt — it is a balance that goes DOWN when you spend it, so
+      // keeping the larger of the two would refund every purchase.
+      const saved = session.enabled && sync.adopt
+        ? sync.adopt('holiday-in-colombia', HolidayInColombia.loadProfile(),
+          { spendable: ['bait'] })
+        : null;
+
+      game = HolidayInColombia.mount('#game', {
+        profile: saved || undefined,
+        onEvent(type, payload) {
+          if (type !== 'ready') console.log('[Holiday]', type, payload);
+          const back = document.getElementById('back');
+          if (back && type === 'run:start') back.classList.add('dim');
+          if (back && type === 'run:end') back.classList.remove('dim');
+        },
+        onComplete(result) {
+          window.__lastResult = result;   // exposed for the smoke test
+          console.log('[Holiday] run complete', result);
+          if (sync && sync.enabled) {
+            sync.saveGame('holiday-in-colombia', result.profile);
+            sync.submit(result, null);
+          }
+        },
+      });
+      window.game = game;
+    })();
+  </script>
+</body>
+</html>

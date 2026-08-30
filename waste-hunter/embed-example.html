@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Host Game Integration — CostBot: Waste Hunter</title>
+<link rel="icon" href="assets/costbot.png">
+<style>
+  :root{--bg:#0b0f18;--panel:#131c30;--line:#2b3f66;--fg:#e8eef8;--muted:#93a4c4;--gold:#f0a52c;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:'Segoe UI',system-ui,sans-serif;}
+  header{padding:16px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;}
+  header img{width:40px}
+  header h1{font-size:19px;margin:0}
+  header p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+  .wrap{display:grid;grid-template-columns:340px 1fr;gap:20px;padding:20px 24px;align-items:start}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .panel h2{font-size:14px;margin:0 0 10px;letter-spacing:.6px;color:var(--gold);text-transform:uppercase}
+  .kv{display:flex;justify-content:space-between;padding:6px 0;font-size:13.5px;border-bottom:1px solid #1e2c47}
+  .kv:last-child{border:none}
+  .kv b{color:var(--gold);font-variant-numeric:tabular-nums}
+  button{background:#1d3358;border:1px solid #3f5f96;color:#dce7f8;padding:9px 14px;border-radius:8px;
+    font-size:13px;font-weight:600;cursor:pointer;width:100%;margin-top:8px}
+  button:hover{background:#27467a}
+  button.gold{background:var(--gold);border-color:#ffc866;color:#241403}
+  #stagebox{position:relative;width:100%;aspect-ratio:16/9;background:#04060b;border:1px solid var(--line);
+    border-radius:12px;overflow:hidden}
+  #placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:12px;color:var(--muted);font-size:14px}
+  #placeholder img{width:80px;opacity:.6}
+  #log{font-family:ui-monospace,monospace;font-size:11.5px;color:#8c9dbd;background:#0c1220;border:1px solid var(--line);
+    border-radius:8px;padding:10px;height:150px;overflow-y:auto;margin-top:10px;line-height:1.6}
+  .log-ev{color:#7fd6c4}
+</style>
+</head>
+<body>
+<header>
+  <img src="assets/costbot.png" alt="">
+  <div style="flex:1">
+    <h1>Host Game Integration Demo</h1>
+    <p>Pretend this page is the larger CostBot game. The mini-game mounts into a panel, runs one stage, and hands back a result.</p>
+  </div>
+  <a href="../index.html" style="color:#7fd6c4;text-decoration:none;border:1px solid #2b3f66;
+     padding:7px 15px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap">← Arcade</a>
+</header>
+
+<div class="wrap">
+  <div>
+    <div class="panel">
+      <h2>Host State</h2>
+      <div class="kv"><span>Player</span><b>CostBot</b></div>
+      <div class="kv"><span>Host currency</span><b id="h-cash">$0</b></div>
+      <div class="kv"><span>Contracts completed</span><b id="h-runs">0</b></div>
+      <div class="kv"><span>Last outcome</span><b id="h-last">—</b></div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>Launch a Mini-Game</h2>
+      <p style="font-size:12.5px;color:var(--muted);margin:0 0 6px">
+        The host picks the stage — no shell, no menus. Result comes back via <code>onComplete</code>.
+      </p>
+      <div id="stagebtns"></div>
+      <button type="button" id="quit" style="margin-top:14px">✕ Unmount mini-game</button>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>Event Stream</h2>
+      <div id="log"></div>
+    </div>
+  </div>
+
+  <div id="stagebox">
+    <div id="placeholder">
+      <img src="assets/costbot.png" alt="">
+      <div>Pick a contract on the left to launch the mini-game.</div>
+    </div>
+  </div>
+</div>
+
+<script src="../shared/arcade-wallet.js"></script>
+  <script src="../shared/arcade-music.js"></script>
+  <script src="../shared/arcade-biomes.js"></script>
+  <script src="../shared/arcade-trivia.js"></script>
+  <script src="wh-content.js"></script>
+<script src="wh-game.js"></script>
+<script>
+  // ---- pretend host-game state ---------------------------------------------
+  const host = { cash: 0, runs: 0 };
+  const $ = (s) => document.querySelector(s);
+  let game = null;
+
+  function log(msg, cls) {
+    const el = $('#log');
+    el.innerHTML += `<div class="${cls || ''}">${msg}</div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+  function paint() {
+    $('#h-cash').textContent = '$' + host.cash.toLocaleString();
+    $('#h-runs').textContent = host.runs;
+  }
+
+  // ---- build one launch button per stage ------------------------------------
+  WasteHunter.STAGES.forEach((s) => {
+    const b = document.createElement('button');
+    b.textContent = '▶ ' + s.name;
+    b.className = 'gold';
+    b.onclick = () => launch(s.id);
+    $('#stagebtns').appendChild(b);
+  });
+
+  function launch(stageId) {
+    if (game) game.destroy();
+    $('#placeholder').style.display = 'none';
+    log('▶ host launched <b>' + stageId + '</b>');
+
+    game = WasteHunter.mount('#stagebox', {
+      stageId,
+      showShell: false,              // no title/stage-select — host owns navigation
+      persist: true,                 // still uses localStorage meta; set false to sandbox
+      returnLabel: 'Return to HQ',
+
+      onEvent(type, payload) {
+        if (type === 'ready') return;
+        log('· ' + type + ' ' + JSON.stringify(payload).slice(0, 90), 'log-ev');
+        // player clicked the returnLabel button on the result screen
+        if (type === 'exit') teardown();
+      },
+
+      // THE HANDOFF: host absorbs the mini-game result
+      onComplete(result) {
+        host.cash += result.dollarsSaved;
+        host.runs += 1;
+        $('#h-last').textContent = result.outcome.toUpperCase();
+        paint();
+        log('✔ result: ' + result.outcome + ' · $' + result.dollarsSaved.toLocaleString()
+            + ' · ' + result.tokensEarned + ' tokens · lvl ' + result.level);
+        if (result.achievementsUnlocked.length)
+          log('🏆 ' + result.achievementsUnlocked.join(', '));
+      },
+    });
+    window.game = game; // exposed for devtools / automated testing
+  }
+
+  function teardown() {
+    if (game) { game.destroy(); game = null; }
+    $('#placeholder').style.display = 'flex';
+    log('← returned to host');
+  }
+
+  $('#quit').onclick = teardown;
+  paint();
+</script>
+</body>
+</html>

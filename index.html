@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CostBot Arcade</title>
+<link rel="icon" href="shared/assets/costbot.png">
+<meta property="og:title" content="CostBot Arcade">
+<meta property="og:description" content="Play the games. Earn the tokens. Help CostBot ship.">
+<meta property="og:image" content="shared/assets/arcade-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root{--gold:#f0a52c;--line:#2b3f66;--fg:#e8eef8;--muted:#93a4c4;--teal:#7fd6c4;}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#1a2744,#05070d 65%);
+    color:var(--fg);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;padding:40px 24px 60px;}
+  .wrap{max-width:1080px;margin:0 auto;position:relative}
+  /* No side padding: the corner cards are only ~110px tall and the logo is
+     290px wide and centred, so nothing actually collides — padding just
+     squeezed the tagline into a narrow column. */
+  header{text-align:center;margin-bottom:8px}
+  h1{margin:0}
+  /* Neon on a dark grid: screen-blend it so the artwork's background disappears
+     into the page instead of sitting on it as a rectangle. The asset is already
+     feathered at the edges, so the two together leave no seam. */
+  .logo{width:290px;max-width:78vw;display:block;margin:0 auto;mix-blend-mode:screen;
+    animation:glow 4s ease-in-out infinite}
+  @keyframes glow{0%,100%{filter:drop-shadow(0 0 16px rgba(120,90,255,.30))}
+    50%{filter:drop-shadow(0 0 26px rgba(90,200,255,.42))}}
+  .tag{color:var(--muted);font-size:16px;margin:10px auto 0;max-width:620px;line-height:1.55}
+  .hook{margin:9px 0 0;font-size:15.5px;font-weight:700;color:var(--teal);letter-spacing:.2px}
+  /* Mirrors the fund in the opposite corner. It used to sit centred under the
+     logo, which pushed the whole grid down for a line of text. */
+  .greet{display:none;position:absolute;top:0;left:0;width:306px;align-items:center;gap:11px;
+    background:linear-gradient(180deg,#16213a,#0f1728);
+    border:1px solid var(--line);border-radius:15px;padding:12px 14px;text-align:left;
+    box-shadow:0 10px 28px rgba(0,0,0,.4)}
+  .greet.on{display:flex}
+  .greet img{width:42px;height:42px;object-fit:contain;flex:0 0 auto}
+  .greet .who{flex:1 1 auto;min-width:0}
+  @media (max-width:900px){
+    .greet{position:static;width:auto;max-width:430px;margin:0 auto 14px}
+  }
+  .greet .hi{font-size:17px;font-weight:700}
+  .greet .hi b{color:var(--gold)}
+  .greet .stats{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .greet .stats b{color:var(--teal);font-variant-numeric:tabular-nums}
+  .namebtn{background:rgba(240,165,44,.14);border:1px solid #6b5320;color:var(--gold);
+    font:600 12.5px inherit;padding:3px 11px;border-radius:20px;cursor:pointer;margin-left:6px}
+  .namebtn:hover{background:rgba(240,165,44,.26)}
+  /* The communal haul. Every cabinet feeds this one number. A corner readout
+     rather than a banner: it is a running total you glance at, and the page has
+     better uses for its vertical space. The coin is the point, so it gets room. */
+  .fund{display:none;position:absolute;top:0;right:0;width:306px;text-align:left;
+    background:linear-gradient(180deg,#16213a,#0f1728);border:1px solid var(--line);
+    border-radius:15px;padding:12px 14px;box-shadow:0 10px 28px rgba(0,0,0,.4);
+    flex-direction:column;gap:10px}
+  .fund.on{display:flex}
+  .purse{display:flex;align-items:center;gap:11px}
+  .purse-body{flex:1 1 auto;min-width:0}
+  .purse-num{font-size:23px;font-weight:800;color:var(--gold);line-height:1.1;
+    font-variant-numeric:tabular-nums}
+  .purse-sub{font-size:10.5px;color:#5d6d8a;margin-top:1px}
+  .bankbtn{flex:0 0 auto;background:#173a26;border:1px solid #3fa060;color:#8ff0ad;
+    font:800 11.5px inherit;letter-spacing:.4px;padding:7px 13px;border-radius:9px;
+    cursor:pointer;transition:background .14s}
+  .bankbtn:hover:not(:disabled){background:#1e5436;color:#b8ffd0}
+  .bankbtn:disabled{opacity:.35;cursor:not-allowed}
+  .fund-body{border-top:1px solid #23324f;padding-top:9px}
+  .tok{width:46px;height:46px;flex:0 0 auto;filter:drop-shadow(0 3px 9px rgba(0,0,0,.6))}
+  /* the coin turns over whenever the purse repaints — a token dropping in */
+  .fund.paid .tok{animation:flip .9s ease}
+  @keyframes flip{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+  .fund-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .fund-label{font-size:12.5px;font-weight:700;color:var(--fg);white-space:nowrap}
+  .fund-bar{height:7px;border-radius:5px;background:#0b1322;border:1px solid #23324f;
+    margin:8px 0 5px;overflow:hidden}
+  .fund-bar i{display:block;height:100%;border-radius:5px;
+    background:linear-gradient(90deg,#7fd6c4,#f0a52c);transition:width .7s ease}
+  .fund-nums{display:flex;gap:5px;align-items:baseline;font-size:11.5px;color:#5d6d8a}
+  .fund-nums b{color:var(--gold);font-size:14px;font-variant-numeric:tabular-nums}
+  /* Only shown once something HAS shipped — "nothing shipped yet" was both a
+     tautology next to a 0 and too wide for the row. */
+  .ship{font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+    background:#173a26;border:1px solid #3fa060;color:#8ff0ad;padding:2px 8px;
+    border-radius:20px;white-space:nowrap}
+  .ship[hidden]{display:none}
+  /* Nothing to tuck into on a narrow screen — let it sit above the header. */
+  @media (max-width:900px){
+    .fund{position:static;width:auto;max-width:430px;margin:0 auto 18px}
+  }
+
+  .pill{display:inline-block;margin-top:14px;font-size:12px;letter-spacing:1.4px;font-weight:800;
+    color:#0d1220;background:linear-gradient(180deg,#ffd76b,#f0a52c);padding:5px 14px;border-radius:20px}
+
+  h2.sec{font-size:19px;letter-spacing:3px;color:#c3d4ef;text-transform:uppercase;
+    font-weight:800;margin:46px 0 16px;border-bottom:1px solid var(--line);padding-bottom:10px;
+    display:flex;align-items:center;gap:12px}
+  /* a short accent rule before the word, so a bigger header still reads as a
+     divider rather than as a second page title */
+  h2.sec::before{content:'';width:26px;height:3px;border-radius:2px;flex:0 0 auto;
+    background:linear-gradient(90deg,var(--teal),var(--gold))}
+  @media (max-width:900px){ h2.sec{font-size:16px;letter-spacing:2.2px} }
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+  .card{background:linear-gradient(180deg,#151f36,#0d1421);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;display:flex;
+    flex-direction:column;transition:.16s;position:relative}
+  .card:hover{transform:translateY(-7px);border-color:var(--gold);
+    box-shadow:0 20px 44px rgba(0,0,0,.6)}
+  /* Concepts stay dimmed, but they keep pointer events now so the coming-soon
+     button is hoverable — the card itself still goes nowhere. */
+  .card.soon{opacity:.62;filter:grayscale(.42)}
+  .card.soon:hover{transform:none;border-color:var(--line);box-shadow:none}
+  .soonbtn{margin-top:12px;width:100%;display:block;text-align:center;
+    background:linear-gradient(180deg,#2b3550,#181f30);border:1px solid #46557c;
+    color:#a9bad6;font:800 11.5px inherit;letter-spacing:1.2px;text-transform:uppercase;
+    padding:9px 12px;border-radius:9px;cursor:default;
+    box-shadow:inset 0 1px 0 rgba(190,214,255,.18)}
+  .art{height:132px;display:flex;align-items:center;justify-content:center;font-size:56px;
+    background:linear-gradient(135deg,#1d2b47,#101827);border-bottom:1px solid var(--line);
+    position:relative;overflow:hidden}
+  .art img{height:104px;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
+  /* CostBotLand's art is a whole scene, not a sprite — let it fill the frame */
+  .art-scene img{height:100%;width:100%;object-fit:cover;filter:none}
+  .body{padding:16px 18px 18px}
+  .body h3{margin:0 0 5px;font-size:19px}
+  .body p{margin:0;font-size:13.5px;color:#a9bad6;line-height:1.55}
+  .meta{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+  .chip{font-size:11px;font-weight:700;letter-spacing:.5px;background:#1b2740;border:1px solid #33507f;
+    color:#a9bad6;padding:3px 9px;border-radius:20px}
+  .chip.live{background:#173a26;border-color:#3fa060;color:#8ff0ad}
+  .chip.tool{background:#1a2f3a;border-color:#3f7f96;color:#8fd8f0}
+  /* selectable, so the address survives a browser with no mail client */
+  .mail{display:inline-block;margin-top:7px;font-size:12.5px;color:var(--teal);
+    font-weight:600;word-break:break-all;user-select:all;-webkit-user-select:all}
+  .badge{position:absolute;top:10px;right:10px;font-size:10.5px;font-weight:800;letter-spacing:1px;
+    background:rgba(6,10,18,.85);border:1px solid #3f5f96;padding:4px 10px;border-radius:20px}
+  .badge.soon{border-color:#6b5320;color:#ffd76b}
+
+  footer{margin-top:52px;text-align:center;color:#5d6d8a;font-size:12.5px;line-height:1.9}
+  .foot-logo{width:190px;max-width:60vw;display:block;margin:0 auto 4px;mix-blend-mode:screen}
+  footer a{color:var(--teal);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="greet" id="greet">
+    <img src="shared/assets/costbot.png" alt="">
+    <div class="who">
+      <div class="hi" id="greet-hi"></div>
+      <div class="stats" id="greet-stats"></div>
+    </div>
+  </div>
+
+  <!-- Out of the header's vertical flow: the fund is a persistent readout, not a
+       banner, so it sits in the corner and costs the page no height. -->
+  <div class="fund" id="fund">
+    <!-- Your purse. Tokens are earned in every cabinet and spent in any of them
+         — bait, Bot Bay upgrades, the casino when it opens. Banking is the one
+         irreversible thing you can do with them, so it gets a real button. -->
+    <div class="purse" title="Tokens you have earned across the whole arcade">
+      <img class="tok" src="shared/assets/token-coin-128.png" alt="">
+      <div class="purse-body">
+        <span class="fund-label">Your tokens</span>
+        <div class="purse-num" id="purse-num">0</div>
+        <div class="purse-sub" id="purse-sub">spend on any game</div>
+      </div>
+      <button type="button" class="bankbtn" id="bankbtn" disabled>Bank</button>
+    </div>
+    <div class="fund-body" title="Every 10,000 banked ships another product">
+      <div class="fund-top">
+        <span class="fund-label">Build fund</span>
+        <span class="ship" id="fund-ship" hidden></span>
+      </div>
+      <div class="fund-bar"><i id="fund-fill" style="width:0%"></i></div>
+      <div class="fund-nums"><b id="fund-num">0</b><span>/ 0 tokens</span></div>
+    </div>
+  </div>
+
+  <header>
+    <h1><img class="logo" src="shared/assets/arcade-logo-neon.png" alt="CostBot Arcade"></h1>
+    <p class="tag">CostBot has a whole backlog of things it wants to build for the company,
+       and nowhere near enough AI tokens to build them.</p>
+    <p class="hook">Play the games. Earn the tokens. Help CostBot ship.</p>
+
+  </header>
+
+  <h2 class="sec">Games</h2>
+  <div class="grid">
+
+    <a class="card" href="waste-hunter/index.html">
+      <span class="badge">PLAYABLE</span>
+      <div class="art art-scene"><img src="shared/assets/robocost.jpg" alt=""></div>
+      <div class="body">
+        <h3>Waste Hunter</h3>
+        <p>A roguelite survivor. Terminate idle EC2, orphaned volumes and zombie IPs;
+           every level-up quizzes you on a real AWS savings lever. Score is dollars saved.</p>
+        <div class="meta">
+          <span class="chip live">● Playable</span>
+          <span class="chip">Survivor</span>
+          <span class="chip">3 min runs</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="mudslides/index.html">
+      <span class="badge">PLAYABLE</span>
+      <div class="art art-scene"><img src="shared/assets/costbot-mudslide.jpg" alt=""></div>
+      <div class="body">
+        <h3>Mudslides</h3>
+        <p>Endless downhill runner. CostBot slides a muddy hill collecting AI tokens —
+           jumping Bedrock, sliding under renewals and dodging a signed contract from
+           every vendor on the megabill. Drink a Mudslide, keep the run.</p>
+        <div class="meta">
+          <span class="chip live">● Playable</span>
+          <span class="chip">Endless runner</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="holiday-in-colombia/index.html">
+      <span class="badge">PLAYABLE</span>
+      <div class="art art-scene"><img src="shared/assets/costbot-colombia.jpg" alt=""></div>
+      <div class="body">
+        <h3>Holiday in Colombia</h3>
+        <p>Fishing simulator. CostBot is on Holiday in Colombia, but the fish have been
+           mysteriously eating all the AI tokens. Reel them out of the lake and reclaim
+           the haul before the holiday ends and it's back to work.</p>
+        <div class="meta">
+          <span class="chip live">● Playable</span>
+          <span class="chip">Fishing</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="costbot-hero/index.html">
+      <span class="badge">PLAYABLE</span>
+      <div class="art art-scene"><img src="shared/assets/cb_hero_banner_wide_logos.jpg" alt=""></div>
+      <div class="body">
+        <h3>CostBot Hero</h3>
+        <p>A Guitar-Hero rhythm cabinet. Lanes are vendors; falling notes are spend
+           you cut on the beat. Nail the melody, rack up a combo, keep the bill from
+           ballooning. Pick a song and a difficulty — score is dollars saved.</p>
+        <div class="meta">
+          <span class="chip live">● Playable</span>
+          <span class="chip">Rhythm</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="costbotland/index.html">
+      <span class="badge">PLAYABLE</span>
+      <div class="art art-scene"><img src="shared/assets/costbotland.jpg" alt=""></div>
+      <div class="body">
+        <h3>CostBotLand</h3>
+        <p>A theme-park triage rush. Rides break, guests drop hats on the tracks and
+           queues get hungry — every land drains its own happiness meter. Sprint the ring
+           or ride the train around the castle. Keep the park's star rating up to the
+           fireworks finale.</p>
+        <div class="meta">
+          <span class="chip live">● Playable</span>
+          <span class="chip">90-sec runs</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="quiz-show/index.html">
+      <span class="badge">PLAYABLE</span>
+      <div class="art art-scene"><img src="shared/assets/costbot_jeopardy.jpg" alt=""></div>
+      <div class="body">
+        <h3>CostBot Quiz Show</h3>
+        <p>CostBot's cloud-cost game show. Pick a clue off the board and beat the
+           clock — the payout decays as you dither, and the rival AI Max Tokens buzzes
+           in to steal it. Wager on the Commitment tiles, then bet your bank on Final
+           Forecast. One to three minutes, tokens on the line.</p>
+        <div class="meta">
+          <span class="chip live">● Playable</span>
+          <span class="chip">Trivia</span>
+        </div>
+      </div>
+    </a>
+
+    <div class="card soon">
+      <span class="badge soon">CONCEPT</span>
+      <div class="art art-scene"><img src="shared/assets/costbot-casino.jpg" alt=""></div>
+      <div class="body">
+        <h3>CostBot Casino</h3>
+        <p>Games of chance, played with the tokens you earned everywhere else. Slots,
+           blackjack against the Budget, double-or-nothing on the forecast. The house
+           never rightsizes.</p>
+        <div class="meta"><span class="chip">Push your luck</span><span class="chip">Not started</span></div>
+        <span class="soonbtn">🔒 Coming soon</span>
+      </div>
+    </div>
+
+    <div class="card soon">
+      <span class="badge soon">CONCEPT</span>
+      <div class="art art-scene"><img src="shared/assets/costbot-netsky.jpg" alt=""></div>
+      <div class="body">
+        <h3>NetSky&trade; Defense System</h3>
+        <p>Tower defense. It is FY27 and rogue AIs are loose across the cloud, burning
+           compute as fast as they can spawn. Build and fund CostBot's server farm,
+           optimize every dollar it earns, and arm NetSky&trade; against the AI overlord
+           Max Tokens.</p>
+        <div class="meta"><span class="chip">Tower defense</span><span class="chip">Not started</span></div>
+        <span class="soonbtn">🔒 Coming soon</span>
+      </div>
+    </div>
+
+    <!-- Retired from the shelf, not from the notebook: Deck of Discounts and
+         Tag Trouble are parked in GAME-IDEAS.md with the rest of the backlog. -->
+
+  </div>
+
+  <h2 class="sec">Tools</h2>
+  <div class="grid">
+
+    <a class="card" href="leaderboard/index.html">
+      <span class="badge">OPEN</span>
+      <div class="art art-scene"><img src="shared/assets/costbot-leaderboard.jpg" alt=""></div>
+      <div class="body">
+        <h3>Leaderboards</h3>
+        <p>All-time best per stage, across every cabinet in the arcade.</p>
+        <div class="meta">
+          <span class="chip tool">Live scores</span>
+          <span class="chip">Per stage</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="jukebox/index.html">
+      <span class="badge">OPEN</span>
+      <div class="art art-scene"><img src="shared/assets/costbot-jukebox.jpg" alt=""></div>
+      <div class="body">
+        <h3>Arcade Jukebox</h3>
+        <p>Audition the shared soundtrack. Every track is synthesized in the browser
+           at runtime — no audio files anywhere.</p>
+        <div class="meta">
+          <span class="chip tool">Shared engine</span>
+          <span class="chip">8 tracks</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- A mailto, not a form and not the Teams channel: the arcade is served
+         statically from Pages as well as from the app, so a form would only work
+         on one of them — and feedback goes to the Cost Management DL rather than
+         into a support channel until we are ready for it there. The body is
+         pre-filled with the four things that make a bug report useful. -->
+    <a class="card" href="mailto:DEET.DL-cost-management@disney.com?subject=CostBot%20Arcade%20feedback&body=What%20were%20you%20doing%3F%0A%0AWhat%20happened%3F%0A%0AWhat%20did%20you%20expect%3F%0A%0AWhich%20game%20and%20browser%3F%0A">
+      <div class="art art-scene"><img src="shared/assets/costbot-feedback.jpg" alt=""></div>
+      <div class="body">
+        <h3>Feedback &amp; Bugs</h3>
+        <p>Found a bug, or want a game that does not exist yet? Screenshots welcome,
+           half-formed ideas doubly so.<br>
+           <!-- Spelled out, not just linked: a mailto does nothing on a machine with
+                no mail client wired up, and then the address is unreachable. This
+                way it can always be read off the card and copied. -->
+           <span class="mail">DEET.DL-cost-management@disney.com</span></p>
+        <div class="meta">
+          <span class="chip tool">Email</span>
+          <span class="chip">Ideas &amp; bugs</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <footer>
+    <img class="foot-logo" src="shared/assets/insert-coin.png" alt="CostBot Arcade">
+    <div>Contact: <a href="https://teams.microsoft.com/l/channel/19%3Acb00bd9aeaee4dfbb6970327add0f002%40thread.tacv2/cost-management-support?groupId=e000d429-7805-4467-b427-48b679c1062e"
+      target="_blank" rel="noopener">Cost Management</a></div>
+  </footer>
+</div>
+
+<script src="shared/arcade-sync.js"></script>
+<script src="shared/arcade-wallet.js"></script>
+<script>
+  // Greet the signed-in player. Identity comes from the platform (MyID at the
+  // front door), so on static hosting there is nobody to greet and the strip
+  // simply stays hidden.
+  // Every cabinet keeps its own localStorage profile and reports its lifetime
+  // haul under the same field, so the bank can be totalled without an API. Adding
+  // a game is one line here.
+  const numFmt = (n) => Math.round(n || 0).toLocaleString('en-US');
+
+  // Every SHIP_COST tokens buys CostBot one shipped product. The bar tracks the
+  // progress toward the NEXT one; the pill counts the ones already out.
+  const SHIP_COST = (window.ArcadeWallet && window.ArcadeWallet.SHIP_COST) || 10000;
+
+  function paintFund(total, sub) {
+    const shipped = Math.floor(total / SHIP_COST);
+    const toward = total % SHIP_COST;
+    document.getElementById('fund-num').textContent = numFmt(toward);
+    document.getElementById('fund-num').nextElementSibling.textContent =
+      '/ ' + numFmt(SHIP_COST) + ' tokens';
+    document.getElementById('fund-fill').style.width =
+      Math.max(1.5, (toward / SHIP_COST) * 100) + '%';
+    const tally = document.getElementById('fund-ship');
+    tally.innerHTML = shipped ? `<b>${numFmt(shipped)}</b> shipped` : '';
+    tally.hidden = !shipped;
+    const el = document.getElementById('fund');
+    if (sub) el.querySelector('.fund-body').title = sub.replace(/<[^>]+>/g, '');
+    el.classList.add('on');
+  }
+
+  // The purse: what you have earned across every cabinet and not yet given away.
+  // Kept deliberately separate from the fund, because the choice between the two
+  // is the only interesting thing you can do with a token.
+  function paintPurse(w) {
+    const n = document.getElementById('purse-num');
+    const sub = document.getElementById('purse-sub');
+    const btn = document.getElementById('bankbtn');
+    n.textContent = numFmt(w.tokens);
+    sub.textContent = w.earned
+      ? numFmt(w.earned) + ' earned all-time'
+      : 'play anything to earn some';
+    btn.disabled = !w.tokens;
+    btn.title = w.tokens
+      ? `Give all ${numFmt(w.tokens)} to CostBot's build fund. This cannot be undone.`
+      : 'Nothing to bank yet';
+    document.getElementById('fund').classList.add('on');
+  }
+
+  function wireWallet() {
+    const W = window.ArcadeWallet;
+    if (!W) return null;
+    const paint = (w) => { paintPurse(w); paintFund(w.banked); };
+    paint(W.init());
+    W.onChange(paint);
+    document.getElementById('bankbtn').onclick = () => {
+      const n = W.tokens;
+      if (!n) return;
+      // One-way, so it gets a confirmation rather than a silent click.
+      if (!confirm(`Bank ${numFmt(n)} tokens into CostBot's build fund?\n\n`
+        + 'Banked tokens are gone for good — you will not be able to spend them '
+        + 'on bait, upgrades or the casino.')) return;
+      W.bank();
+      const card = document.getElementById('fund');
+      card.classList.remove('paid');
+      void card.offsetWidth;              // restart the coin flip
+      card.classList.add('paid');
+    };
+    return W;
+  }
+
+  (async () => {
+    const s = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
+    // The purse is local-first and works with or without an API — it is the same
+    // localStorage every cabinet writes to. Sync only decides whether it also
+    // follows the player between machines.
+    wireWallet();
+    if (!s.enabled) return;
+    // The hub id is a PERNR, so it is never a fallback label — if we have no real
+    // name we greet without one and offer to set it.
+    const full = s.displayName || '';
+    const first = full ? full.split(/\s+/)[0] : '';
+    const num = (n) => Math.round(n || 0).toLocaleString('en-US');
+    const money = (n) => '$' + num(n);
+
+    // Profiles are namespaced per game ({games:{'waste-hunter':{…}}}); pre-split
+    // blobs are a bare Waste Hunter meta. Fold both into one set of totals.
+    const raw = s.profile || {};
+    const games = raw.games ? Object.values(raw.games) : [raw];
+    const sum = (f) => games.reduce((t, g) => t + (Number(g && g[f]) || 0), 0);
+    const runs = sum('runs');
+    const dollars = sum('lifetimeDollars');
+    const achievements = games.reduce(
+      (t, g) => t + (g && g.achievements ? Object.keys(g.achievements).length : 0), 0);
+
+    // Tokens come from the server's run ledger, not the profile — it is the same
+    // number the communal fund is summed from, so the two can never disagree.
+    const pool = s.pool || { total: 0, mine: 0, players: 0 };
+
+    const bits = [];
+    bits.push(`<b>${num(pool.mine)}</b> tokens banked`);
+    if (runs) bits.push(`<b>${runs}</b> run${runs === 1 ? '' : 's'}`);
+    if (dollars) bits.push(`<b>${money(dollars)}</b> saved`);
+    if (achievements) bits.push(`<b>${achievements}</b> achievement${achievements === 1 ? '' : 's'}`);
+
+    const esc = (t) => String(t).replace(/[&<>"]/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    document.getElementById('greet-hi').innerHTML = first
+      ? (bits.length ? 'Welcome back, ' : 'Welcome, ') + '<b>' + esc(first) + '</b>'
+      : 'Welcome<b></b> <button class="namebtn" id="setname">set your name</button>';
+    document.getElementById('greet-stats').innerHTML = bits.length
+      ? bits.join(' &nbsp;·&nbsp; ')
+      : 'Your progress saves to your profile and follows you between machines.';
+    document.getElementById('greet').classList.add('on');
+
+    // The goal is the next milestone above the current haul rather than a fixed
+    // number, so the bar always means something and never sits pegged at 100%.
+    if (pool && pool.total) paintFund(pool.total, pool.total
+      ? `Every 10,000 tokens ships another product. Pooled from every cabinet by `
+        + `<b>${num(pool.players)}</b> player${pool.players === 1 ? '' : 's'}`
+        + (pool.mine ? ` &nbsp;·&nbsp; your share <b>${num(pool.mine)}</b>` : '')
+      : 'Nobody has banked a token yet. Be the first.');
+
+    const btn = document.getElementById('setname');
+    if (btn) {
+      btn.onclick = async () => {
+        const v = prompt('Your name, as it should appear on the leaderboards:');
+        if (v && v.trim()) {
+          await window.ArcadeSync.setDisplayName(v.trim().slice(0, 80));
+          location.reload();
+        }
+      };
+    }
+  })();
+</script>
+</body>
+</html>
