@@ -1277,7 +1277,7 @@
           + 'a huge octave-up statement, then a dark bridge that drops out before the march returns.',
       prog: P.chImperial, lead: L.chImperial, drums: 'march', pad: 'power', bars: 16,
       breakBars: [12, 13], fillBar: 15, crashBars: [8, 12],
-      arpEvery: 0, bassEvery: 2, gain: 0.95, voices: { lead: 'brass' },
+      arpEvery: 0, bassEvery: 2, gain: 0.79, voices: { lead: 'brass' },
     },
     // The Avengers theme, rocked up — transcribed from MIDI, then cranked: fast,
     // double-kick gallop, 16th power-chord bass and a distorted lead over the
@@ -1288,7 +1288,7 @@
           + 'octave-up statement over a double-kick gallop, 16th power-chord bass and a distorted lead.',
       prog: P.chAvengers, lead: L.chAvengers, drums: 'double', pad: 'power', bars: 16,
       fillBar: 15, crashBars: [0, 8],
-      arpEvery: 0, bassEvery: 1, gain: 0.95, voices: { lead: 'dist' },
+      arpEvery: 0, bassEvery: 1, gain: 0.44, voices: { lead: 'dist' },
     },
     // It's a Small World, reimagined as an electro light parade — bright four-on-
     // the-floor pulse, a 16th synth arp twinkling like the parade lights, and a
@@ -1299,7 +1299,7 @@
           + "synth arpeggio twinkling like the lights, and a strong sub bass under the melody.",
       prog: P.chSmall, lead: L.chSmall, drums: 'four', pad: 'saw', bars: 16,
       fillBar: 15, crashBars: [0, 8],
-      arpEvery: 1, bassEvery: 2, gain: 0.9, voices: { lead: 'saw' },
+      arpEvery: 1, bassEvery: 2, gain: 1.0, voices: { lead: 'saw' },
     },
     // Main St. Electrical Parade in the same electro-light-parade style — bright
     // four-on-the-floor, strong sub bass, saw lead carrying the bouncy hoedown runs.
@@ -1333,7 +1333,7 @@
           + 'i–VI–iv–i in C minor, before a sparse, moody theme answers it.',
       prog: P.blindHero, lead: L.blindHero, drums: 'heartbeat', pad: 'strings', bars: 16,
       fillBar: 15, crashBars: [0, 8],
-      arpEvery: 1, bassEvery: 1, gain: 0.98, voices: { lead: 'dist' },
+      arpEvery: 1, bassEvery: 1, gain: 0.44, voices: { lead: 'dist' },
       bassGain: 0.48, bassSubGain: 1.0, bassCutoffStart: 480, bassCutoffEnd: 110,
     },
     // "Great Fairy Fountain", transcribed from a music-box MIDI arrangement,
@@ -1347,7 +1347,7 @@
     ch_fairyfountain: {
       title: 'Finance Fairy', influence: 'Zelda · Great Fairy Fountain, lofi house remix', bpm: 112, key: 'G minor',
       prog: P.chFairy, lead: L.chFairy, drums: 'four', pad: 'strings', bars: 16,
-      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'saw', arp: 'square' },
+      arpEvery: 2, bassEvery: 2, gain: 0.85, voices: { lead: 'saw', arp: 'square' },
       bassGain: 0.44, bassSubGain: 1.0, bassCutoffStart: 600, bassCutoffEnd: 120,
     },
     // "The Gold Saucer", transcribed from MIDI. Back to a plain baseline
@@ -1359,7 +1359,7 @@
     ch_goldsaucer: {
       title: 'Gold Sauce', influence: 'FF7 · The Gold Saucer', bpm: 104, key: 'G major',
       prog: P.chGoldSaucer, lead: L.chGoldSaucer, drums: 'four', pad: 'saw', bars: 22,
-      arpEvery: 0, bassEvery: 2, gain: 0.9, voices: { lead: 'saw' },
+      arpEvery: 0, bassEvery: 2, gain: 1.0, voices: { lead: 'saw' },
     },
     // "Lost Woods", transcribed from MIDI, reworked per feedback: the plain
     // chip-lead baseline read as too flutey/high, so the lead is now 'dist'
@@ -1370,7 +1370,7 @@
     ch_lostwoods: {
       title: 'Cost Woods', influence: 'Zelda · Lost Woods', bpm: 145, key: 'C major',
       prog: P.lostWoods, lead: L.lostWoods, drums: 'four', pad: 'strings', bars: 17,
-      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'dist', arp: 'piano' },
+      arpEvery: 2, bassEvery: 2, gain: 0.64, voices: { lead: 'dist', arp: 'piano' },
     },
     // "X-pense", transcribed from MIDI. The source is a full rock-band
     // arrangement (distortion guitar, synth bass, drum kit); a power-chord
@@ -1386,7 +1386,7 @@
     ch_xmen: {
       title: 'X-pense Men', influence: "X-Men '97, distortion riff", bpm: 120, key: 'C minor',
       prog: P.xmen, lead: L.xmen, bassLine: L.xmenBass, drums: 'rock', pad: 'power', bars: 30,
-      arpEvery: 0, gain: 0.9, voices: { lead: 'dist' },
+      arpEvery: 0, gain: 0.37, voices: { lead: 'dist' },
       // Louder + more sub than the bass() defaults (0.30/0.55) — it's the
       // song's signature riff, so it should read as a forward, driving
       // presence under the guitar/drums, not a background pulse.
@@ -1400,7 +1400,7 @@
     ch_fightOn: {
       title: 'Write-Off!', influence: 'FF7 · Battle Theme', bpm: 170, key: 'A minor',
       prog: P.ffFightOn, lead: L.ffFightOn, drums: 'rock', pad: 'strings', bars: 16,
-      arpEvery: 0, bassEvery: 2, gain: 0.95, voices: { lead: 'brass' },
+      arpEvery: 0, bassEvery: 2, gain: 0.74, voices: { lead: 'brass' },
     },
     // "Legend of CostBot", transcribed from MIDI. Solo piano source, so an
     // all-piano voicing (lead + arp) keeps the character; 'chamber' drums
@@ -1410,7 +1410,7 @@
     ch_legendOfCostbot: {
       title: 'Legend of CostBot', influence: 'Zelda, solo piano', bpm: 144, key: 'Bb major',
       prog: P.legendOfCostbot, lead: L.legendOfCostbot, drums: 'chamber', pad: 'strings', bars: 22,
-      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'piano', arp: 'piano' },
+      arpEvery: 2, bassEvery: 2, gain: 1.0, voices: { lead: 'piano', arp: 'piano' },
     },
     // "Kalm Before the Bill", transcribed from MIDI (FF7 · Kalm) then pumped
     // up per feedback: the source is a slow (66bpm) solo fingerstyle-guitar
@@ -1424,7 +1424,7 @@
     ch_kalm: {
       title: 'Kalm Before the Bill', influence: 'FF7 · Kalm, revved & lofi-bassed', bpm: 104, key: 'G major',
       prog: P.kalm, lead: L.kalm, bassLine: L.kalmBass, drums: 'four', pad: 'strings', bars: 17,
-      arpEvery: 2, gain: 0.9, voices: { lead: 'saw', arp: 'square' },
+      arpEvery: 2, gain: 0.96, voices: { lead: 'saw', arp: 'square' },
       bassGain: 0.44, bassSubGain: 1.0, bassCutoffStart: 600, bassCutoffEnd: 120,
     },
     // "Fiscalicia" — the original piece "Alicia", inspired by Clair Obscur:
@@ -1521,7 +1521,7 @@
     ch_fiscalicia: {
       title: 'Fiscalicia', influence: 'Expedition 33, piano ballad', bpm: 130, key: 'C minor',
       prog: P.fiscalicia, lead: L.fiscalicia, drums: 'chamber', pad: 'strings', bars: 32,
-      arpEvery: 0, bassEvery: 1, gain: 0.9, voices: { lead: 'piano' },
+      arpEvery: 0, bassEvery: 1, gain: 1.0, voices: { lead: 'piano' },
       drumGain: 0.45, padGain: 0.75, leadGain: 2.2, leadSustainMul: 4.5,
       bassGain: 0.25, bassSubGain: 0.46,
     },
@@ -1535,7 +1535,7 @@
     ch_gameofloans: {
       title: 'Game of Loans', influence: 'Game of Thrones, main title theme', bpm: 88, key: 'C minor',
       prog: P.gameOfLoans, lead: L.gameOfLoans, drums: 'heartbeat', pad: 'strings', bars: 33,
-      arpEvery: 0, bassEvery: 1, gain: 0.95, voices: { lead: 'brass' },
+      arpEvery: 0, bassEvery: 1, gain: 0.65, voices: { lead: 'brass' },
     },
     // "Tariffa", transcribed from MIDI (FF7 · Tifa's Theme), but a deliberately
     // unfaithful dance-club rendition rather than a gentle arrangement (per
@@ -1556,7 +1556,7 @@
     ch_tariffa: {
       title: 'Tariffa', influence: "FF7 · Tifa's Theme, dance club remix", bpm: 128, key: 'F major / D minor',
       prog: P.tariffa, lead: L.tariffa, drums: 'four', pad: 'saw', bars: 20,
-      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'saw', arp: 'square' },
+      arpEvery: 2, bassEvery: 2, gain: 0.82, voices: { lead: 'saw', arp: 'square' },
       bassGain: 0.48, bassSubGain: 0.92, bassCutoffStart: 850, bassCutoffEnd: 200,
     },
   };

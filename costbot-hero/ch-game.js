@@ -1198,15 +1198,22 @@
       }
     }
     // Queues a scattered fireworks show rather than one simultaneous flash: a
-    // couple-dozen bursts at random screen positions, staggered over ~4.5s so
-    // it reads as an ongoing celebration. r.fireworks is drained in update(dt)
-    // (see the "decay effects" block, which already runs whenever a run exists,
-    // result screen included) so this keeps firing after endSong() has already
-    // switched state to 'result'.
+    // handful to a couple-dozen bursts at random screen positions, staggered
+    // over ~4.5s so it reads as an ongoing celebration. r.fireworks is drained
+    // in update(dt) (see the "decay effects" block, which already runs
+    // whenever a run exists, result screen included) so this keeps firing
+    // after endSong() has already switched state to 'result'.
+    // Count scales with the run's grade (set on r.result just before this is
+    // called — see endSong()) so a clean S-tier run gets the full show (19,
+    // same count as before this became grade-scaled) while lower grades get a
+    // progressively smaller one — still a celebration for clearing the song,
+    // just not the fireworks a top run earned.
+    const FIREWORK_COUNTS = { S: 19, A: 14, B: 10, C: 6, D: 3 };
     function scheduleFireworks(r) {
       r.fireworks = [];
       r.fireworksElapsed = 0;
-      const count = 19;   // 22, cut ~15% per feedback ("cut down the amount of fireworks")
+      const grade = r.result && r.result.grade;
+      const count = FIREWORK_COUNTS[grade] != null ? FIREWORK_COUNTS[grade] : 10;
       for (let i = 0; i < count; i++) {
         r.fireworks.push({
           t: (i / count) * 4.5 + Math.random() * 0.25,
@@ -2183,7 +2190,9 @@
       const pop = 0.82 + 0.18 * Math.min(1, progress * 7);
       const shudder = a > 0.75 ? (Math.random() * 2 - 1) * 6 * a : 0;
       ctx2d.save();
-      ctx2d.globalAlpha = Math.min(1, a * 1.7);
+      // Capped well below fully opaque — this is meant to distract over the
+      // highway, not block the notes falling under it.
+      ctx2d.globalAlpha = Math.min(0.48, a * 1.1);
       ctx2d.translate(W / 2 + shudder, H / 2);
       ctx2d.scale(pop, pop);
       const sc = Math.min(W * 0.46 / t1000Img.naturalWidth, H * 0.42 / t1000Img.naturalHeight);
