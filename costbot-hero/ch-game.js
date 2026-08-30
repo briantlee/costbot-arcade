@@ -93,7 +93,7 @@
     // Hard is now a genuinely new tier — minGap: 1 keeps EVERY real onset,
     // no thinning at all, so it's as true to the song's actual beat as the
     // chart can get (same fall/minGap/missCost recipe as Blind Spend's Hard).
-    { key: 'ch_goldsaucer', name: 'The Gold Saucer', sub: 'FF7, fairground band · 104', tag: '', biome: 'arena',
+    { key: 'ch_goldsaucer', name: 'Gold Sauce', sub: 'FF7, fairground band · 104', tag: '', biome: 'arena',
       experimental: true,
       maxLoops: 1,
       easy:   { fall: 1.90, minGap: 3, holdGap: 8, missCost: 7 },
@@ -116,8 +116,15 @@
       maxLoops: 1 },
     // Playtest entry — no art yet. 16 bars at 170bpm loop in ~22.6s, so the
     // shared MAX_LOOPS of 3 already lands at a normal ~68s — no override needed.
-    { key: 'ch_fightOn', name: 'Fight On!', sub: 'FF battle theme · 170', tag: '', biome: 'arena',
+    { key: 'ch_fightOn', name: 'Write-Off!', sub: 'FF battle theme · 170', tag: '', biome: 'arena',
       experimental: true },
+    // Playtest entry — no art yet. 22 bars at 144bpm loop in ~36.7s (trimmed
+    // to end right before the source file's own bar-22 repeat); the shared
+    // MAX_LOOPS of 3 would run ~110s, so maxLoops: 2 brings it to ~73s —
+    // coincidentally close to the original file's own ~73.4s length.
+    { key: 'ch_legendOfCostbot', name: 'Legend of CostBot', sub: 'Original theme, solo piano · 144', tag: '', biome: 'field',
+      experimental: true,
+      maxLoops: 2 },
   ];
 
   const DIFFS = {

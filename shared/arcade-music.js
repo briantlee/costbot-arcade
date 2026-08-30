@@ -238,6 +238,28 @@
       { root: 47, tones: [0, 3, 7] }, { root: 47, tones: [0, 3, 7] },   // Bm Bm
       { root: 47, tones: [0, 3, 7] }, { root: 47, tones: [0, 3, 7] },   // Bm Bm
     ],
+    // CostBot Hero — "Legend of CostBot". Transcribed from MIDI: a solo
+    // electric piano performance (bass note + a parallel 2-note chord, both
+    // hands on one track), 22 bars — the source's own 45-bar file starts
+    // repeating bars 10-13 verbatim at bar 22 (with ~40s left in the file),
+    // so the excerpt ends right before that repeat instead of playing into
+    // it. Root read off the bass note that repeats most often in each bar;
+    // quality (major/minor) read off whichever third actually sounds against
+    // it. Mostly major with a chromatic descending bass sequence
+    // (Bb-Ab-Gb...), dipping minor at bar 10.
+    legendOfCostbot: [
+      { root: 46, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },   // Bb Ab
+      { root: 42, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },   // Gb F
+      { root: 46, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },   // Bb Ab
+      { root: 42, tones: [0, 4, 7] }, { root: 49, tones: [0, 4, 7] },   // Gb C#
+      { root: 47, tones: [0, 4, 7] }, { root: 46, tones: [0, 3, 7] },   // B Bbm
+      { root: 48, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },   // C F
+      { root: 46, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },   // Bb Ab
+      { root: 42, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },   // Gb F
+      { root: 40, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },   // E F
+      { root: 40, tones: [0, 4, 7] }, { root: 41, tones: [0, 4, 7] },   // E F
+      { root: 47, tones: [0, 4, 7] }, { root: 46, tones: [0, 3, 7] },   // B Bbm
+    ],
   };
 
   // ===========================================================================
@@ -710,6 +732,37 @@
       79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
       79, 79, 79, 79, 79, 79, _, 51, 81, 51, _, 81, 51, 81, _, 50,
     ],
+    // "Legend of CostBot", transcribed from MIDI. Solo electric piano, one
+    // track: each step takes the TOP note sounding (the bass note and the
+    // parallel 2-note chord below it are the accompaniment — see P above).
+    // 22 bars: a rocking chromatic-descent A section (bars 1-16) opens into a
+    // freer B section (bars 17-22) with an actual single-note scale run
+    // (around bar 20) instead of the block chords. Ends here, one bar before
+    // the source's own bars 22-25 repeat bars 10-13 verbatim (see P above).
+    legendOfCostbot: [
+      70, _, _, _, 46, 46, _, 46, 46, _, _, 70, 70, 70, _, 70,
+      70, _, _, 68, 70, 44, _, 44, 44, _, _, 70, 70, 70, _, 70,
+      70, _, _, 68, 70, 42, _, 42, 42, _, _, 70, 70, 70, _, 70,
+      70, _, 65, 65, 65, _, 65, 65, 65, _, 65, 65, 65, _, 65, _,
+      70, _, _, _, 65, 62, _, 60, 62, _, 70, _, 70, 72, 74, 75,
+      77, _, 70, _, 70, 72, 74, 75, 44, _, 77, _, 77, 78, _, 80,
+      82, _, 66, _, 66, 68, 70, 72, 73, _, 82, 73, 82, 80, _, 78,
+      80, _, _, 78, 77, 68, _, 66, 68, _, _, 68, 77, 68, _, 68,
+      75, _, 75, 77, 78, 47, 66, 68, 70, _, _, _, 77, 47, 75, 47,
+      73, _, 73, 75, 77, 46, 65, 66, 68, _, _, _, 75, _, 73, 46,
+      72, _, 72, 74, 76, _, 64, 65, 67, _, 67, 69, 79, _, 72, 48,
+      77, _, 65, 65, 65, _, 65, 65, 65, _, 65, 65, 65, _, 65, _,
+      70, _, _, _, 65, _, 62, 60, 62, _, 70, _, 70, 72, 74, 75,
+      77, _, 70, _, 70, 72, 74, 75, 44, _, 77, _, 77, _, 78, 80,
+      82, _, _, _, 42, _, 42, 40, 42, _, _, _, 85, _, _, _,
+      84, _, _, _, 81, _, 41, 39, 41, _, _, _, 77, _, _, _,
+      78, _, 46, 49, 52, _, 58, 61, 64, _, _, _, 82, _, _, _,
+      81, _, _, _, 77, _, 41, 41, 41, _, _, _, 77, _, _, _,
+      78, _, 46, 49, 52, _, 58, 61, 64, _, _, _, 82, _, _, _,
+      81, _, _, _, 77, _, 41, 41, 41, _, _, _, 74, _, _, _,
+      75, _, _, _, 47, _, 47, 46, 47, _, _, _, 78, _, 47, 47,
+      77, _, _, _, 73, _, 46, 44, 46, _, _, _, 70, _, 46, 46,
+    ],
   };
 
   // ===========================================================================
@@ -927,7 +980,7 @@
     // judged on the notes themselves. 22 bars (the source's own loop length)
     // instead of the usual 16.
     ch_goldsaucer: {
-      title: 'The Gold Saucer', influence: 'FF7 · The Gold Saucer', bpm: 104, key: 'G major',
+      title: 'Gold Sauce', influence: 'FF7 · The Gold Saucer', bpm: 104, key: 'G major',
       prog: P.chGoldSaucer, lead: L.chGoldSaucer, drums: 'four', pad: 'saw', bars: 22,
       arpEvery: 0, bassEvery: 2, gain: 0.9, voices: { lead: 'saw' },
     },
@@ -968,9 +1021,19 @@
     // instrument in that unison), a 'strings' pad for the orchestral wash
     // under it, and 'rock' drums for the source's actual kit part.
     ch_fightOn: {
-      title: 'Fight On!', influence: 'Final Fantasy · battle theme', bpm: 170, key: 'A minor',
+      title: 'Write-Off!', influence: 'Final Fantasy · battle theme', bpm: 170, key: 'A minor',
       prog: P.ffFightOn, lead: L.ffFightOn, drums: 'rock', pad: 'strings', bars: 16,
       arpEvery: 0, bassEvery: 2, gain: 0.95, voices: { lead: 'brass' },
+    },
+    // "Legend of CostBot", transcribed from MIDI. Solo piano source, so an
+    // all-piano voicing (lead + arp) keeps the character; 'chamber' drums
+    // (soft, sparse kit) add just enough pulse for the chart without turning
+    // a piano piece into a rock song, and a light 'strings' pad fills out the
+    // held chords the two hands were already implying.
+    ch_legendOfCostbot: {
+      title: 'Legend of CostBot', influence: 'Original CostBot theme, solo piano', bpm: 144, key: 'Bb major',
+      prog: P.legendOfCostbot, lead: L.legendOfCostbot, drums: 'chamber', pad: 'strings', bars: 22,
+      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'piano', arp: 'piano' },
     },
   };
 
