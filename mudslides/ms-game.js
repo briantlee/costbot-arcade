@@ -106,7 +106,7 @@
 .ms-root{position:relative;width:100%;height:100%;background:#05070d;overflow:hidden;
   font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#e8eef8;user-select:none;}
 .ms-frame{position:absolute;transform-origin:top left;width:${VW}px;height:${VH}px;}
-.ms-canvas{position:absolute;inset:0;width:${VW}px;height:${VH}px;display:block;}
+.ms-canvas{position:absolute;inset:0;width:${VW}px;height:${VH}px;display:block;touch-action:none;}
 .ms-ui{position:absolute;inset:0;pointer-events:none;}
 .ms-ui > *{pointer-events:auto;}
 .ms-screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
@@ -280,27 +280,41 @@
     };
     window.addEventListener('keydown', this._onKey);
 
-    // touch / swipe
-    let tx = 0, ty = 0, tt = 0;
-    this._onTouchStart = (e) => {
-      const t = e.changedTouches[0];
-      tx = t.clientX; ty = t.clientY; tt = Date.now();
+    // touch: one continuous hold, not a swipe-release-swipe-release cycle.
+    // The reference point re-centers every time a direction fires, so
+    // rocking a thumb left/right/up/down in a single unbroken touch chains
+    // lane-shifts, jumps and slides without ever lifting.
+    const DRAG_THRESH = 26;
+    this._drag = { active: false, id: null, x: 0, y: 0 };
+    this._onDown = (e) => {
       this.audio.resume();
-    };
-    this._onTouchEnd = (e) => {
-      const t = e.changedTouches[0];
-      const dx = t.clientX - tx, dy = t.clientY - ty;
-      if (Date.now() - tt > 700) return;
+      if (this.music) this.music.setState('stage');
+      if (e.pointerType !== 'touch' && e.pointerType !== 'pen') return;
       if (!this.run || this.run.over) { this.start(); return; }
-      if (Math.abs(dx) > Math.abs(dy)) {
-        if (Math.abs(dx) > 30) this.shift(dx > 0 ? 1 : -1);
-      } else if (dy < -30) this.jump();
-      else if (dy > 30) this.slide();
+      this._drag.active = true; this._drag.id = e.pointerId;
+      this._drag.x = e.clientX; this._drag.y = e.clientY;
+      if (this.canvas.setPointerCapture) { try { this.canvas.setPointerCapture(e.pointerId); } catch (_e) {} }
     };
-    this.canvas.addEventListener('touchstart', this._onTouchStart, { passive: true });
-    this.canvas.addEventListener('touchend', this._onTouchEnd, { passive: true });
-    this._onDown = () => { this.audio.resume(); if (this.music) this.music.setState('stage'); };
+    this._onDragMove = (e) => {
+      const d = this._drag;
+      if (!d.active || e.pointerId !== d.id) return;
+      const dx = e.clientX - d.x, dy = e.clientY - d.y;
+      if (Math.abs(dx) < DRAG_THRESH && Math.abs(dy) < DRAG_THRESH) return;
+      if (Math.abs(dx) > Math.abs(dy)) this.shift(dx > 0 ? 1 : -1);
+      else if (dy < 0) this.jump();
+      else this.slide();
+      // re-center so the next flick fires from wherever the thumb is now,
+      // instead of requiring a return to the original touch-down point
+      d.x = e.clientX; d.y = e.clientY;
+    };
+    this._onDragEnd = (e) => {
+      const d = this._drag;
+      if (d.active && (!e || e.pointerId === d.id)) { d.active = false; d.id = null; }
+    };
     this.canvas.addEventListener('pointerdown', this._onDown);
+    this.canvas.addEventListener('pointermove', this._onDragMove);
+    this.canvas.addEventListener('pointerup', this._onDragEnd);
+    this.canvas.addEventListener('pointercancel', this._onDragEnd);
 
     this._resize = () => {
       const r = container.getBoundingClientRect();

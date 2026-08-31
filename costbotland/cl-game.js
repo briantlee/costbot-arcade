@@ -242,6 +242,11 @@
     mapImg.onload = () => { mapReady = true; };
     mapImg.src = 'assets/costbotland2.jpg';
 
+    // Shared arcade token — same art the other cabinets use, so it reads as
+    // the same currency everywhere.
+    const coinImg = new Image();
+    coinImg.src = '../shared/assets/token-coin-64.png';
+
     // ---- viewport / transform ----------------------------------------------
     const view = { scale: 1, offX: 0, offY: 0, cw: 0, ch: 0, dpr: 1 };
     const HUD_H = 54;
@@ -286,7 +291,7 @@
     function onKeyDown(e) {
       const k = e.key.toLowerCase();
       if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k) || k === 'spacebar') e.preventDefault();
-      if (k === 'escape') { quitToMenu(); return; }
+      if (k === 'escape') { quitToMenu(); backToMenu(); return; }
       if (k === 'm') { toggleMute(); return; }
       if (k === ' ' || k === 'spacebar' || k === 'enter' || k === 'e') {
         // Space is the action button mashed throughout a run — don't let a
@@ -306,12 +311,19 @@
     global.addEventListener('keydown', onKeyDown);
     global.addEventListener('keyup', onKeyUp);
     function pointerPos(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    // Geometry must match the "🏠 Main Menu" button drawn in drawOver().
+    function hitOverMenuBtn(p) {
+      const cx = view.cw / 2, cy = view.ch / 2;
+      return p.x >= cx - 100 && p.x <= cx + 100 && p.y >= cy + 148 && p.y <= cy + 192;
+    }
     function onPointerDown(e) {
       const touchLike = e.pointerType === 'touch' || e.pointerType === 'pen';
       if (touchLike) touchMode = true; audio.resume();
       const p = pointerPos(e);
       if (touchLike && p.x < view.cw * 0.5 && G.state === 'playing') {
         stick.active = true; stick.id = e.pointerId; stick.bx = p.x; stick.by = p.y; stick.kx = p.x; stick.ky = p.y;
+      } else if (G.state === 'over' && hitOverMenuBtn(p)) {
+        backToMenu();
       } else { primaryAction(); }
       if (canvas.setPointerCapture) { try { canvas.setPointerCapture(e.pointerId); } catch (_er) {} }
       e.preventDefault();
@@ -359,6 +371,11 @@
     function startRun() { reset(); G.state = 'playing'; G.last = now(); audio.resume(); audio.playMusic('ch_parade'); onEvent('run:start', {}); }
     // Esc bails out of a run back to the intro (no score recorded).
     function quitToMenu() { if (G.state !== 'playing') return; audio.stopMusic(); G.state = 'menu'; G.hint = null; onEvent('run:end', {}); }
+    // From the results screen: the run is already over and scored (run:end
+    // already fired in endRun), so this is just a state change back to the
+    // intro — from there the shell's own persistent "← Arcade" link is the
+    // way out to the hub.
+    function backToMenu() { if (G.state !== 'over') return; audio.stopMusic(); G.state = 'menu'; G.hint = null; }
     function toggleMute() { const m = audio.setMuted(!audio.isMuted()); api.meta.muted = m; saveMeta(); onEvent('mute', { muted: m }); return m; }
 
     function addFloat(x, y, text, color, big) { G.floats.push({ x, y, text, color: color || '#fff', life: 1, big: !!big }); }
@@ -1225,7 +1242,7 @@
     }
     function drawOver() {
       const r = G.result || {};
-      const cx = view.cw / 2, cy = view.ch / 2, w = Math.min(440, view.cw - 40), h = 400;
+      const cx = view.cw / 2, cy = view.ch / 2, w = Math.min(440, view.cw - 40), h = 460;
       panel(cx, cy, w, h);
       ctx.textAlign = 'center';
       ctx.fillStyle = r.outcome === 'closed' ? '#f87171' : '#fde68a'; ctx.font = '800 28px system-ui,sans-serif';
@@ -1239,17 +1256,28 @@
         ['★ Peak rating', (r.stars || 0) + ' / 5'],
         ['🔥 Best combo', 'x' + (r.combo || 0)],
         ['💰 Park cash', money(r.score || 0)],
-        ['🪙 Tokens earned', (r.tokensEarned || 0)],
+        ['coin Tokens earned', (r.tokensEarned || 0)],
       ];
       ctx.font = '600 15px system-ui,sans-serif'; let ry = cy - 48;
+      const coinOn = coinImg && coinImg.complete && coinImg.naturalWidth;
       for (const [k, v] of rows) {
-        ctx.textAlign = 'left'; ctx.fillStyle = '#b79ccb'; ctx.fillText(k, cx - w / 2 + 40, ry);
+        ctx.textAlign = 'left'; ctx.fillStyle = '#b79ccb';
+        const lx = cx - w / 2 + 40;
+        if (k.startsWith('coin ') && coinOn) {
+          ctx.drawImage(coinImg, lx, ry - 8, 16, 16);
+          ctx.fillText(k.slice(5), lx + 22, ry);
+        } else {
+          ctx.fillText(k.startsWith('coin ') ? '🪙 ' + k.slice(5) : k, lx, ry);
+        }
         ctx.textAlign = 'right'; ctx.fillStyle = '#fff'; ctx.fillText(String(v), cx + w / 2 - 40, ry);
         ry += 28;
       }
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#7c3aed'; rrect(ctx, cx - 100, cy + 138, 200, 50, 25); ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.font = '800 18px system-ui,sans-serif'; ctx.fillText('▶ OPEN AGAIN', cx, cy + 164);
+      ctx.fillStyle = '#7c3aed'; rrect(ctx, cx - 100, cy + 92, 200, 46, 23); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = '800 18px system-ui,sans-serif'; ctx.fillText('▶ OPEN AGAIN', cx, cy + 115);
+      // Geometry must match hitOverMenuBtn().
+      ctx.strokeStyle = '#5a4a82'; ctx.lineWidth = 2; rrect(ctx, cx - 100, cy + 148, 200, 44, 22); ctx.stroke();
+      ctx.fillStyle = '#c3a9dc'; ctx.font = '700 14px system-ui,sans-serif'; ctx.fillText('🏠 Main Menu', cx, cy + 170);
     }
 
     // ---- DOM intro screen ---------------------------------------------------
@@ -1286,7 +1314,23 @@
           padding:8px 18px;border-radius:9px;border:1px solid #4a3a72;background:rgba(255,255,255,.04);
           transition:border-color .12s,color .12s;}
         .cl-board:hover{border-color:#8a5aa0;color:#fff;}
-        .cl-foot{text-align:center;color:#7a6294;font-size:11px;}`;
+        .cl-foot{text-align:center;color:#7a6294;font-size:11px;}
+        /* A landscape phone (or any short window) can't fit the hero image +
+           full tip grid above the fold, and this panel scrolls but gives no
+           visible hint that it does — so on short viewports, trim it down to
+           just enough to start a run without scrolling. */
+        @media(max-height:480px){
+          .cl-intro{padding:10px 14px 14px;}
+          .cl-panel{gap:8px;}
+          .cl-hero{max-height:84px;}
+          .cl-hero img{height:84px;object-fit:cover;object-position:center 30%;}
+          .cl-head h1{font-size:19px;}
+          .cl-head p{font-size:12px;margin-top:3px;}
+          .cl-tips{display:none;}
+          .cl-play{padding:10px 40px;font-size:16px;margin-top:0;}
+          .cl-board{padding:6px 14px;font-size:12px;}
+          .cl-foot{display:none;}
+        }`;
         document.head.appendChild(st);
       }
       introEl = document.createElement('div');
@@ -1299,7 +1343,7 @@
             <h1>🎢 CostBotLand</h1>
             <p>Keep the park humming. Clear every incident before its timer runs out.</p>
           </div>
-          <div>
+          <div class="cl-tips">
             <div class="cl-lbl">HOW TO PLAY</div>
             <div class="cl-how">
               <div class="cl-card"><div class="k">🕹️ Move &amp; act</div><div class="d">WASD / arrows to move, Space (or tap) to act. Esc quits, M mutes.</div></div>
