@@ -206,6 +206,36 @@ test('GET /api/leaderboards/<game> ranks fishing on streak, weight in kg, and fi
   }
 });
 
+// CostBot Hero's own board keys on hub_id AND stage_id, unlike every other game's
+// per-metric MAX (hub_id alone). Keying on hub_id alone collapsed a player to their
+// single all-time-best song, so filtering the leaderboard to any OTHER song they'd
+// played showed nothing for them — reported as "I played 3 songs but only see one".
+test('GET /api/leaderboards/costbot-hero keeps a player\'s best run PER SONG, not just their all-time best', async () => {
+  const server = http.createServer(handler);
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const { port } = server.address();
+  const post = (hubId, result) => fetch(`http://127.0.0.1:${port}/api/score`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-aix-hub-id': hubId },
+    body: JSON.stringify({ result }),
+  });
+  try {
+    const run = (o) => Object.assign({ game: 'costbot-hero', outcome: 'clear' }, o);
+    // alice's best run overall is on Imperial Markup, but she also cleared two other songs
+    await post('alice', run({ stageId: 'ch_imperial:hard', score: 9000, combo: 40, accuracy: 92 }));
+    await post('alice', run({ stageId: 'ch_avengers:medium', score: 4000, combo: 20, accuracy: 80 }));
+    await post('alice', run({ stageId: 'ch_small:easy', score: 1500, combo: 10, accuracy: 70 }));
+
+    const res = await fetch(`http://127.0.0.1:${port}/api/leaderboards/costbot-hero`);
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    const songs = body.records.filter((r) => r.player === 'alice').map((r) => r.song).sort();
+    assert.deepEqual(songs, ['Imperial Markup', 'It\'s a Small Cost', 'The Savengers']);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
 test('GET /api/leaderboards/<game> rejects a game name that is not a slug', async () => {
   const server = http.createServer(handler);
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));

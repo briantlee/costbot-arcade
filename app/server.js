@@ -707,8 +707,27 @@ const GAME_METRICS = {
 // CostBot Hero's board wants the SONG + DIFFICULTY of each player's top score,
 // which a per-metric MAX throws away. So it gets its own per-player best-RUN
 // board that carries the run's stage_id (encoded as "<songKey>:<diffKey>").
-const HERO_SONG_NAMES = { ch_avengers: 'The Savengers', ch_imperial: 'Imperial Markup', ch_small: "It's a Small Cost" };
-const HERO_DIFF_NAMES = { easy: 'Easy', medium: 'Normal', hard: 'Hard' };
+// Kept in sync BY HAND with the SONGS list in costbot-hero/ch-game.js — that file is
+// client-only (browser), this one is server-only (Node), and neither can require() the
+// other, so a new song added there needs its name added here too or it falls back to
+// showing the raw key (that happened: ch_blindhero/ch_xmen shipped without an entry).
+const HERO_SONG_NAMES = {
+  ch_avengers: 'The Savengers',
+  ch_imperial: 'Imperial Markup',
+  ch_small: "It's a Small Cost",
+  ch_blindhero: 'Blind Spend',
+  ch_xmen: 'X-pense Men',
+  ch_fairyfountain: 'Finance Fairy',
+  ch_goldsaucer: 'Gold Sauce',
+  ch_lostwoods: 'Cost Woods',
+  ch_fightOn: 'Write-Off!',
+  ch_legendOfCostbot: 'Legend of CostBot',
+  ch_kalm: 'Kalm Before the Bill',
+  ch_fiscalicia: 'Fiscalicia',
+  ch_gameofloans: 'Game of Loans',
+  ch_tariffa: 'Tariffa',
+};
+const HERO_DIFF_NAMES = { easy: 'Easy', medium: 'Normal', hard: 'Hard', ultra: 'Ultra' };
 function heroRow(stageId, score, combo, accuracy, tokens, player) {
   const parts = String(stageId || '').split(':');
   return {
@@ -719,14 +738,18 @@ function heroRow(stageId, score, combo, accuracy, tokens, player) {
 }
 function memHeroRecords() {
   const label = (hubId) => playerLabel(mem.players.get(hubId), hubId);
+  // Keyed by player + song + difficulty, NOT just player: the leaderboard filters to
+  // one song+difficulty at a time, so collapsing to a player's single all-time-best
+  // run made every other song they'd played invisible under its own filter.
   const best = new Map();
   for (const r of mem.runs) {
     if (r.game !== 'costbot-hero') continue;
     const v = Number(r.score || 0);
     if (v <= 0) continue;
-    const cur = best.get(r.hub_id);
+    const key = `${r.hub_id}:${r.stage_id}`;
+    const cur = best.get(key);
     if (!cur || cur.score < v) {
-      best.set(r.hub_id, heroRow(r.stage_id, v, Number(r.combo || 0),
+      best.set(key, heroRow(r.stage_id, v, Number(r.combo || 0),
         Number(r.accuracy_pct || 0), Number(r.tokens || 0), label(r.hub_id)));
     }
   }
@@ -734,9 +757,9 @@ function memHeroRecords() {
 }
 async function heroRecords() {
   const q = await pool.query(
-    `SELECT DISTINCT ON (hub_id) hub_id, score, stage_id, combo, accuracy_pct, tokens
+    `SELECT DISTINCT ON (hub_id, stage_id) hub_id, score, stage_id, combo, accuracy_pct, tokens
        FROM runs WHERE game = 'costbot-hero' AND score > 0
-      ORDER BY hub_id, score DESC`);
+      ORDER BY hub_id, stage_id, score DESC`);
   const names = await nameMap(q.rows.map((r) => r.hub_id));
   return q.rows
     .map((r) => heroRow(r.stage_id, Number(r.score), Number(r.combo || 0),
