@@ -15,7 +15,7 @@
  * action tap on touch. The action is always contextual — fix the incident
  * you're standing on, board/leave the train you're next to.
  */
-(function (global) {
+((global) => {
   'use strict';
 
   const C = global.CostBotLandContent;
@@ -222,11 +222,11 @@
     function loadMeta() {
       if (opts.meta) return Object.assign(defaultMeta(), opts.meta);
       if (opts.persist) { try { const raw = global.localStorage && localStorage.getItem(LS_KEY);
-        if (raw) return Object.assign(defaultMeta(), JSON.parse(raw)); } catch (e) {} }
+        if (raw) return Object.assign(defaultMeta(), JSON.parse(raw)); } catch (_e) {} }
       return defaultMeta();
     }
     function saveMeta() { if (!opts.persist) return;
-      try { global.localStorage && localStorage.setItem(LS_KEY, JSON.stringify(api.meta)); } catch (e) {} }
+      try { global.localStorage && localStorage.setItem(LS_KEY, JSON.stringify(api.meta)); } catch (_e) {} }
 
     // ---- chef sprite --------------------------------------------------------
     const chefImg = new Image();
@@ -313,7 +313,7 @@
       if (touchLike && p.x < view.cw * 0.5 && G.state === 'playing') {
         stick.active = true; stick.id = e.pointerId; stick.bx = p.x; stick.by = p.y; stick.kx = p.x; stick.ky = p.y;
       } else { primaryAction(); }
-      if (canvas.setPointerCapture) { try { canvas.setPointerCapture(e.pointerId); } catch (er) {} }
+      if (canvas.setPointerCapture) { try { canvas.setPointerCapture(e.pointerId); } catch (_er) {} }
       e.preventDefault();
     }
     function onPointerMove(e) { if (stick.active && e.pointerId === stick.id) { const p = pointerPos(e); stick.kx = p.x; stick.ky = p.y; } }
@@ -550,7 +550,7 @@
       const v = moveVec();
       // the ring track is a speed lane — on the rails you move trackBoost× faster
       G.chef.onTrack = distToTrack(G.chef.x, G.chef.y) < C.CHEF.laneHalf;
-      let sp = C.CHEF.walk * (G.chef.boost > 0 ? C.CHURRO.boost : 1) * (G.chef.onTrack ? C.CHEF.trackBoost : 1);
+      const sp = C.CHEF.walk * (G.chef.boost > 0 ? C.CHURRO.boost : 1) * (G.chef.onTrack ? C.CHEF.trackBoost : 1);
       const nx = clamp(G.chef.x + v.x * sp * dt, C.CHEF.r, F.w - C.CHEF.r);
       const ny = clamp(G.chef.y + v.y * sp * dt, HUD_H_L() + C.CHEF.r, F.h - C.CHEF.r);
       // The castle blocks you UNLESS the spot you're moving to is on the track —
@@ -793,7 +793,7 @@
       drawSparksFloats();
     }
     // Compact meter for a land, drawn on the painting (no name — the art has it).
-    function drawLandMeter(l) {
+    function _drawLandMeter(l) {
       const r = l.def.rect, down = l.downT > 0;
       const cx = r.x + r.w / 2, my = r.y + r.h - 14, bw = Math.min(150, r.w - 24);
       ctx.save();
@@ -1205,7 +1205,7 @@
       ctx.fillStyle = '#180f24'; rrect(ctx, cx - w / 2, cy - h / 2, w, h, 22); ctx.fill();
       ctx.strokeStyle = '#4a3a72'; ctx.lineWidth = 2; rrect(ctx, cx - w / 2, cy - h / 2, w, h, 22); ctx.stroke();
     }
-    function drawMenu() {
+    function _drawMenu() {
       const cx = view.cw / 2, cy = view.ch / 2, w = Math.min(440, view.cw - 40), h = 360;
       panel(cx, cy, w, h);
       ctx.textAlign = 'center';

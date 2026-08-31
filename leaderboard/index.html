@@ -416,7 +416,7 @@
       // board itself is actually reviewable, not just an empty state.
       if (!GAMES.some((g) => g.id === hashTab)) {
         tab = 'costbot-hero';
-        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('on'));
+        document.querySelectorAll('.tab').forEach((t) => { t.classList.remove('on'); });
         const heroBtn = [...document.querySelectorAll('.tab')].find((t) => t.textContent === '🎸 CostBot Hero');
         if (heroBtn) heroBtn.classList.add('on');
       }

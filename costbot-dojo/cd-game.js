@@ -1459,7 +1459,7 @@
   // ===========================================================================
   // The bell, and the count-out
   // ===========================================================================
-  Instance.prototype.beltFor = function (savings) {
+  Instance.prototype.beltFor = (savings) => {
     let idx = 0;
     C.BELTS.forEach((b, i) => { if (savings >= b.at) idx = i; });
     return idx;
@@ -1863,7 +1863,7 @@
   };
 
   // cover-fit a source of aspect `vr` into the VW×VH viewport
-  Instance.prototype.coverFit = function (vr) {
+  Instance.prototype.coverFit = (vr) => {
     const sr = VW / VH; let dw = VW, dh = VH, dx = 0, dy = 0;
     if (vr > sr) { dh = VH; dw = VH * vr; dx = -(dw - VW) / 2; } else { dw = VW; dh = VW / vr; dy = -(dh - VH) / 2; }
     return { dx, dy, dw, dh };
@@ -1942,7 +1942,7 @@
   };
 
   // The full-frame webcam view. reveal<1 => it materialises in over the dojo.
-  Instance.prototype.drawWebcam = function (now, reveal) {
+  Instance.prototype.drawWebcam = function (_now, reveal) {
     const ctx = this.ctx;
     const v = this.motion.video;
     const d = this.coverFit(v.videoWidth / v.videoHeight);
@@ -1952,7 +1952,8 @@
       ctx.globalAlpha = 1; ctx.fillStyle = 'rgba(4,6,11,.58)'; ctx.fillRect(0, 0, VW, VH);
       return;
     }
-    const pc = this._webCv || (this._webCv = document.createElement('canvas'));
+    if (!this._webCv) this._webCv = document.createElement('canvas');
+    const pc = this._webCv;
     if (pc.width !== VW) { pc.width = VW; pc.height = VH; }
     const pg = pc.getContext('2d', { willReadFrequently: true });
     pg.clearRect(0, 0, VW, VH);
@@ -1967,7 +1968,7 @@
   // Per-pixel transporter dissolve on the player layer — only while assembling
   // (reveal < 1), so steady play pays nothing. Pixels past the frontier vanish;
   // pixels at the frontier flash cyan energy.
-  Instance.prototype.applyMaterialize = function (pg, reveal) {
+  Instance.prototype.applyMaterialize = (pg, reveal) => {
     const img = pg.getImageData(0, 0, VW, VH);
     const dt = img.data;
     const front = 0.14;

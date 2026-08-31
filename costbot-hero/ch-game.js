@@ -10,7 +10,7 @@
  * arcade-music.js (required) and, if you want tokens + the leaderboard,
  * arcade-wallet.js and arcade-sync.js.  Mount with CostBotHero.mount('#el', opts).
  * ======================================================================== */
-(function (global) {
+((global) => {
   'use strict';
 
   // ---- songs (keys into ArcadeMusic.TRACKS) --------------------------------
@@ -461,7 +461,7 @@
     // later, without rebuilding the biome plumbing; it's just unused for now.
     // Falls back to the plain gradient if biomes didn't load or the song has
     // no biome assigned.
-    function drawBiomeBackground(bio, props) {
+    function drawBiomeBackground(bio, _props) {
       ctx2d.fillStyle = bio.floor; ctx2d.fillRect(0, 0, W, H);
       if (bio.sky) {
         const sg = ctx2d.createLinearGradient(0, 0, 0, H);
@@ -582,7 +582,7 @@
       // toward the end), the shape a real round of applause has — an abrupt
       // onset, then tapering off.
       for (let i = 0; i < 56; i++) {
-        clapHit(t0 + Math.pow(Math.random(), 1.5) * 3.0, 0.30 + Math.random() * 0.28);
+        clapHit(t0 + Math.random() ** 1.5 * 3.0, 0.30 + Math.random() * 0.28);
       }
       // Cheer: one long noise swell, its bandpass sweeping up then settling —
       // reads as a wordless crowd "whoo" under the applause.
@@ -598,7 +598,7 @@
       s.connect(f); f.connect(g); g.connect(sfxBus); s.start(t0);
       // A quick ascending C-E-G-C-C "ta-da" arpeggio on top, landing on the
       // octave twice (a fuller flourish than the plain 4-note version).
-      [523.25, 659.25, 784.0, 1046.5, 1318.5].forEach((freq, i) => chime(i * 0.09, freq, 0.3));
+      [523.25, 659.25, 784.0, 1046.5, 1318.5].forEach((freq, i) => { chime(i * 0.09, freq, 0.3); });
     }
 
     // ---- game state ----
@@ -719,7 +719,7 @@
 
       let globalHi = -Infinity;
       for (const m of lead) if (m != null && m > globalHi) globalHi = m;
-      if (!isFinite(globalHi)) globalHi = 72;
+      if (!Number.isFinite(globalHi)) globalHi = 72;
 
       // gap (in steps) from src to the next non-null lead step
       const gapAt = (src) => { let k = 1; while (k < LL && lead[(src + k) % LL] == null) k++; return k; };
@@ -976,13 +976,14 @@
       // still A tier?"). Rounding first keeps the grade and the number
       // the player actually sees in agreement at every boundary.
       const accPct = Math.round(acc * 100);
-      let grade = r.failed ? 'F'
+      const grade = r.failed ? 'F'
         : accPct >= 95 ? 'S' : accPct >= 85 ? 'A' : accPct >= 70 ? 'B' : accPct >= 50 ? 'C' : 'D';
       const tokens = Math.max(0, Math.floor(r.score / 250));
       if (global.ArcadeWallet && tokens) global.ArcadeWallet.earn(tokens, 'costbot-hero');
 
       // record best (by score) per song+difficulty
-      const rec = meta.records[r.song.key] || (meta.records[r.song.key] = {});
+      if (!meta.records[r.song.key]) meta.records[r.song.key] = {};
+      const rec = meta.records[r.song.key];
       const prev = rec[diffKey];
       const better = !prev || r.score > prev.score;
       if (better) rec[diffKey] = { score: r.score, grade, combo: r.maxCombo, acc: accPct };
@@ -1143,7 +1144,7 @@
           songIdx = SONGS.indexOf(vis[i]); SFX.ui();
         } else if (k === 'arrowleft' || k === 'arrowright') {
           const order = diffOrder();
-          let i = order.indexOf(diffKey) + (k === 'arrowright' ? 1 : -1);
+          const i = order.indexOf(diffKey) + (k === 'arrowright' ? 1 : -1);
           diffKey = order[clamp(i, 0, order.length - 1)]; SFX.ui();
         } else if (k === '[' || k === ']') {
           meta.calibMs = clamp((meta.calibMs || 0) + (k === ']' ? 5 : -5), -300, 300); persist(); SFX.ui();
@@ -1199,7 +1200,7 @@
     });
 
     // ---- juice helpers ----
-    function LANE_COLOR() { const r = arguments[0], l = arguments[1]; return PALETTE[l % PALETTE.length]; }
+    function LANE_COLOR(_r, l) { return PALETTE[l % PALETTE.length]; }
     function pop(r, lane, text, color, dy) {
       const g = geom(r.diff.lanes);
       r.pops.push({ x: g.x0 + g.lw * (lane + 0.5), y: hitY() + (dy || -30), text, color, life: 1 });
@@ -1471,7 +1472,7 @@
 
     // ---- menu ----
     let menuHit = [];
-    function drawMenu() {
+    function _drawMenu() {
       menuHit = [];
       const cx = W / 2;
       ctx2d.textAlign = 'center';
@@ -2552,11 +2553,11 @@
         expWrap.innerHTML = '';
         expWrap2.innerHTML = '';
         const vis = visibleSongs();
-        vis.filter((s) => !s.experimental).forEach((s) => songsWrap.appendChild(makeSongRow(s)));
+        vis.filter((s) => !s.experimental).forEach((s) => { songsWrap.appendChild(makeSongRow(s)); });
         const experimental = vis.filter((s) => s.experimental).sort((a, b) => a.name.localeCompare(b.name));
         const half = Math.ceil(experimental.length / 2);
-        experimental.slice(0, half).forEach((s) => expWrap.appendChild(makeSongRow(s)));
-        experimental.slice(half).forEach((s) => expWrap2.appendChild(makeSongRow(s)));
+        experimental.slice(0, half).forEach((s) => { expWrap.appendChild(makeSongRow(s)); });
+        experimental.slice(half).forEach((s) => { expWrap2.appendChild(makeSongRow(s)); });
       }
       function renderDiffButtons() {
         diffsWrap.innerHTML = '';
