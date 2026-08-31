@@ -259,6 +259,16 @@
     lastWipeoutShot = choices[(Math.random() * choices.length) | 0];
     return lastWipeoutShot;
   }
+  // SONG CLEAR mirror of the above — six CostBot Hero victory poses, rotated
+  // the same never-twice-running way so a good run doesn't feel repetitive.
+  const VICTORY_SHOTS = ['cb-victory-1.png', 'cb-victory-2.png', 'cb-victory-3.png',
+    'cb-victory-4.png', 'cb-victory-5.png', 'cb-victory-6.png'];
+  let lastVictoryShot = null;
+  function pickVictoryShot() {
+    const choices = VICTORY_SHOTS.filter((s) => s !== lastVictoryShot);
+    lastVictoryShot = choices[(Math.random() * choices.length) | 0];
+    return lastVictoryShot;
+  }
   const PALETTE = ['#ff9900', '#4285f4', '#00e0b8', '#ff3b30'];
   const VENDORS = ['AWS', 'GCP', 'Azure', 'Databricks'];
   // stylized (non-trademark) vendor glyphs shown on brand-coloured badges
@@ -989,7 +999,8 @@
           ? 'Consistency compounds: steady small cuts beat big one-offs.'
           : TIPS[(r.tipN + r.maxCombo) % TIPS.length];
       run.result = { grade, acc: accPct, tokens, best: better, tip: lesson,
-        wipeoutShot: r.failed ? pickWipeoutShot() : null };
+        wipeoutShot: r.failed ? pickWipeoutShot() : null,
+        victoryShot: r.failed ? null : pickVictoryShot() };
       run.resultAt = performance.now();   // for the crossfade into the results screen
       state = 'result';
       // SONG CLEAR only — a budget-blown fail ending early shouldn't cheer.
@@ -2205,6 +2216,36 @@
           ctx2d.restore();
           ctx2d.strokeStyle = 'rgba(255,255,255,.18)'; ctx2d.lineWidth = 1.5;
           rrect(dx, dy, dw, dh, 10); ctx2d.stroke();
+        }
+      }
+      // SONG CLEAR — a victory pose glows and gently pulses under the tip,
+      // the same empty real-estate the wipeout shot uses on a fail. No boxed
+      // frame here: these are transparent character cutouts, not photos, so
+      // the glow should hug the silhouette rather than a rounded card.
+      if (!run.failed && r.victoryShot) {
+        const entry = getArtImage(r.victoryShot);
+        if (entry && entry.ready) {
+          const top = by + 66 + 32 + 16, bottom = H - 160;
+          const maxW = Math.min(W - 80, 220), maxH = Math.max(40, bottom - top);
+          const ar = entry.img.naturalWidth / entry.img.naturalHeight;
+          let dw = maxW, dh = dw / ar;
+          if (dh > maxH) { dh = maxH; dw = dh * ar; }
+          const cy = top + dh / 2;
+          const t = (performance.now() - (run.resultAt || 0)) / 1000;
+          const pulse = Math.sin(t * (2 * Math.PI / 1.6));       // -1..1, ~1.6s period
+          const scale = 1 + 0.05 * pulse;
+          ctx2d.save();
+          ctx2d.translate(cx, cy);
+          ctx2d.scale(scale, scale);
+          ctx2d.shadowColor = 'rgba(255,215,106,.85)';
+          ctx2d.shadowBlur = 18 + 10 * pulse;                     // breathing glow, 8-28px
+          ctx2d.drawImage(entry.img, -dw / 2, -dh / 2, dw, dh);
+          // a second pass punches the glow up without doubling the opaque
+          // artwork (shadowBlur alone reads faint against the dark backdrop)
+          ctx2d.shadowBlur = 28 + 14 * pulse;
+          ctx2d.globalAlpha = fa * 0.6;
+          ctx2d.drawImage(entry.img, -dw / 2, -dh / 2, dw, dh);
+          ctx2d.restore();
         }
       }
       ctx2d.globalAlpha = 1;
