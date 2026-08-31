@@ -12,6 +12,7 @@
 # `docker save`). Mirrors the go/rust/java starters, which were already multi-stage.
 FROM artifactory.global.twdcgrid.net/hulu-docker/node:24.16-alpine AS test
 WORKDIR /app
+COPY certs/aws-rds/us-east-1-bundle.pem /etc/ssl/certs/aix-proto-rds-ca.pem
 COPY .npmrc examples/costbot-arcade/package.json examples/costbot-arcade/package-lock.json ./
 RUN npm ci --omit=dev --no-fund
 # This app uses no AI, so ai.js / ai.test.js were removed from the template — they are
@@ -29,6 +30,7 @@ RUN node --test
 FROM artifactory.global.twdcgrid.net/hulu-docker/node:24.16-alpine
 
 WORKDIR /app
+COPY certs/aws-rds/us-east-1-bundle.pem /etc/ssl/certs/aix-proto-rds-ca.pem
 # package.json + the lockfile still ship (node resolves "main"/deps from them at runtime); .npmrc is
 # build-only and deliberately NOT copied here.
 COPY examples/costbot-arcade/package.json examples/costbot-arcade/package-lock.json ./

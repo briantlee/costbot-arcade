@@ -21,9 +21,61 @@
 // Fail-safe: if no DB is configured or the connection fails, getPool() returns null - your app
 // must fall back to memory and never crash on a missing DB. `pg` + @aws-sdk/client-secrets-manager
 // are loaded lazily, so an app that never persists needn't ship them.
+const { X509Certificate } = require('node:crypto');
 const { readFileSync } = require('node:fs');
 const { join } = require('node:path');
 
+const RDS_CA_BUNDLE_PATH = '/etc/ssl/certs/aix-proto-rds-ca.pem';
+const RDS_HOST_SUFFIX = '.rds.amazonaws.com';
+const SUPPORTED_RDS_HOST_SUFFIX = '.us-east-1.rds.amazonaws.com';
+
+function normalizeHostname(host) {
+  return host.toLowerCase().replace(/\.$/, '');
+}
+
+function readValidatedCaBundle(caBundlePath) {
+  try {
+    const ca = readFileSync(caBundlePath, 'utf8');
+    const certificates =
+      ca.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g) || [];
+    const remainder = ca.replace(
+      /-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g,
+      '',
+    );
+    if (certificates.length === 0 || remainder.trim() !== '') {
+      throw new Error('bundle is not a PEM certificate sequence');
+    }
+    certificates.forEach((certificate) => {
+      new X509Certificate(certificate);
+    });
+    return ca;
+  } catch (cause) {
+    throw new Error(`RDS CA bundle is missing or invalid at ${caBundlePath}`, { cause });
+  }
+}
+
+function effectiveHostValue(url) {
+  const hostOverrides = url.searchParams.getAll('host');
+  // pg-connection-string assigns query entries in order, so a repeated `host=` is
+  // last-value-wins and percent-decodes the authority hostname. Match that exact parser contract
+  // before deciding whether TLS is mandatory.
+  return hostOverrides.at(-1) || decodeURIComponent(url.hostname);
+}
+
+function effectiveHostnames(url) {
+  return effectiveHostValue(url)
+    .split(',')
+    .map((host) => normalizeHostname(host.trim()));
+}
+
+function removeTlsOverrides(url) {
+  for (const key of [...url.searchParams.keys()]) {
+    const normalized = key.toLowerCase();
+    if (normalized.startsWith('ssl') || normalized === 'uselibpqcompat') {
+      url.searchParams.delete(key);
+    }
+  }
+}
 // Normalize a raw name to a safe SQL identifier: lowercase; non-[a-z0-9_] -> _; strip leading
 // non-letters; cap 48; fall back to "app" when nothing remains. Pure + exported so it is testable
 // in isolation (app.test.js), mirroring the Go/Python/Rust starters.
@@ -68,10 +120,13 @@ function appDbSecretId() {
   return prefix && slug ? `${prefix}/${slug}` : undefined;
 }
 
-// Returns { url, scoped } (scoped = connected with this app's OWN role, schema pre-provisioned
-// by the platform) or undefined when no DB is configured.
+// Returns { url, scoped, source } (scoped = connected with this app's OWN role, schema
+// pre-provisioned by the platform; source preserves whether the URL came from a trusted RDS
+// secret) or undefined when no DB is configured.
 async function resolveDatabaseUrl() {
-  if (process.env.DATABASE_URL) return { url: process.env.DATABASE_URL, scoped: false };
+  if (process.env.DATABASE_URL) {
+    return { url: process.env.DATABASE_URL, scoped: false, source: 'direct' };
+  }
   const ownSecretId = appDbSecretId();
   const secretId = ownSecretId || process.env.RDS_SECRET_ARN;
   if (!secretId) return undefined;
@@ -106,9 +161,59 @@ async function resolveDatabaseUrl() {
   }
   // Both username and password are URL-encoded: an RDS credential can contain : / @ etc.
   return {
-    url: `postgres://${encodeURIComponent(s.username)}:${encodeURIComponent(s.password)}@${host}:${port}/${db}?sslmode=require&uselibpqcompat=true`,
+    url: `postgres://${encodeURIComponent(s.username)}:${encodeURIComponent(s.password)}@${host}:${port}/${db}`,
     scoped: Boolean(ownSecretId),
+    source: 'rds-secret',
   };
+}
+
+function rdsSslOptions(connectionString, options = {}) {
+  const { source = 'direct', caBundlePath = RDS_CA_BUNDLE_PATH } = options;
+  const url = new URL(connectionString);
+  const hosts = effectiveHostnames(url);
+  const rdsHosts = hosts.filter((host) => host.endsWith(RDS_HOST_SUFFIX));
+  if (rdsHosts.length > 0 && rdsHosts.length !== hosts.length) {
+    throw new Error(
+      'RDS TLS cannot safely mix RDS and non-RDS endpoints in one database URL',
+    );
+  }
+  if (source !== 'rds-secret' && rdsHosts.length === 0) return undefined;
+  if (hosts.some((host) => host === '')) {
+    throw new Error('Secret-derived database URL has no hostname');
+  }
+  const unsupportedHost = rdsHosts.find(
+    (host) => !host.endsWith(SUPPORTED_RDS_HOST_SUFFIX),
+  );
+  if (unsupportedHost) {
+    throw new Error(
+      `RDS TLS is configured only for us-east-1; unsupported endpoint hostname: ${unsupportedHost}`,
+    );
+  }
+  // node-postgres exposes one static TLS `servername`; it cannot bind hostname verification to
+  // each endpoint in a failover list. Reject lists that require pinned TLS instead of silently
+  // disabling verification or pinning only the first host.
+  if (hosts.length !== 1) {
+    throw new Error(
+      'Verified Node PostgreSQL connections require one effective hostname; multi-host database URLs are unsupported',
+    );
+  }
+  return {
+    ca: readValidatedCaBundle(caBundlePath),
+    rejectUnauthorized: true,
+    servername: hosts[0],
+  };
+}
+
+function postgresConnectionConfig(connectionString, options = {}) {
+  const url = new URL(connectionString);
+  const ssl = rdsSslOptions(connectionString, options);
+  if (!ssl) return { connectionString };
+
+  // pg lets URL TLS parameters override an explicit ssl object. Remove every case-variant so a
+  // direct DATABASE_URL cannot disable verification or replace the packaged CA. Keep `host=`
+  // itself: pg treats it as the effective endpoint, and rdsSslOptions pins that same hostname.
+  removeTlsOverrides(url);
+  return { connectionString: url.toString(), ssl };
 }
 
 // Returns a pg Pool scoped (own role + search_path) to this app's own schema, or null if no DB is
@@ -127,17 +232,21 @@ async function getPool() {
   }
 
   const schema = appSchema();
+  let connectionConfig;
+  try {
+    connectionConfig = postgresConnectionConfig(resolved.url, {
+      source: resolved.source,
+    });
+  } catch (err) {
+    console.error('aix-db: RDS TLS setup failed -> no persistence:', err.message);
+    return null;
+  }
   try {
     const { Pool } = require('pg');
     const pool = new Pool({
-      connectionString: resolved.url,
-      // Encrypted transit without cert verification, matching the control plane (resolve-db-url.ts).
-      // The URL carries `sslmode=require&uselibpqcompat=true`: pg-connection-string >=2.13.0 treats a
-      // bare `sslmode=require` as `verify-full`, which would override this ssl option and reject the
-      // Amazon RDS CA that Node's trust store lacks (the "self-signed certificate in certificate
-      // chain" failure). `uselibpqcompat=true` keeps libpq semantics (encrypt, don't verify), so this
-      // option wins. A production app that needs verify-full should pass { ca: <RDS CA bundle> } here.
-      ssl: resolved.url.includes('rds.amazonaws.com') ? { rejectUnauthorized: false } : undefined,
+      ...connectionConfig,
+      // RDS: trust only the packaged Amazon CA bundle and verify the endpoint hostname. Local
+      // development URLs keep their existing plaintext/custom behavior.
       max: 4,
       // Every pooled connection starts with this app's schema first on the search_path, so
       // unqualified statements create in / read from the app's own schema (race-free vs. SET).
@@ -165,4 +274,12 @@ async function getPool() {
   }
 }
 
-module.exports = { getPool, appSchema, appSlug, appDbSecretId, normalizeSchema };
+module.exports = {
+  getPool,
+  appSchema,
+  appSlug,
+  appDbSecretId,
+  normalizeSchema,
+  postgresConnectionConfig,
+  rdsSslOptions,
+};
