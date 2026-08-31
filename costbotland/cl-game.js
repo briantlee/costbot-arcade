@@ -676,7 +676,7 @@
       api.meta.bestUptime = Math.max(api.meta.bestUptime || 0, uptime);
       saveMeta();
       const result = {
-        stageId: 'park', outcome, dollarsSaved: 0,
+        game: 'costbotland', stageId: 'park', outcome, dollarsSaved: 0,
         // Tokens already landed in the wallet in real time via awardTokens() as
         // G.score crossed each $dollarsPerToken step — this just reports the
         // lifetime total for this run, it does not pay out again.
