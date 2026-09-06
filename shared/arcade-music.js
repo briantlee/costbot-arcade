@@ -2464,9 +2464,12 @@
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_frozen: {
+      // Dance remix, but with the constant square arp bed removed — it followed
+      // the guessed P chords and clashed with the melody. Now just a clean
+      // four-on-the-floor kick + filtered bass under a warm strings pad.
       title: "For the First Dime in Forever", influence: 'Frozen · For the First Time in Forever, dance remix', bpm: 124, key: '',
-      prog: P.frozen, lead: L.frozen, drums: 'four', pad: 'saw', bars: 58,
-      arpEvery: 2, bassEvery: 2, gain: 0.82, voices: { lead: 'saw', arp: 'square' },
+      prog: P.frozen, lead: L.frozen, drums: 'four', pad: 'strings', bars: 58,
+      arpEvery: 0, bassEvery: 2, gain: 0.82, voices: { lead: 'saw' },
       bassGain: 0.48, bassSubGain: 0.92, bassCutoffStart: 850, bassCutoffEnd: 200,
     },
     ch_guest: {
