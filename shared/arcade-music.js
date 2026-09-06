@@ -762,7 +762,8 @@
       { root: 67, tones: [0, 4, 7] },  // G4 maj  (source bar 58)
     ],
     // "Bill Our Guest" — "Be Our Guest" (Beauty and the Beast), source bars
-    // 12-59 (rubato intro trimmed), --min-pitch 55.
+    // 12-45 (rubato intro trimmed, cut to ~1:01 on the phrase break before the
+    // busy reprise), --min-pitch 55.
     guest: [
       { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 12)
       { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 13)
@@ -798,20 +799,6 @@
       { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 43)
       { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 44)
       { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 45)
-      { root: 53, tones: [0, 3, 7] },  // F3 min  (source bar 46)
-      { root: 63, tones: [0, 4, 7] },  // D#4 maj  (source bar 47)
-      { root: 53, tones: [0, 4, 7] },  // F3 maj  (source bar 48)
-      { root: 60, tones: [0, 3, 7] },  // C4 min  (source bar 49)
-      { root: 58, tones: [0, 3, 7] },  // A#3 min  (source bar 50)
-      { root: 58, tones: [0, 3, 7] },  // A#3 min  (source bar 51)
-      { root: 53, tones: [0, 3, 7] },  // F3 min  (source bar 52)
-      { root: 65, tones: [0, 3, 7] },  // F4 min  (source bar 53)
-      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 54)
-      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 55)
-      { root: 63, tones: [0, 3, 7] },  // D#4 min  (source bar 56)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 57)
-      { root: 61, tones: [0, 4, 7] },  // C#4 maj  (source bar 58)
-      { root: 61, tones: [0, 4, 7] },  // C#4 maj  (source bar 59)
     ],
   };
 
@@ -1969,7 +1956,8 @@
       83, 79, 83, 86, 91, _, _, _, 67, _, _, _, _, _, _, _,  // bar 57 (source bar 58)
     ],
     // "Bill Our Guest" — "Be Our Guest" (Beauty and the Beast), source bars
-    // 12-59 (rubato intro trimmed), --min-pitch 55.
+    // 12-45 (rubato intro trimmed, cut to ~1:01 on the phrase break before the
+    // busy reprise), --min-pitch 55.
     guest: [
       _, _, 59, _, 62, _, 67, _, _, 74, 59, _, 67, _, _, _,  // bar 0 (source bar 12)
       _, _, 61, _, 62, 55, 64, 64, 74, _, 61, _, 62, 59, 64, 64,  // bar 1 (source bar 13)
@@ -2005,20 +1993,6 @@
       _, _, 76, _, 77, _, 82, _, _, _, 76, _, 77, _, 87, _,  // bar 31 (source bar 43)
       _, _, 87, _, 72, 84, 87, 84, _, _, 68, 75, _, _, 72, _,  // bar 32 (source bar 44)
       _, 76, _, _, _, _, _, _, _, _, _, _, _, _, 72, 65,  // bar 33 (source bar 45)
-      72, 68, 65, 65, 72, 73, 68, 72, 68, 65, 68, _, 72, 67, 72, 67,  // bar 34 (source bar 46)
-      67, 72, 73, 67, 72, 67, 72, 72, 72, 63, 72, 66, 72, 72, 77, 63,  // bar 35 (source bar 47)
-      75, 66, 72, 69, _, 70, 62, 65, 84, 82, 62, 82, 65, 62, 62, 62,  // bar 36 (source bar 48)
-      62, _, 70, 65, 70, 61, 61, 70, 72, 65, 70, 65, 68, 67, 68, 63,  // bar 37 (source bar 49)
-      75, 63, 60, 60, 87, 65, _, 65, 65, 60, 67, 73, 61, 73, 73, 61,  // bar 38 (source bar 50)
-      72, 70, 61, 72, 73, 61, 70, _, 72, 67, 67, 77, 60, 79, 67, 76,  // bar 39 (source bar 51)
-      64, 67, 84, _, 67, _, 94, _, 64, _, 67, _, _, _, 80, _,  // bar 40 (source bar 52)
-      _, 65, 72, 80, 68, _, 80, 68, 80, _, 80, 65, 68, 65, 80, 68,  // bar 41 (source bar 53)
-      65, _, 80, 65, 80, _, 79, _, _, 64, 79, 67, 64, 67, 79, 64,  // bar 42 (source bar 54)
-      79, 64, 79, 67, 64, 67, 79, 64, 67, 64, 67, 64, 79, _, 78, _,  // bar 43 (source bar 55)
-      _, 63, 78, 63, 66, 78, 78, 63, 81, 63, 69, 63, _, 81, 63, 82,  // bar 44 (source bar 56)
-      _, 84, _, _, 82, _, _, _, 65, 62, 72, 65, 62, 70, 62, 69,  // bar 45 (source bar 57)
-      65, 70, 65, 62, _, 65, _, 65, 62, 65, 62, _, 65, _, 70, 61,  // bar 46 (source bar 58)
-      65, _, 70, 65, _, 61, 70, 70, 65, 65, 72, 61, _, 65, 70, 65,  // bar 47 (source bar 59)
     ],
   };
 
@@ -2497,7 +2471,7 @@
     },
     ch_guest: {
       title: "Bill Our Guest", influence: '', bpm: 133, key: '',
-      prog: P.guest, lead: L.guest, drums: 'rock', pad: null, bars: 48,
+      prog: P.guest, lead: L.guest, drums: 'rock', pad: null, bars: 34,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
