@@ -645,7 +645,8 @@
       { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 73)
       { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 74)
     ],
-    // "How Far I'll Owe" — "How Far I'll Go" (Moana), full 50 bars (~1:40).
+    // "How Far I'll Owe" — "How Far I'll Go" (Moana), source bars 1-32,
+    // cut to ~1:04 on the sustained phrase resolution before the chorus pickup.
     howfarowe: [
       { root: 59, tones: [0, 4, 7] },  // B3 maj  (source bar 1)
       { root: 61, tones: [0, 3, 7] },  // C#4 min  (source bar 2)
@@ -679,24 +680,6 @@
       { root: 54, tones: [0, 4, 7] },  // F#3 maj  (source bar 30)
       { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 31)
       { root: 57, tones: [0, 3, 7] },  // A3 min  (source bar 32)
-      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 33)
-      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 34)
-      { root: 54, tones: [0, 4, 7] },  // F#3 maj  (source bar 35)
-      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 36)
-      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 37)
-      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 38)
-      { root: 54, tones: [0, 4, 7] },  // F#3 maj  (source bar 39)
-      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 40)
-      { root: 57, tones: [0, 3, 7] },  // A3 min  (source bar 41)
-      { root: 53, tones: [0, 4, 7] },  // F3 maj  (source bar 42)
-      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 43)
-      { root: 50, tones: [0, 3, 7] },  // D3 min  (source bar 44)
-      { root: 53, tones: [0, 4, 7] },  // F3 maj  (source bar 45)
-      { root: 53, tones: [0, 4, 7] },  // F3 maj  (source bar 46)
-      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 47)
-      { root: 50, tones: [0, 3, 7] },  // D3 min  (source bar 48)
-      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 49)
-      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 50)
     ],
     // "For the First Dime in Forever" — "For the First Time in Forever"
     // (Frozen), full 58 bars, --min-pitch 60 to lift the melody off the
@@ -1839,7 +1822,8 @@
       70, _, _, _, 61, _, 65, _, _, _, _, _, 63, _, _, _,  // bar 57 (source bar 73)
       _, _, _, _, 65, _, _, _, _, _, _, _, 70, _, _, _,  // bar 58 (source bar 74)
     ],
-    // "How Far I'll Owe" — "How Far I'll Go" (Moana), full 50 bars (~1:40).
+    // "How Far I'll Owe" — "How Far I'll Go" (Moana), source bars 1-32,
+    // cut to ~1:04 on the sustained phrase resolution before the chorus pickup.
     howfarowe: [
       71, _, _, 59, _, _, 64, _, _, 59, 64, 59, 64, _, 64, 61,  // bar 0 (source bar 1)
       69, _, _, 61, _, _, 66, _, _, 61, _, _, 66, _, 64, 66,  // bar 1 (source bar 2)
@@ -1873,24 +1857,6 @@
       61, _, 66, _, 71, _, 61, 59, 61, _, 66, _, 66, _, _, 64,  // bar 29 (source bar 30)
       64, _, 68, _, 71, _, 64, 64, 64, _, 68, _, 68, _, 69, 71,  // bar 30 (source bar 31)
       69, _, _, _, 68, _, _, _, 68, _, _, _, _, _, _, _,  // bar 31 (source bar 32)
-      _, _, _, _, _, _, _, _, _, 49, 52, 57, 61, 64, 64, 66,  // bar 32 (source bar 33)
-      68, _, 64, 66, 71, _, 64, 66, 68, _, 59, _, 71, _, 71, _,  // bar 33 (source bar 34)
-      _, _, 66, _, 71, _, 54, _, _, _, 54, 64, 71, _, 63, _,  // bar 34 (source bar 35)
-      68, _, 56, _, 68, _, 66, _, 49, _, 56, 64, 71, _, 63, _,  // bar 35 (source bar 36)
-      68, _, 52, _, 69, _, 66, _, _, _, 52, _, 69, _, 64, 66,  // bar 36 (source bar 37)
-      68, _, 64, 66, 71, _, 64, 66, 68, _, 64, _, 71, _, 71, _,  // bar 37 (source bar 38)
-      _, _, 66, _, 71, _, 54, _, _, _, 54, 64, 71, _, 63, _,  // bar 38 (source bar 39)
-      68, _, 56, _, 68, _, 66, _, 49, _, 56, _, 68, _, 64, 66,  // bar 39 (source bar 40)
-      69, _, 64, _, 64, _, 64, 66, 68, _, 64, _, 64, _, 65, 67,  // bar 40 (source bar 41)
-      69, _, 65, 67, 69, _, 65, 67, 69, _, 60, _, 69, _, 65, _,  // bar 41 (source bar 42)
-      48, _, 67, _, 67, _, 55, _, 48, _, 55, 65, 67, _, 64, _,  // bar 42 (source bar 43)
-      69, _, 57, _, 69, _, 67, _, 50, _, 57, 65, 69, _, 64, _,  // bar 43 (source bar 44)
-      69, _, 53, _, 70, _, 67, _, _, _, 53, _, 70, _, 65, 67,  // bar 44 (source bar 45)
-      69, _, 65, 67, 69, _, 65, 67, 69, _, 65, _, 69, _, 65, _,  // bar 45 (source bar 46)
-      48, _, 67, _, 67, _, 55, _, 48, _, 55, 65, 67, _, 64, _,  // bar 46 (source bar 47)
-      69, _, 57, _, 69, _, 67, _, 50, _, 57, 65, 69, _, 60, _,  // bar 47 (source bar 48)
-      60, _, _, _, _, _, 58, _, 53, _, _, _, 60, _, _, _,  // bar 48 (source bar 49)
-      67, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 49 (source bar 50)
     ],
     // "For the First Dime in Forever" — "For the First Time in Forever"
     // (Frozen), full 58 bars, --min-pitch 60 to lift the melody off the
@@ -2459,7 +2425,7 @@
     },
     ch_howfarowe: {
       title: "How Far I'll Owe", influence: '', bpm: 120, key: '',
-      prog: P.howfarowe, lead: L.howfarowe, drums: 'rock', pad: 'power', bars: 50,
+      prog: P.howfarowe, lead: L.howfarowe, drums: 'rock', pad: 'power', bars: 32,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
