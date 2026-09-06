@@ -13,7 +13,7 @@
  * ArcadeSync for the leaderboard. Mount with QuizShow.mount('#el', opts).
  * Content lives in qs-content.js (QuizShowContent).
  * ======================================================================== */
-(function (global) {
+((global) => {
   'use strict';
 
   const STORE_KEY = 'costbot.quizshow.v1';
@@ -24,7 +24,7 @@
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
   const fmt$ = (n) => '$' + Math.round(n).toLocaleString('en-US');
   const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
-  const rand = (lo, hi) => lo + Math.random() * (hi - lo);
+  const _rand = (lo, hi) => lo + Math.random() * (hi - lo);
 
   function loadStore() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } }
   function saveStore(o) { try { localStorage.setItem(STORE_KEY, JSON.stringify(o)); } catch {} }
@@ -126,12 +126,12 @@
       // Clue reveal — a soft chime that says "here's your question".
       reveal: () => { blip(523, 0.10, 'triangle', 0.32, 784); setTimeout(() => blip(1046, 0.12, 'sine', 0.22), 80); },
       // Correct — the classic bright game-show "ding ding ding".
-      correct: () => { [880, 1174, 1568].forEach((f, i) => setTimeout(() => blip(f, 0.11, 'triangle', 0.42, f * 1.2), i * 70)); },
+      correct: () => { [880, 1174, 1568].forEach((f, i) => { setTimeout(() => blip(f, 0.11, 'triangle', 0.42, f * 1.2), i * 70); }); },
       // Wrong — the flat "eehhh" buzzer.
       wrong: () => { blip(196, 0.32, 'sawtooth', 0.42, 120); setTimeout(() => blip(155, 0.30, 'square', 0.3, 100), 20); },
       tick: () => blip(1200, 0.03, 'square', 0.16),
       overclock: () => { blip(784, 0.08, 'triangle', 0.35, 1046); setTimeout(() => blip(1046, 0.08, 'sine', 0.3, 1568), 70); },
-      ship: () => { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => blip(f, 0.14, 'triangle', 0.35), i * 90)); },
+      ship: () => { [523, 659, 784, 1046].forEach((f, i) => { setTimeout(() => blip(f, 0.14, 'triangle', 0.35), i * 90); }); },
       final: () => { blip(330, 0.5, 'sawtooth', 0.25, 660); },
     };
 
@@ -212,13 +212,13 @@
     function newRun() {
       const cats = shuffle(C.CATEGORIES.slice()).slice(0, 3);
       const tiles = [];
-      cats.forEach((cat, col) => VALUES.forEach((val, row) => {
+      cats.forEach((cat, col) => { VALUES.forEach((val, row) => {
         // Each tier holds several clues; draw one at random so a tile is a
         // different question next game.
         const pool = cat.tiers[row];
         const clue = Array.isArray(pool) ? pick1(pool) : pool;
         tiles.push({ col, row, cat, value: val, clue, done: false, commitment: false });
-      }));
+      }); });
       // Two Commitment tiles on a 4×4 board, on the pricier rows (never the freebie).
       const bigTiles = shuffle(tiles.filter((t) => t.row >= 1));
       bigTiles.slice(0, 2).forEach((t) => { t.commitment = true; });
@@ -442,7 +442,7 @@
       if (cl.time >= cl.dur) { resolveClue('timeout'); }
     }
 
-    function answer(i, el) {
+    function answer(i, _el) {
       const cl = run.clue;
       if (!cl || cl.phase === 'resolved' || cl.answered) return;
       cl.answered = true;
@@ -456,7 +456,7 @@
       resolveClue(correct ? 'correct' : 'wrong', i);
     }
 
-    function resolveClue(kind, chosen) {
+    function resolveClue(kind, _chosen) {
       const cl = run.clue;
       if (!cl || cl.phase === 'resolved') return;
       cl.phase = 'resolved';
@@ -618,7 +618,7 @@
       });
     }
 
-    function resolveFinal(correct, chosen) {
+    function resolveFinal(correct, _chosen) {
       const F = run.final, cl = F.clue;
       if (cl.phase === 'resolved') return;
       cl.phase = 'resolved';

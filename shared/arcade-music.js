@@ -384,6 +384,267 @@
       { root: 38, tones: [0, 3, 7] }, { root: 39, tones: [0, 4, 7] },   // Dm  Eb   (bar 39 hook variant, tops on C6)
       { root: 38, tones: [0, 3, 7] },                                  // Dm       (bar 40, cadence back toward the top)
     ],
+    // "Under the GCP" — "Under the Sea" (The Little Mermaid), cost-punned.
+    // Generated from under_the_gcp.mid by arcade/tools/mid2chart.js: a single-
+    // track piano arrangement. Cut to the source's bars 1-32 (the intro theme
+    // + verse + build) — the run ended a touch long at the full 43, and bar 32
+    // lands on a Db tonic cadence just before the dense F5 climax, so it's a
+    // clean loop boundary. Roots are the lowest (left-hand) note per bar — Db
+    // major, mostly Db/Ab/Gb (I/V/IV) with a few passing chords. The major/
+    // minor here is the tool's guess from the sounding 3rd; the handful of
+    // `min` bars are first-draft and worth an ear-check.
+    underthegcp: [
+      { root: 37, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },  // bars 1-4
+      { root: 49, tones: [0, 4, 7] }, { root: 65, tones: [0, 3, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] },  // bars 5-8
+      { root: 49, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 49, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] },  // bars 9-12
+      { root: 53, tones: [0, 3, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 53, tones: [0, 3, 7] }, { root: 56, tones: [0, 4, 7] },  // bars 13-16
+      { root: 54, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 61, tones: [0, 4, 7] },  // bars 17-20
+      { root: 54, tones: [0, 4, 7] }, { root: 61, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 61, tones: [0, 4, 7] },  // bars 21-24
+      { root: 61, tones: [0, 4, 7] }, { root: 54, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] },  // bars 25-28
+      { root: 61, tones: [0, 4, 7] }, { root: 54, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 61, tones: [0, 4, 7] },  // bars 29-32
+    ],
+    // "Flower Gil" — Aerith's Theme (FF7), source bars 1-70 (~1:20 at 210bpm).
+    // Roots octave-normalized; quality is the tool's guess.
+    aerithrock: [
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 1)
+      { root: 36, tones: [0, 4, 7] },  // C3 maj  (source bar 2)
+      { root: 40, tones: [0, 4, 7] },  // E1 maj  (source bar 3)
+      { root: 36, tones: [0, 4, 7] },  // C3 maj  (source bar 4)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 5)
+      { root: 47, tones: [0, 3, 7] },  // B2 min  (source bar 6)
+      { root: 40, tones: [0, 4, 7] },  // E1 maj  (source bar 7)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 8)
+      { root: 42, tones: [0, 3, 7] },  // F#1 min  (source bar 9)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 10)
+      { root: 36, tones: [0, 4, 7] },  // C1 maj  (source bar 11)
+      { root: 36, tones: [0, 4, 7] },  // C1 maj  (source bar 12)
+      { root: 36, tones: [0, 4, 7] },  // C1 maj  (source bar 13)
+      { root: 38, tones: [0, 3, 7] },  // D1 min  (source bar 14)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 15)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 16)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 17)
+      { root: 37, tones: [0, 3, 7] },  // C#1 min  (source bar 18)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 19)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 20)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 21)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 22)
+      { root: 37, tones: [0, 4, 7] },  // C#1 maj  (source bar 23)
+      { root: 37, tones: [0, 4, 7] },  // C#1 maj  (source bar 24)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 25)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 26)
+      { root: 40, tones: [0, 3, 7] },  // E1 min  (source bar 27)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 28)
+      { root: 37, tones: [0, 4, 7] },  // C#1 maj  (source bar 29)
+      { root: 37, tones: [0, 4, 7] },  // C#1 maj  (source bar 30)
+      { root: 37, tones: [0, 4, 7] },  // C#1 maj  (source bar 31)
+      { root: 37, tones: [0, 4, 7] },  // C#1 maj  (source bar 32)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 33)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 34)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 35)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 36)
+      { root: 37, tones: [0, 4, 7] },  // C#1 maj  (source bar 37)
+      { root: 37, tones: [0, 3, 7] },  // C#1 min  (source bar 38)
+      { root: 37, tones: [0, 3, 7] },  // C#1 min  (source bar 39)
+      { root: 37, tones: [0, 4, 7] },  // C#1 maj  (source bar 40)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 41)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 42)
+      { root: 40, tones: [0, 3, 7] },  // E1 min  (source bar 43)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 44)
+      { root: 40, tones: [0, 4, 7] },  // E1 maj  (source bar 45)
+      { root: 42, tones: [0, 3, 7] },  // F#1 min  (source bar 46)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 47)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 48)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 49)
+      { root: 37, tones: [0, 4, 7] },  // C#1 maj  (source bar 50)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 51)
+      { root: 40, tones: [0, 3, 7] },  // E1 min  (source bar 52)
+      { root: 40, tones: [0, 3, 7] },  // E2 min  (source bar 53)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 54)
+      { root: 40, tones: [0, 3, 7] },  // E1 min  (source bar 55)
+      { root: 47, tones: [0, 4, 7] },  // B1 maj  (source bar 56)
+      { root: 43, tones: [0, 4, 7] },  // G1 maj  (source bar 57)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 58)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 59)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 60)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 61)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 62)
+      { root: 37, tones: [0, 4, 7] },  // C#3 maj  (source bar 63)
+      { root: 40, tones: [0, 3, 7] },  // E1 min  (source bar 64)
+      { root: 42, tones: [0, 3, 7] },  // F#1 min  (source bar 65)
+      { root: 43, tones: [0, 4, 7] },  // G1 maj  (source bar 66)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 67)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 68)
+      { root: 47, tones: [0, 3, 7] },  // B1 min  (source bar 69)
+      { root: 38, tones: [0, 4, 7] },  // D1 maj  (source bar 70)
+    ],
+    // "Vamo Alla Financio" — Vamo' Alla Flamenco (FF9), full 64 bars.
+    // Chords ESTIMATED from the melody (best-fitting A-minor flamenco chord
+    // per bar: Am/Dm/Em/E/F/G/C by chord-tone coverage) so the backing
+    // matches the tune, instead of the tool's lowest-note guess.
+    vamo: [
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 0)
+      { root: 41, tones: [0, 4, 7] },  // F  (bar 1)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 2)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 3)
+      { root: 41, tones: [0, 4, 7] },  // F  (bar 4)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 5)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 6)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 7)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 8)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 9)
+      { root: 43, tones: [0, 4, 7] },  // G  (bar 10)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 11)
+      { root: 43, tones: [0, 4, 7] },  // G  (bar 12)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 13)
+      { root: 38, tones: [0, 3, 7] },  // Dm  (bar 14)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 15)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 16)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 17)
+      { root: 38, tones: [0, 3, 7] },  // Dm  (bar 18)
+      { root: 40, tones: [0, 3, 7] },  // Em  (bar 19)
+      { root: 43, tones: [0, 4, 7] },  // G  (bar 20)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 21)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 22)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 23)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 24)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 25)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 26)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 27)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 28)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 29)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 30)
+      { root: 41, tones: [0, 4, 7] },  // F  (bar 31)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 32)
+      { root: 38, tones: [0, 3, 7] },  // Dm  (bar 33)
+      { root: 40, tones: [0, 3, 7] },  // Em  (bar 34)
+      { root: 43, tones: [0, 4, 7] },  // G  (bar 35)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 36)
+      { root: 41, tones: [0, 4, 7] },  // F  (bar 37)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 38)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 39)
+      { root: 41, tones: [0, 4, 7] },  // F  (bar 40)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 41)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 42)
+      { root: 38, tones: [0, 3, 7] },  // Dm  (bar 43)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 44)
+      { root: 38, tones: [0, 3, 7] },  // Dm  (bar 45)
+      { root: 38, tones: [0, 3, 7] },  // Dm  (bar 46)
+      { root: 40, tones: [0, 3, 7] },  // Em  (bar 47)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 48)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 49)
+      { root: 38, tones: [0, 3, 7] },  // Dm  (bar 50)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 51)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 52)
+      { root: 38, tones: [0, 3, 7] },  // Dm  (bar 53)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 54)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 55)
+      { root: 40, tones: [0, 4, 7] },  // E  (bar 56)
+      { root: 38, tones: [0, 3, 7] },  // Dm  (bar 57)
+      { root: 40, tones: [0, 3, 7] },  // Em  (bar 58)
+      { root: 43, tones: [0, 4, 7] },  // G  (bar 59)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 60)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 61)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 62)
+      { root: 45, tones: [0, 3, 7] },  // Am  (bar 63)
+    ],
+    // "Stolen Tokens" — Yuffie's Theme (FF7), source bars 1-31: verse +
+    // development + chorus, ending just before the repeated 2nd round (~1:09).
+    stolentokens: [
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 1)
+      { root: 45, tones: [0, 3, 7] },  // A2 min  (source bar 2)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 3)
+      { root: 45, tones: [0, 3, 7] },  // A2 min  (source bar 4)
+      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 5)
+      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 6)
+      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 7)
+      { root: 54, tones: [0, 3, 7] },  // F#3 min  (source bar 8)
+      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 9)
+      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 10)
+      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 11)
+      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 12)
+      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 13)
+      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 14)
+      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 15)
+      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 16)
+      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 17)
+      { root: 47, tones: [0, 3, 7] },  // B2 min  (source bar 18)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 19)
+      { root: 45, tones: [0, 3, 7] },  // A2 min  (source bar 20)
+      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 21)
+      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 22)
+      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 23)
+      { root: 59, tones: [0, 3, 7] },  // B3 min  (source bar 24)
+      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 25)
+      { root: 59, tones: [0, 3, 7] },  // B3 min  (source bar 26)
+      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 27)
+      { root: 59, tones: [0, 4, 7] },  // B3 maj  (source bar 28)
+      { root: 79, tones: [0, 4, 7] },  // G5 maj  (source bar 29)
+      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 30)
+      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 31)
+    ],
+    // "Price Ali" — Prince Ali (Aladdin), source bars 16-74 (~1:20), intro
+    // trimmed and tail cut to end on the Bb tonic. Roots octave-normalized.
+    priceali: [
+      { root: 46, tones: [0, 3, 7] },  // A#3 min  (source bar 16)
+      { root: 46, tones: [0, 4, 7] },  // A#3 maj  (source bar 17)
+      { root: 36, tones: [0, 4, 7] },  // C3 maj  (source bar 18)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 19)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 20)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 21)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 22)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 23)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 24)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 25)
+      { root: 39, tones: [0, 3, 7] },  // D#2 min  (source bar 26)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 27)
+      { root: 36, tones: [0, 4, 7] },  // C3 maj  (source bar 28)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 29)
+      { root: 41, tones: [0, 4, 7] },  // F3 maj  (source bar 30)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 31)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 32)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 33)
+      { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 34)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 35)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 36)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 37)
+      { root: 39, tones: [0, 3, 7] },  // D#2 min  (source bar 38)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 39)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 40)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 41)
+      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 42)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 43)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 44)
+      { root: 39, tones: [0, 4, 7] },  // D#4 maj  (source bar 45)
+      { root: 41, tones: [0, 4, 7] },  // F3 maj  (source bar 46)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 47)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 48)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 49)
+      { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 50)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 51)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 52)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 53)
+      { root: 39, tones: [0, 3, 7] },  // D#2 min  (source bar 54)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 55)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 56)
+      { root: 37, tones: [0, 4, 7] },  // C#3 maj  (source bar 57)
+      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 58)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 59)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 60)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 61)
+      { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 62)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 63)
+      { root: 39, tones: [0, 3, 7] },  // D#2 min  (source bar 64)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 65)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 66)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 67)
+      { root: 39, tones: [0, 3, 7] },  // D#2 min  (source bar 68)
+      { root: 36, tones: [0, 4, 7] },  // C3 maj  (source bar 69)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 70)
+      { root: 39, tones: [0, 3, 7] },  // D#2 min  (source bar 71)
+      { root: 39, tones: [0, 3, 7] },  // D#2 min  (source bar 72)
+      { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 73)
+      { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 74)
+    ],
   };
 
   // ===========================================================================
@@ -1140,6 +1401,289 @@
       // bar 40 — the cadence out: G5, a quick A5 grace-turn, held F5, D5, F5
       79, _, _, 81, 77, _, _, _, _, _, _, _, 74, _, 77, _,
     ],
+    // "Under the GCP" — the "Under the Sea" melody, transcribed from
+    // under_the_gcp.mid by arcade/tools/mid2chart.js with --min-dur 48. The
+    // source is a single-track piano arrangement in which every melody note
+    // (dur 96 = a 16th) is shadowed by a short dur-24 bass/echo note struck a
+    // 64th later and OFF the 16th grid; --min-dur drops those ornaments so only
+    // the real, on-grid melody notes remain (they land cleanly on the 8th-note
+    // grid, the tune's natural calypso pulse). Cut to the source's bars 1-32
+    // (see P.underthegcp for why): 187 onsets, 36.5% of steps. Exact.
+    underthegcp: [
+      _, _, 49, _, 56, _, 61, _, 65, _, _, _, 65, _, _, _,  // bar 0 (source bar 1)
+      65, _, 63, _, _, _, 66, _, _, _, 65, _, _, _, 61, _,  // bar 1 (source bar 2)
+      _, _, 49, _, 53, _, 56, _, 61, _, _, _, 61, _, _, _,  // bar 2 (source bar 3)
+      61, _, 60, _, _, _, 63, _, _, _, 61, _, _, _, _, _,  // bar 3 (source bar 4)
+      _, _, 65, _, 68, _, 73, _, 77, _, _, _, 77, _, _, _,  // bar 4 (source bar 5)
+      77, _, 75, _, _, _, 78, _, _, _, 77, _, _, _, 73, _,  // bar 5 (source bar 6)
+      _, _, 61, _, 65, _, 68, _, 73, _, 56, _, 73, _, _, _,  // bar 6 (source bar 7)
+      73, _, 72, _, _, _, 75, _, _, _, 73, 75, 73, 75, 73, 75,  // bar 7 (source bar 8)
+      73, 75, 61, _, _, _, 73, _, 73, _, 61, _, 73, _, 61, _,  // bar 8 (source bar 9)
+      73, _, 72, _, 56, _, 75, _, _, _, 73, _, _, _, 68, _,  // bar 9 (source bar 10)
+      65, _, 61, _, _, _, 65, _, 68, _, 61, _, 68, _, 61, _,  // bar 10 (source bar 11)
+      68, _, 63, _, _, _, 68, _, 56, _, 65, _, _, _, _, _,  // bar 11 (source bar 12)
+      56, _, 61, _, _, _, 68, _, 73, _, 61, _, 73, _, 65, _,  // bar 12 (source bar 13)
+      68, _, 72, _, _, _, 75, _, 68, _, 73, _, _, _, 68, _,  // bar 13 (source bar 14)
+      56, _, 61, _, _, _, 68, _, 65, _, 56, _, 68, _, 65, _,  // bar 14 (source bar 15)
+      68, _, 63, _, _, _, 68, _, 56, _, 65, _, _, _, _, _,  // bar 15 (source bar 16)
+      61, _, 61, _, 58, _, 66, _, 70, _, 54, _, 73, _, 61, _,  // bar 16 (source bar 17)
+      70, _, 68, _, 56, _, 73, _, 68, _, 68, _, 56, _, 73, _,  // bar 17 (source bar 18)
+      _, _, 66, _, 56, _, 66, _, 75, _, 56, _, 75, _, 56, _,  // bar 18 (source bar 19)
+      73, _, 77, _, _, _, 75, _, 61, _, 73, _, _, _, 61, _,  // bar 19 (source bar 20)
+      _, _, 54, _, _, _, 66, _, 70, _, _, _, 73, _, _, _,  // bar 20 (source bar 21)
+      70, _, 68, _, _, _, 73, _, _, _, 68, _, _, _, 73, _,  // bar 21 (source bar 22)
+      _, _, 56, _, _, _, 68, _, 75, _, 68, _, 75, _, 68, _,  // bar 22 (source bar 23)
+      73, _, 77, _, _, _, 75, _, _, _, 73, _, _, _, 61, _,  // bar 23 (source bar 24)
+      _, _, 61, _, 68, _, 73, _, 77, _, _, _, 75, _, 73, _,  // bar 24 (source bar 25)
+      _, _, 70, _, _, _, 61, _, 70, _, _, _, 70, _, _, _,  // bar 25 (source bar 26)
+      70, _, 68, _, _, _, 65, _, 77, _, _, _, 75, _, 73, _,  // bar 26 (source bar 27)
+      56, _, 75, _, _, _, 66, _, 68, _, _, _, 68, _, 66, _,  // bar 27 (source bar 28)
+      _, _, 65, _, _, _, 68, _, 77, _, _, _, 75, _, 73, _,  // bar 28 (source bar 29)
+      _, _, 70, _, _, _, 68, _, 77, _, 66, _, 75, _, 73, _,  // bar 29 (source bar 30)
+      _, _, 70, _, 63, _, 68, _, 77, _, 56, _, 75, _, 73, _,  // bar 30 (source bar 31)
+      _, _, 77, _, _, _, _, _, 68, _, _, _, _, _, 73, _,  // bar 31 (source bar 32)
+    ],
+    // "Flower Gil" — Aerith's Theme (FF7), bars 1-70 (~1:20), top melody with
+    // --min-pitch 48: keeps the theme clean but pulls in the lower inner voice
+    // so the sparse ballad stretches fill in (no empty bars, ~16% of steps).
+    aerithrock: [
+      66, _, _, _, 69, _, _, _, 74, _, _, _, _, _, _, _,  // bar 0 (source bar 1)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 1 (source bar 2)
+      72, _, _, _, 69, _, _, _, 64, _, _, _, _, _, _, _,  // bar 2 (source bar 3)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 3 (source bar 4)
+      66, _, _, _, 69, _, _, _, 74, _, _, _, 73, _, _, _,  // bar 4 (source bar 5)
+      76, _, _, _, 74, _, _, _, 71, _, _, _, 73, _, _, _,  // bar 5 (source bar 6)
+      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 6 (source bar 7)
+      64, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 7 (source bar 8)
+      66, _, _, _, 69, _, _, _, 74, _, _, _, _, _, _, _,  // bar 8 (source bar 9)
+      57, _, _, _, _, _, _, _, 57, _, _, _, _, _, _, _,  // bar 9 (source bar 10)
+      72, _, _, _, 69, _, _, _, 64, _, _, _, _, _, _, _,  // bar 10 (source bar 11)
+      52, _, _, _, _, _, _, _, 48, _, _, _, 62, _, 64, _,  // bar 11 (source bar 12)
+      62, _, _, _, _, _, _, _, 53, _, _, _, _, _, _, _,  // bar 12 (source bar 13)
+      65, _, _, _, 64, _, _, _, 62, _, _, _, 64, _, _, _,  // bar 13 (source bar 14)
+      62, _, _, _, _, _, _, _, 50, _, _, _, _, _, _, _,  // bar 14 (source bar 15)
+      50, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 15 (source bar 16)
+      62, _, _, _, _, _, _, _, 50, _, _, _, 52, _, _, _,  // bar 16 (source bar 17)
+      54, _, _, _, 50, _, _, _, 49, _, _, _, 52, _, _, _,  // bar 17 (source bar 18)
+      50, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 18 (source bar 19)
+      _, _, _, _, _, _, _, _, 62, _, _, _, 64, _, _, _,  // bar 19 (source bar 20)
+      66, _, _, _, _, _, _, _, 50, _, _, _, _, _, _, _,  // bar 20 (source bar 21)
+      54, _, _, _, _, _, _, _, 66, _, _, _, 67, _, _, _,  // bar 21 (source bar 22)
+      69, _, _, _, _, _, _, _, 49, _, _, _, _, _, _, _,  // bar 22 (source bar 23)
+      54, _, _, _, _, _, _, _, 71, _, _, _, 73, _, _, _,  // bar 23 (source bar 24)
+      74, _, _, _, _, _, _, _, 71, _, _, _, _, _, _, _,  // bar 24 (source bar 25)
+      50, _, _, _, _, _, _, _, 67, _, _, _, _, _, _, _,  // bar 25 (source bar 26)
+      69, _, 71, _, 69, _, _, _, 52, _, _, _, _, _, _, _,  // bar 26 (source bar 27)
+      54, _, _, _, _, _, _, _, 57, _, _, _, 54, _, _, _,  // bar 27 (source bar 28)
+      49, _, _, _, _, _, _, _, _, _, _, _, 49, _, _, _,  // bar 28 (source bar 29)
+      73, _, _, _, _, _, _, _, _, _, _, _, 49, _, _, _,  // bar 29 (source bar 30)
+      71, _, _, _, _, _, _, _, _, _, _, _, 49, _, _, _,  // bar 30 (source bar 31)
+      69, _, _, _, _, _, _, _, 59, _, _, _, 57, _, _, _,  // bar 31 (source bar 32)
+      50, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 32 (source bar 33)
+      71, _, _, _, _, _, _, _, _, _, _, _, 50, _, _, _,  // bar 33 (source bar 34)
+      69, _, _, _, _, _, _, _, _, _, _, _, 50, _, _, _,  // bar 34 (source bar 35)
+      67, _, _, _, _, _, _, _, 57, _, _, _, 54, _, _, _,  // bar 35 (source bar 36)
+      49, _, _, _, _, _, _, _, _, _, _, _, 49, _, _, _,  // bar 36 (source bar 37)
+      54, 76, _, _, _, _, _, _, _, _, _, _, 49, _, _, _,  // bar 37 (source bar 38)
+      _, 74, _, _, _, _, _, _, _, _, _, _, 49, _, _, _,  // bar 38 (source bar 39)
+      73, _, _, _, _, _, _, _, 59, _, _, _, 61, _, _, _,  // bar 39 (source bar 40)
+      62, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 40 (source bar 41)
+      _, _, _, _, 50, _, _, _, 62, _, _, _, _, _, _, _,  // bar 41 (source bar 42)
+      _, _, _, _, _, _, _, _, 74, _, _, _, _, _, _, _,  // bar 42 (source bar 43)
+      73, _, _, _, _, _, _, _, 71, _, _, _, _, _, _, _,  // bar 43 (source bar 44)
+      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 44 (source bar 45)
+      66, _, _, _, _, _, _, _, 54, _, _, _, _, _, _, _,  // bar 45 (source bar 46)
+      _, _, _, _, 50, _, _, _, 74, _, _, _, 50, _, _, _,  // bar 46 (source bar 47)
+      73, _, _, _, 50, _, _, _, 71, _, _, _, _, _, _, _,  // bar 47 (source bar 48)
+      73, _, _, _, _, _, _, _, _, _, _, _, 78, _, _, _,  // bar 48 (source bar 49)
+      78, _, _, _, _, _, _, _, 49, _, _, _, 54, _, _, _,  // bar 49 (source bar 50)
+      _, _, _, _, _, _, _, _, 74, _, _, _, _, _, _, _,  // bar 50 (source bar 51)
+      73, _, _, _, _, _, _, _, 71, _, _, _, _, _, _, _,  // bar 51 (source bar 52)
+      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 52 (source bar 53)
+      64, _, _, _, 50, _, _, _, 55, _, _, _, 62, _, _, _,  // bar 53 (source bar 54)
+      62, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 54 (source bar 55)
+      61, _, _, _, _, _, _, _, 64, _, _, _, _, _, _, _,  // bar 55 (source bar 56)
+      67, _, _, _, 66, _, _, _, 64, _, _, _, 59, _, _, _,  // bar 56 (source bar 57)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 57 (source bar 58)
+      50, _, _, _, 55, _, _, _, 59, _, _, _, 62, _, _, _,  // bar 58 (source bar 59)
+      67, _, _, _, 66, _, _, _, 62, _, _, _, 64, _, _, _,  // bar 59 (source bar 60)
+      62, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 60 (source bar 61)
+      50, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 61 (source bar 62)
+      _, _, _, _, _, _, _, _, 74, _, _, _, _, _, _, _,  // bar 62 (source bar 63)
+      73, _, _, _, _, _, _, _, 71, _, _, _, _, _, _, _,  // bar 63 (source bar 64)
+      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 64 (source bar 65)
+      64, _, _, _, _, _, _, _, _, _, _, _, 64, _, 66, _,  // bar 65 (source bar 66)
+      67, _, _, _, 66, _, _, _, 64, _, _, _, 62, _, _, _,  // bar 66 (source bar 67)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 67 (source bar 68)
+      55, _, _, _, _, _, _, _, 83, _, _, _, 81, _, _, _,  // bar 68 (source bar 69)
+      79, _, _, _, 74, _, _, _, 71, _, _, _, 67, _, _, _,  // bar 69 (source bar 70)
+    ],
+    // "Vamo Alla Financio" — Vamo' Alla Flamenco (FF9), full 64-bar arrangement.
+    // Busy flamenco (~47% of steps); single-track piano, top note per step.
+    vamo: [
+      72, 76, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 0 (source bar 1)
+      _, _, _, _, _, _, _, _, 72, 77, _, _, _, _, _, _,  // bar 1 (source bar 2)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 2 (source bar 3)
+      72, 78, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 3 (source bar 4)
+      _, _, _, _, _, _, _, _, 72, 77, _, _, _, _, _, _,  // bar 4 (source bar 5)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 5 (source bar 6)
+      72, 76, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 6 (source bar 7)
+      _, _, _, _, _, _, _, _, 76, _, 69, _, 72, _, 64, _,  // bar 7 (source bar 8)
+      71, _, 70, _, 69, 64, 68, _, 69, _, 72, 64, 71, _, 69, _,  // bar 8 (source bar 9)
+      71, 64, _, _, 68, _, 64, _, 66, _, 68, _, 69, 64, 68, _,  // bar 9 (source bar 10)
+      69, _, 72, 64, 71, _, 69, _, 74, 62, _, _, 71, _, 67, _,  // bar 10 (source bar 11)
+      _, _, _, _, 72, 64, 71, _, 72, _, 76, 64, 74, _, 72, _,  // bar 11 (source bar 12)
+      74, 62, _, _, 71, _, 67, 62, 69, _, 71, _, 72, 60, _, _,  // bar 12 (source bar 13)
+      71, _, 52, 59, 69, _, 68, _, 69, _, 64, _, 64, _, 57, _,  // bar 13 (source bar 14)
+      64, _, 64, _, 57, _, 65, _, 65, _, 57, _, 65, _, 65, _,  // bar 14 (source bar 15)
+      56, _, 64, _, 64, _, 56, _, 64, _, 64, _, 52, _, 64, _,  // bar 15 (source bar 16)
+      64, _, 64, _, 66, _, 68, _, 69, _, 68, _, 69, _, 72, _,  // bar 16 (source bar 17)
+      71, _, 69, _, 71, _, 59, _, 68, _, 64, _, 66, _, 68, _,  // bar 17 (source bar 18)
+      69, _, 68, _, 69, _, 72, _, 71, _, 69, _, 74, _, 62, _,  // bar 18 (source bar 19)
+      71, _, 67, _, 57, _, 59, _, 72, _, 71, _, 72, _, 76, _,  // bar 19 (source bar 20)
+      74, _, 72, _, 74, _, 62, _, 71, _, 67, _, 69, _, 71, _,  // bar 20 (source bar 21)
+      72, _, 60, _, 71, _, 53, _, 69, _, 68, _, 69, _, 64, _,  // bar 21 (source bar 22)
+      64, _, 57, _, 64, _, 64, _, 57, _, 65, _, 65, _, 57, _,  // bar 22 (source bar 23)
+      65, _, 65, _, 56, _, 64, _, 64, _, 56, _, 64, _, 64, _,  // bar 23 (source bar 24)
+      52, _, 64, _, 64, _, 52, _, 54, _, 56, _, 57, _, 60, _,  // bar 24 (source bar 25)
+      64, _, 69, _, _, _, 69, _, 68, _, 66, _, 68, _, 69, _,  // bar 25 (source bar 26)
+      _, _, 69, _, 71, _, 69, _, 71, _, 69, _, 71, _, 69, _,  // bar 26 (source bar 27)
+      68, _, 66, _, 68, _, 69, _, 60, _, 64, _, 57, _, 60, _,  // bar 27 (source bar 28)
+      64, _, 69, _, _, _, 69, _, 68, _, 66, _, 68, _, 69, _,  // bar 28 (source bar 29)
+      _, _, 69, _, 74, _, 72, _, 71, _, 69, _, 71, _, 69, _,  // bar 29 (source bar 30)
+      74, _, 71, _, 68, _, 71, _, 68, _, 64, _, 68, _, 64, _,  // bar 30 (source bar 31)
+      65, _, 66, _, 67, _, 68, _, 69, _, 68, _, 69, _, 72, _,  // bar 31 (source bar 32)
+      71, _, 69, _, 71, _, 59, _, 68, _, 64, _, 66, _, 68, _,  // bar 32 (source bar 33)
+      69, _, 68, _, 69, _, 72, _, 71, _, 69, _, 74, _, 62, _,  // bar 33 (source bar 34)
+      71, _, 67, _, 57, _, 59, _, 72, _, 71, _, 72, _, 76, _,  // bar 34 (source bar 35)
+      74, _, 72, _, 74, _, 59, _, 71, _, 67, _, 69, _, 71, _,  // bar 35 (source bar 36)
+      72, _, 57, _, 71, _, 52, _, 69, _, 68, _, 81, _, 76, _,  // bar 36 (source bar 37)
+      72, _, 81, _, 76, _, 72, _, 77, 57, 74, _, 69, _, 77, _,  // bar 37 (source bar 38)
+      74, _, 69, _, 76, _, 71, _, 68, _, 76, _, 71, _, 68, _,  // bar 38 (source bar 39)
+      81, _, 64, _, 64, _, 80, _, 66, _, 68, _, 81, _, 76, _,  // bar 39 (source bar 40)
+      72, _, 81, _, 76, _, 72, _, 77, 57, 74, _, 69, _, 77, _,  // bar 40 (source bar 41)
+      74, _, 69, _, 76, _, 71, _, 68, _, 76, _, 71, _, 80, _,  // bar 41 (source bar 42)
+      81, _, 69, 72, 76, _, 81, _, _, _, _, _, 64, _, 69, 73,  // bar 42 (source bar 43)
+      76, _, 81, _, 80, _, 78, _, 77, _, 76, _, 77, _, 74, _,  // bar 43 (source bar 44)
+      76, _, 77, _, 76, _, _, _, 64, _, 72, 64, 74, 60, 76, _,  // bar 44 (source bar 45)
+      74, _, 62, _, 58, _, 53, _, 50, _, 58, _, 57, _, 69, 73,  // bar 45 (source bar 46)
+      76, _, 81, _, 80, _, 78, _, 77, _, 76, _, 77, _, 74, _,  // bar 46 (source bar 47)
+      76, _, 77, _, 79, _, _, _, 76, _, 76, 67, 77, 64, 79, _,  // bar 47 (source bar 48)
+      81, _, 79, _, 81, _, 81, _, 83, _, 81, _, 64, 59, _, 64,  // bar 48 (source bar 49)
+      59, _, 64, _, 64, _, 64, _, 65, 60, _, 65, 60, _, 65, _,  // bar 49 (source bar 50)
+      65, _, 65, _, 67, 62, _, 67, 62, _, 65, 60, _, 65, 60, _,  // bar 50 (source bar 51)
+      64, 59, _, 64, 59, _, 64, _, 68, 69, 68, 66, 64, 59, _, 64,  // bar 51 (source bar 52)
+      59, _, 64, _, 64, _, 64, _, 65, 60, _, 65, 60, _, 65, _,  // bar 52 (source bar 53)
+      65, _, 65, _, 67, 62, _, 67, 62, _, 65, 60, _, 65, 60, _,  // bar 53 (source bar 54)
+      64, _, 71, _, 68, _, 71, _, 68, _, 64, _, 68, _, 64, _,  // bar 54 (source bar 55)
+      59, _, 64, _, 66, _, 68, _, 69, _, 68, _, 69, _, 72, _,  // bar 55 (source bar 56)
+      71, _, 69, _, 71, _, _, _, 68, _, 64, _, _, _, _, _,  // bar 56 (source bar 57)
+      69, _, 68, _, 69, _, 72, _, 71, _, 69, _, 74, _, 62, _,  // bar 57 (source bar 58)
+      71, _, 67, _, 57, _, 59, _, 72, _, 71, _, 72, _, 76, _,  // bar 58 (source bar 59)
+      74, _, 72, _, 74, _, 59, _, 71, _, 67, _, 69, _, 71, _,  // bar 59 (source bar 60)
+      72, _, 57, _, 71, _, 52, _, 69, _, 68, _, 72, _, 57, _,  // bar 60 (source bar 61)
+      71, _, 52, _, 69, _, 68, _, 72, _, 57, _, 71, _, 52, _,  // bar 61 (source bar 62)
+      69, _, 68, _, 69, _, 60, 64, 57, _, 60, 64, 69, _, 72, 76,  // bar 62 (source bar 63)
+      69, _, 72, 76, 81, _, 72, 76, 81, _, _, _, 57, _, _, _,  // bar 63 (source bar 64)
+    ],
+    // "Stolen Tokens" — Yuffie's Theme (FF7), bars 1-31, ends on the chorus
+    // before the redundant repeat. de-swung (--quantize 8), --min-pitch 72.
+    stolentokens: [
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 0 (source bar 1)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 1 (source bar 2)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 2 (source bar 3)
+      _, _, _, _, _, _, _, _, _, _, 79, _, 81, _, 83, _,  // bar 3 (source bar 4)
+      _, _, _, _, _, _, _, _, _, _, _, _, 86, _, 83, _,  // bar 4 (source bar 5)
+      _, _, _, _, 83, _, 84, _, 83, _, 79, _, 81, _, 83, _,  // bar 5 (source bar 6)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 6 (source bar 7)
+      _, _, _, _, _, _, _, _, _, _, 79, _, 81, _, 83, _,  // bar 7 (source bar 8)
+      _, _, _, _, _, _, _, _, _, _, _, _, 86, _, 83, _,  // bar 8 (source bar 9)
+      _, _, _, _, 83, _, 84, _, 83, _, 79, _, 81, _, 83, _,  // bar 9 (source bar 10)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 10 (source bar 11)
+      _, _, _, _, _, _, _, _, _, _, 91, _, 90, _, 88, _,  // bar 11 (source bar 12)
+      _, _, _, _, 88, _, 90, _, 88, _, 86, _, _, _, 83, _,  // bar 12 (source bar 13)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 13 (source bar 14)
+      79, _, _, _, _, _, 76, _, 79, _, 81, _, _, _, 83, _,  // bar 14 (source bar 15)
+      _, _, _, _, _, _, _, _, _, _, 91, _, 90, _, 88, _,  // bar 15 (source bar 16)
+      _, _, _, _, 88, _, 90, _, 88, _, 86, _, _, _, 83, _,  // bar 16 (source bar 17)
+      _, _, _, _, 83, _, 88, _, 83, _, 81, _, 79, _, 81, _,  // bar 17 (source bar 18)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 18 (source bar 19)
+      _, _, _, _, _, _, _, _, 83, _, _, _, 78, _, _, _,  // bar 19 (source bar 20)
+      79, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 20 (source bar 21)
+      _, _, _, _, _, _, _, _, _, _, 79, _, 83, _, 86, _,  // bar 21 (source bar 22)
+      88, _, _, _, 88, _, _, _, 84, _, _, _, 81, _, _, _,  // bar 22 (source bar 23)
+      83, _, 86, _, _, _, _, _, _, _, 79, _, 83, _, 86, _,  // bar 23 (source bar 24)
+      88, _, _, _, 88, _, _, _, 84, _, _, _, _, _, 81, _,  // bar 24 (source bar 25)
+      83, _, 86, _, _, _, _, _, _, _, 79, _, 83, _, 86, _,  // bar 25 (source bar 26)
+      88, _, _, _, 88, _, _, _, 90, _, _, _, _, _, 88, _,  // bar 26 (source bar 27)
+      87, _, 88, _, 90, _, 91, _, _, _, _, _, _, _, _, _,  // bar 27 (source bar 28)
+      _, _, _, _, _, _, _, _, _, _, 83, _, 81, _, 79, _,  // bar 28 (source bar 29)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 29 (source bar 30)
+      84, _, _, _, 83, _, _, _, 78, _, 81, _, _, _, 79, _,  // bar 30 (source bar 31)
+    ],
+    // "Price Ali" — Prince Ali (Aladdin), bars 16-74 (~1:20), merged top line
+    // across tracks 0,2,3,4,5 (--lead 0,2,3,4,5), ends on A#4/Bb.
+    priceali: [
+      _, _, _, _, 70, _, _, _, 72, _, _, _, 73, _, _, _,  // bar 0 (source bar 16)
+      70, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 1 (source bar 17)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 2 (source bar 18)
+      58, _, _, _, 65, _, 65, _, 58, _, _, _, 65, _, 65, _,  // bar 3 (source bar 19)
+      58, _, _, _, 65, _, _, _, 66, _, _, _, 65, _, _, _,  // bar 4 (source bar 20)
+      53, _, _, _, 60, _, 60, _, 53, _, _, _, 60, _, 60, _,  // bar 5 (source bar 21)
+      53, _, _, _, 60, _, _, _, 61, _, _, _, 60, _, _, _,  // bar 6 (source bar 22)
+      58, _, _, _, 65, _, 65, _, 58, _, _, _, 65, _, 65, _,  // bar 7 (source bar 23)
+      58, _, _, _, 65, _, _, _, 66, _, _, _, 65, _, _, _,  // bar 8 (source bar 24)
+      63, _, _, _, 63, _, 63, _, _, _, _, _, 65, _, _, _,  // bar 9 (source bar 25)
+      _, _, _, _, 66, _, 66, _, _, _, _, _, 61, _, _, _,  // bar 10 (source bar 26)
+      60, _, _, _, 67, _, 67, _, 60, _, _, _, 67, _, _, _,  // bar 11 (source bar 27)
+      60, _, _, _, 67, _, 67, _, 60, _, _, _, 67, _, 60, _,  // bar 12 (source bar 28)
+      65, _, 65, _, _, _, 65, _, 67, _, _, _, 68, _, _, _,  // bar 13 (source bar 29)
+      69, _, _, _, _, _, _, _, 65, _, 66, _, 67, _, 70, _,  // bar 14 (source bar 30)
+      77, _, _, _, _, _, 75, _, _, _, 77, _, 75, _, _, _,  // bar 15 (source bar 31)
+      73, _, _, _, _, _, 72, _, _, _, 73, _, 72, _, _, _,  // bar 16 (source bar 32)
+      70, _, _, _, 65, _, 65, _, _, _, _, _, 63, _, _, _,  // bar 17 (source bar 33)
+      _, _, _, _, 65, _, _, _, 64, _, _, _, 65, _, _, _,  // bar 18 (source bar 34)
+      70, _, _, _, 65, _, 68, _, _, _, 70, _, 68, _, _, _,  // bar 19 (source bar 35)
+      66, _, _, _, 62, _, 65, _, _, _, 66, _, 65, _, _, _,  // bar 20 (source bar 36)
+      63, _, _, _, 63, _, 63, _, _, _, _, _, 65, _, _, _,  // bar 21 (source bar 37)
+      _, _, _, _, 66, _, 66, _, _, _, _, _, 66, _, _, _,  // bar 22 (source bar 38)
+      66, _, 66, _, 63, _, 65, _, _, _, 66, _, 65, _, _, _,  // bar 23 (source bar 39)
+      61, _, _, _, 65, _, 65, _, _, _, _, _, 70, _, _, _,  // bar 24 (source bar 40)
+      70, _, 70, _, 65, _, 68, _, _, _, 70, _, 68, _, _, _,  // bar 25 (source bar 41)
+      66, _, _, _, 61, _, 61, _, _, _, _, _, 73, _, _, _,  // bar 26 (source bar 42)
+      73, _, 73, _, 70, _, 72, _, _, _, 73, _, 72, _, 73, _,  // bar 27 (source bar 43)
+      _, _, 72, _, 73, _, _, _, 71, _, _, _, 72, _, _, _,  // bar 28 (source bar 44)
+      77, _, _, _, 75, _, _, _, 75, _, _, _, 75, _, _, _,  // bar 29 (source bar 45)
+      75, _, _, _, _, _, _, _, 65, _, _, _, 65, _, _, _,  // bar 30 (source bar 46)
+      77, _, _, _, _, _, 75, _, _, _, 77, _, 75, _, _, _,  // bar 31 (source bar 47)
+      73, _, _, _, _, _, 72, _, _, _, 73, _, 72, _, _, _,  // bar 32 (source bar 48)
+      70, _, _, _, 65, _, 65, _, _, _, _, _, 63, _, _, _,  // bar 33 (source bar 49)
+      _, _, _, _, 65, _, _, _, 64, _, _, _, 65, _, _, _,  // bar 34 (source bar 50)
+      70, _, _, _, 65, _, 68, _, _, _, 70, _, 68, _, _, _,  // bar 35 (source bar 51)
+      66, _, _, _, 62, _, 65, _, _, _, 66, _, 65, _, _, _,  // bar 36 (source bar 52)
+      63, _, _, _, 63, _, 63, _, _, _, _, _, 65, _, _, _,  // bar 37 (source bar 53)
+      _, _, _, _, 66, _, 66, _, _, _, _, _, 66, _, 66, _,  // bar 38 (source bar 54)
+      _, _, 66, _, 63, _, 65, _, _, _, 66, _, 65, _, _, _,  // bar 39 (source bar 55)
+      61, _, _, _, 61, _, _, _, _, _, _, _, 70, _, 70, _,  // bar 40 (source bar 56)
+      _, _, 70, _, 65, _, 68, _, _, _, 70, _, 68, _, _, _,  // bar 41 (source bar 57)
+      66, _, _, _, 61, _, _, _, _, _, _, _, 73, _, 73, _,  // bar 42 (source bar 58)
+      _, _, 73, _, 70, _, 72, _, _, _, 73, _, 70, _, 72, _,  // bar 43 (source bar 59)
+      77, _, _, _, 65, _, _, _, 73, _, _, _, 69, _, _, _,  // bar 44 (source bar 60)
+      70, _, _, _, 65, _, 65, _, _, _, _, _, 65, _, _, _,  // bar 45 (source bar 61)
+      _, _, _, _, 65, _, _, _, 69, _, _, _, 70, _, _, _,  // bar 46 (source bar 62)
+      72, _, _, _, _, _, 70, _, _, _, _, _, 69, _, _, _,  // bar 47 (source bar 63)
+      70, _, _, _, _, _, 72, _, _, _, _, _, 73, _, _, _,  // bar 48 (source bar 64)
+      70, _, _, _, _, _, 65, _, 65, _, _, _, _, _, _, _,  // bar 49 (source bar 65)
+      _, _, _, _, _, _, _, _, 69, _, _, _, 70, _, _, _,  // bar 50 (source bar 66)
+      72, _, _, _, _, _, 70, _, _, _, _, _, 69, _, _, _,  // bar 51 (source bar 67)
+      70, _, _, _, _, _, 72, _, _, _, _, _, 70, _, _, _,  // bar 52 (source bar 68)
+      73, _, _, _, _, _, _, _, 69, _, _, _, _, _, _, _,  // bar 53 (source bar 69)
+      65, _, _, _, _, _, _, _, 69, _, _, _, 70, _, _, _,  // bar 54 (source bar 70)
+      72, _, _, _, 66, _, 70, _, _, _, _, _, 69, _, _, _,  // bar 55 (source bar 71)
+      70, _, _, _, 66, _, 72, _, _, _, _, _, 73, _, _, _,  // bar 56 (source bar 72)
+      70, _, _, _, 61, _, 65, _, _, _, _, _, 63, _, _, _,  // bar 57 (source bar 73)
+      _, _, _, _, 65, _, _, _, _, _, _, _, 70, _, _, _,  // bar 58 (source bar 74)
+    ],
   };
 
   // ===========================================================================
@@ -1558,6 +2102,50 @@
       prog: P.tariffa, lead: L.tariffa, drums: 'four', pad: 'saw', bars: 20,
       arpEvery: 2, bassEvery: 2, gain: 0.82, voices: { lead: 'saw', arp: 'square' },
       bassGain: 0.48, bassSubGain: 0.92, bassCutoffStart: 850, bassCutoffEnd: 200,
+    },
+    // "Under the GCP" — "Under the Sea" (The Little Mermaid, 1989), cost-punned.
+    // Generated from under_the_gcp.mid by arcade/tools/mid2chart.js (see
+    // P.underthegcp / L.underthegcp). Db major calypso; 'chip' lead for a
+    // bright, playful, steel-drum-ish tone rather than the rock 'dist'. First
+    // draft straight off the MIDI — tempo (the source's own 200bpm is fast),
+    // voices, gains, and P's min/maj guesses are all fair game to tune by ear
+    // in playtest, exactly as ch_spenderman was.
+    ch_underthegcp: {
+      title: 'Under the GCP', influence: 'Under the Sea (The Little Mermaid, 1989)', bpm: 200, key: 'Db major',
+      prog: P.underthegcp, lead: L.underthegcp, drums: 'rock', pad: 'power', bars: 32,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'chip' },
+      drumGain: 1.1, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    // Three playtest entries generated by arcade/tools/mid2chart.js — voices,
+    // gains, tempos, and P's min/maj guesses are all first-draft, to tune by
+    // ear like ch_spenderman / ch_underthegcp were.
+    ch_aerithrock: {
+      // Aerith's Theme sped up to 210bpm (source 146) so the sparse/held-note
+      // stretches move (141 bars ≈ 2:41), with a continuous 'saw' arp (arpEvery 2)
+      // as a background bed so the quiet parts aren't dead air. pad: null — the
+      // arp flows the chord tones instead of the every-bar block chord.
+      title: 'Flower Gil', influence: "Aerith's Theme (Final Fantasy VII)", bpm: 210, key: 'D',
+      prog: P.aerithrock, lead: L.aerithrock, drums: 'rock', pad: null, bars: 70,
+      arpEvery: 2, bassEvery: 1, gain: 0.42, voices: { lead: 'dist', arp: 'saw' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    ch_vamo: {
+      title: 'Vamo Alla Financio', influence: "Vamo' Alla Flamenco (Final Fantasy IX)", bpm: 147, key: 'A minor',
+      prog: P.vamo, lead: L.vamo, drums: 'rock', pad: 'power', bars: 64,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'chip' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    ch_stolentokens: {
+      title: 'Stolen Tokens', influence: "Yuffie's Theme (Final Fantasy VII)", bpm: 108, key: 'G',
+      prog: P.stolentokens, lead: L.stolentokens, drums: 'rock', pad: 'power', bars: 31,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'chip' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    ch_priceali: {
+      title: 'Price Ali', influence: '', bpm: 177, key: '',
+      prog: P.priceali, lead: L.priceali, drums: 'rock', pad: 'power', bars: 59,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
   };
 

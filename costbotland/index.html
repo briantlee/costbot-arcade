@@ -41,8 +41,8 @@
 <body>
   <a id="back" href="../index.html" title="Back to the CostBot Arcade">
     <img src="../shared/assets/costbot.png" alt="">← Arcade</a>
-  <button id="mute" title="Mute (M)">🔊</button>
-  <button id="quit" title="Quit to menu (Esc)">✕</button>
+  <button id="mute" type="button" title="Mute (M)">🔊</button>
+  <button id="quit" type="button" title="Quit to menu (Esc)">✕</button>
   <div id="game"></div>
   <div id="boot"><img src="../shared/assets/costbot.png" alt=""><div>Opening the gates…</div></div>
 
@@ -51,7 +51,7 @@
   <script src="../shared/arcade-music.js"></script>
   <script src="../shared/arcade-biomes.js"></script>
   <script src="cl-content.js?v=6"></script>
-  <script src="cl-game.js?v=8"></script>
+  <script src="cl-game.js?v=10"></script>
   <script>
     let game;
     (async () => {

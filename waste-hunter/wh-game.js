@@ -451,6 +451,14 @@
     // ---- input --------------------------------------------------------------
     this.keys = {};
     this.pointer = { x: 0, y: 0, down: false };
+    // Touch/pen gets a relative thumb-stick (anchored where the finger first
+    // lands) instead of the mouse's "hold and steer toward the cursor" — an
+    // absolute-position target is awkward on a touchscreen because the thumb
+    // sits on top of the thing it is steering toward. `max` is recomputed at
+    // touch-down from the canvas's current CSS scale so a fixed ~60 real
+    // pixels of thumb travel always means full deflection, regardless of how
+    // small the canvas is rendered on a phone.
+    this.stick = { active: false, id: null, bx: 0, by: 0, kx: 0, ky: 0, max: 60 };
     this._onKeyDown = (e) => {
       this.keys[e.key.toLowerCase()] = true;
       if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(e.key.toLowerCase())) e.preventDefault();
@@ -467,16 +475,31 @@
       this.pointer.down = true; this._onPointer(e); this.audio.resume();
       // autoplay is blocked until a user gesture — re-apply the wanted track now
       if (this.music && this._musicState) this.music.setState(this._musicState);
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        const r = this.canvas.getBoundingClientRect();
+        this.stick.active = true; this.stick.id = e.pointerId; this.stick.max = 60 / (r.width / VW);
+        this.stick.bx = this.stick.kx = this.pointer.x;
+        this.stick.by = this.stick.ky = this.pointer.y;
+        if (this.canvas.setPointerCapture) { try { this.canvas.setPointerCapture(e.pointerId); } catch (_e) {} }
+      }
     };
-    this._onUp = () => { this.pointer.down = false; };
+    this._onMove = (e) => {
+      this._onPointer(e);
+      if (this.stick.active && e.pointerId === this.stick.id) { this.stick.kx = this.pointer.x; this.stick.ky = this.pointer.y; }
+    };
+    this._onUp = (e) => {
+      this.pointer.down = false;
+      if (this.stick.active && (!e || e.pointerId === this.stick.id)) { this.stick.active = false; this.stick.id = null; }
+    };
     this._onBlur = () => { if (this.run && !this.run.over && !this.paused && !this.drafting) this.setPause(true); };
 
     window.addEventListener('keydown', this._onKeyDown);
     window.addEventListener('keyup', this._onKeyUp);
     window.addEventListener('blur', this._onBlur);
-    this.canvas.addEventListener('pointermove', this._onPointer);
+    this.canvas.addEventListener('pointermove', this._onMove);
     this.canvas.addEventListener('pointerdown', this._onDown);
     window.addEventListener('pointerup', this._onUp);
+    window.addEventListener('pointercancel', this._onUp);
 
     // ---- resize -------------------------------------------------------------
     this._resize = () => {
@@ -539,6 +562,7 @@
     window.removeEventListener('keyup', this._onKeyUp);
     window.removeEventListener('blur', this._onBlur);
     window.removeEventListener('pointerup', this._onUp);
+    window.removeEventListener('pointercancel', this._onUp);
     if (this._ro) this._ro.disconnect();
     if (this.root && this.root.parentNode) this.root.parentNode.removeChild(this.root);
   };
@@ -697,7 +721,8 @@
           <section>
             <h4>Controls</h4>
             <p><span class="wh-kbd">WASD</span> or <span class="wh-kbd">↑←↓→</span> to move —
-               or just hold the mouse button and steer. <span class="wh-kbd">Esc</span> pause,
+               or hold the mouse button and steer, or drag a thumb-stick on touch.
+               <span class="wh-kbd">Esc</span> pause,
                <span class="wh-kbd">M</span> mute. On a quiz, <span class="wh-kbd">1</span>–<span
                class="wh-kbd">4</span> or <span class="wh-kbd">A</span>–<span class="wh-kbd">D</span>.</p>
           </section>
@@ -1502,7 +1527,10 @@
     if (k['d'] || k['arrowright']) ix += 1;
     if (k['w'] || k['arrowup']) iy -= 1;
     if (k['s'] || k['arrowdown']) iy += 1;
-    if (!ix && !iy && this.pointer.down) {
+    if (!ix && !iy && this.stick.active) {
+      const dx = this.stick.kx - this.stick.bx, dy = this.stick.ky - this.stick.by, d = Math.hypot(dx, dy);
+      if (d > 6) { ix = dx / d; iy = dy / d; }
+    } else if (!ix && !iy && this.pointer.down) {
       const wx = this.pointer.x + r.cam.x, wy = this.pointer.y + r.cam.y;
       const dx = wx - p.x, dy = wy - p.y, d = Math.hypot(dx, dy);
       if (d > 12) { ix = dx / d; iy = dy / d; }
@@ -2245,6 +2273,20 @@
 
     this.drawFlash(ctx);
     this.drawHUD(ctx);
+    this.drawStick(ctx);
+  };
+
+  // Virtual thumb-stick — only drawn while a touch/pen pointer is actively
+  // dragging, anchored at the finger's touch-down point (not a fixed HUD
+  // corner) so it appears wherever the thumb naturally lands.
+  Instance.prototype.drawStick = function (ctx) {
+    const s = this.stick;
+    if (!s.active) return;
+    const dx = clamp(s.kx - s.bx, -s.max, s.max), dy = clamp(s.ky - s.by, -s.max, s.max);
+    ctx.fillStyle = 'rgba(255,255,255,0.10)';
+    ctx.beginPath(); ctx.arc(s.bx, s.by, s.max, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.beginPath(); ctx.arc(s.bx + dx, s.by + dy, 24, 0, TAU); ctx.fill();
   };
 
   // Full-screen "TERMINATE ALL" blast. Uses assets/terminate_all.png when it

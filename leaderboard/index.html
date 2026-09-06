@@ -141,6 +141,8 @@
       ],
       note: 'Dollars earned is the score — every ticket, gate check, and reunited kid pays out real park cash. Guests kept happy is the volume; park rating is the brag.' },
     { id: 'quiz-show', tab: '📺 CostBot Quiz Show', kind: 'metrics', sort: 'totalEarned',
+      // `board-meeting` is the pre-rename key; runs recorded under it are the same game.
+      also: ['board-meeting'],
       cols: [
         { key: 'totalEarned', label: 'Total earnings', unit: 'money' },
         { key: 'streak', label: 'Best streak' },
@@ -416,7 +418,7 @@
       // board itself is actually reviewable, not just an empty state.
       if (!GAMES.some((g) => g.id === hashTab)) {
         tab = 'costbot-hero';
-        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('on'));
+        document.querySelectorAll('.tab').forEach((t) => { t.classList.remove('on'); });
         const heroBtn = [...document.querySelectorAll('.tab')].find((t) => t.textContent === '🎸 CostBot Hero');
         if (heroBtn) heroBtn.classList.add('on');
       }
