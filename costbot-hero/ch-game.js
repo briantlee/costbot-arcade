@@ -520,16 +520,17 @@
     function diffOrder() { return meta.experimental ? ['easy', 'medium', 'hard', 'ultra'] : ['easy', 'medium', 'hard']; }
 
     // The song list is one unified, searchable, scrollable column: curated
-    // songs first (in SONGS order), then experimental ones (alphabetical, shown
-    // inline with an EXP badge) — but only when meta.experimental is on. A live
-    // search box narrows by name/subtitle. menuSongs() is the single source of
-    // truth for BOTH the rendered rows and up/down keyboard nav, so the two can
-    // never drift (e.g. arrow keys skipping a filtered-out row). songQuery is
-    // the current search text, empty when not filtering.
+    // songs first (alphabetical by name), then experimental ones (also
+    // alphabetical, shown inline with an EXP badge) — but only when
+    // meta.experimental is on. A live search box narrows by name/subtitle.
+    // menuSongs() is the single source of truth for BOTH the rendered rows and
+    // up/down keyboard nav, so the two can never drift (e.g. arrow keys skipping
+    // a filtered-out row). songQuery is the current search text, empty when not
+    // filtering.
     let songQuery = '';
     function menuSongs() {
       const vis = visibleSongs();
-      const curated = vis.filter((s) => !s.experimental);
+      const curated = vis.filter((s) => !s.experimental).sort((a, b) => a.name.localeCompare(b.name));
       const exp = vis.filter((s) => s.experimental).sort((a, b) => a.name.localeCompare(b.name));
       let ordered = curated.concat(exp);
       const q = songQuery.trim().toLowerCase();
