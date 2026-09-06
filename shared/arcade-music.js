@@ -384,6 +384,25 @@
       { root: 38, tones: [0, 3, 7] }, { root: 39, tones: [0, 4, 7] },   // Dm  Eb   (bar 39 hook variant, tops on C6)
       { root: 38, tones: [0, 3, 7] },                                  // Dm       (bar 40, cadence back toward the top)
     ],
+    // "Under the GCP" — "Under the Sea" (The Little Mermaid), cost-punned.
+    // Generated from under_the_gcp.mid by arcade/tools/mid2chart.js: a single-
+    // track piano arrangement. Cut to the source's bars 1-32 (the intro theme
+    // + verse + build) — the run ended a touch long at the full 43, and bar 32
+    // lands on a Db tonic cadence just before the dense F5 climax, so it's a
+    // clean loop boundary. Roots are the lowest (left-hand) note per bar — Db
+    // major, mostly Db/Ab/Gb (I/V/IV) with a few passing chords. The major/
+    // minor here is the tool's guess from the sounding 3rd; the handful of
+    // `min` bars are first-draft and worth an ear-check.
+    underthegcp: [
+      { root: 37, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] }, { root: 44, tones: [0, 4, 7] },  // bars 1-4
+      { root: 49, tones: [0, 4, 7] }, { root: 65, tones: [0, 3, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] },  // bars 5-8
+      { root: 49, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 49, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] },  // bars 9-12
+      { root: 53, tones: [0, 3, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 53, tones: [0, 3, 7] }, { root: 56, tones: [0, 4, 7] },  // bars 13-16
+      { root: 54, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 61, tones: [0, 4, 7] },  // bars 17-20
+      { root: 54, tones: [0, 4, 7] }, { root: 61, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 61, tones: [0, 4, 7] },  // bars 21-24
+      { root: 61, tones: [0, 4, 7] }, { root: 54, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] },  // bars 25-28
+      { root: 61, tones: [0, 4, 7] }, { root: 54, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 61, tones: [0, 4, 7] },  // bars 29-32
+    ],
   };
 
   // ===========================================================================
@@ -1140,6 +1159,48 @@
       // bar 40 — the cadence out: G5, a quick A5 grace-turn, held F5, D5, F5
       79, _, _, 81, 77, _, _, _, _, _, _, _, 74, _, 77, _,
     ],
+    // "Under the GCP" — the "Under the Sea" melody, transcribed from
+    // under_the_gcp.mid by arcade/tools/mid2chart.js with --min-dur 48. The
+    // source is a single-track piano arrangement in which every melody note
+    // (dur 96 = a 16th) is shadowed by a short dur-24 bass/echo note struck a
+    // 64th later and OFF the 16th grid; --min-dur drops those ornaments so only
+    // the real, on-grid melody notes remain (they land cleanly on the 8th-note
+    // grid, the tune's natural calypso pulse). Cut to the source's bars 1-32
+    // (see P.underthegcp for why): 187 onsets, 36.5% of steps. Exact.
+    underthegcp: [
+      _, _, 49, _, 56, _, 61, _, 65, _, _, _, 65, _, _, _,  // bar 0 (source bar 1)
+      65, _, 63, _, _, _, 66, _, _, _, 65, _, _, _, 61, _,  // bar 1 (source bar 2)
+      _, _, 49, _, 53, _, 56, _, 61, _, _, _, 61, _, _, _,  // bar 2 (source bar 3)
+      61, _, 60, _, _, _, 63, _, _, _, 61, _, _, _, _, _,  // bar 3 (source bar 4)
+      _, _, 65, _, 68, _, 73, _, 77, _, _, _, 77, _, _, _,  // bar 4 (source bar 5)
+      77, _, 75, _, _, _, 78, _, _, _, 77, _, _, _, 73, _,  // bar 5 (source bar 6)
+      _, _, 61, _, 65, _, 68, _, 73, _, 56, _, 73, _, _, _,  // bar 6 (source bar 7)
+      73, _, 72, _, _, _, 75, _, _, _, 73, 75, 73, 75, 73, 75,  // bar 7 (source bar 8)
+      73, 75, 61, _, _, _, 73, _, 73, _, 61, _, 73, _, 61, _,  // bar 8 (source bar 9)
+      73, _, 72, _, 56, _, 75, _, _, _, 73, _, _, _, 68, _,  // bar 9 (source bar 10)
+      65, _, 61, _, _, _, 65, _, 68, _, 61, _, 68, _, 61, _,  // bar 10 (source bar 11)
+      68, _, 63, _, _, _, 68, _, 56, _, 65, _, _, _, _, _,  // bar 11 (source bar 12)
+      56, _, 61, _, _, _, 68, _, 73, _, 61, _, 73, _, 65, _,  // bar 12 (source bar 13)
+      68, _, 72, _, _, _, 75, _, 68, _, 73, _, _, _, 68, _,  // bar 13 (source bar 14)
+      56, _, 61, _, _, _, 68, _, 65, _, 56, _, 68, _, 65, _,  // bar 14 (source bar 15)
+      68, _, 63, _, _, _, 68, _, 56, _, 65, _, _, _, _, _,  // bar 15 (source bar 16)
+      61, _, 61, _, 58, _, 66, _, 70, _, 54, _, 73, _, 61, _,  // bar 16 (source bar 17)
+      70, _, 68, _, 56, _, 73, _, 68, _, 68, _, 56, _, 73, _,  // bar 17 (source bar 18)
+      _, _, 66, _, 56, _, 66, _, 75, _, 56, _, 75, _, 56, _,  // bar 18 (source bar 19)
+      73, _, 77, _, _, _, 75, _, 61, _, 73, _, _, _, 61, _,  // bar 19 (source bar 20)
+      _, _, 54, _, _, _, 66, _, 70, _, _, _, 73, _, _, _,  // bar 20 (source bar 21)
+      70, _, 68, _, _, _, 73, _, _, _, 68, _, _, _, 73, _,  // bar 21 (source bar 22)
+      _, _, 56, _, _, _, 68, _, 75, _, 68, _, 75, _, 68, _,  // bar 22 (source bar 23)
+      73, _, 77, _, _, _, 75, _, _, _, 73, _, _, _, 61, _,  // bar 23 (source bar 24)
+      _, _, 61, _, 68, _, 73, _, 77, _, _, _, 75, _, 73, _,  // bar 24 (source bar 25)
+      _, _, 70, _, _, _, 61, _, 70, _, _, _, 70, _, _, _,  // bar 25 (source bar 26)
+      70, _, 68, _, _, _, 65, _, 77, _, _, _, 75, _, 73, _,  // bar 26 (source bar 27)
+      56, _, 75, _, _, _, 66, _, 68, _, _, _, 68, _, 66, _,  // bar 27 (source bar 28)
+      _, _, 65, _, _, _, 68, _, 77, _, _, _, 75, _, 73, _,  // bar 28 (source bar 29)
+      _, _, 70, _, _, _, 68, _, 77, _, 66, _, 75, _, 73, _,  // bar 29 (source bar 30)
+      _, _, 70, _, 63, _, 68, _, 77, _, 56, _, 75, _, 73, _,  // bar 30 (source bar 31)
+      _, _, 77, _, _, _, _, _, 68, _, _, _, _, _, 73, _,  // bar 31 (source bar 32)
+    ],
   };
 
   // ===========================================================================
@@ -1558,6 +1619,19 @@
       prog: P.tariffa, lead: L.tariffa, drums: 'four', pad: 'saw', bars: 20,
       arpEvery: 2, bassEvery: 2, gain: 0.82, voices: { lead: 'saw', arp: 'square' },
       bassGain: 0.48, bassSubGain: 0.92, bassCutoffStart: 850, bassCutoffEnd: 200,
+    },
+    // "Under the GCP" — "Under the Sea" (The Little Mermaid, 1989), cost-punned.
+    // Generated from under_the_gcp.mid by arcade/tools/mid2chart.js (see
+    // P.underthegcp / L.underthegcp). Db major calypso; 'chip' lead for a
+    // bright, playful, steel-drum-ish tone rather than the rock 'dist'. First
+    // draft straight off the MIDI — tempo (the source's own 200bpm is fast),
+    // voices, gains, and P's min/maj guesses are all fair game to tune by ear
+    // in playtest, exactly as ch_spenderman was.
+    ch_underthegcp: {
+      title: 'Under the GCP', influence: 'Under the Sea (The Little Mermaid, 1989)', bpm: 200, key: 'Db major',
+      prog: P.underthegcp, lead: L.underthegcp, drums: 'rock', pad: 'power', bars: 32,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'chip' },
+      drumGain: 1.1, bassGain: 0.5, bassSubGain: 1.0,
     },
   };
 

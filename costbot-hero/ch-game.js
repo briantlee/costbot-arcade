@@ -224,6 +224,14 @@
       experimental: true,
       maxLoops: 2,
       medium: { minGap: 2 } },
+    // Curated roster (no art yet — falls back to the biome wash). Cut to the
+    // source's bars 1-32 (the full 43 ran a little long) — see P.underthegcp/
+    // L.underthegcp; bar 32 is a Db tonic cadence just before the dense F5
+    // climax, a clean loop boundary. 32 bars at 200bpm is ~38s a pass;
+    // maxLoops: 2 brings a run to ~77s, in line with ch_spenderman. Generated
+    // off under_the_gcp.mid by arcade/tools/mid2chart.js.
+    { key: 'ch_underthegcp', name: 'Under the GCP', sub: 'Under the Sea (Little Mermaid) · 77s', tag: '', biome: 'arena',
+      maxLoops: 2 },
   ];
 
   const DIFFS = {
