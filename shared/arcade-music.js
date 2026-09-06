@@ -2470,16 +2470,15 @@
     // gains, tempos, and P's min/maj guesses are all first-draft, to tune by
     // ear like ch_spenderman / ch_underthegcp were.
     ch_aerithrock: {
-      // Aerith's Theme is a slow ballad, so: sped up to 210bpm (source was 146)
-      // to move the sparse/held-note stretches (141 bars ≈ 2:41), and a
-      // continuous 'saw' arp (arpEvery 2) lays a background bed through the whole
-      // song so the quiet parts aren't dead air. pad: null — the arp flows the
-      // chord tones instead of the every-bar 'power' block chord that popped
-      // before. (Engine is one tempo per song, so the whole thing speeds up.)
+      // Lofi take on Aerith's Theme: mellow 'piano' for both the melody and the
+      // continuous arp bed (arpEvery 2, flowing the chord tones — no poppy block
+      // chord, pad: null), over a laid-back 'bossa' beat pulled back in the mix
+      // (drumGain 0.8). Kept at 210bpm so the sparse ballad stretches still move
+      // (141 bars ≈ 2:41) — say the word to slow it for a chiller lofi feel.
       title: 'Flower Gil', influence: "Aerith's Theme (Final Fantasy VII)", bpm: 210, key: 'D',
-      prog: P.aerithrock, lead: L.aerithrock, drums: 'rock', pad: null, bars: 141,
-      arpEvery: 2, bassEvery: 1, gain: 0.42, voices: { lead: 'dist', arp: 'saw' },
-      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+      prog: P.aerithrock, lead: L.aerithrock, drums: 'bossa', pad: null, bars: 141,
+      arpEvery: 2, bassEvery: 1, gain: 0.42, voices: { lead: 'piano', arp: 'piano' },
+      drumGain: 0.8, bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_vamo: {
       title: 'Vamo Alla Financio', influence: "Vamo' Alla Flamenco (Final Fantasy IX)", bpm: 147, key: 'A minor',
