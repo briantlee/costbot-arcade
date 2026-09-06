@@ -240,7 +240,7 @@
     // charts its FULL MIDI and plays once through (maxLoops 1), so a run is the
     // whole song — not a repeating loop. Flower Gil is long/gentle (a ballad,
     // ~3:52); the other two are dense flamenco/ragtime.
-    { key: 'ch_aerithrock', name: 'Flower Gil', sub: "FF7 · Aerith's Theme · 2:41", tag: '', biome: 'arena', art: 'cb_aerith.jpg', artDim: 0.3,
+    { key: 'ch_aerithrock', name: 'Flower Gil', sub: "FF7 · Aerith's Theme · 1:20", tag: '', biome: 'arena', art: 'cb_aerith.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
     { key: 'ch_vamo', name: 'Vamo Alla Financio', sub: 'FF9 · flamenco romp · 1:44', tag: '', biome: 'arena', art: 'cb_chocobo.jpg', artDim: 0.3,
