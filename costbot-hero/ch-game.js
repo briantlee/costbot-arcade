@@ -246,7 +246,7 @@
     { key: 'ch_vamo', name: 'Vamo Alla Financio', sub: 'FF9 · flamenco romp · 1:44', tag: '', biome: 'arena', art: 'cb_chocobo.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
-    { key: 'ch_stolentokens', name: 'Stolen Tokens', sub: "FF7 · Yuffie's Theme, ragtime · 1:09", tag: '', biome: 'arena', art: 'cb_yuffie.jpg', artDim: 0.3,
+    { key: 'ch_stolentokens', name: 'Materia Girl', sub: "FF7 · Yuffie's Theme, ragtime · 1:09", tag: '', biome: 'arena', art: 'cb_yuffie.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
     // Disney batch (from MIDI via mid2chart.js).

@@ -547,7 +547,7 @@
       { root: 45, tones: [0, 3, 7] },  // Am  (bar 62)
       { root: 45, tones: [0, 3, 7] },  // Am  (bar 63)
     ],
-    // "Stolen Tokens" — Yuffie's Theme (FF7), source bars 1-31: verse +
+    // "Materia Girl" — Yuffie's Theme (FF7), source bars 1-31: verse +
     // development + chorus, ending just before the repeated 2nd round (~1:09).
     stolentokens: [
       { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 1)
@@ -1698,7 +1698,7 @@
       69, _, 68, _, 69, _, 60, 64, 57, _, 60, 64, 69, _, 72, 76,  // bar 62 (source bar 63)
       69, _, 72, 76, 81, _, 72, 76, 81, _, _, _, 57, _, _, _,  // bar 63 (source bar 64)
     ],
-    // "Stolen Tokens" — Yuffie's Theme (FF7), bars 1-31, ends on the chorus
+    // "Materia Girl" — Yuffie's Theme (FF7), bars 1-31, ends on the chorus
     // before the redundant repeat. de-swung (--quantize 8), --min-pitch 72.
     stolentokens: [
       _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 0 (source bar 1)
@@ -2360,7 +2360,7 @@
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_stolentokens: {
-      title: 'Stolen Tokens', influence: "Yuffie's Theme (Final Fantasy VII)", bpm: 108, key: 'G',
+      title: 'Materia Girl', influence: "Yuffie's Theme (Final Fantasy VII)", bpm: 108, key: 'G',
       prog: P.stolentokens, lead: L.stolentokens, drums: 'rock', pad: 'power', bars: 31,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'chip' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
