@@ -251,7 +251,7 @@
       maxLoops: 1 },
     // Disney batch (from MIDI via mid2chart.js). First-pass charts — melody is
     // exact, chords/mix are a guess; pending an ear-tuning pass.
-    { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · lofi remix · 2:30', tag: '', biome: 'arena', art: 'cb_moana.jpg', artDim: 0.3,
+    { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · How Far I\'ll Go · 1:40', tag: '', biome: 'arena', art: 'cb_moana.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
     { key: 'ch_frozen', name: "For the First Dime in Forever", sub: 'Frozen · dance remix · 1:52', tag: '', biome: 'arena', art: 'cb_frozen.jpg', artDim: 0.3,
