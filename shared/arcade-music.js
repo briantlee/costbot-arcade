@@ -2483,11 +2483,14 @@
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
+    // "How Far I'll Owe" as a lofi remix: slowed to 80bpm, a mellow piano lead
+    // over warm strings and a heavily-filtered muffled lofi bass, with a heavy
+    // four-on-the-floor kick out front (drumGain 1.6) for the fat bass drum.
     ch_howfarowe: {
-      title: "How Far I'll Owe", influence: '', bpm: 120, key: '',
-      prog: P.howfarowe, lead: L.howfarowe, drums: 'rock', pad: 'power', bars: 50,
-      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
-      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+      title: "How Far I'll Owe", influence: "Moana · How Far I'll Go, lofi remix", bpm: 80, key: '',
+      prog: P.howfarowe, lead: L.howfarowe, drums: 'four', pad: 'strings', bars: 50,
+      arpEvery: 2, bassEvery: 2, gain: 0.9, voices: { lead: 'piano', arp: 'square' },
+      drumGain: 1.6, bassGain: 0.5, bassSubGain: 1.15, bassCutoffStart: 600, bassCutoffEnd: 120,
     },
     ch_frozen: {
       title: "For the First Dime in Forever", influence: 'Frozen · For the First Time in Forever, dance remix', bpm: 124, key: '',
