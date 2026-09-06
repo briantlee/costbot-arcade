@@ -1210,7 +1210,6 @@
     cv.addEventListener('pointerdown', (e) => {
       cv.setPointerCapture && cv.setPointerCapture(e.pointerId);
       const x = e.offsetX, y = e.offsetY;
-      if (state === 'menu') { handleMenuClick(x, y); return; }
       if (state === 'result') { handleResultClick(x, y); return; }
       if (state === 'play') {
         const lane = laneAt(x);
@@ -1495,103 +1494,6 @@
       ctx2d.fillStyle = vg; ctx2d.fillRect(0, 0, W, H);
       ctx2d.fillStyle = 'rgba(0,0,0,0.10)';
       for (let y = 0; y < H; y += 3) ctx2d.fillRect(0, y, W, 1);
-    }
-
-    // ---- menu ----
-    let menuHit = [];
-    function _drawMenu() {
-      menuHit = [];
-      const cx = W / 2;
-      ctx2d.textAlign = 'center';
-      ctx2d.fillStyle = '#ffd76a';
-      ctx2d.font = '800 46px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText('CostBot Hero', cx, 92);
-      ctx2d.fillStyle = '#8ea3cc'; ctx2d.font = '600 15px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText('Cut the spend on the beat. Miss and the bill balloons.', cx, 120);
-
-      // song list
-      const top = 160, rowH = 58, listW = Math.min(W * 0.86, 460), lx = cx - listW / 2;
-      for (let i = 0; i < SONGS.length; i++) {
-        const y = top + i * rowH;
-        const sel = i === songIdx;
-        ctx2d.fillStyle = sel ? 'rgba(255,215,106,.14)' : 'rgba(255,255,255,.04)';
-        rrect(lx, y, listW, rowH - 10, 10); ctx2d.fill();
-        ctx2d.strokeStyle = sel ? '#ffd76a' : '#26324f'; ctx2d.lineWidth = sel ? 2 : 1;
-        rrect(lx, y, listW, rowH - 10, 10); ctx2d.stroke();
-        ctx2d.textAlign = 'left';
-        ctx2d.fillStyle = sel ? '#fff' : '#c4d0e8'; ctx2d.font = '700 20px Segoe UI, system-ui, sans-serif';
-        ctx2d.fillText(SONGS[i].name, lx + 18, y + 26);
-        ctx2d.fillStyle = '#8194b6'; ctx2d.font = '500 13px Segoe UI, system-ui, sans-serif';
-        ctx2d.fillText(SONGS[i].sub, lx + 18, y + 43);
-        if (SONGS[i].tag) {
-          ctx2d.fillStyle = '#39d98a'; ctx2d.font = '800 12px Segoe UI, system-ui, sans-serif';
-          ctx2d.textAlign = 'right'; ctx2d.fillText(SONGS[i].tag, lx + listW - 16, y + 22);
-        }
-        // best score for current diff
-        const rec = meta.records[SONGS[i].key] && meta.records[SONGS[i].key][diffKey];
-        if (rec) {
-          ctx2d.textAlign = 'right'; ctx2d.fillStyle = '#ffd76a'; ctx2d.font = '700 13px Segoe UI, system-ui, sans-serif';
-          ctx2d.fillText(rec.grade + ' · ' + fmt$(rec.score), lx + listW - 16, y + 42);
-        }
-        menuHit.push({ x: lx, y, w: listW, h: rowH - 10, kind: 'song', i });
-      }
-
-      // difficulty
-      const dy = top + SONGS.length * rowH + 16;
-      ctx2d.textAlign = 'center'; ctx2d.fillStyle = '#8ea3cc'; ctx2d.font = '600 14px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText('DIFFICULTY', cx, dy);
-      const order = ['easy', 'medium', 'hard'];
-      const bw = 108, gap = 12, totalW = bw * 3 + gap * 2, bx = cx - totalW / 2, by = dy + 12;
-      order.forEach((dk, i) => {
-        const x = bx + i * (bw + gap), sel = dk === diffKey, d = DIFFS[dk];
-        ctx2d.fillStyle = sel ? d.color : 'rgba(255,255,255,.05)';
-        rrect(x, by, bw, 40, 9); ctx2d.fill();
-        ctx2d.fillStyle = sel ? '#06121a' : '#c4d0e8'; ctx2d.font = '800 16px Segoe UI, system-ui, sans-serif';
-        ctx2d.fillText(d.label, x + bw / 2, by + 26);
-        menuHit.push({ x, y: by, w: bw, h: 40, kind: 'diff', dk });
-      });
-
-      // start button
-      const sbW = 220, sbX = cx - sbW / 2, sbY = by + 60;
-      ctx2d.fillStyle = '#ffd76a'; rrect(sbX, sbY, sbW, 48, 12); ctx2d.fill();
-      ctx2d.fillStyle = '#06121a'; ctx2d.font = '800 20px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText('▶  PLAY', cx, sbY + 31);
-      menuHit.push({ x: sbX, y: sbY, w: sbW, h: 48, kind: 'start' });
-
-      // audio sync calibration
-      const yc = sbY + 74;
-      ctx2d.textAlign = 'center'; ctx2d.fillStyle = '#8194b6'; ctx2d.font = '700 11px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText('AUDIO SYNC', cx, yc - 8);
-      const cbw = 32, cvw = 96, cgap = 8, ctot = cbw * 2 + cvw + cgap * 2, cxs = cx - ctot / 2;
-      ctx2d.fillStyle = 'rgba(255,255,255,.08)'; rrect(cxs, yc, cbw, 30, 8); ctx2d.fill();
-      ctx2d.fillStyle = '#dfe8f7'; ctx2d.font = '800 18px Segoe UI'; ctx2d.fillText('−', cxs + cbw / 2, yc + 21);
-      menuHit.push({ x: cxs, y: yc, w: cbw, h: 30, kind: 'calib', d: -5 });
-      ctx2d.fillStyle = '#c4d0e8'; ctx2d.font = '800 15px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText(((meta.calibMs > 0 ? '+' : '') + (meta.calibMs || 0) + ' ms'), cx, yc + 21);
-      const pxb = cxs + cbw + cgap + cvw + cgap;
-      ctx2d.fillStyle = 'rgba(255,255,255,.08)'; rrect(pxb, yc, cbw, 30, 8); ctx2d.fill();
-      ctx2d.fillStyle = '#dfe8f7'; ctx2d.font = '800 18px Segoe UI'; ctx2d.fillText('+', pxb + cbw / 2, yc + 21);
-      menuHit.push({ x: pxb, y: yc, w: cbw, h: 30, kind: 'calib', d: 5 });
-
-      ctx2d.fillStyle = '#5b6b8c'; ctx2d.font = '500 11px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText('tiles landing early? +   ·   late? −   ·   (or press [ and ])', cx, yc + 48);
-      ctx2d.fillText('↑↓ song · ←→ difficulty · Enter to play', cx, yc + 66);
-
-      // rotating "Did you know?" FinOps stat
-      const dyk = DYK[Math.floor(performance.now() / 6000) % DYK.length];
-      ctx2d.fillStyle = '#cfe9e2'; ctx2d.font = '600 12px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText('💡  Did you know?  ' + dyk, cx, yc + 96);
-    }
-    function handleMenuClick(x, y) {
-      for (const h of menuHit) {
-        if (x >= h.x && x <= h.x + h.w && y >= h.y && y <= h.y + h.h) {
-          if (h.kind === 'song') { songIdx = h.i; SFX.ui(); }
-          else if (h.kind === 'diff') { diffKey = h.dk; SFX.ui(); }
-          else if (h.kind === 'calib') { meta.calibMs = clamp((meta.calibMs || 0) + h.d, -300, 300); persist(); SFX.ui(); }
-          else if (h.kind === 'start') { initAudio(); startSong(); }
-          return;
-        }
-      }
     }
 
     // ---- highway ----
