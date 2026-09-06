@@ -682,40 +682,15 @@
       { root: 57, tones: [0, 3, 7] },  // A3 min  (source bar 32)
     ],
     // "For the First Dime in Forever" — "For the First Time in Forever"
-    // (Frozen), full 58 bars, --min-pitch 60 to lift the melody off the
-    // left-hand arpeggio bleed. Dance remix (124bpm, four-on-the-floor).
+    // (Frozen), --min-pitch 60. Spliced to ~60s: the opening 73-ostinato
+    // (src bars 1-4) cut straight into the chorus+finale (src bars 32-58) —
+    // the ostinato returns at src bar 31-32, so the seam is invisible. Dance
+    // remix (124bpm, four-on-the-floor).
     frozen: [
       { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 1)
       { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 2)
       { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 3)
       { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 4)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 5)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 6)
-      { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 7)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 8)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 9)
-      { root: 39, tones: [0, 3, 7] },  // D#2 min  (source bar 10)
-      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 11)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 12)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 13)
-      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 14)
-      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 15)
-      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 16)
-      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 17)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 18)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 19)
-      { root: 39, tones: [0, 3, 7] },  // D#2 min  (source bar 20)
-      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 21)
-      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 22)
-      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 23)
-      { root: 49, tones: [0, 4, 7] },  // C#3 maj  (source bar 24)
-      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 25)
-      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 26)
-      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 27)
-      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 28)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 29)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 30)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 31)
       { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 32)
       { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 33)
       { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 34)
@@ -1859,67 +1834,42 @@
       69, _, _, _, 68, _, _, _, 68, _, _, _, _, _, _, _,  // bar 31 (source bar 32)
     ],
     // "For the First Dime in Forever" — "For the First Time in Forever"
-    // (Frozen), full 58 bars, --min-pitch 60 to lift the melody off the
-    // left-hand arpeggio bleed. Dance remix (124bpm, four-on-the-floor).
+    // (Frozen), --min-pitch 60. Spliced to ~60s: the opening 73-ostinato
+    // (src bars 1-4) cut straight into the chorus+finale (src bars 32-58) —
+    // the ostinato returns at src bar 31-32, so the seam is invisible. Dance
+    // remix (124bpm, four-on-the-floor).
     frozen: [
-      _, _, _, _, _, 66, 68, 70, 73, _, _, 73, _, _, 73, _,  // bar 0 (source bar 1)
-      _, 73, _, _, 73, _, _, _, 73, _, _, 73, _, _, 73, _,  // bar 1 (source bar 2)
-      _, 73, _, _, 73, _, _, _, 73, _, _, 73, _, _, 73, _,  // bar 2 (source bar 3)
-      _, 73, _, _, 73, _, _, 73, 73, 73, _, 73, _, 70, _, 71,  // bar 3 (source bar 4)
-      _, 78, _, 78, _, _, _, 78, 82, 82, _, 80, _, 78, _, 71,  // bar 4 (source bar 5)
-      _, 78, _, 80, _, _, _, 80, 82, 80, _, 82, _, 83, _, 85,  // bar 5 (source bar 6)
-      _, 78, _, 73, _, 80, _, _, 80, _, 61, 65, _, 61, 66, _,  // bar 6 (source bar 7)
-      61, 68, _, 61, 66, 65, 63, 61, 73, _, 73, 73, _, 70, _, 71,  // bar 7 (source bar 8)
-      _, 78, _, 78, _, _, _, 78, 82, 82, _, 80, _, 78, _, 71,  // bar 8 (source bar 9)
-      _, 78, _, 80, _, _, _, _, 82, _, 78, 80, _, 78, _, 82,  // bar 9 (source bar 10)
-      _, 78, _, 80, _, 78, _, 82, 60, _, _, 63, _, _, 60, _,  // bar 10 (source bar 11)
-      66, _, _, _, 65, _, 66, _, 68, _, 68, _, 66, _, 65, _,  // bar 11 (source bar 12)
-      66, _, 61, _, _, _, _, _, 68, _, _, 68, 68, 66, 65, 61,  // bar 12 (source bar 13)
-      _, _, _, _, _, _, _, 71, _, 68, _, 70, _, 68, _, 71,  // bar 13 (source bar 14)
-      _, 68, _, 70, _, 68, _, 68, _, _, _, _, _, _, _, _,  // bar 14 (source bar 15)
-      _, 68, _, 70, _, 71, _, 73, _, _, _, 66, _, _, _, 66,  // bar 15 (source bar 16)
-      _, _, _, 68, _, 70, _, _, _, 63, _, _, _, _, _, _,  // bar 16 (source bar 17)
-      _, _, _, 63, _, 61, _, 61, _, 68, _, _, _, 68, _, _,  // bar 17 (source bar 18)
-      _, _, _, 70, _, 70, _, _, _, _, _, _, _, _, _, _,  // bar 18 (source bar 19)
-      _, 70, _, 71, _, 73, _, _, _, 66, _, _, _, 66, _, _,  // bar 19 (source bar 20)
-      _, _, _, 68, _, 70, _, _, _, 73, _, _, _, _, _, _,  // bar 20 (source bar 21)
-      _, 68, _, 70, _, 71, _, _, _, 70, _, _, _, 68, _, _,  // bar 21 (source bar 22)
-      _, 66, _, _, _, 68, _, _, _, _, _, _, _, _, _, _,  // bar 22 (source bar 23)
-      _, _, _, _, _, 68, _, 66, _, 66, _, 65, 66, _, _, 68,  // bar 23 (source bar 24)
-      _, 61, _, 63, 65, 66, _, 68, 70, 60, 75, _, _, 75, _, _,  // bar 24 (source bar 25)
-      _, _, _, _, _, _, _, _, 70, _, 70, _, 71, _, 73, _,  // bar 25 (source bar 26)
-      _, _, 66, _, _, _, 66, _, _, _, 68, _, 70, _, _, _,  // bar 26 (source bar 27)
-      73, _, _, _, _, _, 61, _, _, _, _, _, _, 70, 70, _,  // bar 27 (source bar 28)
-      68, _, _, 66, _, 66, _, _, 73, _, _, 73, _, _, 73, _,  // bar 28 (source bar 29)
-      _, 73, _, _, _, 73, _, _, 73, _, _, 73, _, _, 73, _,  // bar 29 (source bar 30)
-      _, 73, _, _, _, 73, _, _, 73, _, _, 73, _, _, 73, _,  // bar 30 (source bar 31)
-      _, 73, _, _, 74, 74, 74, _, 74, _, 71, _, 72, _, 79, 60,  // bar 31 (source bar 32)
-      79, _, 60, 79, 81, 83, 81, 79, _, _, 74, 72, _, 79, _, 81,  // bar 32 (source bar 33)
-      _, _, _, 81, 83, 81, _, 83, _, 84, _, 86, _, 79, _, 74,  // bar 33 (source bar 34)
-      _, 81, _, _, 81, _, 62, 66, _, 62, 67, _, 62, 69, _, 62,  // bar 34 (source bar 35)
-      67, 66, 64, 62, 74, _, 74, 74, _, 71, _, 72, _, 79, _, 79,  // bar 35 (source bar 36)
-      _, _, 60, 79, 81, 83, 81, 79, _, 74, _, 72, _, 79, _, 81,  // bar 36 (source bar 37)
-      _, _, _, _, 83, 79, _, 81, _, 79, _, 83, _, 79, _, 81,  // bar 37 (source bar 38)
-      _, 79, _, 83, 61, _, _, 64, _, _, 61, _, 67, _, _, _,  // bar 38 (source bar 39)
-      66, _, 67, _, 69, _, 69, _, 67, _, 66, _, 67, _, 62, _,  // bar 39 (source bar 40)
-      _, _, _, _, 69, _, _, 69, 69, 67, 66, 62, _, _, _, _,  // bar 40 (source bar 41)
-      _, _, _, 72, _, 69, _, 71, _, 69, _, 72, _, 69, _, 71,  // bar 41 (source bar 42)
-      _, 69, _, 69, _, _, _, _, _, 65, _, _, _, 69, _, 71,  // bar 42 (source bar 43)
-      _, 72, _, 74, _, _, _, 67, _, _, _, 67, _, _, _, _,  // bar 43 (source bar 44)
-      _, 69, _, 71, _, _, _, 64, _, _, _, 60, _, _, _, 64,  // bar 44 (source bar 45)
-      _, 62, _, 62, _, _, _, 69, _, _, _, 69, _, _, _, _,  // bar 45 (source bar 46)
-      _, 71, _, 71, _, _, _, _, _, _, _, _, _, _, _, 71,  // bar 46 (source bar 47)
-      _, 72, _, 74, _, _, _, 67, _, _, _, 67, _, _, _, _,  // bar 47 (source bar 48)
-      _, 69, _, 71, _, _, _, 74, _, _, _, _, _, _, _, 69,  // bar 48 (source bar 49)
-      _, 71, _, 72, _, _, _, 71, _, _, _, 69, _, _, _, 67,  // bar 49 (source bar 50)
-      _, _, _, 69, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 50 (source bar 51)
-      _, _, _, 69, _, 67, _, 67, _, 66, 67, _, _, 69, _, 62,  // bar 51 (source bar 52)
-      _, 64, 66, 67, _, 69, 71, 61, 76, _, _, 76, _, _, _, _,  // bar 52 (source bar 53)
-      _, _, _, _, _, 71, _, 71, _, 72, _, 74, _, _, _, 67,  // bar 53 (source bar 54)
-      _, _, _, 67, _, _, _, 69, _, 71, _, _, _, 74, _, _,  // bar 54 (source bar 55)
-      _, 60, _, 62, _, _, _, _, _, 71, _, 71, _, _, 69, _,  // bar 55 (source bar 56)
-      _, 67, _, _, 67, 62, 67, 71, 67, 71, 74, 71, 74, 79, 74, 79,  // bar 56 (source bar 57)
-      83, 79, 83, 86, 91, _, _, _, 67, _, _, _, _, _, _, _,  // bar 57 (source bar 58)
+      _, _, _, _, _, 66, 68, 70, 73, _, _, 73, _, _, 73, _,  // bar 0 (src 1)
+      _, 73, _, _, 73, _, _, _, 73, _, _, 73, _, _, 73, _,  // bar 1 (src 2)
+      _, 73, _, _, 73, _, _, _, 73, _, _, 73, _, _, 73, _,  // bar 2 (src 3)
+      _, 73, _, _, 73, _, _, 73, 73, 73, _, 73, _, 70, _, 71,  // bar 3 (src 4)
+      _, 73, _, _, 74, 74, 74, _, 74, _, 71, _, 72, _, 79, 60,  // bar 4 (src 32)
+      79, _, 60, 79, 81, 83, 81, 79, _, _, 74, 72, _, 79, _, 81,  // bar 5 (src 33)
+      _, _, _, 81, 83, 81, _, 83, _, 84, _, 86, _, 79, _, 74,  // bar 6 (src 34)
+      _, 81, _, _, 81, _, 62, 66, _, 62, 67, _, 62, 69, _, 62,  // bar 7 (src 35)
+      67, 66, 64, 62, 74, _, 74, 74, _, 71, _, 72, _, 79, _, 79,  // bar 8 (src 36)
+      _, _, 60, 79, 81, 83, 81, 79, _, 74, _, 72, _, 79, _, 81,  // bar 9 (src 37)
+      _, _, _, _, 83, 79, _, 81, _, 79, _, 83, _, 79, _, 81,  // bar 10 (src 38)
+      _, 79, _, 83, 61, _, _, 64, _, _, 61, _, 67, _, _, _,  // bar 11 (src 39)
+      66, _, 67, _, 69, _, 69, _, 67, _, 66, _, 67, _, 62, _,  // bar 12 (src 40)
+      _, _, _, _, 69, _, _, 69, 69, 67, 66, 62, _, _, _, _,  // bar 13 (src 41)
+      _, _, _, 72, _, 69, _, 71, _, 69, _, 72, _, 69, _, 71,  // bar 14 (src 42)
+      _, 69, _, 69, _, _, _, _, _, 65, _, _, _, 69, _, 71,  // bar 15 (src 43)
+      _, 72, _, 74, _, _, _, 67, _, _, _, 67, _, _, _, _,  // bar 16 (src 44)
+      _, 69, _, 71, _, _, _, 64, _, _, _, 60, _, _, _, 64,  // bar 17 (src 45)
+      _, 62, _, 62, _, _, _, 69, _, _, _, 69, _, _, _, _,  // bar 18 (src 46)
+      _, 71, _, 71, _, _, _, _, _, _, _, _, _, _, _, 71,  // bar 19 (src 47)
+      _, 72, _, 74, _, _, _, 67, _, _, _, 67, _, _, _, _,  // bar 20 (src 48)
+      _, 69, _, 71, _, _, _, 74, _, _, _, _, _, _, _, 69,  // bar 21 (src 49)
+      _, 71, _, 72, _, _, _, 71, _, _, _, 69, _, _, _, 67,  // bar 22 (src 50)
+      _, _, _, 69, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 23 (src 51)
+      _, _, _, 69, _, 67, _, 67, _, 66, 67, _, _, 69, _, 62,  // bar 24 (src 52)
+      _, 64, 66, 67, _, 69, 71, 61, 76, _, _, 76, _, _, _, _,  // bar 25 (src 53)
+      _, _, _, _, _, 71, _, 71, _, 72, _, 74, _, _, _, 67,  // bar 26 (src 54)
+      _, _, _, 67, _, _, _, 69, _, 71, _, _, _, 74, _, _,  // bar 27 (src 55)
+      _, 60, _, 62, _, _, _, _, _, 71, _, 71, _, _, 69, _,  // bar 28 (src 56)
+      _, 67, _, _, 67, 62, 67, 71, 67, 71, 74, 71, 74, 79, 74, 79,  // bar 29 (src 57)
+      83, 79, 83, 86, 91, _, _, _, 67, _, _, _, _, _, _, _,  // bar 30 (src 58)
     ],
     // "Bill Our Guest" — "Be Our Guest" (Beauty and the Beast), source bars
     // 12-45 (rubato intro trimmed, cut to ~1:01 on the phrase break before the
@@ -2434,7 +2384,7 @@
       // the guessed P chords and clashed with the melody. Now just a clean
       // four-on-the-floor kick + filtered bass under a warm strings pad.
       title: "For the First Dime in Forever", influence: 'Frozen · For the First Time in Forever, dance remix', bpm: 124, key: '',
-      prog: P.frozen, lead: L.frozen, drums: 'four', pad: 'strings', bars: 58,
+      prog: P.frozen, lead: L.frozen, drums: 'four', pad: 'strings', bars: 31,
       arpEvery: 0, bassEvery: 2, gain: 0.82, voices: { lead: 'saw' },
       bassGain: 0.48, bassSubGain: 0.92, bassCutoffStart: 850, bassCutoffEnd: 200,
     },
