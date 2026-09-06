@@ -29,6 +29,12 @@
  *                   (default: every bar that has a lead note)
  *   --bpm N         override the emitted bpm (default: the file's own tempo)
  *   --transpose N   shift every emitted pitch by N semitones (e.g. -12)
+ *   --min-pitch M   drop lead notes below MIDI M — isolates a melody riding on
+ *                   top of a low accompaniment (stride bass, power chords)
+ *   --quantize N    snap onsets to the nearest 1/N note before gridding
+ *                   (default 16). Use 8 to de-swing a shuffle/triplet tune the
+ *                   straight 16-step grid can't hold — inspect mode's duration
+ *                   histogram showing values like ppq/3 (a triplet) is the tell.
  *   --min-dur N     drop lead notes shorter than N ticks before quantizing —
  *                   filters grace notes / bass-echo ornaments that would
  *                   otherwise land off-grid and displace the real melody.
@@ -220,11 +226,25 @@ function convert(mid, opt) {
   // grace notes and bass-echo ornaments are typically both short AND off-grid,
   // so quantizing them just collides with and displaces the real melody.
   const minDur = opt.minDur || 0;
+  // --min-pitch M keeps only lead notes at or above MIDI M. In a stride/band
+  // arrangement the melody rides on top of a constant low accompaniment
+  // (oom-pah bass, power chords), so "highest note per step" grabs the comp
+  // whenever the melody rests. A pitch floor above the accompaniment isolates
+  // the melody and leaves a clean rest where only the comp is sounding.
+  const minPitch = opt.minPitch || 0;
+  // --quantize N snaps each onset to the nearest 1/N note BEFORE it's placed on
+  // the 16-step grid. The default (N=16) is a plain round to the nearest 16th.
+  // Use a coarser grid to de-swing a shuffle / triplet tune the 16-step grid
+  // can't represent: --quantize 8 pulls every onset to the nearest straight
+  // 8th, so a triplet feel becomes clean straight-eighths (on even steps only)
+  // instead of the jittery 39%-off-grid mess a straight 16th round would make.
+  const snapTicks = opt.quantize ? (mid.ppq * 4 / opt.quantize) : 0;
+  const snap = (t) => (snapTicks ? Math.round(t / snapTicks) * snapTicks : t);
   const leadByStep = new Map();
   let maxStep = 0;
   for (const n of leadTr.notes) {
-    if (n.dur < minDur) continue;
-    const step = Math.round(n.tick / ticksPerStep);
+    if (n.dur < minDur || n.pitch < minPitch) continue;
+    const step = Math.round(snap(n.tick) / ticksPerStep);
     maxStep = Math.max(maxStep, step);
     const cur = leadByStep.get(step);
     if (cur == null || n.pitch > cur) leadByStep.set(step, n.pitch);
@@ -399,6 +419,8 @@ function parseArgs(argv) {
     else if (a === '--bpm') o.bpm = +argv[++i];
     else if (a === '--transpose') o.transpose = +argv[++i];
     else if (a === '--min-dur') o.minDur = +argv[++i];
+    else if (a === '--quantize') o.quantize = +argv[++i];
+    else if (a === '--min-pitch') o.minPitch = +argv[++i];
     else if (a === '--bars') { const m = /^(\d+):(\d+)$/.exec(argv[++i] || ''); if (!m) throw new Error('--bars must be A:B'); o.bars = [+m[1], +m[2]]; }
     else if (a.startsWith('--')) throw new Error('unknown option ' + a);
     else o._.push(a);
