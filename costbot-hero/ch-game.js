@@ -243,16 +243,25 @@
     { key: 'ch_aerithrock', name: 'Flower Gil', sub: "FF7 · Aerith's Theme · 1:20", tag: '', biome: 'arena', art: 'cb_aerith.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
-    { key: 'ch_vamo', name: 'Vamo Alla Financio', sub: 'FF9 · flamenco romp · 1:44', tag: '', biome: 'arena', art: 'cb_chocobo.jpg', artDim: 0.3,
+    { key: 'ch_vamo', name: 'Vamo Alla Financio', sub: 'FF9 · flamenco romp · 1:40', tag: '', biome: 'arena', art: 'cb_chocobo.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
-    { key: 'ch_stolentokens', name: 'Stolen Tokens', sub: "FF7 · Yuffie's Theme, ragtime · 1:09", tag: '', biome: 'arena', art: 'cb_yuffie.jpg', artDim: 0.3,
+    { key: 'ch_stolentokens', name: 'Materia Girl', sub: "FF7 · Yuffie's Theme, ragtime · 1:03", tag: '', biome: 'arena', art: 'cb_yuffie.jpg', artDim: 0.3,
       experimental: true,
+      // Feedback: too easy. The transcription itself isn't sparse (89 real
+      // melody onsets in the charted window) — the shared Normal minGap (3)
+      // was just thinning ~40% of them out (53 of 89 kept); Hard's minGap
+      // (2) already keeps effectively all of them (84 of 89 — some sit only
+      // 1 step apart, hence not literally 89). Override brings Normal up to
+      // Hard's spacing for this song specifically, same pattern ch_imperial/
+      // ch_blindHero use, so more of the real transcription surfaces as
+      // tappable notes without inventing any.
+      medium: { minGap: 2 },
       maxLoops: 1 },
     // Disney batch (from MIDI via mid2chart.js).
     { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · How Far I\'ll Go · 1:04', tag: '', biome: 'arena', art: 'cb_moana.jpg', artDim: 0.3,
       maxLoops: 1 },
-    { key: 'ch_frozen', name: "For the First Dime in Forever", sub: 'Frozen · dance remix · 0:58', tag: '', biome: 'arena', art: 'cb_frozen.jpg', artDim: 0.3,
+    { key: 'ch_frozen', name: "For the First Dime in Forever", sub: 'Frozen · ballad · 1:02', tag: '', biome: 'arena', art: 'cb_frozen.jpg', artDim: 0.3,
       maxLoops: 1 },
     { key: 'ch_guest', name: 'Bill Our Guest', sub: 'Beauty and the Beast · Be Our Guest · 1:01', tag: '', biome: 'arena', art: 'cb_be_our_guest.jpg', artDim: 0.3,
       maxLoops: 1 },
