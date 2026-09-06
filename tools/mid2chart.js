@@ -217,8 +217,18 @@ function convert(mid, opt) {
   const ticksPerStep = mid.ppq / 4;              // 16th note
   const stepsToBar = 16;
 
-  const leadTr = mid.tracks[opt.lead];
-  if (!leadTr || !leadTr.notes.length) throw new Error(`--lead ${opt.lead} is not a track with notes (run inspect)`);
+  // --lead accepts one track index OR a comma-separated list. With a list, the
+  // lead is the HIGHEST note across ALL listed tracks at each step — for an
+  // arrangement where the tune is passed between instruments (violin, then
+  // flute, then piano), no single track carries it the whole way, and a merged
+  // top line follows the melody wherever it goes with no dead space.
+  const leadIdxs = String(opt.lead).split(',').map((s) => +s.trim());
+  const leadNotes = [];
+  for (const idx of leadIdxs) {
+    const tr = mid.tracks[idx];
+    if (tr) leadNotes.push(...tr.notes);
+  }
+  if (!leadNotes.length) throw new Error(`--lead ${opt.lead} is not a track (or tracks) with notes (run inspect)`);
   const bassTr = opt.bass != null ? mid.tracks[opt.bass] : null;
 
   // Monophonic lead grid: at each 16th step keep the HIGHEST onset (leads sit
@@ -242,7 +252,7 @@ function convert(mid, opt) {
   const snap = (t) => (snapTicks ? Math.round(t / snapTicks) * snapTicks : t);
   const leadByStep = new Map();
   let maxStep = 0;
-  for (const n of leadTr.notes) {
+  for (const n of leadNotes) {
     if (n.dur < minDur || n.pitch < minPitch) continue;
     const step = Math.round(snap(n.tick) / ticksPerStep);
     maxStep = Math.max(maxStep, step);
@@ -412,7 +422,7 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--selftest') o.selftest = true;
-    else if (a === '--lead') o.lead = +argv[++i];
+    else if (a === '--lead') o.lead = argv[++i];   // string: one index or "0,2,4" list
     else if (a === '--bass') o.bass = +argv[++i];
     else if (a === '--key') o.key = argv[++i];
     else if (a === '--name') o.name = argv[++i];
