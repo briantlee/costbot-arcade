@@ -249,6 +249,17 @@
     { key: 'ch_stolentokens', name: 'Stolen Tokens', sub: "FF7 · Yuffie's Theme, ragtime · 1:09", tag: '', biome: 'arena', art: 'cb_yuffie.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
+    // Disney batch (from MIDI via mid2chart.js). First-pass charts — melody is
+    // exact, chords/mix are a guess; pending an ear-tuning pass.
+    { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · How Far I\'ll Go · 1:40', tag: '', biome: 'arena',
+      experimental: true,
+      maxLoops: 1 },
+    { key: 'ch_frozen', name: 'Frozen Assets', sub: 'Frozen · Let It Go · 2:35', tag: '', biome: 'arena',
+      experimental: true,
+      maxLoops: 1 },
+    { key: 'ch_guest', name: 'Bill Our Guest', sub: 'Beauty and the Beast · Be Our Guest · 1:27', tag: '', biome: 'arena',
+      experimental: true,
+      maxLoops: 1 },
   ];
 
   const DIFFS = {
