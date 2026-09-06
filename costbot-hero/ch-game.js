@@ -246,7 +246,7 @@
     { key: 'ch_vamo', name: 'Vamo Alla Financio', sub: 'FF9 · flamenco romp · 1:44', tag: '', biome: 'arena', art: 'cb_chocobo.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
-    { key: 'ch_stolentokens', name: 'Stolen Tokens', sub: "FF7 · Yuffie's Theme, ragtime · 2:27", tag: '', biome: 'arena', art: 'cb_yuffie.jpg', artDim: 0.3,
+    { key: 'ch_stolentokens', name: 'Stolen Tokens', sub: "FF7 · Yuffie's Theme, ragtime · 1:09", tag: '', biome: 'arena', art: 'cb_yuffie.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
   ];
@@ -2097,25 +2097,33 @@
       const pgrad = ctx2d.createLinearGradient(0, 0, W, 0);
       pgrad.addColorStop(0, '#7fd6c4'); pgrad.addColorStop(1, '#ffd76a');
       ctx2d.fillStyle = pgrad; ctx2d.fillRect(0, 0, W * prog, barH);
-      // time-remaining pill, top-right — clear of the top-left song/diff/bill
-      // block and (in the normal wide layout) clear of the score, which now
-      // lives above the host on the left instead of this corner.
+      // Two time pills mirrored just below the progress bar: ELAPSED on the
+      // top-left, time REMAINING on the top-right. The song/diff/bill block
+      // below is shifted down to clear the left pill. The score sits in the left
+      // gutter (wide) or top-right below these pills (narrow, see drawScoreHud),
+      // so neither pill collides with it.
+      const fmtClock = (s) => { const m = Math.floor(s / 60), x = Math.floor(s % 60); return m + ':' + (x < 10 ? '0' : '') + x; };
       const remainSecs = Math.max(0, run.chart.endTime - actx.currentTime);
-      const mm = Math.floor(remainSecs / 60), ss = Math.floor(remainSecs % 60);
-      const timeStr = mm + ':' + (ss < 10 ? '0' : '') + ss;
+      const elapsedSecs = Math.max(0, actx.currentTime - run.beginTime);
+      ctx2d.font = '800 16px Segoe UI, system-ui, sans-serif';
+      // elapsed, top-left (dimmer — it's the secondary readout)
+      ctx2d.fillStyle = 'rgba(5,6,15,.55)'; rrect(14, barH + 5, 64, 24, 7); ctx2d.fill();
+      ctx2d.textAlign = 'left'; ctx2d.fillStyle = '#9fb4d8';
+      ctx2d.fillText(fmtClock(elapsedSecs), 20, barH + 23);
+      // remaining, top-right
       ctx2d.fillStyle = 'rgba(5,6,15,.55)'; rrect(W - 78, barH + 5, 64, 24, 7); ctx2d.fill();
       ctx2d.textAlign = 'right'; ctx2d.fillStyle = '#ffe9a8';
-      ctx2d.font = '800 16px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText(timeStr, W - 20, barH + 23);
+      ctx2d.fillText(fmtClock(remainSecs), W - 20, barH + 23);
 
-      // top-left: song + difficulty, then the bill meter (grouped, no stray text)
+      // top-left: song + difficulty, then the bill meter — sits below the
+      // elapsed pill now (grouped, no stray text)
       ctx2d.textAlign = 'left';
       ctx2d.fillStyle = '#dfe8f7'; ctx2d.font = '700 15px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText(run.song.name, 18, 26);
+      ctx2d.fillText(run.song.name, 18, 54);
       ctx2d.fillStyle = run.diff.color; ctx2d.font = '700 11px Segoe UI, system-ui, sans-serif';
-      ctx2d.fillText(run.diff.label.toUpperCase(), 18, 42);
+      ctx2d.fillText(run.diff.label.toUpperCase(), 18, 70);
 
-      const bw = Math.min(W * 0.42, 260), bx = 18, by = 54;
+      const bw = Math.min(W * 0.42, 260), bx = 18, by = 82;
       ctx2d.fillStyle = '#8ea3cc'; ctx2d.font = '700 10px Segoe UI, system-ui, sans-serif';
       ctx2d.fillText('THE BILL', bx, by - 4);
       ctx2d.fillStyle = 'rgba(255,255,255,.08)'; rrect(bx, by, bw, 12, 6); ctx2d.fill();

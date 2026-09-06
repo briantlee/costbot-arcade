@@ -619,9 +619,8 @@
       { root: 45, tones: [0, 3, 7] },  // Am  (bar 62)
       { root: 45, tones: [0, 3, 7] },  // Am  (bar 63)
     ],
-    // "Stolen Tokens" — Yuffie's Theme (FF7), FULL song (66 bars) from
-    // stolen_tokens.mid via mid2chart.js (--quantize 8, --min-pitch 72).
-    // Roster maxLoops 1 (~2:26).
+    // "Stolen Tokens" — Yuffie's Theme (FF7), source bars 1-31: verse +
+    // development + chorus, ending just before the repeated 2nd round (~1:09).
     stolentokens: [
       { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 1)
       { root: 45, tones: [0, 3, 7] },  // A2 min  (source bar 2)
@@ -654,41 +653,6 @@
       { root: 79, tones: [0, 4, 7] },  // G5 maj  (source bar 29)
       { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 30)
       { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 31)
-      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 32)
-      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 33)
-      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 34)
-      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 35)
-      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 36)
-      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 37)
-      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 38)
-      { root: 54, tones: [0, 3, 7] },  // F#3 min  (source bar 39)
-      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 40)
-      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 41)
-      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 42)
-      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 43)
-      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 44)
-      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 45)
-      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 46)
-      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 47)
-      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 48)
-      { root: 47, tones: [0, 3, 7] },  // B2 min  (source bar 49)
-      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 50)
-      { root: 45, tones: [0, 3, 7] },  // A2 min  (source bar 51)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 52)
-      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 53)
-      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 54)
-      { root: 59, tones: [0, 3, 7] },  // B3 min  (source bar 55)
-      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 56)
-      { root: 59, tones: [0, 3, 7] },  // B3 min  (source bar 57)
-      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 58)
-      { root: 59, tones: [0, 4, 7] },  // B3 maj  (source bar 59)
-      { root: 79, tones: [0, 4, 7] },  // G5 maj  (source bar 60)
-      { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 61)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 62)
-      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 63)
-      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 64)
-      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 65)
-      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 66)
     ],
     // "Price Ali" — Prince Ali (Aladdin), source bars 16-142 (the intro
     // fanfare/vamp bars 1-15 trimmed — not the main song). Lead is the TOP
@@ -1833,8 +1797,8 @@
       69, _, 68, _, 69, _, 60, 64, 57, _, 60, 64, 69, _, 72, 76,  // bar 62 (source bar 63)
       69, _, 72, 76, 81, _, 72, 76, 81, _, _, _, 57, _, _, _,  // bar 63 (source bar 64)
     ],
-    // "Stolen Tokens" — Yuffie's Theme (FF7), full 66-bar stride shuffle,
-    // de-swung (--quantize 8), melody lifted off the oom-pah (--min-pitch 72).
+    // "Stolen Tokens" — Yuffie's Theme (FF7), bars 1-31, ends on the chorus
+    // before the redundant repeat. de-swung (--quantize 8), --min-pitch 72.
     stolentokens: [
       _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 0 (source bar 1)
       _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 1 (source bar 2)
@@ -1867,41 +1831,6 @@
       _, _, _, _, _, _, _, _, _, _, 83, _, 81, _, 79, _,  // bar 28 (source bar 29)
       _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 29 (source bar 30)
       84, _, _, _, 83, _, _, _, 78, _, 81, _, _, _, 79, _,  // bar 30 (source bar 31)
-      79, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 31 (source bar 32)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 32 (source bar 33)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 33 (source bar 34)
-      _, _, _, _, _, _, _, _, _, _, 79, _, 81, _, 83, _,  // bar 34 (source bar 35)
-      _, _, _, _, _, _, _, _, _, _, _, _, 86, _, 83, _,  // bar 35 (source bar 36)
-      _, _, _, _, 83, _, 84, _, 83, _, 79, _, 81, _, 83, _,  // bar 36 (source bar 37)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 37 (source bar 38)
-      _, _, _, _, _, _, _, _, _, _, 79, _, 81, _, 83, _,  // bar 38 (source bar 39)
-      _, _, _, _, _, _, _, _, _, _, _, _, 86, _, 83, _,  // bar 39 (source bar 40)
-      _, _, _, _, 83, _, 84, _, 83, _, 79, _, 81, _, 83, _,  // bar 40 (source bar 41)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 41 (source bar 42)
-      _, _, _, _, _, _, _, _, _, _, 91, _, 90, _, 88, _,  // bar 42 (source bar 43)
-      _, _, _, _, 88, _, 90, _, 88, _, 86, _, _, _, 83, _,  // bar 43 (source bar 44)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 44 (source bar 45)
-      79, _, _, _, _, _, 76, _, 79, _, 81, _, _, _, 83, _,  // bar 45 (source bar 46)
-      _, _, _, _, _, _, _, _, _, _, 91, _, 90, _, 88, _,  // bar 46 (source bar 47)
-      _, _, _, _, 88, _, 90, _, 88, _, 86, _, _, _, 83, _,  // bar 47 (source bar 48)
-      _, _, _, _, 83, _, 88, _, 83, _, 81, _, 79, _, 81, _,  // bar 48 (source bar 49)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 49 (source bar 50)
-      _, _, _, _, _, _, _, _, 83, _, _, _, 78, _, _, _,  // bar 50 (source bar 51)
-      79, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 51 (source bar 52)
-      _, _, _, _, _, _, _, _, _, _, 79, _, 83, _, 86, _,  // bar 52 (source bar 53)
-      88, _, _, _, 88, _, _, _, 84, _, _, _, 81, _, _, _,  // bar 53 (source bar 54)
-      83, _, 86, _, _, _, _, _, _, _, 79, _, 83, _, 86, _,  // bar 54 (source bar 55)
-      88, _, _, _, 88, _, _, _, 84, _, _, _, _, _, 81, _,  // bar 55 (source bar 56)
-      83, _, 86, _, _, _, _, _, _, _, 79, _, 83, _, 86, _,  // bar 56 (source bar 57)
-      88, _, _, _, 88, _, _, _, 90, _, _, _, _, _, 88, _,  // bar 57 (source bar 58)
-      87, _, 88, _, 90, _, 91, _, _, _, _, _, _, _, _, _,  // bar 58 (source bar 59)
-      _, _, _, _, _, _, _, _, _, _, 83, _, 81, _, 79, _,  // bar 59 (source bar 60)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 60 (source bar 61)
-      84, _, _, _, 83, _, _, _, 78, _, 81, _, _, _, 79, _,  // bar 61 (source bar 62)
-      79, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 62 (source bar 63)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 63 (source bar 64)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 64 (source bar 65)
-      _, _, _, _, _, _, _, _, _, _, 79, _, 81, _, 83, _,  // bar 65 (source bar 66)
     ],
     // "Price Ali" — Prince Ali (Aladdin), main song from source bar 16 (intro
     // trimmed). Merged top line across tracks 0,2,3,4,5 (--lead 0,2,3,4,5).
@@ -2470,15 +2399,14 @@
     // gains, tempos, and P's min/maj guesses are all first-draft, to tune by
     // ear like ch_spenderman / ch_underthegcp were.
     ch_aerithrock: {
-      // Lofi take on Aerith's Theme: mellow 'piano' for both the melody and the
-      // continuous arp bed (arpEvery 2, flowing the chord tones — no poppy block
-      // chord, pad: null), over a laid-back 'bossa' beat pulled back in the mix
-      // (drumGain 0.8). Kept at 210bpm so the sparse ballad stretches still move
-      // (141 bars ≈ 2:41) — say the word to slow it for a chiller lofi feel.
+      // Aerith's Theme sped up to 210bpm (source 146) so the sparse/held-note
+      // stretches move (141 bars ≈ 2:41), with a continuous 'saw' arp (arpEvery 2)
+      // as a background bed so the quiet parts aren't dead air. pad: null — the
+      // arp flows the chord tones instead of the every-bar block chord.
       title: 'Flower Gil', influence: "Aerith's Theme (Final Fantasy VII)", bpm: 210, key: 'D',
-      prog: P.aerithrock, lead: L.aerithrock, drums: 'bossa', pad: null, bars: 141,
-      arpEvery: 2, bassEvery: 1, gain: 0.42, voices: { lead: 'piano', arp: 'piano' },
-      drumGain: 0.8, bassGain: 0.5, bassSubGain: 1.0,
+      prog: P.aerithrock, lead: L.aerithrock, drums: 'rock', pad: null, bars: 141,
+      arpEvery: 2, bassEvery: 1, gain: 0.42, voices: { lead: 'dist', arp: 'saw' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_vamo: {
       title: 'Vamo Alla Financio', influence: "Vamo' Alla Flamenco (Final Fantasy IX)", bpm: 147, key: 'A minor',
@@ -2488,7 +2416,7 @@
     },
     ch_stolentokens: {
       title: 'Stolen Tokens', influence: "Yuffie's Theme (Final Fantasy VII)", bpm: 108, key: 'G',
-      prog: P.stolentokens, lead: L.stolentokens, drums: 'rock', pad: 'power', bars: 66,
+      prog: P.stolentokens, lead: L.stolentokens, drums: 'rock', pad: 'power', bars: 31,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'chip' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
