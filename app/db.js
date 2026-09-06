@@ -254,6 +254,12 @@ async function getPool() {
       // reserved word (e.g. "user") still works.
       options: `-c search_path="${schema}",public`,
     });
+    // pg emits 'error' on the POOL when an idle client dies (server restart, network blip, an RDS
+    // failover). Without a listener Node treats it as an uncaught exception and kills the process,
+    // so one transient hiccup takes the whole app down. Log and let the pool replace the client.
+    pool.on('error', (err) => {
+      console.error('aix-db: idle client error (pool recovers):', err.message);
+    });
     // With a per-app credential the platform already created the schema (and your role could not
     // create one anyway - least privilege); only the local/legacy paths self-provision it.
     if (!resolved.scoped) {
