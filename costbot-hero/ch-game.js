@@ -236,7 +236,7 @@
     // a longer, evolving section of its source (not a short loop) so runs don't
     // feel repetitive — hence maxLoops 2 across the board. Flower Gil stays
     // gentle/sparse (the theme's nature); the other two are dense.
-    { key: 'ch_aerithrock', name: 'Flower Gil', sub: "FF7 · Aerith's Theme · 79s", tag: '', biome: 'arena', art: 'cb_aerith.png', artDim: 0.3,
+    { key: 'ch_aerithrock', name: 'Flower Gil', sub: "FF7 · Aerith's Theme · 79s", tag: '', biome: 'arena', art: 'cb_aerith.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 2 },
     { key: 'ch_vamo', name: 'Vamo Alla Financio', sub: 'FF9 · flamenco romp · 104s', tag: '', biome: 'arena', art: 'cb_chocobo.jpg', artDim: 0.3,
