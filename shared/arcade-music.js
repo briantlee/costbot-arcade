@@ -405,30 +405,45 @@
     ],
     // "Aerith Rock" — Aerith's Theme (FF7), from aerith_rock.mid via
     // arcade/tools/mid2chart.js (--min-pitch 60 to lift the melody off the rock
-    // backing). Roots normalized to one octave (the tool's raw roots jumped
-    // octaves on the theme's held/rest bars); quality is the tool's guess.
+    // backing). Source bars 1-24 — the theme, its variation, and the rising
+    // phrase, so it doesn't feel like an 8-bar loop. Roots normalized to one
+    // octave (the tool's raw roots jumped octaves on the held/rest bars);
+    // quality is the tool's guess.
     aerithrock: [
       { root: 38, tones: [0, 4, 7] }, { root: 36, tones: [0, 4, 7] }, { root: 40, tones: [0, 4, 7] }, { root: 36, tones: [0, 4, 7] },  // bars 1-4
       { root: 38, tones: [0, 4, 7] }, { root: 47, tones: [0, 3, 7] }, { root: 40, tones: [0, 4, 7] }, { root: 40, tones: [0, 4, 7] },  // bars 5-8
+      { root: 42, tones: [0, 3, 7] }, { root: 38, tones: [0, 4, 7] }, { root: 36, tones: [0, 4, 7] }, { root: 36, tones: [0, 4, 7] },  // bars 9-12
+      { root: 36, tones: [0, 4, 7] }, { root: 38, tones: [0, 3, 7] }, { root: 38, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] },  // bars 13-16
+      { root: 38, tones: [0, 4, 7] }, { root: 37, tones: [0, 3, 7] }, { root: 38, tones: [0, 4, 7] }, { root: 37, tones: [0, 3, 7] },  // bars 17-20
+      { root: 38, tones: [0, 4, 7] }, { root: 38, tones: [0, 4, 7] }, { root: 37, tones: [0, 4, 7] }, { root: 37, tones: [0, 4, 7] },  // bars 21-24
     ],
     // "Vamo Alla Financio" — Vamo' Alla Flamenco (FF9), from
-    // vamo_alla_financio.mid via mid2chart.js (source bars 8-23, the dense
-    // main theme). Single-track piano; roots = lowest note per bar.
+    // vamo_alla_financio.mid via mid2chart.js (source bars 8-39: the main theme,
+    // its development, and into the high climax — more of the song, less loop).
+    // Single-track piano; roots = lowest note per bar.
     vamo: [
       { root: 64, tones: [0, 4, 7] }, { root: 57, tones: [0, 3, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 55, tones: [0, 4, 7] },  // bars 8-11
       { root: 55, tones: [0, 4, 7] }, { root: 53, tones: [0, 4, 7] }, { root: 52, tones: [0, 4, 7] }, { root: 57, tones: [0, 3, 7] },  // bars 12-15
       { root: 52, tones: [0, 4, 7] }, { root: 52, tones: [0, 4, 7] }, { root: 52, tones: [0, 4, 7] }, { root: 55, tones: [0, 4, 7] },  // bars 16-19
       { root: 48, tones: [0, 4, 7] }, { root: 55, tones: [0, 4, 7] }, { root: 53, tones: [0, 4, 7] }, { root: 57, tones: [0, 3, 7] },  // bars 20-23
+      { root: 56, tones: [0, 4, 7] }, { root: 52, tones: [0, 4, 7] }, { root: 57, tones: [0, 4, 7] }, { root: 57, tones: [0, 4, 7] },  // bars 24-27
+      { root: 56, tones: [0, 4, 7] }, { root: 56, tones: [0, 4, 7] }, { root: 57, tones: [0, 3, 7] }, { root: 56, tones: [0, 3, 7] },  // bars 28-31
+      { root: 57, tones: [0, 3, 7] }, { root: 52, tones: [0, 4, 7] }, { root: 55, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },  // bars 32-35
+      { root: 55, tones: [0, 4, 7] }, { root: 52, tones: [0, 4, 7] }, { root: 57, tones: [0, 3, 7] }, { root: 56, tones: [0, 3, 7] },  // bars 36-39
     ],
     // "Stolen Tokens" — a stride/ragtime shuffle in G, from stolen_tokens.mid
     // via mid2chart.js (--quantize 8 to de-swing the triplet feel onto the
     // straight grid, --min-pitch 72 to lift the melody off the oom-pah stride).
-    // Source bars 3-18; roots = lowest note per bar.
+    // Source bars 3-28 — verse, development, AND the chorus hook (bars 19-28),
+    // the full unique round instead of just the verse. Roots = lowest per bar.
     stolentokens: [
       { root: 43, tones: [0, 4, 7] }, { root: 45, tones: [0, 3, 7] }, { root: 55, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },  // bars 3-6
       { root: 55, tones: [0, 4, 7] }, { root: 54, tones: [0, 3, 7] }, { root: 55, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] },  // bars 7-10
       { root: 47, tones: [0, 4, 7] }, { root: 47, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] }, { root: 55, tones: [0, 4, 7] },  // bars 11-14
       { root: 48, tones: [0, 4, 7] }, { root: 55, tones: [0, 4, 7] }, { root: 48, tones: [0, 4, 7] }, { root: 47, tones: [0, 3, 7] },  // bars 15-18
+      { root: 45, tones: [0, 4, 7] }, { root: 45, tones: [0, 3, 7] }, { root: 50, tones: [0, 4, 7] }, { root: 55, tones: [0, 4, 7] },  // bars 19-22
+      { root: 60, tones: [0, 4, 7] }, { root: 59, tones: [0, 3, 7] }, { root: 60, tones: [0, 4, 7] }, { root: 59, tones: [0, 3, 7] },  // bars 23-26
+      { root: 60, tones: [0, 4, 7] }, { root: 59, tones: [0, 4, 7] },  // bars 27-28
     ],
   };
 
@@ -1228,9 +1243,10 @@
       _, _, 70, _, 63, _, 68, _, 77, _, 56, _, 75, _, 73, _,  // bar 30 (source bar 31)
       _, _, 77, _, _, _, _, _, 68, _, _, _, _, _, 73, _,  // bar 31 (source bar 32)
     ],
-    // "Aerith Rock" — Aerith's Theme (FF7), the top melody only (--min-pitch
-    // 60), source bars 1-8. Gentle/sparse by nature: two held-note bars are
-    // rests, 16 onsets total — authentic to the theme, light as a chart.
+    // "Aerith Rock" — Aerith's Theme (FF7), top melody only (--min-pitch 60),
+    // source bars 1-24: the theme (0-7), its variation (8-15), and the rising
+    // phrase that follows (16-23) — 24 bars so it plays as the tune, not an
+    // 8-bar loop. Gentle/sparse by nature (held notes read as rests).
     aerithrock: [
       66, _, _, _, 69, _, _, _, 74, _, _, _, _, _, _, _,  // bar 0 (source bar 1)
       _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 1 (source bar 2)
@@ -1240,9 +1256,27 @@
       76, _, _, _, 74, _, _, _, 71, _, _, _, 73, _, _, _,  // bar 5 (source bar 6)
       69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 6 (source bar 7)
       64, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 7 (source bar 8)
+      66, _, _, _, 69, _, _, _, 74, _, _, _, _, _, _, _,  // bar 8 (source bar 9)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 9 (source bar 10)
+      72, _, _, _, 69, _, _, _, 64, _, _, _, _, _, _, _,  // bar 10 (source bar 11)
+      _, _, _, _, _, _, _, _, _, _, _, _, 62, _, 64, _,  // bar 11 (source bar 12)
+      62, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 12 (source bar 13)
+      65, _, _, _, 64, _, _, _, 62, _, _, _, 64, _, _, _,  // bar 13 (source bar 14)
+      62, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 14 (source bar 15)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 15 (source bar 16)
+      62, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 16 (source bar 17)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 17 (source bar 18)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 18 (source bar 19)
+      _, _, _, _, _, _, _, _, 62, _, _, _, 64, _, _, _,  // bar 19 (source bar 20)
+      66, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 20 (source bar 21)
+      _, _, _, _, _, _, _, _, 66, _, _, _, 67, _, _, _,  // bar 21 (source bar 22)
+      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 22 (source bar 23)
+      _, _, _, _, _, _, _, _, 71, _, _, _, 73, _, _, _,  // bar 23 (source bar 24)
     ],
-    // "Vamo Alla Financio" — Vamo' Alla Flamenco (FF9), source bars 8-23. A
-    // busy flamenco run (51% of steps); single-track piano, top note per step.
+    // "Vamo Alla Financio" — Vamo' Alla Flamenco (FF9), source bars 8-39: the
+    // main theme (0-15), its development (16-27), and up into the high climax
+    // (28-31, the A5/F5 runs). A busy flamenco run (~50% of steps); single-track
+    // piano, top note per step. 32 bars so it evolves rather than looping short.
     vamo: [
       _, _, _, _, _, _, _, _, 76, _, 69, _, 72, _, 64, _,  // bar 0 (source bar 8)
       71, _, 70, _, 69, 64, 68, _, 69, _, 72, 64, 71, _, 69, _,  // bar 1 (source bar 9)
@@ -1260,11 +1294,28 @@
       74, _, 72, _, 74, _, 62, _, 71, _, 67, _, 69, _, 71, _,  // bar 13 (source bar 21)
       72, _, 60, _, 71, _, 53, _, 69, _, 68, _, 69, _, 64, _,  // bar 14 (source bar 22)
       64, _, 57, _, 64, _, 64, _, 57, _, 65, _, 65, _, 57, _,  // bar 15 (source bar 23)
+      65, _, 65, _, 56, _, 64, _, 64, _, 56, _, 64, _, 64, _,  // bar 16 (source bar 24)
+      52, _, 64, _, 64, _, 52, _, 54, _, 56, _, 57, _, 60, _,  // bar 17 (source bar 25)
+      64, _, 69, _, _, _, 69, _, 68, _, 66, _, 68, _, 69, _,  // bar 18 (source bar 26)
+      _, _, 69, _, 71, _, 69, _, 71, _, 69, _, 71, _, 69, _,  // bar 19 (source bar 27)
+      68, _, 66, _, 68, _, 69, _, 60, _, 64, _, 57, _, 60, _,  // bar 20 (source bar 28)
+      64, _, 69, _, _, _, 69, _, 68, _, 66, _, 68, _, 69, _,  // bar 21 (source bar 29)
+      _, _, 69, _, 74, _, 72, _, 71, _, 69, _, 71, _, 69, _,  // bar 22 (source bar 30)
+      74, _, 71, _, 68, _, 71, _, 68, _, 64, _, 68, _, 64, _,  // bar 23 (source bar 31)
+      65, _, 66, _, 67, _, 68, _, 69, _, 68, _, 69, _, 72, _,  // bar 24 (source bar 32)
+      71, _, 69, _, 71, _, 59, _, 68, _, 64, _, 66, _, 68, _,  // bar 25 (source bar 33)
+      69, _, 68, _, 69, _, 72, _, 71, _, 69, _, 74, _, 62, _,  // bar 26 (source bar 34)
+      71, _, 67, _, 57, _, 59, _, 72, _, 71, _, 72, _, 76, _,  // bar 27 (source bar 35)
+      74, _, 72, _, 74, _, 59, _, 71, _, 67, _, 69, _, 71, _,  // bar 28 (source bar 36)
+      72, _, 57, _, 71, _, 52, _, 69, _, 68, _, 81, _, 76, _,  // bar 29 (source bar 37)
+      72, _, 81, _, 76, _, 72, _, 77, 57, 74, _, 69, _, 77, _,  // bar 30 (source bar 38)
+      74, _, 69, _, 76, _, 71, _, 68, _, 76, _, 71, _, 68, _,  // bar 31 (source bar 39)
     ],
     // "Stolen Tokens" — stride/ragtime shuffle, de-swung onto the straight grid
     // (--quantize 8) with the melody lifted off the oom-pah (--min-pitch 72).
-    // Source bars 3-18; melody sits high (E5-G6), rests where only the stride
-    // was sounding.
+    // Source bars 3-28 — verse (0-6), development (7-15), and the chorus hook
+    // (16-25: the B5-D6-E6 "E6 E6 C6 A5 / B5 D6 G5 B5 D6" phrase). Melody sits
+    // high (E5-G6), rests where only the stride was sounding.
     stolentokens: [
       _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 0 (source bar 3)
       _, _, _, _, _, _, _, _, _, _, 79, _, 81, _, 83, _,  // bar 1 (source bar 4)
@@ -1282,6 +1333,16 @@
       _, _, _, _, _, _, _, _, _, _, 91, _, 90, _, 88, _,  // bar 13 (source bar 16)
       _, _, _, _, 88, _, 90, _, 88, _, 86, _, _, _, 83, _,  // bar 14 (source bar 17)
       _, _, _, _, 83, _, 88, _, 83, _, 81, _, 79, _, 81, _,  // bar 15 (source bar 18)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 16 (source bar 19)
+      _, _, _, _, _, _, _, _, 83, _, _, _, 78, _, _, _,  // bar 17 (source bar 20)
+      79, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 18 (source bar 21)
+      _, _, _, _, _, _, _, _, _, _, 79, _, 83, _, 86, _,  // bar 19 (source bar 22)
+      88, _, _, _, 88, _, _, _, 84, _, _, _, 81, _, _, _,  // bar 20 (source bar 23)
+      83, _, 86, _, _, _, _, _, _, _, 79, _, 83, _, 86, _,  // bar 21 (source bar 24)
+      88, _, _, _, 88, _, _, _, 84, _, _, _, _, _, 81, _,  // bar 22 (source bar 25)
+      83, _, 86, _, _, _, _, _, _, _, 79, _, 83, _, 86, _,  // bar 23 (source bar 26)
+      88, _, _, _, 88, _, _, _, 90, _, _, _, _, _, 88, _,  // bar 24 (source bar 27)
+      87, _, 88, _, 90, _, 91, _, _, _, _, _, _, _, _, _,  // bar 25 (source bar 28)
     ],
   };
 
@@ -1719,20 +1780,20 @@
     // gains, tempos, and P's min/maj guesses are all first-draft, to tune by
     // ear like ch_spenderman / ch_underthegcp were.
     ch_aerithrock: {
-      title: 'Aerith Rock', influence: "Aerith's Theme (Final Fantasy VII)", bpm: 146, key: 'D',
-      prog: P.aerithrock, lead: L.aerithrock, drums: 'rock', pad: 'power', bars: 8,
+      title: 'Flower Gil', influence: "Aerith's Theme (Final Fantasy VII)", bpm: 146, key: 'D',
+      prog: P.aerithrock, lead: L.aerithrock, drums: 'rock', pad: 'power', bars: 24,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_vamo: {
       title: 'Vamo Alla Financio', influence: "Vamo' Alla Flamenco (Final Fantasy IX)", bpm: 147, key: 'A minor',
-      prog: P.vamo, lead: L.vamo, drums: 'rock', pad: 'power', bars: 16,
+      prog: P.vamo, lead: L.vamo, drums: 'rock', pad: 'power', bars: 32,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'chip' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_stolentokens: {
-      title: 'Stolen Tokens', influence: '', bpm: 108, key: 'G',
-      prog: P.stolentokens, lead: L.stolentokens, drums: 'rock', pad: 'power', bars: 16,
+      title: 'Stolen Tokens', influence: "Yuffie's Theme (Final Fantasy VII)", bpm: 108, key: 'G',
+      prog: P.stolentokens, lead: L.stolentokens, drums: 'rock', pad: 'power', bars: 26,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'chip' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
