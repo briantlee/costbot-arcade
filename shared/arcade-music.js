@@ -682,15 +682,14 @@
       { root: 57, tones: [0, 3, 7] },  // A3 min  (source bar 32)
     ],
     // "For the First Dime in Forever" — "For the First Time in Forever"
-    // (Frozen), --min-pitch 60. Spliced to ~60s: the opening 73-ostinato
-    // (src bars 1-4) cut straight into the chorus+finale (src bars 32-58) —
-    // the ostinato returns at src bar 31-32, so the seam is invisible. Dance
-    // remix (124bpm, four-on-the-floor).
+    // (Frozen), --min-pitch 60. Trimmed to a contiguous back-half (src bars
+    // 29-58, ~58s): starts on the ostinato return that leads into the chorus
+    // and ends on the MIDI's own finish (the run up to the peak, then the
+    // resolve) — no splice, natural ending. Dance remix (124bpm, four-on-the-floor).
     frozen: [
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 1)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 2)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 3)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 4)
+      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 29)
+      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 30)
+      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 31)
       { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 32)
       { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 33)
       { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 34)
@@ -1834,42 +1833,41 @@
       69, _, _, _, 68, _, _, _, 68, _, _, _, _, _, _, _,  // bar 31 (source bar 32)
     ],
     // "For the First Dime in Forever" — "For the First Time in Forever"
-    // (Frozen), --min-pitch 60. Spliced to ~60s: the opening 73-ostinato
-    // (src bars 1-4) cut straight into the chorus+finale (src bars 32-58) —
-    // the ostinato returns at src bar 31-32, so the seam is invisible. Dance
-    // remix (124bpm, four-on-the-floor).
+    // (Frozen), --min-pitch 60. Trimmed to a contiguous back-half (src bars
+    // 29-58, ~58s): starts on the ostinato return that leads into the chorus
+    // and ends on the MIDI's own finish (the run up to the peak, then the
+    // resolve) — no splice, natural ending. Dance remix (124bpm, four-on-the-floor).
     frozen: [
-      _, _, _, _, _, 66, 68, 70, 73, _, _, 73, _, _, 73, _,  // bar 0 (src 1)
-      _, 73, _, _, 73, _, _, _, 73, _, _, 73, _, _, 73, _,  // bar 1 (src 2)
-      _, 73, _, _, 73, _, _, _, 73, _, _, 73, _, _, 73, _,  // bar 2 (src 3)
-      _, 73, _, _, 73, _, _, 73, 73, 73, _, 73, _, 70, _, 71,  // bar 3 (src 4)
-      _, 73, _, _, 74, 74, 74, _, 74, _, 71, _, 72, _, 79, 60,  // bar 4 (src 32)
-      79, _, 60, 79, 81, 83, 81, 79, _, _, 74, 72, _, 79, _, 81,  // bar 5 (src 33)
-      _, _, _, 81, 83, 81, _, 83, _, 84, _, 86, _, 79, _, 74,  // bar 6 (src 34)
-      _, 81, _, _, 81, _, 62, 66, _, 62, 67, _, 62, 69, _, 62,  // bar 7 (src 35)
-      67, 66, 64, 62, 74, _, 74, 74, _, 71, _, 72, _, 79, _, 79,  // bar 8 (src 36)
-      _, _, 60, 79, 81, 83, 81, 79, _, 74, _, 72, _, 79, _, 81,  // bar 9 (src 37)
-      _, _, _, _, 83, 79, _, 81, _, 79, _, 83, _, 79, _, 81,  // bar 10 (src 38)
-      _, 79, _, 83, 61, _, _, 64, _, _, 61, _, 67, _, _, _,  // bar 11 (src 39)
-      66, _, 67, _, 69, _, 69, _, 67, _, 66, _, 67, _, 62, _,  // bar 12 (src 40)
-      _, _, _, _, 69, _, _, 69, 69, 67, 66, 62, _, _, _, _,  // bar 13 (src 41)
-      _, _, _, 72, _, 69, _, 71, _, 69, _, 72, _, 69, _, 71,  // bar 14 (src 42)
-      _, 69, _, 69, _, _, _, _, _, 65, _, _, _, 69, _, 71,  // bar 15 (src 43)
-      _, 72, _, 74, _, _, _, 67, _, _, _, 67, _, _, _, _,  // bar 16 (src 44)
-      _, 69, _, 71, _, _, _, 64, _, _, _, 60, _, _, _, 64,  // bar 17 (src 45)
-      _, 62, _, 62, _, _, _, 69, _, _, _, 69, _, _, _, _,  // bar 18 (src 46)
-      _, 71, _, 71, _, _, _, _, _, _, _, _, _, _, _, 71,  // bar 19 (src 47)
-      _, 72, _, 74, _, _, _, 67, _, _, _, 67, _, _, _, _,  // bar 20 (src 48)
-      _, 69, _, 71, _, _, _, 74, _, _, _, _, _, _, _, 69,  // bar 21 (src 49)
-      _, 71, _, 72, _, _, _, 71, _, _, _, 69, _, _, _, 67,  // bar 22 (src 50)
-      _, _, _, 69, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 23 (src 51)
-      _, _, _, 69, _, 67, _, 67, _, 66, 67, _, _, 69, _, 62,  // bar 24 (src 52)
-      _, 64, 66, 67, _, 69, 71, 61, 76, _, _, 76, _, _, _, _,  // bar 25 (src 53)
-      _, _, _, _, _, 71, _, 71, _, 72, _, 74, _, _, _, 67,  // bar 26 (src 54)
-      _, _, _, 67, _, _, _, 69, _, 71, _, _, _, 74, _, _,  // bar 27 (src 55)
-      _, 60, _, 62, _, _, _, _, _, 71, _, 71, _, _, 69, _,  // bar 28 (src 56)
-      _, 67, _, _, 67, 62, 67, 71, 67, 71, 74, 71, 74, 79, 74, 79,  // bar 29 (src 57)
-      83, 79, 83, 86, 91, _, _, _, 67, _, _, _, _, _, _, _,  // bar 30 (src 58)
+      68, _, _, 66, _, 66, _, _, 73, _, _, 73, _, _, 73, _,  // bar 0 (source bar 29)
+      _, 73, _, _, _, 73, _, _, 73, _, _, 73, _, _, 73, _,  // bar 1 (source bar 30)
+      _, 73, _, _, _, 73, _, _, 73, _, _, 73, _, _, 73, _,  // bar 2 (source bar 31)
+      _, 73, _, _, 74, 74, 74, _, 74, _, 71, _, 72, _, 79, 60,  // bar 3 (source bar 32)
+      79, _, 60, 79, 81, 83, 81, 79, _, _, 74, 72, _, 79, _, 81,  // bar 4 (source bar 33)
+      _, _, _, 81, 83, 81, _, 83, _, 84, _, 86, _, 79, _, 74,  // bar 5 (source bar 34)
+      _, 81, _, _, 81, _, 62, 66, _, 62, 67, _, 62, 69, _, 62,  // bar 6 (source bar 35)
+      67, 66, 64, 62, 74, _, 74, 74, _, 71, _, 72, _, 79, _, 79,  // bar 7 (source bar 36)
+      _, _, 60, 79, 81, 83, 81, 79, _, 74, _, 72, _, 79, _, 81,  // bar 8 (source bar 37)
+      _, _, _, _, 83, 79, _, 81, _, 79, _, 83, _, 79, _, 81,  // bar 9 (source bar 38)
+      _, 79, _, 83, 61, _, _, 64, _, _, 61, _, 67, _, _, _,  // bar 10 (source bar 39)
+      66, _, 67, _, 69, _, 69, _, 67, _, 66, _, 67, _, 62, _,  // bar 11 (source bar 40)
+      _, _, _, _, 69, _, _, 69, 69, 67, 66, 62, _, _, _, _,  // bar 12 (source bar 41)
+      _, _, _, 72, _, 69, _, 71, _, 69, _, 72, _, 69, _, 71,  // bar 13 (source bar 42)
+      _, 69, _, 69, _, _, _, _, _, 65, _, _, _, 69, _, 71,  // bar 14 (source bar 43)
+      _, 72, _, 74, _, _, _, 67, _, _, _, 67, _, _, _, _,  // bar 15 (source bar 44)
+      _, 69, _, 71, _, _, _, 64, _, _, _, 60, _, _, _, 64,  // bar 16 (source bar 45)
+      _, 62, _, 62, _, _, _, 69, _, _, _, 69, _, _, _, _,  // bar 17 (source bar 46)
+      _, 71, _, 71, _, _, _, _, _, _, _, _, _, _, _, 71,  // bar 18 (source bar 47)
+      _, 72, _, 74, _, _, _, 67, _, _, _, 67, _, _, _, _,  // bar 19 (source bar 48)
+      _, 69, _, 71, _, _, _, 74, _, _, _, _, _, _, _, 69,  // bar 20 (source bar 49)
+      _, 71, _, 72, _, _, _, 71, _, _, _, 69, _, _, _, 67,  // bar 21 (source bar 50)
+      _, _, _, 69, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 22 (source bar 51)
+      _, _, _, 69, _, 67, _, 67, _, 66, 67, _, _, 69, _, 62,  // bar 23 (source bar 52)
+      _, 64, 66, 67, _, 69, 71, 61, 76, _, _, 76, _, _, _, _,  // bar 24 (source bar 53)
+      _, _, _, _, _, 71, _, 71, _, 72, _, 74, _, _, _, 67,  // bar 25 (source bar 54)
+      _, _, _, 67, _, _, _, 69, _, 71, _, _, _, 74, _, _,  // bar 26 (source bar 55)
+      _, 60, _, 62, _, _, _, _, _, 71, _, 71, _, _, 69, _,  // bar 27 (source bar 56)
+      _, 67, _, _, 67, 62, 67, 71, 67, 71, 74, 71, 74, 79, 74, 79,  // bar 28 (source bar 57)
+      83, 79, 83, 86, 91, _, _, _, 67, _, _, _, _, _, _, _,  // bar 29 (source bar 58)
     ],
     // "Bill Our Guest" — "Be Our Guest" (Beauty and the Beast), source bars
     // 12-45 (rubato intro trimmed, cut to ~1:01 on the phrase break before the
@@ -2384,7 +2382,7 @@
       // the guessed P chords and clashed with the melody. Now just a clean
       // four-on-the-floor kick + filtered bass under a warm strings pad.
       title: "For the First Dime in Forever", influence: 'Frozen · For the First Time in Forever, dance remix', bpm: 124, key: '',
-      prog: P.frozen, lead: L.frozen, drums: 'four', pad: 'strings', bars: 31,
+      prog: P.frozen, lead: L.frozen, drums: 'four', pad: 'strings', bars: 30,
       arpEvery: 0, bassEvery: 2, gain: 0.82, voices: { lead: 'saw' },
       bassGain: 0.48, bassSubGain: 0.92, bassCutoffStart: 850, bassCutoffEnd: 200,
     },

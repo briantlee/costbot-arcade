@@ -252,7 +252,7 @@
     // Disney batch (from MIDI via mid2chart.js).
     { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · How Far I\'ll Go · 1:04', tag: '', biome: 'arena', art: 'cb_moana.jpg', artDim: 0.3,
       maxLoops: 1 },
-    { key: 'ch_frozen', name: "For the First Dime in Forever", sub: 'Frozen · dance remix · 1:00', tag: '', biome: 'arena', art: 'cb_frozen.jpg', artDim: 0.3,
+    { key: 'ch_frozen', name: "For the First Dime in Forever", sub: 'Frozen · dance remix · 0:58', tag: '', biome: 'arena', art: 'cb_frozen.jpg', artDim: 0.3,
       maxLoops: 1 },
     { key: 'ch_guest', name: 'Bill Our Guest', sub: 'Beauty and the Beast · Be Our Guest · 1:01', tag: '', biome: 'arena', art: 'cb_be_our_guest.jpg', artDim: 0.3,
       maxLoops: 1 },
