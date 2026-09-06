@@ -2495,7 +2495,7 @@
     },
     ch_guest: {
       title: "Bill Our Guest", influence: '', bpm: 133, key: '',
-      prog: P.guest, lead: L.guest, drums: 'rock', pad: 'power', bars: 48,
+      prog: P.guest, lead: L.guest, drums: 'rock', pad: null, bars: 48,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
