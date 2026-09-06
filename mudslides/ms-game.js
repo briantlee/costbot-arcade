@@ -431,6 +431,10 @@
     this.destroyed = true;
     if (this.music) this.music.stop();
     window.removeEventListener('keydown', this._onKey);
+    this.canvas.removeEventListener('pointerdown', this._onDown);
+    this.canvas.removeEventListener('pointermove', this._onDragMove);
+    this.canvas.removeEventListener('pointerup', this._onDragEnd);
+    this.canvas.removeEventListener('pointercancel', this._onDragEnd);
     if (this._ro) this._ro.disconnect();
     if (this.root && this.root.parentNode) this.root.parentNode.removeChild(this.root);
   };
