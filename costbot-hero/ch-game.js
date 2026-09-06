@@ -495,6 +495,24 @@
     function visibleSongs() { return SONGS.filter((s) => !s.experimental || meta.experimental); }
     function diffOrder() { return meta.experimental ? ['easy', 'medium', 'hard', 'ultra'] : ['easy', 'medium', 'hard']; }
 
+    // The song list is one unified, searchable, scrollable column: curated
+    // songs first (in SONGS order), then experimental ones (alphabetical, shown
+    // inline with an EXP badge) — but only when meta.experimental is on. A live
+    // search box narrows by name/subtitle. menuSongs() is the single source of
+    // truth for BOTH the rendered rows and up/down keyboard nav, so the two can
+    // never drift (e.g. arrow keys skipping a filtered-out row). songQuery is
+    // the current search text, empty when not filtering.
+    let songQuery = '';
+    function menuSongs() {
+      const vis = visibleSongs();
+      const curated = vis.filter((s) => !s.experimental);
+      const exp = vis.filter((s) => s.experimental).sort((a, b) => a.name.localeCompare(b.name));
+      let ordered = curated.concat(exp);
+      const q = songQuery.trim().toLowerCase();
+      if (q) ordered = ordered.filter((s) => (s.name + ' ' + (s.sub || '')).toLowerCase().includes(q));
+      return ordered;
+    }
+
     // ---- audio ----
     let actx = null, master = null, music = null, sfxBus = null;
     function initAudio() {
@@ -1145,7 +1163,8 @@
       if (state === 'menu') {
         if (!down) return;
         if (k === 'arrowup' || k === 'arrowdown') {
-          const vis = visibleSongs();
+          const vis = menuSongs();
+          if (!vis.length) return;   // search matched nothing — nothing to move to
           let i = vis.indexOf(SONGS[songIdx]);
           if (i === -1) i = 0;
           i = (i + vis.length + (k === 'arrowup' ? -1 : 1)) % vis.length;
@@ -2394,11 +2413,29 @@
         .ch-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
         @media(max-width:640px){.ch-cols{grid-template-columns:1fr;}}
         .ch-lbl{font-size:11px;font-weight:800;letter-spacing:1.6px;color:#8194b6;margin-bottom:8px;}
-        .ch-exp{display:flex;align-items:center;gap:8px;margin-top:14px;padding:8px 12px;
+        .ch-song-controls{display:flex;gap:8px;align-items:stretch;margin-bottom:9px;flex-wrap:wrap;}
+        .ch-search{flex:1 1 140px;min-width:0;padding:9px 12px;border-radius:10px;
+          border:1px solid #26324f;background:rgba(255,255,255,.05);color:#eaf1ff;
+          font-family:inherit;font-size:16px;outline:none;transition:border-color .12s;}
+        .ch-search::placeholder{color:#5b6b8c;}
+        .ch-search:focus{border-color:#5a7cb5;}
+        .ch-exp{display:flex;align-items:center;gap:7px;padding:8px 12px;
           border-radius:10px;border:1px solid #26324f;background:rgba(255,255,255,.03);
-          font-size:12px;color:#8ea3cc;cursor:pointer;user-select:none;}
+          font-size:12px;color:#8ea3cc;cursor:pointer;user-select:none;white-space:nowrap;}
         .ch-exp input{accent-color:#c04dff;cursor:pointer;}
-        .ch-songs{display:flex;flex-direction:column;gap:8px;}
+        /* One unified, scrollable song column: curated rows first, then (when
+           the toggle is on) experimental rows inline with an EXP badge. Height
+           is capped so DIFFICULTY, PLAY, and the how-to cards stay on screen as
+           the library grows; the box scrolls on its own (touch-friendly), and
+           clamp() keeps it sane on short / mobile viewports. syncMenu() scrolls
+           the selected row into view for keyboard nav. */
+        .ch-songs{display:flex;flex-direction:column;gap:8px;
+          max-height:clamp(220px,42vh,360px);overflow-y:auto;overscroll-behavior:contain;
+          -webkit-overflow-scrolling:touch;padding-right:4px;}
+        .ch-songs::-webkit-scrollbar{width:8px;}
+        .ch-songs::-webkit-scrollbar-thumb{background:#2b3f66;border-radius:4px;}
+        .ch-songs::-webkit-scrollbar-track{background:transparent;}
+        .ch-song-empty{font-size:12px;color:#8194b6;padding:8px 2px;}
         .ch-song{display:flex;justify-content:space-between;align-items:center;gap:10px;
           padding:10px 14px;border-radius:11px;border:1px solid #26324f;background:rgba(255,255,255,.03);
           cursor:pointer;transition:border-color .12s,background .12s;}
@@ -2407,12 +2444,9 @@
         .ch-song .nm{font-weight:700;font-size:15px;color:#eaf1ff;}
         .ch-song .sub{font-size:12px;color:#8194b6;margin-top:1px;}
         .ch-song .best{font-size:12px;font-weight:700;color:#ffd76a;white-space:nowrap;}
-        /* Experimental songs: alphabetical, split into two single-column
-           lists sitting in their own 2-column row BELOW the experimental
-           toggle (see .ch-cols-exp in the template) — separated from the
-           regular curated song list above. A dashed purple border (matching
-           the toggle's own accent colour) marks them as experimental too. */
-        .ch-cols-exp{margin-top:12px;}
+        /* Experimental rows sit inline in the one unified song list (after the
+           curated ones), shown only when the toggle is on. A dashed purple
+           border + the EXP badge below mark them apart from curated songs. */
         .ch-song.exp{border-style:dashed;border-color:#6a3f96;background:rgba(192,77,255,.05);}
         .ch-song.exp:hover{border-color:#c04dff;}
         .ch-song.exp.sel{border-color:#ffd76a;background:rgba(255,215,106,.12);}
@@ -2491,7 +2525,12 @@
           <div class="ch-cols">
             <div>
               <div class="ch-lbl">SONG</div>
+              <div class="ch-song-controls">
+                <input type="text" id="ch-search" class="ch-search" placeholder="Search songs…" autocomplete="off" spellcheck="false" aria-label="Search songs">
+                <label class="ch-exp"><input type="checkbox" id="ch-exp-check"> 🧪 <span>Experimental</span></label>
+              </div>
               <div class="ch-songs" id="ch-songs"></div>
+              <div class="ch-song-empty" id="ch-song-empty" hidden></div>
               <div class="ch-lbl" style="margin-top:16px">DIFFICULTY</div>
               <div class="ch-diffs-row">
                 <div class="ch-diffs" id="ch-diffs"></div>
@@ -2509,11 +2548,6 @@
                 <div class="ch-card"><div class="k">🚫 Don't cut PROD</div><div class="d">On Hard, ✕ trap notes are production — hit one and the bill jumps. Let them fall past.</div></div>
               </div>
             </div>
-          </div>
-          <label class="ch-exp"><input type="checkbox" id="ch-exp-check"> 🧪 Experimental (unreleased songs + Ultra difficulty)</label>
-          <div class="ch-cols ch-cols-exp" id="ch-cols-exp">
-            <div class="ch-songs ch-songs-exp" id="ch-songs-exp"></div>
-            <div class="ch-songs ch-songs-exp2" id="ch-songs-exp2"></div>
           </div>
           <a class="ch-board" href="../leaderboard/index.html#costbot-hero">🏆 Leaderboard</a>
           <div class="ch-calib">
@@ -2540,14 +2574,14 @@
       host.appendChild(menuEl);
 
       const songsWrap = menuEl.querySelector('#ch-songs');
-      const expWrap = menuEl.querySelector('#ch-songs-exp');
-      const expWrap2 = menuEl.querySelector('#ch-songs-exp2');
+      const songEmptyEl = menuEl.querySelector('#ch-song-empty');
+      const searchEl = menuEl.querySelector('#ch-search');
       const diffsWrap = menuEl.querySelector('#ch-diffs');
-      // Rebuilt (not just re-styled) whenever the experimental toggle flips,
-      // since the SET of rows/buttons changes, not just which one is selected.
-      // The curated list keeps SONGS' own order; experimental songs sort
-      // alphabetically and split across two columns in their own row BELOW
-      // the experimental toggle, separated from the curated song list above.
+      // Rebuilt (not just re-styled) whenever the experimental toggle flips or
+      // the search text changes, since the SET of rows changes, not just which
+      // one is selected. menuSongs() owns the order + filtering (see its defn):
+      // curated first, experimental inline after (toggle-gated, EXP-badged),
+      // narrowed by the search box — one column, rendered into #ch-songs.
       function makeSongRow(s) {
         const i = SONGS.indexOf(s);
         const el = document.createElement('div');
@@ -2558,14 +2592,16 @@
       }
       function renderSongRows() {
         songsWrap.innerHTML = '';
-        expWrap.innerHTML = '';
-        expWrap2.innerHTML = '';
-        const vis = visibleSongs();
-        vis.filter((s) => !s.experimental).forEach((s) => { songsWrap.appendChild(makeSongRow(s)); });
-        const experimental = vis.filter((s) => s.experimental).sort((a, b) => a.name.localeCompare(b.name));
-        const half = Math.ceil(experimental.length / 2);
-        experimental.slice(0, half).forEach((s) => { expWrap.appendChild(makeSongRow(s)); });
-        experimental.slice(half).forEach((s) => { expWrap2.appendChild(makeSongRow(s)); });
+        const list = menuSongs();
+        list.forEach((s) => { songsWrap.appendChild(makeSongRow(s)); });
+        // If the current selection got filtered out (or hidden by the toggle),
+        // move it to the first still-visible row so PLAY/nav never point at a
+        // row that isn't on screen.
+        if (list.length && !list.includes(SONGS[songIdx])) songIdx = SONGS.indexOf(list[0]);
+        if (songEmptyEl) {
+          songEmptyEl.hidden = list.length > 0;
+          if (!list.length) songEmptyEl.textContent = `No songs match “${songQuery.trim()}”.`;
+        }
       }
       function renderDiffButtons() {
         diffsWrap.innerHTML = '';
@@ -2595,6 +2631,14 @@
         syncMenu();
         SFX.ui();
       };
+      // Live search box. Keydowns are kept from bubbling to the global game
+      // handler (onKeyDown on window) so typing a letter, space, or arrow in
+      // the box edits text instead of muting / starting the song / moving the
+      // selection. Enter still starts the song (a convenience), so it's allowed
+      // through by not stopping it.
+      searchEl.addEventListener('input', () => { songQuery = searchEl.value; renderSongRows(); syncMenu(); });
+      searchEl.addEventListener('keydown', (e) => { if (e.key !== 'Enter') e.stopPropagation(); });
+
       menuEl.querySelector('#ch-play').onclick = () => { initAudio(); startSong(); };
       menuEl.querySelector('#ch-cal-down').onclick = () => { meta.calibMs = clamp((meta.calibMs || 0) - 5, -300, 300); persist(); SFX.ui(); syncMenu(); };
       menuEl.querySelector('#ch-cal-up').onclick = () => { meta.calibMs = clamp((meta.calibMs || 0) + 5, -300, 300); persist(); SFX.ui(); syncMenu(); };
@@ -2716,7 +2760,12 @@
       updateArtWash();
       menuEl.querySelectorAll('.ch-song').forEach((el) => {
         const i = +el.dataset.i;
-        el.classList.toggle('sel', i === songIdx);
+        const sel = i === songIdx;
+        el.classList.toggle('sel', sel);
+        // Keep the selection visible as it moves through the capped-height
+        // scroll box (arrow-key nav past the fold). 'nearest' is a no-op when
+        // the row is already on screen, so clicks don't cause a jump.
+        if (sel) el.scrollIntoView({ block: 'nearest' });
         const rec = meta.records[SONGS[i].key] && meta.records[SONGS[i].key][diffKey];
         el.querySelector('[data-best]').textContent = rec ? rec.grade + ' · ' + fmt$(rec.score) : '';
       });
