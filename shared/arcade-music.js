@@ -645,6 +645,118 @@
       { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 73)
       { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 74)
     ],
+    // "How Far I'll Owe" — "How Far I'll Go" (Moana), source bars 1-32,
+    // cut to ~1:04 on the sustained phrase resolution before the chorus pickup.
+    howfarowe: [
+      { root: 59, tones: [0, 4, 7] },  // B3 maj  (source bar 1)
+      { root: 61, tones: [0, 3, 7] },  // C#4 min  (source bar 2)
+      { root: 61, tones: [0, 3, 7] },  // C#4 min  (source bar 3)
+      { root: 57, tones: [0, 4, 7] },  // A3 maj  (source bar 4)
+      { root: 59, tones: [0, 4, 7] },  // B3 maj  (source bar 5)
+      { root: 61, tones: [0, 3, 7] },  // C#4 min  (source bar 6)
+      { root: 61, tones: [0, 3, 7] },  // C#4 min  (source bar 7)
+      { root: 57, tones: [0, 4, 7] },  // A3 maj  (source bar 8)
+      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 9)
+      { root: 59, tones: [0, 4, 7] },  // B3 maj  (source bar 10)
+      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 11)
+      { root: 57, tones: [0, 3, 7] },  // A3 min  (source bar 12)
+      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 13)
+      { root: 54, tones: [0, 4, 7] },  // F#3 maj  (source bar 14)
+      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 15)
+      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 16)
+      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 17)
+      { root: 54, tones: [0, 4, 7] },  // F#3 maj  (source bar 18)
+      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 19)
+      { root: 57, tones: [0, 4, 7] },  // A3 maj  (source bar 20)
+      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 21)
+      { root: 54, tones: [0, 3, 7] },  // F#3 min  (source bar 22)
+      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 23)
+      { root: 57, tones: [0, 4, 7] },  // A3 maj  (source bar 24)
+      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 25)
+      { root: 54, tones: [0, 3, 7] },  // F#3 min  (source bar 26)
+      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 27)
+      { root: 57, tones: [0, 4, 7] },  // A3 maj  (source bar 28)
+      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 29)
+      { root: 54, tones: [0, 4, 7] },  // F#3 maj  (source bar 30)
+      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 31)
+      { root: 57, tones: [0, 3, 7] },  // A3 min  (source bar 32)
+    ],
+    // "For the First Dime in Forever" — "For the First Time in Forever"
+    // (Frozen), --min-pitch 60. Trimmed to a contiguous back-half (src bars
+    // 29-58, ~58s): starts on the ostinato return that leads into the chorus
+    // and ends on the MIDI's own finish (the run up to the peak, then the
+    // resolve) — no splice, natural ending. Dance remix (124bpm, four-on-the-floor).
+    frozen: [
+      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 29)
+      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 30)
+      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 31)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 32)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 33)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 34)
+      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 35)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 36)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 37)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 38)
+      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 39)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 40)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 41)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 42)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 43)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 44)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 45)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 46)
+      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 47)
+      { root: 40, tones: [0, 3, 7] },  // E2 min  (source bar 48)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 49)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 50)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 51)
+      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 52)
+      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 53)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 54)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 55)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 56)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 57)
+      { root: 67, tones: [0, 4, 7] },  // G4 maj  (source bar 58)
+    ],
+    // "Bill Our Guest" — "Be Our Guest" (Beauty and the Beast), source bars
+    // 12-45 (rubato intro trimmed, cut to ~1:01 on the phrase break before the
+    // busy reprise), --min-pitch 55.
+    guest: [
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 12)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 13)
+      { root: 26, tones: [0, 4, 7] },  // D1 maj  (source bar 14)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 15)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 16)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 17)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 18)
+      { root: 26, tones: [0, 4, 7] },  // D1 maj  (source bar 19)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 20)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 21)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 22)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 23)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 24)
+      { root: 26, tones: [0, 4, 7] },  // D1 maj  (source bar 25)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 26)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 27)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 28)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 29)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 30)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 31)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 32)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 33)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 34)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 35)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 36)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 37)
+      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 38)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 39)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 40)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 41)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 42)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 43)
+      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 44)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 45)
+    ],
   };
 
   // ===========================================================================
@@ -1684,6 +1796,118 @@
       70, _, _, _, 61, _, 65, _, _, _, _, _, 63, _, _, _,  // bar 57 (source bar 73)
       _, _, _, _, 65, _, _, _, _, _, _, _, 70, _, _, _,  // bar 58 (source bar 74)
     ],
+    // "How Far I'll Owe" — "How Far I'll Go" (Moana), source bars 1-32,
+    // cut to ~1:04 on the sustained phrase resolution before the chorus pickup.
+    howfarowe: [
+      71, _, _, 59, _, _, 64, _, _, 59, 64, 59, 64, _, 64, 61,  // bar 0 (source bar 1)
+      69, _, _, 61, _, _, 66, _, _, 61, _, _, 66, _, 64, 66,  // bar 1 (source bar 2)
+      68, _, _, 68, _, _, 61, _, 68, _, 68, _, 68, _, 66, _,  // bar 2 (source bar 3)
+      61, _, _, 61, _, _, 64, _, _, _, _, _, _, _, _, _,  // bar 3 (source bar 4)
+      71, _, _, 59, _, _, _, _, _, _, 64, 59, 64, 59, 64, 61,  // bar 4 (source bar 5)
+      69, _, _, 61, _, _, _, _, 66, 61, 66, _, 66, _, 64, 66,  // bar 5 (source bar 6)
+      68, _, _, 68, _, _, 61, 66, 68, _, 68, _, 68, _, 66, _,  // bar 6 (source bar 7)
+      61, _, _, 61, _, _, 64, _, _, _, _, _, _, _, 61, 59,  // bar 7 (source bar 8)
+      61, _, 64, _, 68, _, 61, 59, 61, _, 64, _, 64, _, 61, 59,  // bar 8 (source bar 9)
+      61, _, 66, _, 71, _, 61, 59, 61, _, 66, _, 66, _, _, 64,  // bar 9 (source bar 10)
+      64, _, 68, _, 71, _, 64, 64, 64, _, 68, _, 68, _, 66, 68,  // bar 10 (source bar 11)
+      69, _, _, _, 64, _, _, _, 60, _, _, _, _, _, 64, 66,  // bar 11 (source bar 12)
+      68, _, 64, 66, 71, _, 64, 66, 68, _, 59, _, 71, _, 71, _,  // bar 12 (source bar 13)
+      _, _, 66, _, 71, _, 54, _, _, _, 54, 64, 71, _, 63, _,  // bar 13 (source bar 14)
+      68, _, 56, _, 68, _, 66, _, 49, _, 56, 64, 71, _, 63, _,  // bar 14 (source bar 15)
+      68, _, 52, _, 69, _, 66, _, _, _, 52, _, 69, _, 64, 66,  // bar 15 (source bar 16)
+      68, _, 64, 66, 71, _, 64, 66, 68, _, 64, _, 71, _, 71, _,  // bar 16 (source bar 17)
+      _, _, 66, _, 71, _, 54, _, _, _, 54, 64, 71, _, 63, _,  // bar 17 (source bar 18)
+      68, _, 56, _, 68, _, 66, _, 49, _, 56, _, 68, _, 66, 68,  // bar 18 (source bar 19)
+      69, _, 64, _, 64, _, 61, _, 61, _, 61, 59, 59, _, 59, 61,  // bar 19 (source bar 20)
+      64, _, _, 59, 71, _, 64, _, 64, 59, 64, 59, 71, _, 64, 61,  // bar 20 (source bar 21)
+      66, _, _, 61, 66, _, 66, _, 54, 61, _, _, 66, _, 64, 66,  // bar 21 (source bar 22)
+      68, _, _, 68, 68, _, _, _, 61, _, 68, _, 68, _, 66, _,  // bar 22 (source bar 23)
+      64, _, _, _, 69, _, _, _, 57, _, _, _, 69, _, _, _,  // bar 23 (source bar 24)
+      64, _, _, 59, 71, _, 64, _, 64, 59, 64, 59, 71, _, 64, 61,  // bar 24 (source bar 25)
+      66, _, _, 61, 66, _, 66, _, 54, 61, _, _, 66, _, 64, 66,  // bar 25 (source bar 26)
+      68, _, _, 68, 68, _, _, 66, 68, _, 68, _, 68, _, 66, _,  // bar 26 (source bar 27)
+      64, _, _, _, 69, _, _, _, 57, _, _, _, 69, _, 61, 59,  // bar 27 (source bar 28)
+      61, _, 64, _, 68, _, 61, 59, 61, _, 64, _, 64, _, 61, 59,  // bar 28 (source bar 29)
+      61, _, 66, _, 71, _, 61, 59, 61, _, 66, _, 66, _, _, 64,  // bar 29 (source bar 30)
+      64, _, 68, _, 71, _, 64, 64, 64, _, 68, _, 68, _, 69, 71,  // bar 30 (source bar 31)
+      69, _, _, _, 68, _, _, _, 68, _, _, _, _, _, _, _,  // bar 31 (source bar 32)
+    ],
+    // "For the First Dime in Forever" — "For the First Time in Forever"
+    // (Frozen), --min-pitch 60. Trimmed to a contiguous back-half (src bars
+    // 29-58, ~58s): starts on the ostinato return that leads into the chorus
+    // and ends on the MIDI's own finish (the run up to the peak, then the
+    // resolve) — no splice, natural ending. Dance remix (124bpm, four-on-the-floor).
+    frozen: [
+      68, _, _, 66, _, 66, _, _, 73, _, _, 73, _, _, 73, _,  // bar 0 (source bar 29)
+      _, 73, _, _, _, 73, _, _, 73, _, _, 73, _, _, 73, _,  // bar 1 (source bar 30)
+      _, 73, _, _, _, 73, _, _, 73, _, _, 73, _, _, 73, _,  // bar 2 (source bar 31)
+      _, 73, _, _, 74, 74, 74, _, 74, _, 71, _, 72, _, 79, 60,  // bar 3 (source bar 32)
+      79, _, 60, 79, 81, 83, 81, 79, _, _, 74, 72, _, 79, _, 81,  // bar 4 (source bar 33)
+      _, _, _, 81, 83, 81, _, 83, _, 84, _, 86, _, 79, _, 74,  // bar 5 (source bar 34)
+      _, 81, _, _, 81, _, 62, 66, _, 62, 67, _, 62, 69, _, 62,  // bar 6 (source bar 35)
+      67, 66, 64, 62, 74, _, 74, 74, _, 71, _, 72, _, 79, _, 79,  // bar 7 (source bar 36)
+      _, _, 60, 79, 81, 83, 81, 79, _, 74, _, 72, _, 79, _, 81,  // bar 8 (source bar 37)
+      _, _, _, _, 83, 79, _, 81, _, 79, _, 83, _, 79, _, 81,  // bar 9 (source bar 38)
+      _, 79, _, 83, 61, _, _, 64, _, _, 61, _, 67, _, _, _,  // bar 10 (source bar 39)
+      66, _, 67, _, 69, _, 69, _, 67, _, 66, _, 67, _, 62, _,  // bar 11 (source bar 40)
+      _, _, _, _, 69, _, _, 69, 69, 67, 66, 62, _, _, _, _,  // bar 12 (source bar 41)
+      _, _, _, 72, _, 69, _, 71, _, 69, _, 72, _, 69, _, 71,  // bar 13 (source bar 42)
+      _, 69, _, 69, _, _, _, _, _, 65, _, _, _, 69, _, 71,  // bar 14 (source bar 43)
+      _, 72, _, 74, _, _, _, 67, _, _, _, 67, _, _, _, _,  // bar 15 (source bar 44)
+      _, 69, _, 71, _, _, _, 64, _, _, _, 60, _, _, _, 64,  // bar 16 (source bar 45)
+      _, 62, _, 62, _, _, _, 69, _, _, _, 69, _, _, _, _,  // bar 17 (source bar 46)
+      _, 71, _, 71, _, _, _, _, _, _, _, _, _, _, _, 71,  // bar 18 (source bar 47)
+      _, 72, _, 74, _, _, _, 67, _, _, _, 67, _, _, _, _,  // bar 19 (source bar 48)
+      _, 69, _, 71, _, _, _, 74, _, _, _, _, _, _, _, 69,  // bar 20 (source bar 49)
+      _, 71, _, 72, _, _, _, 71, _, _, _, 69, _, _, _, 67,  // bar 21 (source bar 50)
+      _, _, _, 69, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 22 (source bar 51)
+      _, _, _, 69, _, 67, _, 67, _, 66, 67, _, _, 69, _, 62,  // bar 23 (source bar 52)
+      _, 64, 66, 67, _, 69, 71, 61, 76, _, _, 76, _, _, _, _,  // bar 24 (source bar 53)
+      _, _, _, _, _, 71, _, 71, _, 72, _, 74, _, _, _, 67,  // bar 25 (source bar 54)
+      _, _, _, 67, _, _, _, 69, _, 71, _, _, _, 74, _, _,  // bar 26 (source bar 55)
+      _, 60, _, 62, _, _, _, _, _, 71, _, 71, _, _, 69, _,  // bar 27 (source bar 56)
+      _, 67, _, _, 67, 62, 67, 71, 67, 71, 74, 71, 74, 79, 74, 79,  // bar 28 (source bar 57)
+      83, 79, 83, 86, 91, _, _, _, 67, _, _, _, _, _, _, _,  // bar 29 (source bar 58)
+    ],
+    // "Bill Our Guest" — "Be Our Guest" (Beauty and the Beast), source bars
+    // 12-45 (rubato intro trimmed, cut to ~1:01 on the phrase break before the
+    // busy reprise), --min-pitch 55.
+    guest: [
+      _, _, 59, _, 62, _, 67, _, _, 74, 59, _, 67, _, _, _,  // bar 0 (source bar 12)
+      _, _, 61, _, 62, 55, 64, 64, 74, _, 61, _, 62, 59, 64, 64,  // bar 1 (source bar 13)
+      62, _, 61, _, 62, _, 64, _, _, 62, 60, _, 57, _, _, _,  // bar 2 (source bar 14)
+      _, _, 72, _, 64, 60, 69, _, _, _, 60, _, 64, 64, 68, _,  // bar 3 (source bar 15)
+      _, _, 60, _, 64, _, 67, _, _, 66, 64, _, 60, _, 57, _,  // bar 4 (source bar 16)
+      _, _, 61, _, 62, 57, 64, _, 62, _, 61, _, 62, _, 70, _,  // bar 5 (source bar 17)
+      62, _, 61, _, 62, _, 71, _, 62, _, 64, _, 66, _, 64, _,  // bar 6 (source bar 18)
+      62, _, 71, _, 74, _, 79, _, _, _, 83, _, 74, _, 78, _,  // bar 7 (source bar 19)
+      _, _, 71, _, 74, _, 76, _, _, 74, 71, _, 67, _, 74, _,  // bar 8 (source bar 20)
+      _, _, _, 67, 67, _, 67, _, _, 71, _, 67, 71, _, 67, _,  // bar 9 (source bar 21)
+      69, _, 71, _, 67, _, 72, _, 60, 64, 69, 72, 81, 88, 93, _,  // bar 10 (source bar 22)
+      64, _, 75, _, 64, _, 66, _, 75, _, 63, _, 83, _, _, _,  // bar 11 (source bar 23)
+      71, _, 67, _, 66, _, 71, _, 74, _, _, _, 69, _, _, _,  // bar 12 (source bar 24)
+      67, 67, 66, _, 64, _, 72, _, _, _, 75, _, 64, _, 71, _,  // bar 13 (source bar 25)
+      _, _, 71, _, 62, _, 67, _, _, _, 67, 71, 74, 79, 75, _,  // bar 14 (source bar 26)
+      _, _, 74, _, 75, _, 80, _, _, _, 72, _, 75, _, 67, _,  // bar 15 (source bar 27)
+      _, _, 84, _, 75, _, 77, _, _, 75, 60, _, 68, _, 75, _,  // bar 16 (source bar 28)
+      _, _, 62, _, 63, 60, 65, 65, 75, _, 62, _, 75, 60, 65, 65,  // bar 17 (source bar 29)
+      75, _, 62, _, 75, _, 65, _, _, 75, 61, _, 58, _, _, _,  // bar 18 (source bar 30)
+      _, _, 82, _, 82, 70, _, _, _, _, 73, _, 77, 81, 61, _,  // bar 19 (source bar 31)
+      _, _, 73, _, 77, _, 80, _, _, 79, 77, _, 73, _, 70, _,  // bar 20 (source bar 32)
+      _, _, 62, _, 75, 58, 65, 65, 75, _, 62, _, 75, _, 65, 65,  // bar 21 (source bar 33)
+      75, _, 74, _, 75, _, 72, _, 75, _, 65, _, 67, _, 65, _,  // bar 22 (source bar 34)
+      87, _, 84, _, 75, _, 80, _, _, _, 84, 60, 75, _, 79, _,  // bar 23 (source bar 35)
+      _, _, 72, 72, 75, _, 77, _, _, 75, 72, _, 68, _, 75, _,  // bar 24 (source bar 36)
+      _, _, _, 68, _, 68, 72, _, _, 68, _, _, 72, _, 68, _,  // bar 25 (source bar 37)
+      70, _, 72, _, 68, _, 70, _, _, _, 68, _, _, _, 65, _,  // bar 26 (source bar 38)
+      65, _, 64, _, 65, _, 72, _, 72, _, _, _, 76, _, _, _,  // bar 27 (source bar 39)
+      76, _, 68, _, 68, _, 72, _, 72, _, _, _, 70, _, _, _,  // bar 28 (source bar 40)
+      68, _, 68, _, 65, _, 70, _, _, _, 64, _, 65, _, 72, _,  // bar 29 (source bar 41)
+      _, _, 75, _, 67, _, 72, _, 72, _, 71, _, 72, _, 75, _,  // bar 30 (source bar 42)
+      _, _, 76, _, 77, _, 82, _, _, _, 76, _, 77, _, 87, _,  // bar 31 (source bar 43)
+      _, _, 87, _, 72, 84, 87, 84, _, _, 68, 75, _, _, 72, _,  // bar 32 (source bar 44)
+      _, 76, _, _, _, _, _, _, _, _, _, _, _, _, 72, 65,  // bar 33 (source bar 45)
+    ],
   };
 
   // ===========================================================================
@@ -2144,6 +2368,27 @@
     ch_priceali: {
       title: 'Price Ali', influence: '', bpm: 177, key: '',
       prog: P.priceali, lead: L.priceali, drums: 'rock', pad: 'power', bars: 59,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    ch_howfarowe: {
+      title: "How Far I'll Owe", influence: '', bpm: 120, key: '',
+      prog: P.howfarowe, lead: L.howfarowe, drums: 'rock', pad: 'power', bars: 32,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    ch_frozen: {
+      // Dance remix, but with the constant square arp bed removed — it followed
+      // the guessed P chords and clashed with the melody. Now just a clean
+      // four-on-the-floor kick + filtered bass under a warm strings pad.
+      title: "For the First Dime in Forever", influence: 'Frozen · For the First Time in Forever, dance remix', bpm: 124, key: '',
+      prog: P.frozen, lead: L.frozen, drums: 'four', pad: 'strings', bars: 30,
+      arpEvery: 0, bassEvery: 2, gain: 0.82, voices: { lead: 'saw' },
+      bassGain: 0.48, bassSubGain: 0.92, bassCutoffStart: 850, bassCutoffEnd: 200,
+    },
+    ch_guest: {
+      title: "Bill Our Guest", influence: '', bpm: 133, key: '',
+      prog: P.guest, lead: L.guest, drums: 'rock', pad: null, bars: 34,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },

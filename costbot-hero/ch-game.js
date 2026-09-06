@@ -249,6 +249,13 @@
     { key: 'ch_stolentokens', name: 'Stolen Tokens', sub: "FF7 · Yuffie's Theme, ragtime · 1:09", tag: '', biome: 'arena', art: 'cb_yuffie.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
+    // Disney batch (from MIDI via mid2chart.js).
+    { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · How Far I\'ll Go · 1:04', tag: '', biome: 'arena', art: 'cb_moana.jpg', artDim: 0.3,
+      maxLoops: 1 },
+    { key: 'ch_frozen', name: "For the First Dime in Forever", sub: 'Frozen · dance remix · 0:58', tag: '', biome: 'arena', art: 'cb_frozen.jpg', artDim: 0.3,
+      maxLoops: 1 },
+    { key: 'ch_guest', name: 'Bill Our Guest', sub: 'Beauty and the Beast · Be Our Guest · 1:01', tag: '', biome: 'arena', art: 'cb_be_our_guest.jpg', artDim: 0.3,
+      maxLoops: 1 },
   ];
 
   const DIFFS = {
@@ -513,16 +520,17 @@
     function diffOrder() { return meta.experimental ? ['easy', 'medium', 'hard', 'ultra'] : ['easy', 'medium', 'hard']; }
 
     // The song list is one unified, searchable, scrollable column: curated
-    // songs first (in SONGS order), then experimental ones (alphabetical, shown
-    // inline with an EXP badge) — but only when meta.experimental is on. A live
-    // search box narrows by name/subtitle. menuSongs() is the single source of
-    // truth for BOTH the rendered rows and up/down keyboard nav, so the two can
-    // never drift (e.g. arrow keys skipping a filtered-out row). songQuery is
-    // the current search text, empty when not filtering.
+    // songs first (alphabetical by name), then experimental ones (also
+    // alphabetical, shown inline with an EXP badge) — but only when
+    // meta.experimental is on. A live search box narrows by name/subtitle.
+    // menuSongs() is the single source of truth for BOTH the rendered rows and
+    // up/down keyboard nav, so the two can never drift (e.g. arrow keys skipping
+    // a filtered-out row). songQuery is the current search text, empty when not
+    // filtering.
     let songQuery = '';
     function menuSongs() {
       const vis = visibleSongs();
-      const curated = vis.filter((s) => !s.experimental);
+      const curated = vis.filter((s) => !s.experimental).sort((a, b) => a.name.localeCompare(b.name));
       const exp = vis.filter((s) => s.experimental).sort((a, b) => a.name.localeCompare(b.name));
       let ordered = curated.concat(exp);
       const q = songQuery.trim().toLowerCase();
