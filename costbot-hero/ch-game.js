@@ -1041,11 +1041,17 @@
       const tokens = Math.max(0, Math.floor(r.score / 250));
       if (global.ArcadeWallet && tokens) global.ArcadeWallet.earn(tokens, 'costbot-hero');
 
-      // record best (by score) per song+difficulty
+      // record best per song+difficulty. Rank by grade first, score as a
+      // tiebreaker within the same grade — score alone isn't safe because a
+      // failed run's combo multiplier can out-score a lower-combo clear,
+      // which used to let a stale 'F' record survive a later real 'B'/'A'/'S'.
+      const GRADE_RANK = { S: 5, A: 4, B: 3, C: 2, D: 1, F: 0 };
       if (!meta.records[r.song.key]) meta.records[r.song.key] = {};
       const rec = meta.records[r.song.key];
       const prev = rec[diffKey];
-      const better = !prev || r.score > prev.score;
+      const better = !prev
+        || GRADE_RANK[grade] > GRADE_RANK[prev.grade]
+        || (GRADE_RANK[grade] === GRADE_RANK[prev.grade] && r.score > prev.score);
       if (better) rec[diffKey] = { score: r.score, grade, combo: r.maxCombo, acc: accPct };
       meta.plays++; persist();
 
