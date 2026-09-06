@@ -582,9 +582,8 @@
       { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 30)
       { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 31)
     ],
-    // "Price Ali" — Prince Ali (Aladdin), source bars 16-90 (intro trimmed,
-    // ends ~1:42 on a D5). Lead = TOP note across melodic tracks 0,2,3,4,5;
-    // roots octave-normalized.
+    // "Price Ali" — Prince Ali (Aladdin), source bars 16-74 (~1:20), intro
+    // trimmed and tail cut to end on the Bb tonic. Roots octave-normalized.
     priceali: [
       { root: 46, tones: [0, 3, 7] },  // A#3 min  (source bar 16)
       { root: 46, tones: [0, 4, 7] },  // A#3 maj  (source bar 17)
@@ -645,22 +644,6 @@
       { root: 39, tones: [0, 3, 7] },  // D#2 min  (source bar 72)
       { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 73)
       { root: 46, tones: [0, 3, 7] },  // A#2 min  (source bar 74)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 75)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 76)
-      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 77)
-      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 78)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 79)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 80)
-      { root: 47, tones: [0, 3, 7] },  // B2 min  (source bar 81)
-      { root: 47, tones: [0, 3, 7] },  // B2 min  (source bar 82)
-      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 83)
-      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 84)
-      { root: 40, tones: [0, 3, 7] },  // E2 min  (source bar 85)
-      { root: 40, tones: [0, 3, 7] },  // E2 min  (source bar 86)
-      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 87)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 88)
-      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 89)
-      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 90)
     ],
   };
 
@@ -1638,8 +1621,8 @@
       _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 29 (source bar 30)
       84, _, _, _, 83, _, _, _, 78, _, 81, _, _, _, 79, _,  // bar 30 (source bar 31)
     ],
-    // "Price Ali" — Prince Ali (Aladdin), main song bars 16-90 (~1:42), merged
-    // top line across tracks 0,2,3,4,5 (--lead 0,2,3,4,5), no dead space.
+    // "Price Ali" — Prince Ali (Aladdin), bars 16-74 (~1:20), merged top line
+    // across tracks 0,2,3,4,5 (--lead 0,2,3,4,5), ends on A#4/Bb.
     priceali: [
       _, _, _, _, 70, _, _, _, 72, _, _, _, 73, _, _, _,  // bar 0 (source bar 16)
       70, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 1 (source bar 17)
@@ -1700,22 +1683,6 @@
       70, _, _, _, 66, _, 72, _, _, _, _, _, 73, _, _, _,  // bar 56 (source bar 72)
       70, _, _, _, 61, _, 65, _, _, _, _, _, 63, _, _, _,  // bar 57 (source bar 73)
       _, _, _, _, 65, _, _, _, _, _, _, _, 70, _, _, _,  // bar 58 (source bar 74)
-      70, _, _, _, 66, _, 66, _, 66, _, _, _, 70, _, _, _,  // bar 59 (source bar 75)
-      66, _, 66, _, 66, _, _, _, 70, _, _, _, 70, _, 72, _,  // bar 60 (source bar 76)
-      _, _, 72, _, _, _, 72, _, 71, _, _, _, 72, _, _, _,  // bar 61 (source bar 77)
-      77, _, _, _, _, _, _, _, 65, _, _, _, 66, _, _, _,  // bar 62 (source bar 78)
-      78, _, _, _, 71, _, 76, _, 62, _, 78, _, 76, _, 66, _,  // bar 63 (source bar 79)
-      74, _, _, _, 71, _, 73, _, 65, _, 74, _, 73, _, _, _,  // bar 64 (source bar 80)
-      71, _, _, _, 62, _, 66, _, 62, _, 64, _, 65, _, 66, _,  // bar 65 (source bar 81)
-      65, _, _, _, 66, _, _, _, 65, _, _, _, 66, _, _, _,  // bar 66 (source bar 82)
-      71, _, _, _, 66, _, 69, _, 63, _, 71, _, 69, _, 71, _,  // bar 67 (source bar 83)
-      70, _, _, _, 71, _, 66, _, 70, _, 67, _, 71, _, _, _,  // bar 68 (source bar 84)
-      67, _, _, _, 59, _, 64, _, _, _, _, _, 66, _, _, _,  // bar 69 (source bar 85)
-      _, _, _, _, 67, _, _, _, _, _, _, _, 67, _, _, _,  // bar 70 (source bar 86)
-      67, _, 67, _, 64, _, 66, _, 63, _, 67, _, 66, _, 66, _,  // bar 71 (source bar 87)
-      65, _, _, _, 66, _, _, _, 65, _, _, _, 71, _, _, _,  // bar 72 (source bar 88)
-      71, _, _, _, 71, _, 69, _, 66, _, 71, _, 69, _, 69, _,  // bar 73 (source bar 89)
-      70, _, _, _, 71, _, _, _, 70, _, _, _, 74, _, _, _,  // bar 74 (source bar 90)
     ],
   };
 
@@ -2176,7 +2143,7 @@
     },
     ch_priceali: {
       title: 'Price Ali', influence: '', bpm: 177, key: '',
-      prog: P.priceali, lead: L.priceali, drums: 'rock', pad: 'power', bars: 75,
+      prog: P.priceali, lead: L.priceali, drums: 'rock', pad: 'power', bars: 59,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
