@@ -698,8 +698,9 @@
       { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 49)
       { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 50)
     ],
-    // "Frozen Assets" — "Let It Go" (Frozen), full 58 bars, --min-pitch 60
-    // to lift the melody off the left-hand arpeggio bleed.
+    // "For the First Dime in Forever" — "For the First Time in Forever"
+    // (Frozen), full 58 bars, --min-pitch 60 to lift the melody off the
+    // left-hand arpeggio bleed. Dance remix (124bpm, four-on-the-floor).
     frozen: [
       { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 1)
       { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 2)
@@ -1904,8 +1905,9 @@
       60, _, _, _, _, _, 58, _, 53, _, _, _, 60, _, _, _,  // bar 48 (source bar 49)
       67, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 49 (source bar 50)
     ],
-    // "Frozen Assets" — "Let It Go" (Frozen), full 58 bars, --min-pitch 60
-    // to lift the melody off the left-hand arpeggio bleed.
+    // "For the First Dime in Forever" — "For the First Time in Forever"
+    // (Frozen), full 58 bars, --min-pitch 60 to lift the melody off the
+    // left-hand arpeggio bleed. Dance remix (124bpm, four-on-the-floor).
     frozen: [
       _, _, _, _, _, 66, 68, 70, 73, _, _, 73, _, _, 73, _,  // bar 0 (source bar 1)
       _, 73, _, _, 73, _, _, _, 73, _, _, 73, _, _, 73, _,  // bar 1 (source bar 2)
@@ -2488,10 +2490,10 @@
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_frozen: {
-      title: "Frozen Assets", influence: '', bpm: 90, key: '',
-      prog: P.frozen, lead: L.frozen, drums: 'rock', pad: 'power', bars: 58,
-      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
-      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+      title: "For the First Dime in Forever", influence: 'Frozen · For the First Time in Forever, dance remix', bpm: 124, key: '',
+      prog: P.frozen, lead: L.frozen, drums: 'four', pad: 'saw', bars: 58,
+      arpEvery: 2, bassEvery: 2, gain: 0.82, voices: { lead: 'saw', arp: 'square' },
+      bassGain: 0.48, bassSubGain: 0.92, bassCutoffStart: 850, bassCutoffEnd: 200,
     },
     ch_guest: {
       title: "Bill Our Guest", influence: '', bpm: 133, key: '',
