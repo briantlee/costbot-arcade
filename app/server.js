@@ -372,7 +372,10 @@ async function recordRun(hubId, team, r) {
     game: String(r.game || 'waste-hunter').slice(0, 40),
     stage_id: String(r.stageId || 'unknown').slice(0, 60),
     seed,
-    outcome: ['clear', 'death', 'quit'].includes(r.outcome) ? r.outcome : 'quit',
+    // 'fail' is CostBot Hero's outcome for a song failed on misses (r.failed) — everyone
+    // else's failure state is 'death'. Omitting it silently rewrote every failed Hero run
+    // to 'quit', indistinguishable from a player who just walked away.
+    outcome: ['clear', 'death', 'quit', 'fail'].includes(r.outcome) ? r.outcome : 'quit',
     dollars: num(r.dollarsSaved, 1e12),
     tokens: num(r.tokensEarned !== undefined ? r.tokensEarned : r.creditsEarned, 1e9),
     level: num(r.level, 999),
