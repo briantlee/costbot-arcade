@@ -1237,33 +1237,43 @@
     // "Legend of CostBot", transcribed from MIDI. Solo electric piano, one
     // track: each step takes the TOP note sounding (the bass note and the
     // parallel 2-note chord below it are the accompaniment — see P above).
+    // Feedback: some charted notes weren't part of the melody, they were
+    // picking up the bass line. Cause: "top note per step" doesn't know
+    // which hand played what, so on any step where the melody itself
+    // rested, the left hand's own bass/chord attack (pitches 39-52 — the
+    // same chromatic descent that drives P above) won "top note sounding"
+    // by default and got charted as if it were the tune. Regenerated with
+    // arcade/tools/mid2chart.js --min-pitch 55 (comfortably above the
+    // LH's 39-52 register, below the melody's 58+ floor) to drop every one
+    // of those false bass onsets while every real melody note is untouched
+    // — confirmed by diff against the un-filtered transcription.
     // 22 bars: a rocking chromatic-descent A section (bars 1-16) opens into a
     // freer B section (bars 17-22) with an actual single-note scale run
     // (around bar 20) instead of the block chords. Ends here, one bar before
     // the source's own bars 22-25 repeat bars 10-13 verbatim (see P above).
     legendOfCostbot: [
-      70, _, _, _, 46, 46, _, 46, 46, _, _, 70, 70, 70, _, 70,
-      70, _, _, 68, 70, 44, _, 44, 44, _, _, 70, 70, 70, _, 70,
-      70, _, _, 68, 70, 42, _, 42, 42, _, _, 70, 70, 70, _, 70,
+      70, _, _, _, _, _, _, _, _, _, _, 70, 70, 70, _, 70,
+      70, _, _, 68, 70, _, _, _, _, _, _, 70, 70, 70, _, 70,
+      70, _, _, 68, 70, _, _, _, _, _, _, 70, 70, 70, _, 70,
       70, _, 65, 65, 65, _, 65, 65, 65, _, 65, 65, 65, _, 65, _,
       70, _, _, _, 65, 62, _, 60, 62, _, 70, _, 70, 72, 74, 75,
-      77, _, 70, _, 70, 72, 74, 75, 44, _, 77, _, 77, 78, _, 80,
+      77, _, 70, _, 70, 72, 74, 75, _, _, 77, _, 77, 78, _, 80,
       82, _, 66, _, 66, 68, 70, 72, 73, _, 82, 73, 82, 80, _, 78,
       80, _, _, 78, 77, 68, _, 66, 68, _, _, 68, 77, 68, _, 68,
-      75, _, 75, 77, 78, 47, 66, 68, 70, _, _, _, 77, 47, 75, 47,
-      73, _, 73, 75, 77, 46, 65, 66, 68, _, _, _, 75, _, 73, 46,
-      72, _, 72, 74, 76, _, 64, 65, 67, _, 67, 69, 79, _, 72, 48,
+      75, _, 75, 77, 78, _, 66, 68, 70, _, _, _, 77, _, 75, _,
+      73, _, 73, 75, 77, _, 65, 66, 68, _, _, _, 75, _, 73, _,
+      72, _, 72, 74, 76, _, 64, 65, 67, _, 67, 69, 79, _, 72, _,
       77, _, 65, 65, 65, _, 65, 65, 65, _, 65, 65, 65, _, 65, _,
       70, _, _, _, 65, _, 62, 60, 62, _, 70, _, 70, 72, 74, 75,
-      77, _, 70, _, 70, 72, 74, 75, 44, _, 77, _, 77, _, 78, 80,
-      82, _, _, _, 42, _, 42, 40, 42, _, _, _, 85, _, _, _,
-      84, _, _, _, 81, _, 41, 39, 41, _, _, _, 77, _, _, _,
-      78, _, 46, 49, 52, _, 58, 61, 64, _, _, _, 82, _, _, _,
-      81, _, _, _, 77, _, 41, 41, 41, _, _, _, 77, _, _, _,
-      78, _, 46, 49, 52, _, 58, 61, 64, _, _, _, 82, _, _, _,
-      81, _, _, _, 77, _, 41, 41, 41, _, _, _, 74, _, _, _,
-      75, _, _, _, 47, _, 47, 46, 47, _, _, _, 78, _, 47, 47,
-      77, _, _, _, 73, _, 46, 44, 46, _, _, _, 70, _, 46, 46,
+      77, _, 70, _, 70, 72, 74, 75, _, _, 77, _, 77, _, 78, 80,
+      82, _, _, _, _, _, _, _, _, _, _, _, 85, _, _, _,
+      84, _, _, _, 81, _, _, _, _, _, _, _, 77, _, _, _,
+      78, _, _, _, _, _, 58, 61, 64, _, _, _, 82, _, _, _,
+      81, _, _, _, 77, _, _, _, _, _, _, _, 77, _, _, _,
+      78, _, _, _, _, _, 58, 61, 64, _, _, _, 82, _, _, _,
+      81, _, _, _, 77, _, _, _, _, _, _, _, 74, _, _, _,
+      75, _, _, _, _, _, _, _, _, _, _, _, 78, _, _, _,
+      77, _, _, _, 73, _, _, _, _, _, _, _, 70, _, _, _,
     ],
     // "Kalm Before the Bill", transcribed from MIDI (FF7 · Kalm). The source
     // is a solo fingerstyle-guitar arrangement on one track — this is the

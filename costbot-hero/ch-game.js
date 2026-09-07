@@ -130,9 +130,25 @@
     // to end right before the source file's own bar-22 repeat); the shared
     // MAX_LOOPS of 3 would run ~110s, so maxLoops: 2 brings it to ~73s —
     // coincidentally close to the original file's own ~73.4s length.
+    // Feedback: chart notes didn't track the melody. L.legendOfCostbot is a
+    // verified exact match to the source MIDI (regenerated with mid2chart.js
+    // and diffed byte-for-byte against the hand transcription — identical),
+    // so the audio is right; the shared minGap thinning was the actual bug.
+    // This is a dense, legato solo-piano line (58.5% of steps are real
+    // onsets, avg gap ~1.7 steps) — the shared Easy/Normal/Hard minGap of
+    // 4/3/2 was keeping only 43%/46%/68% of those onsets, chopping up the
+    // scale runs into something that reads as missing beats (only Ultra's
+    // minGap:1 played the tune straight). Same fix as ch_goldsaucer: shift
+    // each tier's feel down one notch — new Easy/Normal get the old shared
+    // Normal/Hard's fall+minGap, and Hard becomes a genuinely faster new
+    // tier at minGap:1 (100% of onsets, every difficulty now recognizably
+    // the same tune).
     { key: 'ch_legendOfCostbot', name: 'Legend of CostBot', sub: 'Zelda, solo piano · 73s', tag: '', biome: 'field', art: 'legend_of_costbot.jpg', artDim: 0.35,
       experimental: true,
-      maxLoops: 2 },
+      maxLoops: 2,
+      easy:   { fall: 1.90, minGap: 3, holdGap: 8, missCost: 7 },
+      medium: { fall: 1.45, minGap: 2, holdGap: 5, missCost: 9 },
+      hard:   { fall: 1.05, minGap: 1, missCost: 12 } },
     // Playtest entry — no art yet. 17 bars at 104bpm loop in ~39.2s; maxLoops: 2
     // brings a run to ~78.5s, in line with the rest of the roster.
     { key: 'ch_kalm', name: 'Kalm Before the Bill', sub: 'FF7, revved lofi bass · 78s', tag: '', biome: 'field', art: 'cb_meteor.jpg', artDim: 0.3,
