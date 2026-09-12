@@ -582,6 +582,174 @@
       { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 30)
       { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 31)
     ],
+    // "Financial Fantasy 7" -- FFVII Main Theme, trimmed to source bars 1-52:
+    // the theme plays through, repeats once, and resolves (bar 52) right before
+    // a new ascending bridge phrase would start at bar 53 -- ~45s shorter than
+    // the full 87-bar arrangement. --min-pitch 60 isolates the right-hand
+    // melody off the single combined piano track's left-hand accompaniment.
+    // bpm bumped 72->190 for the uptempo/rap-style feel (see
+    // TRACKS.ch_financialfantasy7).
+    financialfantasy7: [
+      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 1)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 2)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 3)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 4)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 5)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 6)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 7)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 8)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 9)
+      { root: 44, tones: [0, 3, 7] },  // G#2 min  (source bar 10)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 11)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 12)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 13)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 14)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 15)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 16)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 17)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 18)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 19)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 20)
+      { root: 44, tones: [0, 3, 7] },  // G#2 min  (source bar 21)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 22)
+      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 23)
+      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 24)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 25)
+      { root: 54, tones: [0, 3, 7] },  // F#3 min  (source bar 26)
+      { root: 54, tones: [0, 3, 7] },  // F#3 min  (source bar 27)
+      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 28)
+      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 29)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 30)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 31)
+      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 32)
+      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 33)
+      { root: 54, tones: [0, 3, 7] },  // F#3 min  (source bar 34)
+      { root: 54, tones: [0, 3, 7] },  // F#3 min  (source bar 35)
+      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 36)
+      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 37)
+      { root: 44, tones: [0, 3, 7] },  // G#2 min  (source bar 38)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 39)
+      { root: 44, tones: [0, 3, 7] },  // G#2 min  (source bar 40)
+      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 41)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 42)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 43)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 44)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 45)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 46)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 47)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 48)
+      { root: 44, tones: [0, 3, 7] },  // G#2 min  (source bar 49)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 50)
+      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 51)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 52)
+    ],
+    // "Let the Billing Begin" -- FFVII battle theme ("Let the Battle Begin!"),
+    // trimmed to source bars 1-53: intro riff + the soaring high-register
+    // bridge (bars 41-52), ending on the single resolving note the bridge
+    // lands on (bar 53) -- right before the riff would repeat from the top.
+    // ~31s shorter than the previous bars 1-76 cut. --min-pitch 60 isolates
+    // the melody off the combined piano track's left-hand accompaniment.
+    letthebillingbegin: [
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 1)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 2)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 3)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 4)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 5)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 6)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 7)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 8)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 9)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 10)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 11)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 12)
+      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 13)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 14)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 15)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 16)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 17)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 18)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 19)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 20)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 21)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 22)
+      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 23)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 24)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 25)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 26)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 27)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 28)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 29)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 30)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 31)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 32)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 33)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 34)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 35)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 36)
+      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 37)
+      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 38)
+      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 39)
+      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 40)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 41)
+      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 42)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 43)
+      { root: 77, tones: [0, 3, 7] },  // F5 min  (source bar 44)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 45)
+      { root: 58, tones: [0, 4, 7] },  // A#3 maj  (source bar 46)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 47)
+      { root: 77, tones: [0, 3, 7] },  // F5 min  (source bar 48)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 49)
+      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 50)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 51)
+      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 52)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 53)
+    ],
+    // "Bloody Tiers" — Castlevania II, Bloody Tears. Source bars 1-16 are the
+    // whole unique loop (the file's own bars 17-32 exactly repeat 1-16).
+    // Per feedback ("song can end a little after 1:02"), hand-extended here to
+    // 34 bars -- two full loops (bars 1-32) plus a 2-bar tag (bars 33-34,
+    // repeating 1-2 again) -- landing at ~1:03 (34 bars @130bpm). TRACKS plays
+    // this exact sequence once (maxLoops: 1) rather than relying on the
+    // engine's whole-loop auto-repeat, which could only land on ~59s or
+    // ~88.6s. --lead 5 (8-Bit Sawtooth) / --bass 3 (Bass Guitar) picked over
+    // the tool's own --bass 1 suggestion since this MIDI has a real named
+    // bass track.
+    bloodytiers: [
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 1)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 2)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 3)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 4)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 5)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 6)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 7)
+      { root: 26, tones: [0, 3, 7] },  // D1 min  (source bar 8)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 9)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 10)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 11)
+      { root: 26, tones: [0, 4, 7] },  // D1 maj  (source bar 12)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 13)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 14)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 15)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 16)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 17 = repeat of 1)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 18 = repeat of 2)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 19 = repeat of 3)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 20 = repeat of 4)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 21 = repeat of 5)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 22 = repeat of 6)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 23 = repeat of 7)
+      { root: 26, tones: [0, 3, 7] },  // D1 min  (source bar 24 = repeat of 8)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 25 = repeat of 9)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 26 = repeat of 10)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 27 = repeat of 11)
+      { root: 26, tones: [0, 4, 7] },  // D1 maj  (source bar 28 = repeat of 12)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 29 = repeat of 13)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 30 = repeat of 14)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 31 = repeat of 15)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 32 = repeat of 16)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (bar 33, 2-bar tag = repeat of 1)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (bar 34, 2-bar tag = repeat of 2)
+    ],
     // "Price Ali" — Prince Ali (Aladdin), source bars 16-74 (~1:20), intro
     // trimmed and tail cut to end on the Bb tonic. Roots octave-normalized.
     priceali: [
@@ -1845,6 +2013,160 @@
       60, _, 64, _, 67, _, 64, _, 55, _, 60, _, 64, _, 60, _,  // bar 29
       57, _, 60, _, 64, _, 60, _, 50, _, 57, _, 60, _, 57, _,  // bar 30
     ],
+    // "Financial Fantasy 7" -- FFVII Main Theme, trimmed to source bars 1-52
+    // (see P.financialfantasy7 for why). --lead 1 --bass 1 --min-pitch 60 to
+    // isolate the melody off the left-hand accompaniment.
+    financialfantasy7: [
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 0 (source bar 1)
+      64, _, _, _, _, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 1 (source bar 2)
+      75, _, _, _, _, _, _, _, 73, _, _, _, _, _, _, _,  // bar 2 (source bar 3)
+      _, _, _, _, 64, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 3 (source bar 4)
+      71, _, _, _, 69, _, _, _, 64, _, _, _, 66, _, _, _,  // bar 4 (source bar 5)
+      64, _, _, _, _, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 5 (source bar 6)
+      75, _, _, _, _, _, _, _, 73, _, _, _, _, _, _, _,  // bar 6 (source bar 7)
+      _, _, _, _, 64, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 7 (source bar 8)
+      71, _, _, _, 69, _, _, _, 64, _, _, _, 66, _, _, _,  // bar 8 (source bar 9)
+      68, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 9 (source bar 10)
+      61, _, _, _, 68, _, _, _, 71, _, _, _, 68, _, _, _,  // bar 10 (source bar 11)
+      66, _, _, _, _, _, _, _, _, _, _, _, 62, _, 66, _,  // bar 11 (source bar 12)
+      64, _, _, _, _, _, 61, _, 63, _, 66, _, 71, _, 75, _,  // bar 12 (source bar 13)
+      76, _, _, _, _, _, _, _, 78, _, _, _, 80, _, _, _,  // bar 13 (source bar 14)
+      87, _, _, _, _, _, _, _, 85, _, _, _, _, _, _, _,  // bar 14 (source bar 15)
+      _, _, _, _, 76, _, _, _, 78, _, _, _, 80, _, _, _,  // bar 15 (source bar 16)
+      83, _, _, _, 81, _, _, _, 76, _, _, _, 78, _, 60, _,  // bar 16 (source bar 17)
+      76, _, _, _, _, _, _, _, 78, _, _, _, 80, _, _, _,  // bar 17 (source bar 18)
+      87, _, _, _, _, _, _, _, 85, _, _, _, _, _, _, _,  // bar 18 (source bar 19)
+      _, _, _, _, 76, _, _, _, 78, _, _, _, 80, _, _, _,  // bar 19 (source bar 20)
+      83, _, _, _, _, _, _, _, 81, _, _, _, 73, _, _, _,  // bar 20 (source bar 21)
+      80, _, _, _, _, _, _, _, 61, _, _, _, 78, _, 61, _,  // bar 21 (source bar 22)
+      76, _, _, _, _, _, 61, _, 75, _, _, _, _, _, _, _,  // bar 22 (source bar 23)
+      76, _, _, _, 68, _, _, _, _, _, _, _, 64, _, _, _,  // bar 23 (source bar 24)
+      _, _, _, _, 80, _, _, _, 81, _, _, _, 80, _, _, _,  // bar 24 (source bar 25)
+      80, _, 78, _, 78, _, 80, _, 81, _, 61, _, _, _, 61, _,  // bar 25 (source bar 26)
+      _, _, _, _, 61, _, _, _, 66, _, 61, _, 80, _, 78, _,  // bar 26 (source bar 27)
+      76, _, 78, _, 80, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 27 (source bar 28)
+      75, _, _, _, 66, _, _, _, 73, _, _, _, _, _, _, _,  // bar 28 (source bar 29)
+      83, _, 81, _, 83, _, 85, _, 76, _, _, _, 73, _, _, _,  // bar 29 (source bar 30)
+      75, _, _, _, _, _, _, _, 76, _, _, _, 78, _, _, _,  // bar 30 (source bar 31)
+      80, _, _, _, 64, _, _, _, 76, _, _, _, 80, _, _, _,  // bar 31 (source bar 32)
+      75, _, _, _, 76, _, _, _, _, _, 80, _, 81, _, 80, _,  // bar 32 (source bar 33)
+      80, _, 78, _, 78, _, 80, _, 81, _, 61, _, _, _, 61, _,  // bar 33 (source bar 34)
+      _, _, _, _, 71, _, _, _, 73, _, 61, _, 80, _, 78, _,  // bar 34 (source bar 35)
+      76, _, 78, _, 80, _, _, _, 63, _, _, _, 64, _, _, _,  // bar 35 (source bar 36)
+      73, _, _, _, 64, _, 61, _, 75, _, _, _, 80, _, _, _,  // bar 36 (source bar 37)
+      88, _, 87, _, 87, _, 85, _, 85, _, _, _, 71, _, 76, _,  // bar 37 (source bar 38)
+      73, _, _, _, 69, _, _, _, 66, _, 85, _, 87, _, 85, _,  // bar 38 (source bar 39)
+      83, _, 78, _, 78, _, 80, _, 81, _, _, _, 68, _, 69, _,  // bar 39 (source bar 40)
+      66, _, _, _, 64, _, _, _, 64, _, _, _, 63, _, _, _,  // bar 40 (source bar 41)
+      64, _, _, _, _, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 41 (source bar 42)
+      75, _, _, _, _, _, _, _, 73, _, _, _, _, _, _, _,  // bar 42 (source bar 43)
+      _, _, _, _, 64, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 43 (source bar 44)
+      71, _, _, _, 69, _, _, _, 64, _, _, _, 66, _, 60, _,  // bar 44 (source bar 45)
+      76, _, _, _, _, _, _, _, 78, _, _, _, 80, _, _, _,  // bar 45 (source bar 46)
+      87, _, _, _, _, _, _, _, 85, _, _, _, _, _, _, _,  // bar 46 (source bar 47)
+      _, _, _, _, 76, _, _, _, 78, _, _, _, 80, _, 61, _,  // bar 47 (source bar 48)
+      83, _, _, _, _, _, _, _, 81, _, _, _, 73, _, _, _,  // bar 48 (source bar 49)
+      80, _, _, _, _, _, _, _, 61, _, _, _, 78, _, _, _,  // bar 49 (source bar 50)
+      76, _, _, _, _, _, 61, _, 75, _, _, _, _, _, _, _,  // bar 50 (source bar 51)
+      76, _, _, _, _, _, _, _, _, _, _, _, 64, _, 68, _,  // bar 51 (source bar 52)
+    ],
+    // "Let the Billing Begin" -- FFVII battle theme, trimmed to source bars
+    // 1-53 (see P.letthebillingbegin for why). --min-pitch 60 isolates the
+    // melody off the combined piano track's left-hand accompaniment.
+    letthebillingbegin: [
+      77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _,  // bar 0 (source bar 1)
+      77, _, 65, _, 72, _, 75, _, 78, _, 77, _, 75, _, 78, _,  // bar 1 (source bar 2)
+      77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _,  // bar 2 (source bar 3)
+      77, _, 68, _, 75, _, _, _, 75, _, _, _, 75, _, _, _,  // bar 3 (source bar 4)
+      77, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 4 (source bar 5)
+      _, _, 77, _, 72, _, 75, _, 78, _, 77, _, 75, _, 77, _,  // bar 5 (source bar 6)
+      70, _, _, _, 68, _, _, _, 67, _, _, _, 65, _, _, _,  // bar 6 (source bar 7)
+      _, _, _, _, 72, _, _, _, 75, _, _, _, 78, _, _, _,  // bar 7 (source bar 8)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 8 (source bar 9)
+      _, _, _, _, _, _, _, _, 60, _, _, _, 63, _, _, _,  // bar 9 (source bar 10)
+      65, _, _, _, _, _, 67, _, _, _, _, _, 68, _, _, _,  // bar 10 (source bar 11)
+      _, _, 70, _, _, _, _, _, 72, _, _, _, 75, _, _, _,  // bar 11 (source bar 12)
+      77, _, _, _, _, _, 79, _, _, _, _, _, 80, _, _, _,  // bar 12 (source bar 13)
+      _, _, 82, _, _, _, _, _, 84, _, _, _, _, _, _, _,  // bar 13 (source bar 14)
+      80, _, _, _, _, _, 77, _, _, _, _, _, _, _, _, _,  // bar 14 (source bar 15)
+      _, _, 65, _, 67, _, 68, _, 70, _, 68, _, 67, _, 70, _,  // bar 15 (source bar 16)
+      68, _, 77, _, 79, _, 80, _, 82, _, 80, _, 79, _, 82, _,  // bar 16 (source bar 17)
+      77, _, _, _, _, _, 78, _, _, _, 78, _, 75, _, _, _,  // bar 17 (source bar 18)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 18 (source bar 19)
+      _, _, _, _, _, _, _, _, 60, _, _, _, 63, _, _, _,  // bar 19 (source bar 20)
+      65, _, _, _, _, _, 67, _, _, _, _, _, 68, _, _, _,  // bar 20 (source bar 21)
+      _, _, 70, _, _, _, _, _, 72, _, _, _, 75, _, _, _,  // bar 21 (source bar 22)
+      77, _, _, _, _, _, 79, _, _, _, _, _, 80, _, _, _,  // bar 22 (source bar 23)
+      _, _, 82, _, _, _, _, _, 84, _, _, _, _, _, _, _,  // bar 23 (source bar 24)
+      80, _, _, _, _, _, 77, _, _, _, _, _, _, _, _, _,  // bar 24 (source bar 25)
+      _, _, 65, _, 67, _, 68, _, 70, _, 68, _, 67, _, 70, _,  // bar 25 (source bar 26)
+      68, _, 77, _, 79, _, 80, _, 82, _, 80, _, 79, _, 82, _,  // bar 26 (source bar 27)
+      77, _, _, _, _, _, 78, _, _, _, 78, _, 75, _, _, _,  // bar 27 (source bar 28)
+      65, _, 77, _, 77, _, 65, _, 77, _, 77, _, 65, _, 77, _,  // bar 28 (source bar 29)
+      77, _, 65, _, 67, _, 68, _, 70, _, 68, _, 67, _, 70, _,  // bar 29 (source bar 30)
+      68, _, 77, _, 79, _, 80, _, 82, _, 80, _, 79, _, 72, _,  // bar 30 (source bar 31)
+      77, _, 76, _, 77, _, 79, _, 80, _, 79, _, 80, _, 82, _,  // bar 31 (source bar 32)
+      _, _, 72, _, 71, _, 72, _, 70, _, 68, _, 65, _, 67, _,  // bar 32 (source bar 33)
+      68, _, _, _, 74, _, _, _, 75, _, _, _, 77, _, _, _,  // bar 33 (source bar 34)
+      80, _, _, _, 67, _, 68, _, _, _, 70, _, 72, _, 73, _,  // bar 34 (source bar 35)
+      75, _, _, _, 73, _, 75, _, _, _, 77, _, 79, _, 80, _,  // bar 35 (source bar 36)
+      82, _, 81, _, 76, _, 77, _, 79, _, 77, _, 75, _, 73, _,  // bar 36 (source bar 37)
+      77, _, 70, _, 72, _, 73, _, 75, _, 73, _, 77, _, 73, _,  // bar 37 (source bar 38)
+      73, _, _, _, _, _, 72, _, _, _, _, _, 70, _, _, _,  // bar 38 (source bar 39)
+      _, _, 82, _, 84, _, 85, _, 87, _, 89, _, 91, _, 92, _,  // bar 39 (source bar 40)
+      _, _, 89, _, 92, _, _, _, 91, _, 94, _, _, _, 92, _,  // bar 40 (source bar 41)
+      84, _, _, _, 94, _, 85, _, 70, _, 84, _, 92, _, 89, _,  // bar 41 (source bar 42)
+      68, _, 89, _, 92, _, _, _, 91, _, 94, _, _, _, 92, _,  // bar 42 (source bar 43)
+      84, _, _, _, 94, _, 85, _, _, _, 84, _, 92, _, 89, _,  // bar 43 (source bar 44)
+      _, _, 87, _, 91, _, _, _, 89, _, 92, _, _, _, 91, _,  // bar 44 (source bar 45)
+      82, _, _, _, 92, _, 84, _, 67, _, 94, _, 91, _, 87, _,  // bar 45 (source bar 46)
+      70, _, 89, _, 92, _, _, _, 91, _, 94, _, _, _, 92, _,  // bar 46 (source bar 47)
+      84, _, _, _, 94, _, 85, _, _, _, 84, _, 92, _, 89, _,  // bar 47 (source bar 48)
+      _, _, 89, _, 92, _, _, _, 91, _, 94, _, _, _, 92, _,  // bar 48 (source bar 49)
+      84, _, _, _, 94, _, 85, _, 68, _, 84, _, 92, _, 89, _,  // bar 49 (source bar 50)
+      67, _, 87, _, 91, _, _, _, 89, _, 92, _, _, _, 91, _,  // bar 50 (source bar 51)
+      82, _, _, _, 92, _, 84, _, _, _, 94, _, 91, _, 87, _,  // bar 51 (source bar 52)
+      68, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 52 (source bar 53)
+    ],
+    // "Bloody Tiers" — Castlevania II, Bloody Tears. Hand-extended to 34 bars
+    // (see P.bloodytiers for why): bars 0-15 are the file's own unique loop,
+    // 16-31 repeat it verbatim, and 32-33 are the 2-bar tag.
+    bloodytiers: [
+      67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 0 (source bar 1)
+      69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 1 (source bar 2)
+      67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 2 (source bar 3)
+      69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 3 (source bar 4)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 70, 69, 70,  // bar 4 (source bar 5)
+      72, _, _, 77, _, _, 74, _, _, _, _, _, 72, _, 70, _,  // bar 5 (source bar 6)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 72, 70, 72,  // bar 6 (source bar 7)
+      75, _, _, 77, _, _, _, _, 74, _, _, 75, _, _, _, _,  // bar 7 (source bar 8)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 70, 69, 70,  // bar 8 (source bar 9)
+      72, _, _, 77, _, _, 74, _, _, _, _, _, 72, _, 70, _,  // bar 9 (source bar 10)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 72, 70, 72,  // bar 10 (source bar 11)
+      75, _, _, 77, _, _, _, _, 74, _, 76, _, 78, _, 81, _,  // bar 11 (source bar 12)
+      69, _, _, 67, _, _, 79, _, 69, _, _, 67, _, _, 79, _,  // bar 12 (source bar 13)
+      69, _, _, 67, _, _, 79, _, 70, 82, 69, 81, 67, 79, 65, 77,  // bar 13 (source bar 14)
+      69, _, 67, 79, _, _, _, _, 69, _, 67, 79, _, _, _, _,  // bar 14 (source bar 15)
+      69, _, 67, 79, _, _, _, _, 82, _, 84, _, 81, 82, _, _,  // bar 15 (source bar 16)
+      67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 16 (source bar 17)
+      69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 17 (source bar 18)
+      67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 18 (source bar 19)
+      69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 19 (source bar 20)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 70, 69, 70,  // bar 20 (source bar 21)
+      72, _, _, 77, _, _, 74, _, _, _, _, _, 72, _, 70, _,  // bar 21 (source bar 22)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 72, 70, 72,  // bar 22 (source bar 23)
+      75, _, _, 77, _, _, _, _, 74, _, _, 75, _, _, _, _,  // bar 23 (source bar 24)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 70, 69, 70,  // bar 24 (source bar 25)
+      72, _, _, 77, _, _, 74, _, _, _, _, _, 72, _, 70, _,  // bar 25 (source bar 26)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 72, 70, 72,  // bar 26 (source bar 27)
+      75, _, _, 77, _, _, _, _, 74, _, 76, _, 78, _, 81, _,  // bar 27 (source bar 28)
+      69, _, _, 67, _, _, 79, _, 69, _, _, 67, _, _, 79, _,  // bar 28 (source bar 29)
+      69, _, _, 67, _, _, 79, _, 70, 82, 69, 81, 67, 79, 65, 77,  // bar 29 (source bar 30)
+      69, _, 67, 79, _, _, _, _, 69, _, 67, 79, _, _, _, _,  // bar 30 (source bar 31)
+      69, _, 67, 79, _, _, _, _, 82, _, 84, _, 81, 82, _, _,  // bar 31 (source bar 32)
+      67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 32, 2-bar tag (repeat of bar 0)
+      69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 33, 2-bar tag (repeat of bar 1)
+    ],
     // "Price Ali" — Prince Ali (Aladdin), bars 16-74 (~1:20), merged top line
     // across tracks 0,2,3,4,5 (--lead 0,2,3,4,5), ends on A#4/Bb.
     priceali: [
@@ -2538,6 +2860,43 @@
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'chip' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
+    ch_financialfantasy7: {
+      // Trimmed to source bars 1-52 (theme + one repeat, ending on its own
+      // cadence right before a new bridge phrase) — ~45s shorter than the full
+      // 87-bar arrangement, per request. Per earlier request: uptempo/rap-style
+      // rhythm. Source is a slow 72bpm piano piece — bumped to 190bpm ("make it
+      // faster") and switched to 'break' drums (syncopated ghost snares,
+      // closest boom-bap-ish pattern in the drum kit) with the bass pushed
+      // forward (bassGain up) to carry the beat under the lead. maxLoops 1
+      // since this plays straight through once.
+      title: 'Financial Fantasy 7', influence: 'FFVII Main Theme', bpm: 190, key: '',
+      prog: P.financialfantasy7, lead: L.financialfantasy7, drums: 'break', pad: 'power', bars: 52,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
+      drumGain: 1.2, bassGain: 0.65, bassSubGain: 1.0,
+    },
+    ch_letthebillingbegin: {
+      // Trimmed further to source bars 1-53 (intro riff + the soaring bridge,
+      // ending on the bridge's own resolving note right before the riff would
+      // repeat from the top) — ~31s shorter than the previous bars 1-76 cut,
+      // per request. maxLoops 1 since this plays straight through once.
+      title: 'Let the Billing Begin', influence: 'FFVII Battle Theme ("Let the Battle Begin!")', bpm: 178, key: 'F minor',
+      prog: P.letthebillingbegin, lead: L.letthebillingbegin, drums: 'rock', pad: 'power', bars: 53,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    ch_bloodytiers: {
+      // Per request: go strong on organ (new 'organ' lead + matching 'organ'
+      // pad — Hammond-style drawbar stack, see leadOrgan/organChord above),
+      // otherwise stay true to the original MIDI (no bpm/pitch changes, no
+      // reharmonization). bars: 34 is the hand-extended length (see
+      // P.bloodytiers) -- 2 full loops of the file's own 16-bar unit plus a
+      // 2-bar tag, landing at ~1:03; maxLoops: 1 on the roster entry plays it
+      // exactly once, no further engine-level looping.
+      title: 'Bloody Tiers', influence: 'Castlevania II: Simon\'s Quest — Bloody Tears', bpm: 130, key: 'G minor',
+      prog: P.bloodytiers, lead: L.bloodytiers, drums: 'rock', pad: 'organ', bars: 34,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'organ' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
     ch_priceali: {
       title: 'Price Ali', influence: '', bpm: 177, key: '',
       prog: P.priceali, lead: L.priceali, drums: 'rock', pad: 'power', bars: 59,
@@ -2820,6 +3179,38 @@
       o.connect(f); f.connect(g); g.connect(out); g.connect(delay);
       o.start(t); lfo.start(t); o.stop(t + dur + 0.08); lfo.stop(t + dur + 0.08);
     }
+    function leadOrgan(t, midi, dur, mul) {
+      // Hammond-style drawbars: fundamental + octave + fifth-above-octave +
+      // a soft square "click" harmonic, all sustained flat (organs don't decay
+      // while a key is held — only attack + release), plus a slow Leslie-like
+      // vibrato on the whole stack.
+      mul = mul == null ? 1 : mul;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.16 * mul, t + 0.012);
+      g.gain.setValueAtTime(0.16 * mul, t + Math.max(0.02, dur - 0.05));
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 6;
+      const lg = ctx.createGain(); lg.gain.value = 3;   // cents of Leslie vibrato
+      lfo.connect(lg);
+      const drawbars = [
+        { ratio: 1, type: 'sine', gain: 1.0 },
+        { ratio: 2, type: 'sine', gain: 0.55 },
+        { ratio: 3, type: 'sine', gain: 0.22 },
+        { ratio: 4, type: 'square', gain: 0.12 },
+      ];
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 4500;
+      drawbars.forEach((d) => {
+        const o = ctx.createOscillator();
+        o.type = d.type; o.frequency.value = mtof(midi) * d.ratio;
+        lg.connect(o.detune);
+        const og = ctx.createGain(); og.gain.value = d.gain;
+        o.connect(og); og.connect(f);
+        o.start(t); o.stop(t + dur + 0.1);
+      });
+      f.connect(g); g.connect(out); g.connect(delay);
+      lfo.start(t); lfo.stop(t + dur + 0.1);
+    }
     function piano(t, midi, dur, peak) {
       const g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t);
@@ -2835,6 +3226,7 @@
     function padChord(t, chord, dur, kind, mul) {
       mul = mul == null ? 1 : mul;
       if (kind === 'power') return powerChord(t, chord, dur, mul);
+      if (kind === 'organ') return organChord(t, chord, dur, mul);
       const g = ctx.createGain();
       const peak = (kind === 'strings' ? 0.065 : 0.05) * mul;
       g.gain.setValueAtTime(0.0001, t);
@@ -2847,6 +3239,25 @@
         spread.forEach((cents) => {
           const o = ctx.createOscillator();
           o.type = 'sawtooth'; o.frequency.value = mtof(chord.root + s + 12); o.detune.value = cents;
+          o.connect(f); o.start(t); o.stop(t + dur + 0.2);
+        });
+      });
+      f.connect(g); g.connect(out);
+    }
+    function organChord(t, chord, dur, mul) {
+      // Same drawbar recipe as leadOrgan (fundamental + octave, sine), stacked
+      // across the chord tones -- a sustained Hammond-style backing chord to
+      // match the organ lead, instead of the sawtooth pad's brighter buzz.
+      mul = mul == null ? 1 : mul;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.05 * mul, t + dur * 0.3);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 3000;
+      chord.tones.forEach((s) => {
+        [1, 2].forEach((ratio) => {
+          const o = ctx.createOscillator();
+          o.type = 'sine'; o.frequency.value = mtof(chord.root + s + 12) * ratio;
           o.connect(f); o.start(t); o.stop(t + dur + 0.2);
         });
       });
@@ -2866,7 +3277,7 @@
       f.connect(g); g.connect(shaper);
     }
 
-    const LEADS = { saw: leadSaw, dist: leadDist, brass: leadBrass, chip: leadChip,
+    const LEADS = { saw: leadSaw, dist: leadDist, brass: leadBrass, chip: leadChip, organ: leadOrgan,
                     piano: (t, m, d, mul) => piano(t, m, d, 0.11 * (mul == null ? 1 : mul)) };
 
     // ---- sequencer ----------------------------------------------------------
