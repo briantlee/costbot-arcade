@@ -582,7 +582,7 @@
       { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 30)
       { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 31)
     ],
-    // "Fiscal Fantasy VII" — FFVII Main Theme, source bars 1-24 (full theme), bpm
+    // "Financial Fantasy 7" — FFVII Main Theme, source bars 1-24 (full theme), bpm
     // bumped 88->150 for an uptempo/rap-style feel (see TRACKS.ch_cloudcosts).
     cloudcosts: [
       { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 1)
@@ -1910,7 +1910,7 @@
       60, _, 64, _, 67, _, 64, _, 55, _, 60, _, 64, _, 60, _,  // bar 29
       57, _, 60, _, 64, _, 60, _, 50, _, 57, _, 60, _, 57, _,  // bar 30
     ],
-    // "Fiscal Fantasy VII" — FFVII Main Theme, source bars 1-24, single combined
+    // "Financial Fantasy 7" — FFVII Main Theme, source bars 1-24, single combined
     // piano track (--lead 0 --bass 0). See P.cloudcosts.
     cloudcosts: [
       64, _, _, _, _, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 0 (source bar 1)
@@ -2673,7 +2673,7 @@
       // to 'break' drums (syncopated ghost snares, closest boom-bap-ish
       // pattern in the drum kit) with the bass pushed forward (bassGain up)
       // to carry the beat under the lead.
-      title: 'Fiscal Fantasy VII', influence: 'FFVII Main Theme', bpm: 190, key: '',
+      title: 'Financial Fantasy 7', influence: 'FFVII Main Theme', bpm: 190, key: '',
       prog: P.cloudcosts, lead: L.cloudcosts, drums: 'break', pad: 'power', bars: 24,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.65, bassSubGain: 1.0,
