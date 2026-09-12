@@ -644,12 +644,11 @@
       { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 52)
     ],
     // "Let the Billing Begin" -- FFVII battle theme ("Let the Battle Begin!"),
-    // trimmed to source bars
-    // 1-76: the intro riff, a soaring bridge, and the theme's FIRST resolving
-    // cadence (bar 76 mirrors bar 14's ending) -- cut right before the riff
-    // restarts, ~45s shorter than the full 108-bar arrangement. --min-pitch 60
-    // isolates the melody off the single combined piano track's left-hand
-    // accompaniment.
+    // trimmed to source bars 1-53: intro riff + the soaring high-register
+    // bridge (bars 41-52), ending on the single resolving note the bridge
+    // lands on (bar 53) -- right before the riff would repeat from the top.
+    // ~31s shorter than the previous bars 1-76 cut. --min-pitch 60 isolates
+    // the melody off the combined piano track's left-hand accompaniment.
     letthebillingbegin: [
       { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 1)
       { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 2)
@@ -704,29 +703,6 @@
       { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 51)
       { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 52)
       { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 53)
-      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 54)
-      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 55)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 56)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 57)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 58)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 59)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 60)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 61)
-      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 62)
-      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 63)
-      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 64)
-      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 65)
-      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 66)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 67)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 68)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 69)
-      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 70)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 71)
-      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 72)
-      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 73)
-      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 74)
-      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 75)
-      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 76)
     ],
     // "Price Ali" — Prince Ali (Aladdin), source bars 16-74 (~1:20), intro
     // trimmed and tail cut to end on the Bb tonic. Roots octave-normalized.
@@ -2049,7 +2025,7 @@
       76, _, _, _, _, _, _, _, _, _, _, _, 64, _, 68, _,  // bar 51 (source bar 52)
     ],
     // "Let the Billing Begin" -- FFVII battle theme, trimmed to source bars
-    // 1-76 (see P.letthebillingbegin for why). --min-pitch 60 isolates the
+    // 1-53 (see P.letthebillingbegin for why). --min-pitch 60 isolates the
     // melody off the combined piano track's left-hand accompaniment.
     letthebillingbegin: [
       77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _,  // bar 0 (source bar 1)
@@ -2105,29 +2081,6 @@
       67, _, 87, _, 91, _, _, _, 89, _, 92, _, _, _, 91, _,  // bar 50 (source bar 51)
       82, _, _, _, 92, _, 84, _, _, _, 94, _, 91, _, 87, _,  // bar 51 (source bar 52)
       68, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 52 (source bar 53)
-      _, _, 65, _, 72, _, 75, _, 78, _, 77, _, 75, _, 78, _,  // bar 53 (source bar 54)
-      77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _,  // bar 54 (source bar 55)
-      77, _, 68, _, 77, _, _, _, 77, _, _, _, 77, _, _, _,  // bar 55 (source bar 56)
-      77, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 56 (source bar 57)
-      _, _, 77, _, 72, _, 75, _, 78, _, 77, _, 75, _, 77, _,  // bar 57 (source bar 58)
-      70, _, _, _, 68, _, _, _, 67, _, _, _, 65, _, _, _,  // bar 58 (source bar 59)
-      _, _, _, _, 72, _, _, _, 75, _, _, _, 78, _, _, _,  // bar 59 (source bar 60)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 60 (source bar 61)
-      _, _, _, _, _, _, _, _, 60, _, _, _, 63, _, _, _,  // bar 61 (source bar 62)
-      65, _, _, _, _, _, 67, _, _, _, _, _, 68, _, _, _,  // bar 62 (source bar 63)
-      _, _, 70, _, _, _, _, _, 72, _, _, _, 75, _, _, _,  // bar 63 (source bar 64)
-      77, _, _, _, _, _, 79, _, _, _, _, _, 80, _, _, _,  // bar 64 (source bar 65)
-      _, _, 82, _, _, _, _, _, 84, _, _, _, _, _, _, _,  // bar 65 (source bar 66)
-      80, _, _, _, _, _, 77, _, _, _, _, _, _, _, _, _,  // bar 66 (source bar 67)
-      _, _, 65, _, 67, _, 68, _, 70, _, 68, _, 67, _, 70, _,  // bar 67 (source bar 68)
-      68, _, 77, _, 79, _, 80, _, 82, _, 80, _, 79, _, 82, _,  // bar 68 (source bar 69)
-      77, _, _, _, _, _, 78, _, _, _, 78, _, 75, _, _, _,  // bar 69 (source bar 70)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 70 (source bar 71)
-      _, _, _, _, _, _, _, _, 60, _, _, _, 63, _, _, _,  // bar 71 (source bar 72)
-      65, _, _, _, _, _, 67, _, _, _, _, _, 68, _, _, _,  // bar 72 (source bar 73)
-      _, _, 70, _, _, _, _, _, 72, _, _, _, 75, _, _, _,  // bar 73 (source bar 74)
-      77, _, _, _, _, _, 79, _, _, _, _, _, 80, _, _, _,  // bar 74 (source bar 75)
-      _, _, 82, _, _, _, _, _, 84, _, _, _, _, _, _, _,  // bar 75 (source bar 76)
     ],
     // "Price Ali" — Prince Ali (Aladdin), bars 16-74 (~1:20), merged top line
     // across tracks 0,2,3,4,5 (--lead 0,2,3,4,5), ends on A#4/Bb.
@@ -2837,12 +2790,12 @@
       drumGain: 1.2, bassGain: 0.65, bassSubGain: 1.0,
     },
     ch_letthebillingbegin: {
-      // Trimmed to source bars 1-76 (intro riff + bridge, ending on the same
-      // cadence that closes bar 14) — ~45s shorter than the full 108-bar
-      // arrangement, per request. maxLoops 1 since this plays straight through
-      // once.
+      // Trimmed further to source bars 1-53 (intro riff + the soaring bridge,
+      // ending on the bridge's own resolving note right before the riff would
+      // repeat from the top) — ~31s shorter than the previous bars 1-76 cut,
+      // per request. maxLoops 1 since this plays straight through once.
       title: 'Let the Billing Begin', influence: 'FFVII Battle Theme ("Let the Battle Begin!")', bpm: 178, key: 'F minor',
-      prog: P.letthebillingbegin, lead: L.letthebillingbegin, drums: 'rock', pad: 'power', bars: 76,
+      prog: P.letthebillingbegin, lead: L.letthebillingbegin, drums: 'rock', pad: 'power', bars: 53,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },

@@ -296,7 +296,7 @@
     { key: 'ch_financialfantasy7', name: 'Financial Fantasy 7', sub: 'FF7 · Main Theme, rap remix · 1:06', tag: '', biome: 'arena', art: 'cb_ff7.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
-    { key: 'ch_letthebillingbegin', name: 'Let the Billing Begin', sub: 'FF7 · Battle Theme · 1:42', tag: '', biome: 'arena', art: 'cb_cloud.jpg', artDim: 0.3,
+    { key: 'ch_letthebillingbegin', name: 'Let the Billing Begin', sub: 'FF7 · Battle Theme · 1:11', tag: '', biome: 'arena', art: 'cb_cloud.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
     // Disney batch (from MIDI via mid2chart.js).
