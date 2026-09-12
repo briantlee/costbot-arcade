@@ -704,6 +704,30 @@
       { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 52)
       { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 53)
     ],
+    // "Bloody Tiers" — Castlevania II, Bloody Tears. Source bars 1-16 are the
+    // whole unique loop (the file's own bars 17-32 are an exact repeat of
+    // 1-16) -- charted once, TRACKS.ch_bloodytiers repeats it via maxLoops
+    // instead of duplicating the data. --lead 5 (8-Bit Sawtooth) / --bass 3
+    // (Bass Guitar) picked over the tool's own --bass 1 suggestion since this
+    // MIDI has a real named bass track.
+    bloodytiers: [
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 1)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 2)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 3)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 4)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 5)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 6)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 7)
+      { root: 26, tones: [0, 3, 7] },  // D1 min  (source bar 8)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 9)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 10)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 11)
+      { root: 26, tones: [0, 4, 7] },  // D1 maj  (source bar 12)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 13)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 14)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 15)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 16)
+    ],
     // "Price Ali" — Prince Ali (Aladdin), source bars 16-74 (~1:20), intro
     // trimmed and tail cut to end on the Bb tonic. Roots octave-normalized.
     priceali: [
@@ -2082,6 +2106,26 @@
       82, _, _, _, 92, _, 84, _, _, _, 94, _, 91, _, 87, _,  // bar 51 (source bar 52)
       68, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 52 (source bar 53)
     ],
+    // "Bloody Tiers" — Castlevania II, Bloody Tears, source bars 1-16 (the
+    // file's own unique loop). See P.bloodytiers.
+    bloodytiers: [
+      67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 0 (source bar 1)
+      69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 1 (source bar 2)
+      67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 2 (source bar 3)
+      69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 3 (source bar 4)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 70, 69, 70,  // bar 4 (source bar 5)
+      72, _, _, 77, _, _, 74, _, _, _, _, _, 72, _, 70, _,  // bar 5 (source bar 6)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 72, 70, 72,  // bar 6 (source bar 7)
+      75, _, _, 77, _, _, _, _, 74, _, _, 75, _, _, _, _,  // bar 7 (source bar 8)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 70, 69, 70,  // bar 8 (source bar 9)
+      72, _, _, 77, _, _, 74, _, _, _, _, _, 72, _, 70, _,  // bar 9 (source bar 10)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 72, 70, 72,  // bar 10 (source bar 11)
+      75, _, _, 77, _, _, _, _, 74, _, 76, _, 78, _, 81, _,  // bar 11 (source bar 12)
+      69, _, _, 67, _, _, 79, _, 69, _, _, 67, _, _, 79, _,  // bar 12 (source bar 13)
+      69, _, _, 67, _, _, 79, _, 70, 82, 69, 81, 67, 79, 65, 77,  // bar 13 (source bar 14)
+      69, _, 67, 79, _, _, _, _, 69, _, 67, 79, _, _, _, _,  // bar 14 (source bar 15)
+      69, _, 67, 79, _, _, _, _, 82, _, 84, _, 81, 82, _, _,  // bar 15 (source bar 16)
+    ],
     // "Price Ali" — Prince Ali (Aladdin), bars 16-74 (~1:20), merged top line
     // across tracks 0,2,3,4,5 (--lead 0,2,3,4,5), ends on A#4/Bb.
     priceali: [
@@ -2799,6 +2843,18 @@
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
+    ch_bloodytiers: {
+      // Per request: go strong on organ (new 'organ' lead + matching 'organ'
+      // pad — Hammond-style drawbar stack, see leadOrgan/organChord above),
+      // otherwise stay true to the original MIDI (no bpm/pitch changes, no
+      // reharmonization). bars: 16 is the file's own unique loop (its bars
+      // 17-32 exactly repeat 1-16) — maxLoops on the roster entry repeats it
+      // to fill the requested runtime instead of duplicating the chart data.
+      title: 'Bloody Tiers', influence: 'Castlevania II: Simon\'s Quest — Bloody Tears', bpm: 130, key: 'G minor',
+      prog: P.bloodytiers, lead: L.bloodytiers, drums: 'rock', pad: 'organ', bars: 16,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'organ' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
     ch_priceali: {
       title: 'Price Ali', influence: '', bpm: 177, key: '',
       prog: P.priceali, lead: L.priceali, drums: 'rock', pad: 'power', bars: 59,
@@ -3081,6 +3137,38 @@
       o.connect(f); f.connect(g); g.connect(out); g.connect(delay);
       o.start(t); lfo.start(t); o.stop(t + dur + 0.08); lfo.stop(t + dur + 0.08);
     }
+    function leadOrgan(t, midi, dur, mul) {
+      // Hammond-style drawbars: fundamental + octave + fifth-above-octave +
+      // a soft square "click" harmonic, all sustained flat (organs don't decay
+      // while a key is held — only attack + release), plus a slow Leslie-like
+      // vibrato on the whole stack.
+      mul = mul == null ? 1 : mul;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.16 * mul, t + 0.012);
+      g.gain.setValueAtTime(0.16 * mul, t + Math.max(0.02, dur - 0.05));
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 6;
+      const lg = ctx.createGain(); lg.gain.value = 3;   // cents of Leslie vibrato
+      lfo.connect(lg);
+      const drawbars = [
+        { ratio: 1, type: 'sine', gain: 1.0 },
+        { ratio: 2, type: 'sine', gain: 0.55 },
+        { ratio: 3, type: 'sine', gain: 0.22 },
+        { ratio: 4, type: 'square', gain: 0.12 },
+      ];
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 4500;
+      drawbars.forEach((d) => {
+        const o = ctx.createOscillator();
+        o.type = d.type; o.frequency.value = mtof(midi) * d.ratio;
+        lg.connect(o.detune);
+        const og = ctx.createGain(); og.gain.value = d.gain;
+        o.connect(og); og.connect(f);
+        o.start(t); o.stop(t + dur + 0.1);
+      });
+      f.connect(g); g.connect(out); g.connect(delay);
+      lfo.start(t); lfo.stop(t + dur + 0.1);
+    }
     function piano(t, midi, dur, peak) {
       const g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t);
@@ -3096,6 +3184,7 @@
     function padChord(t, chord, dur, kind, mul) {
       mul = mul == null ? 1 : mul;
       if (kind === 'power') return powerChord(t, chord, dur, mul);
+      if (kind === 'organ') return organChord(t, chord, dur, mul);
       const g = ctx.createGain();
       const peak = (kind === 'strings' ? 0.065 : 0.05) * mul;
       g.gain.setValueAtTime(0.0001, t);
@@ -3108,6 +3197,25 @@
         spread.forEach((cents) => {
           const o = ctx.createOscillator();
           o.type = 'sawtooth'; o.frequency.value = mtof(chord.root + s + 12); o.detune.value = cents;
+          o.connect(f); o.start(t); o.stop(t + dur + 0.2);
+        });
+      });
+      f.connect(g); g.connect(out);
+    }
+    function organChord(t, chord, dur, mul) {
+      // Same drawbar recipe as leadOrgan (fundamental + octave, sine), stacked
+      // across the chord tones -- a sustained Hammond-style backing chord to
+      // match the organ lead, instead of the sawtooth pad's brighter buzz.
+      mul = mul == null ? 1 : mul;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.05 * mul, t + dur * 0.3);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 3000;
+      chord.tones.forEach((s) => {
+        [1, 2].forEach((ratio) => {
+          const o = ctx.createOscillator();
+          o.type = 'sine'; o.frequency.value = mtof(chord.root + s + 12) * ratio;
           o.connect(f); o.start(t); o.stop(t + dur + 0.2);
         });
       });
@@ -3127,7 +3235,7 @@
       f.connect(g); g.connect(shaper);
     }
 
-    const LEADS = { saw: leadSaw, dist: leadDist, brass: leadBrass, chip: leadChip,
+    const LEADS = { saw: leadSaw, dist: leadDist, brass: leadBrass, chip: leadChip, organ: leadOrgan,
                     piano: (t, m, d, mul) => piano(t, m, d, 0.11 * (mul == null ? 1 : mul)) };
 
     // ---- sequencer ----------------------------------------------------------

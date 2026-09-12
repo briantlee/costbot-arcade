@@ -299,6 +299,13 @@
     { key: 'ch_letthebillingbegin', name: 'Let the Billing Begin', sub: 'FF7 · Battle Theme · 1:11', tag: '', biome: 'arena', art: 'cb_cloud.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
+    // Bloody Tiers — Castlevania II "Bloody Tears", 16-bar loop x3 (the file's
+    // own bars 17-32 just repeat 1-16, so TRACKS.ch_bloodytiers charts only
+    // the unique bars and maxLoops here fills the runtime): ~88.6s, in the
+    // requested 1:10-1:30 window.
+    { key: 'ch_bloodytiers', name: 'Bloody Tiers', sub: 'Castlevania II · Bloody Tears · 1:29', tag: '', biome: 'arena',
+      experimental: true,
+      maxLoops: 3 },
     // Disney batch (from MIDI via mid2chart.js).
     { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · How Far I\'ll Go · 1:04', tag: '', biome: 'arena', art: 'cb_moana.jpg', artDim: 0.3,
       maxLoops: 1 },
