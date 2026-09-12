@@ -762,6 +762,53 @@
       { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 44)
       { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 45)
     ],
+
+    rickroll: [
+      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 9)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 10)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 11)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 12)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 13)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 14)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 15)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 16)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 17)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 18)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 19)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 20)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 21)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 22)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 23)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 24)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 25)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 26)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 27)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 28)
+      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 29)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 30)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 31)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 32)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 33)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 34)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 35)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 36)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 37)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 38)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 39)
+      { root: 29, tones: [0, 3, 7] },  // F1 min  (source bar 40)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 41)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 42)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 43)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 44)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 45)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 46)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 47)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 48)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 49)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 50)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 51)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 52)
+    ],
   };
 
   // ===========================================================================
@@ -1225,14 +1272,23 @@
       48, 48, _, 48, 54, 53, _, 51, 53, 51, _, 50, 51, _, _, 50,
       48, 48, _, 48, 51, _, _, _, 48, 48, _, 48, 53, _, _, _,
       48, 48, _, 48, 54, 53, _, 51, 69, 70, 71, 50, 72, 73, 74, 75,
-      76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76,
-      76, 76, 76, 76, 76, 76, _, 48, 78, 48, _, 78, 48, 78, _, 47,
-      76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76,
-      76, 76, 76, 76, 76, 76, _, 48, 78, 48, _, 78, 48, 78, _, 47,
-      79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
-      79, 79, 79, 79, 79, 79, _, 51, 81, 51, _, 81, 51, 81, _, 50,
-      79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
-      79, 79, 79, 79, 79, 79, _, 51, 81, 51, _, 81, 51, 81, _, 50,
+      // Round 2 (feedback: "the dfdfdfdfdf pattern is way too hard, chill it
+      // out"). Source had this held/tremolo note re-struck on every 16th —
+      // buildChart's "nudge repeats off the previous lane" rule (so a fewer-
+      // lane Easy chart never forces an awkward same-key double-hit) turns
+      // any run of identical consecutive pitches into a rapid two-lane
+      // trill, and 8 bars of that back-to-back is what read as "way too
+      // hard." Halved the retrigger rate (still an audible tremolo, not a
+      // sustained tone, but half as many taps) rather than touching the
+      // shared lane-spread logic other songs rely on.
+      76, _, 76, _, 76, _, 76, _, 76, _, 76, _, 76, _, 76, _,
+      76, _, 76, _, 76, _, _, 48, 78, 48, _, 78, 48, 78, _, 47,
+      76, _, 76, _, 76, _, 76, _, 76, _, 76, _, 76, _, 76, _,
+      76, _, 76, _, 76, _, _, 48, 78, 48, _, 78, 48, 78, _, 47,
+      79, _, 79, _, 79, _, 79, _, 79, _, 79, _, 79, _, 79, _,
+      79, _, 79, _, 79, _, _, 51, 81, 51, _, 81, 51, 81, _, 50,
+      79, _, 79, _, 79, _, 79, _, 79, _, 79, _, 79, _, 79, _,
+      79, _, 79, _, 79, _, _, 51, 81, 51, _, 81, 51, 81, _, 50,
     ],
     // "Legend of CostBot", transcribed from MIDI. Solo electric piano, one
     // track: each step takes the TOP note sounding (the bass note and the
@@ -1969,6 +2025,53 @@
       _, _, 87, _, 72, 84, 87, 84, _, _, 68, 75, _, _, 72, _,  // bar 32 (source bar 44)
       _, 76, _, _, _, _, _, _, _, _, _, _, _, _, 72, 65,  // bar 33 (source bar 45)
     ],
+
+    rickroll: [
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, 58, _,  // bar 0 (source bar 9)
+      60, _, 61, _, 61, _, 63, _, 60, _, _, 58, 56, _, _, _,  // bar 1 (source bar 10)
+      _, _, _, _, _, _, _, _, _, _, _, _, 58, _, 58, _,  // bar 2 (source bar 11)
+      60, _, 61, _, 58, _, _, _, 56, _, 68, _, _, _, 68, _,  // bar 3 (source bar 12)
+      63, _, _, _, _, _, _, _, _, _, _, _, 58, _, 58, _,  // bar 4 (source bar 13)
+      60, _, 61, _, 58, _, 61, _, 63, _, _, _, 60, _, 58, _,  // bar 5 (source bar 14)
+      58, _, 56, _, _, _, _, _, _, _, _, _, 58, _, 58, _,  // bar 6 (source bar 15)
+      60, _, 61, _, 58, _, 56, _, _, _, 63, _, 63, _, 63, _,  // bar 7 (source bar 16)
+      65, _, 63, _, _, _, _, _, _, _, 61, _, _, _, _, _,  // bar 8 (source bar 17)
+      _, _, _, _, 63, _, 65, _, 61, _, 63, _, 63, _, 63, _,  // bar 9 (source bar 18)
+      65, _, 63, _, _, _, 56, _, _, _, _, _, _, _, _, _,  // bar 10 (source bar 19)
+      _, _, 58, _, 60, _, 61, _, 58, _, _, _, 63, _, 65, _,  // bar 11 (source bar 20)
+      63, _, _, _, _, _, 56, 58, 61, 58, 65, _, _, 65, _, _,  // bar 12 (source bar 21)
+      63, _, _, _, _, _, 56, 58, 61, 58, 63, _, _, 63, _, _,  // bar 13 (source bar 22)
+      61, _, _, 60, 58, _, 56, 58, 61, 58, 61, _, _, _, 63, _,  // bar 14 (source bar 23)
+      60, _, _, 58, 56, _, _, _, 56, _, 63, _, _, _, 61, _,  // bar 15 (source bar 24)
+      _, _, _, _, _, _, 56, 58, 61, 58, 65, _, _, 65, _, _,  // bar 16 (source bar 25)
+      63, _, _, _, _, _, 56, 58, 61, 58, 68, _, _, _, 60, _,  // bar 17 (source bar 26)
+      61, _, _, 60, 58, _, 56, 58, 61, 58, 61, _, _, _, 63, _,  // bar 18 (source bar 27)
+      60, _, _, 58, 56, _, _, _, 56, _, 63, _, _, _, 61, _,  // bar 19 (source bar 28)
+      _, _, _, _, _, _, _, _, _, _, _, _, 61, _, 61, _,  // bar 20 (source bar 29)
+      58, _, 61, _, 63, _, _, _, _, _, _, _, 60, _, 58, _,  // bar 21 (source bar 30)
+      58, _, 56, _, _, _, _, _, _, _, _, _, 58, _, 58, _,  // bar 22 (source bar 31)
+      60, _, 61, _, 58, _, 56, _, _, _, _, _, 68, _, 68, _,  // bar 23 (source bar 32)
+      63, _, _, _, 65, _, 63, _, 61, _, _, _, 61, _, 61, _,  // bar 24 (source bar 33)
+      58, _, 61, _, 58, _, 61, _, 63, _, _, _, 60, _, 58, _,  // bar 25 (source bar 34)
+      58, _, 56, _, _, _, _, _, _, _, _, _, 58, _, 58, _,  // bar 26 (source bar 35)
+      60, _, 61, _, 58, _, 56, _, _, _, _, _, 63, _, 65, _,  // bar 27 (source bar 36)
+      65, _, _, _, 63, _, _, _, _, _, 61, _, _, _, _, _,  // bar 28 (source bar 37)
+      _, _, _, _, 63, _, 65, _, 63, _, _, _, 63, _, 63, _,  // bar 29 (source bar 38)
+      65, _, 63, _, _, _, 56, _, _, _, _, _, _, _, _, _,  // bar 30 (source bar 39)
+      56, _, 58, _, 60, _, 61, _, 58, _, _, _, 63, _, 65, _,  // bar 31 (source bar 40)
+      63, _, _, _, _, _, 56, 58, 61, 58, 65, _, _, 65, _, _,  // bar 32 (source bar 41)
+      63, _, _, _, _, _, 56, 58, 61, 58, 63, _, _, 63, _, _,  // bar 33 (source bar 42)
+      61, _, _, 60, 58, _, 56, 58, 61, 58, 61, _, _, _, 63, _,  // bar 34 (source bar 43)
+      60, _, _, 58, 56, _, _, _, 56, _, 63, _, _, _, 61, _,  // bar 35 (source bar 44)
+      _, _, _, _, _, _, 56, 58, 61, 58, 65, _, _, 65, _, _,  // bar 36 (source bar 45)
+      63, _, _, _, _, _, 56, 58, 61, 58, 68, _, _, _, 60, _,  // bar 37 (source bar 46)
+      61, _, _, 60, 58, _, 56, 58, 61, 58, 61, _, _, _, 63, _,  // bar 38 (source bar 47)
+      60, _, _, 58, 56, _, _, _, 56, _, 63, _, _, _, 61, _,  // bar 39 (source bar 48)
+      _, _, _, _, _, _, 56, 58, 61, 58, 65, _, _, 65, _, _,  // bar 40 (source bar 49)
+      63, _, _, _, _, _, 56, 58, 61, 58, 63, _, _, 63, _, _,  // bar 41 (source bar 50)
+      61, _, _, 60, 58, _, 56, 58, 61, 58, 61, _, _, _, 63, _,  // bar 42 (source bar 51)
+      60, _, _, 58, 56, _, _, _, 56, _, 63, _, _, _, 61, _,  // bar 43 (source bar 52)
+    ],
   };
 
   // ===========================================================================
@@ -2473,6 +2576,39 @@
       prog: P.guest, lead: L.guest, drums: 'rock', pad: null, bars: 34,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    // Dancehall remix per feedback: revved 120->145bpm (party pace, ~1.2x);
+    // 'four' club drums (same idiom ch_tariffa's dance-club remix used)
+    // + crashBars: [0] for a big hit up front ("lots of drums at the
+    // beginning"); bassGain/bassSubGain/bassCutoffStart pushed well past the
+    // bass() defaults (0.30/0.55/760) for a deep, present sub; 'saw' pad +
+    // square arp bed instead of the plain power-chord pad for continuous
+    // party motion under the vocal.
+    // Round 2 (feedback: background still not pumping enough, melody too
+    // quiet/monotonous): drumGain/padGain pushed further and arpEvery halved
+    // 2->1 (arp hits every bar instead of every other) for a denser, more
+    // relentless backing bed. leadGain/leadSustainMul added (same recipe
+    // ch_frozen/ch_fiscalicia used for "melody should be the star" feedback)
+    // to push the vocal line up and give each note more ring/sustain instead
+    // of a short blip — that ring is what kills the "monotonous" flatness,
+    // not just raw volume.
+    // Round 3 (feedback: lead too synthesized): tried 'brass', then 'piano' —
+    // reverted per feedback (preferred the round 2 'dist' lead over both).
+    // Round 4 (feedback: "ends kind of short, finish the song"): extended
+    // from a 32-bar verse+chorus snippet (source bars 9-40) to the full
+    // remaining song, source bars 9-102 (94 bars). Round 5 (feedback: wanted
+    // a ~1:10 ending instead): source bars 25-56 are one 4-bar chorus phrase
+    // repeated 8x in a row, so any 4-bar boundary in that stretch is an
+    // equally clean cut — trimmed to source bars 9-52 (44 bars, ends right
+    // after a chorus repeat) landing at ~1:13 @ 145bpm, the closest clean
+    // boundary to the requested 1:10.
+    ch_rickroll: {
+      title: 'Never Gonna Bill You Up', influence: 'Rick Astley · dancehall remix', bpm: 145, key: '',
+      prog: P.rickroll, lead: L.rickroll, drums: 'four', pad: 'saw', bars: 44,
+      arpEvery: 1, bassEvery: 1, gain: 0.85, voices: { lead: 'dist', arp: 'square' },
+      drumGain: 1.8, padGain: 1.35, leadGain: 2.0, leadSustainMul: 2.2,
+      bassGain: 0.62, bassSubGain: 1.25, bassCutoffStart: 750, bassCutoffEnd: 180,
+      crashBars: [0],
     },
   };
 

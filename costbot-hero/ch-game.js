@@ -134,8 +134,8 @@
     // verified exact match to the source MIDI (regenerated with mid2chart.js
     // and diffed byte-for-byte against the hand transcription — identical),
     // so the audio is right; the shared minGap thinning was the actual bug.
-    // This is a dense, legato solo-piano line (58.5% of steps are real
-    // onsets, avg gap ~1.7 steps) — the shared Easy/Normal/Hard minGap of
+    // This is a dense, legato solo-piano line (44.9% of steps are real
+    // onsets, avg gap ~2.2 steps) — the shared Easy/Normal/Hard minGap of
     // 4/3/2 was keeping only 43%/46%/68% of those onsets, chopping up the
     // scale runs into something that reads as missing beats (only Ultra's
     // minGap:1 played the tune straight). Same fix as ch_goldsaucer: shift
@@ -143,11 +143,26 @@
     // Normal/Hard's fall+minGap, and Hard becomes a genuinely faster new
     // tier at minGap:1 (100% of onsets, every difficulty now recognizably
     // the same tune).
+    // Round 2 (feedback: still "notes don't match the melody" — this time
+    // playtested locally, not the stale deployed copy from the first round).
+    // Root cause: minGap:3/2 on Easy/Medium was STILL only 49.4%/70.9%
+    // faithful — better than the shared defaults, but still dropping half
+    // the real tune on Easy. ch_fiscalicia's later "get the game notes
+    // matching the melody the best we can" round established the actual
+    // fix for this class of complaint: converge to minGap:1 (100% of
+    // onsets) wherever the song's own pace isn't so dense it'd overwhelm a
+    // beginner — verified same way here (avg gap ~2.2 steps, same ballpark
+    // as fiscalicia's own gentle pace). Medium moves to minGap:1 (100%,
+    // now identical note set to Hard, differentiated only by fall speed —
+    // the same ladder Hard/Ultra already use elsewhere); Easy moves one
+    // notch to minGap:2 (70.9%) since minGap can't go lower than 1, so a
+    // thinned Easy tier is the only way left to keep it meaningfully easier
+    // than Medium.
     { key: 'ch_legendOfCostbot', name: 'Legend of CostBot', sub: 'Zelda, solo piano · 73s', tag: '', biome: 'field', art: 'legend_of_costbot.jpg', artDim: 0.35,
       experimental: true,
       maxLoops: 2,
-      easy:   { fall: 1.90, minGap: 3, holdGap: 8, missCost: 7 },
-      medium: { fall: 1.45, minGap: 2, holdGap: 5, missCost: 9 },
+      easy:   { fall: 1.90, minGap: 2, holdGap: 8, missCost: 7 },
+      medium: { fall: 1.45, minGap: 1, holdGap: 5, missCost: 9 },
       hard:   { fall: 1.05, minGap: 1, missCost: 12 } },
     // Playtest entry — no art yet. 17 bars at 104bpm loop in ~39.2s; maxLoops: 2
     // brings a run to ~78.5s, in line with the rest of the roster.
@@ -280,6 +295,18 @@
     { key: 'ch_frozen', name: "For the First Dime in Forever", sub: 'Frozen · ballad · 1:02', tag: '', biome: 'arena', art: 'cb_frozen.jpg', artDim: 0.3,
       maxLoops: 1 },
     { key: 'ch_guest', name: 'Bill Our Guest', sub: 'Beauty and the Beast · Be Our Guest · 1:01', tag: '', biome: 'arena', art: 'cb_be_our_guest.jpg', artDim: 0.3,
+      maxLoops: 1 },
+    // Playtest entry — no art yet. Lead track (idx 1, "Trombone") carries the
+    // vocal melody; the intro's iconic synth riff lives on a different track
+    // (idx 5/9) so it's silent on this track — chart starts at source bar 9
+    // where the vocal melody actually begins. Runs through source bar 52:
+    // verse + chorus, trimmed at a clean 4-bar phrase boundary inside the
+    // chorus's 8x repeat per feedback wanting a ~1:10 ending (see
+    // TRACKS.ch_rickroll in arcade-music.js for the full history — it briefly
+    // ran the entire rest of the song before this trim). Dancehall remix
+    // revved 120->145bpm, so run length is ~1:13.
+    { key: 'ch_rickroll', name: 'Never Gonna Bill You Up', sub: 'Rick Astley · Never Gonna Give You Up · 1:13', tag: '', biome: 'arena', art: 'cb_rickroll.jpg', artDim: 0.3,
+      experimental: true,
       maxLoops: 1 },
   ];
 
