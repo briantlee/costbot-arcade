@@ -330,6 +330,7 @@
     // to what hard already was, and hard up to Ultra's density (same trick
     // as Materia Girl's medium override, just applied more broadly here).
     { key: 'ch_rasputin', name: 'Costputin', sub: 'Boney M · disco · 1:36', tag: '', biome: 'arena',
+      art: 'cb_rasputin.jpg', artDim: 0.3,
       experimental: true,
       easy: { minGap: 2 }, medium: { minGap: 2 }, hard: { minGap: 1 },
       maxLoops: 1 },
