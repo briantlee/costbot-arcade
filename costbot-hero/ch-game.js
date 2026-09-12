@@ -289,15 +289,16 @@
       // tappable notes without inventing any.
       medium: { minGap: 2 },
       maxLoops: 1 },
-    // FF7 batch (from MIDI via mid2chart.js). Financial Fantasy 7: per request,
-    // rebuilt as an uptempo/rap-style rhythm — see TRACKS.ch_financialfantasy7 for the
-    // bpm/drums tuning behind that.
-    { key: 'ch_financialfantasy7', name: 'Financial Fantasy 7', sub: 'FF7 · Main Theme, rap remix · 30s', tag: '', biome: 'arena',
+    // FF7 batch (from MIDI via mid2chart.js). Both now chart the FULL source
+    // arrangement (maxLoops 1) instead of a short excerpt looped. Financial
+    // Fantasy 7: per request, rebuilt as an uptempo/rap-style rhythm — see
+    // TRACKS.ch_financialfantasy7 for the bpm/drums tuning behind that.
+    { key: 'ch_financialfantasy7', name: 'Financial Fantasy 7', sub: 'FF7 · Main Theme, rap remix · 1:50', tag: '', biome: 'arena',
       experimental: true,
-      maxLoops: 2 },
-    { key: 'ch_letthebillingbegin', name: 'Let the Billing Begin', sub: 'FF7 · Battle Theme · 43s', tag: '', biome: 'arena',
+      maxLoops: 1 },
+    { key: 'ch_letthebillingbegin', name: 'Let the Billing Begin', sub: 'FF7 · Battle Theme · 2:26', tag: '', biome: 'arena',
       experimental: true,
-      maxLoops: 2 },
+      maxLoops: 1 },
     // Disney batch (from MIDI via mid2chart.js).
     { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · How Far I\'ll Go · 1:04', tag: '', biome: 'arena', art: 'cb_moana.jpg', artDim: 0.3,
       maxLoops: 1 },
