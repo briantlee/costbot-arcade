@@ -316,6 +316,28 @@
       experimental: true,
       ultra: { fall: 1.3, introBars: [[0, 4], [16, 20], [32, 34]], introMinGap: 3 },
       maxLoops: 1 },
+    // Costputin — Boney M's Rasputin, full 51 bars (~1:36). Koto (bars 1-22,
+    // the intro riff) merged with Pizzicato (bars 23-51, the vocal-register
+    // melody) -- per feedback ("melody doesn't match notes well"), DROPPED
+    // Jazz Guitar/Elec. Piano from the merge: both are heavily chordal (avg
+    // ~3-4 simultaneous notes) and were filling Pizzicato's real melodic
+    // rests with chord-comping tones instead of silence. See P.rasputin.
+    // Per feedback ("still doesn't match on non-Ultra"): 68% of this song's
+    // real onsets are back-to-back 16ths (rapid runs), so the shared minGap
+    // on every non-Ultra tier (2-4) was thinning most of each run away --
+    // Ultra (minGap 1, keeps everything) tracked the tune fine, which is why
+    // only the other difficulties felt disconnected. Brings easy/medium up
+    // to what hard already was, and hard up to Ultra's density (same trick
+    // as Materia Girl's medium override, just applied more broadly here).
+    { key: 'ch_rasputin', name: 'Costputin', sub: 'Boney M · disco · 1:36', tag: '', biome: 'arena',
+      experimental: true,
+      easy: { minGap: 2 }, medium: { minGap: 2 }, hard: { minGap: 1 },
+      maxLoops: 1 },
+    // Hungarian Expense No. 5 — Brahms' Hungarian Dance No. 5, full 63 bars.
+    { key: 'ch_hungarian', name: 'Hungarian Expense No. 5', sub: 'Brahms · classical · 1:48', tag: '', biome: 'arena',
+      art: 'cb_hungarian.jpg', artDim: 0.3,
+      experimental: true,
+      maxLoops: 1 },
     // Disney batch (from MIDI via mid2chart.js).
     { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · How Far I\'ll Go · 1:04', tag: '', biome: 'arena', art: 'cb_moana.jpg', artDim: 0.3,
       maxLoops: 1 },

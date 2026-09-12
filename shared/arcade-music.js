@@ -750,6 +750,136 @@
       { root: 43, tones: [0, 3, 7] },  // G2 min  (bar 33, 2-bar tag = repeat of 1)
       { root: 38, tones: [0, 3, 7] },  // D2 min  (bar 34, 2-bar tag = repeat of 2)
     ],
+    // "Costputin" -- Boney M's Rasputin, full 51 bars. --lead 2,13: Koto
+    // (the intro riff, bars 1-22) merged with Pizzicato (bars 23-51, the
+    // vocal-register melody). Originally also merged in Jazz Guitar/Elec.
+    // Piano (both heavily chordal, avg ~3-4 simultaneous notes) to fill
+    // Pizzicato's rests -- that filled real melodic pauses with chord
+    // comping tones instead, which is why the chart didn't track the tune.
+    // Dropped them; the rests are now real rests, matching the recording.
+    // --bass 3 (Bass Guitar) drives the B minor / F# minor roots.
+    rasputin: [
+      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 1)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 2)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 3)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 4)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 5)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 6)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 7)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 8)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 9)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 10)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 11)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 12)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 13)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 14)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 15)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 16)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 17)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 18)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 19)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 20)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 21)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 22)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 23)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 24)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 25)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 26)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 27)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 28)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 29)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 30)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 31)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 32)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 33)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 34)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 35)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 36)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 37)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 38)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 39)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 40)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 41)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 42)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 43)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 44)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 45)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 46)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 47)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 48)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 49)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 50)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 51)
+    ],
+    // "Hungarian Expense No. 5" — Brahms' Hungarian Dance No. 5, full 63 bars.
+    // --lead 3 (Violin) / --bass 1 (Harpsichord) -- 3 of the 4 tracks
+    // (Ragtime Piano/Music Box/Violin) are identical duplicates (same
+    // instrument choice offered 3 ways), so any one of them works.
+    hungarian: [
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 1)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 2)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 3)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 4)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 5)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 6)
+      { root: 50, tones: [0, 3, 7] },  // D3 min  (source bar 7)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 8)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 9)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 10)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 11)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 12)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 13)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 14)
+      { root: 50, tones: [0, 3, 7] },  // D3 min  (source bar 15)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 16)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 17)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 18)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 19)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 20)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 21)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 22)
+      { root: 26, tones: [0, 4, 7] },  // D1 maj  (source bar 23)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 24)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 25)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 26)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 27)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 28)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 29)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 30)
+      { root: 26, tones: [0, 4, 7] },  // D1 maj  (source bar 31)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 32)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 33)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 34)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 35)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 36)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 37)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 38)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 39)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 40)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 41)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 42)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 43)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 44)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 45)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 46)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 47)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 48)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 49)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 50)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 51)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 52)
+      { root: 50, tones: [0, 3, 7] },  // D3 min  (source bar 53)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 54)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 55)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 56)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 57)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 58)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 59)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 60)
+      { root: 26, tones: [0, 4, 7] },  // D1 maj  (source bar 61)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 62)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 63)
+    ],
     // "Price Ali" — Prince Ali (Aladdin), source bars 16-74 (~1:20), intro
     // trimmed and tail cut to end on the Bb tonic. Roots octave-normalized.
     priceali: [
@@ -2167,6 +2297,127 @@
       67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 32, 2-bar tag (repeat of bar 0)
       69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 33, 2-bar tag (repeat of bar 1)
     ],
+    // "Costputin" -- Boney M's Rasputin, full 51 bars. See P.rasputin.
+    rasputin: [
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 0 (source bar 1)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, 54, 57,  // bar 1 (source bar 2)
+      59, _, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 54, 57,  // bar 2 (source bar 3)
+      59, 59, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 54, 57,  // bar 3 (source bar 4)
+      59, _, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 54, 57,  // bar 4 (source bar 5)
+      59, 59, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 59, 59,  // bar 5 (source bar 6)
+      59, _, _, _, 66, _, _, 59, 66, 61, 59, 57, 59, _, 66, 66,  // bar 6 (source bar 7)
+      67, 59, 69, _, 67, _, 66, 59, 66, 61, 59, 57, 61, _, 62, 57,  // bar 7 (source bar 8)
+      64, _, _, _, 64, _, _, 59, 64, 61, 59, 57, 61, _, 62, 57,  // bar 8 (source bar 9)
+      64, 59, 66, 66, 64, _, 61, 59, 59, 61, 59, 57, 59, _, 59, 59,  // bar 9 (source bar 10)
+      59, _, _, _, 66, _, _, 59, 66, 61, 59, 57, 59, _, 66, 66,  // bar 10 (source bar 11)
+      67, 59, 69, _, 67, _, 66, 59, 66, 61, 59, 57, 61, _, 62, 57,  // bar 11 (source bar 12)
+      64, _, _, _, 64, _, _, 59, 64, 61, 59, 57, 61, _, 62, 57,  // bar 12 (source bar 13)
+      64, 59, 66, 66, 64, _, 61, 59, 59, 61, 59, 57, 59, _, _, _,  // bar 13 (source bar 14)
+      59, _, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 54, 57,  // bar 14 (source bar 15)
+      59, 59, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 54, 57,  // bar 15 (source bar 16)
+      64, _, _, _, 64, _, _, 64, 66, 66, 59, 57, 66, _, 54, 57,  // bar 16 (source bar 17)
+      66, 59, _, _, 66, _, _, 66, 66, 66, 59, 57, 66, _, 54, 57,  // bar 17 (source bar 18)
+      66, _, _, _, 66, _, _, _, 66, _, _, _, 66, _, _, _,  // bar 18 (source bar 19)
+      66, _, _, _, 66, _, _, _, 66, _, _, _, 66, _, _, _,  // bar 19 (source bar 20)
+      66, _, _, _, 66, _, _, _, 66, _, _, _, 66, _, _, _,  // bar 20 (source bar 21)
+      66, _, _, _, 66, _, _, _, 66, _, _, _, 66, _, _, _,  // bar 21 (source bar 22)
+      71, _, _, _, 71, _, _, 71, 71, 73, 74, 76, 78, _, 83, 81,  // bar 22 (source bar 23)
+      83, _, 81, _, 83, _, 78, _, _, _, 76, _, 78, _, _, _,  // bar 23 (source bar 24)
+      71, _, _, _, 71, _, _, 71, 71, 73, 74, 76, 78, _, 78, 81,  // bar 24 (source bar 25)
+      83, _, 74, _, 76, _, 78, _, _, _, _, _, _, _, _, _,  // bar 25 (source bar 26)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 26 (source bar 27)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 27 (source bar 28)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 28 (source bar 29)
+      _, _, _, _, _, _, _, _, _, _, 71, 73, 74, _, 78, 81,  // bar 29 (source bar 30)
+      83, _, _, _, 83, 86, 83, 81, 83, _, _, _, _, _, _, _,  // bar 30 (source bar 31)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 31 (source bar 32)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 32 (source bar 33)
+      _, _, _, _, _, _, _, _, _, 73, 74, 76, 78, 76, 74, 73,  // bar 33 (source bar 34)
+      71, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 34 (source bar 35)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 35 (source bar 36)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 36 (source bar 37)
+      _, _, _, _, _, _, _, _, 73, 71, 73, 74, 76, 74, 76, 78,  // bar 37 (source bar 38)
+      83, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 38 (source bar 39)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 39 (source bar 40)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 40 (source bar 41)
+      83, 81, 78, 81, 83, 81, 78, 81, 83, _, _, _, 83, _, _, _,  // bar 41 (source bar 42)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 42 (source bar 43)
+      _, _, _, _, _, _, _, _, _, _, 83, 83, 81, _, 83, _,  // bar 43 (source bar 44)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 44 (source bar 45)
+      _, _, _, _, _, _, _, _, 90, 90, 90, 90, 88, _, 90, _,  // bar 45 (source bar 46)
+      _, _, _, _, _, _, _, _, _, _, _, _, 76, 78, 79, 81,  // bar 46 (source bar 47)
+      83, _, _, _, _, _, _, _, _, _, _, _, 81, 83, 85, 86,  // bar 47 (source bar 48)
+      88, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 48 (source bar 49)
+      87, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 49 (source bar 50)
+      71, 69, 66, 69, 71, 76, 78, 81, 83, _, _, _, 83, _, _, _,  // bar 50 (source bar 51)
+    ],
+    // "Hungarian Expense No. 5" — Brahms' Hungarian Dance No. 5, full 63
+    // bars. See P.hungarian.
+    hungarian: [
+      62, _, _, _, _, _, 67, _, 70, _, _, _, _, _, 67, _,  // bar 0 (source bar 1)
+      66, _, _, _, _, _, 67, 69, 67, _, _, _, _, _, _, _,  // bar 1 (source bar 2)
+      63, _, _, _, _, _, 65, 67, 62, _, _, _, _, _, _, _,  // bar 2 (source bar 3)
+      60, 58, 58, 57, 57, _, _, 62, 55, _, _, _, _, _, _, _,  // bar 3 (source bar 4)
+      74, _, _, _, _, _, 79, 82, 86, _, _, _, _, _, 82, _,  // bar 4 (source bar 5)
+      81, _, _, _, _, _, 82, 84, 82, _, _, _, _, _, _, _,  // bar 5 (source bar 6)
+      75, 77, 79, 75, 74, 75, 77, 74, 72, 74, 75, 72, 70, 72, 74, 70,  // bar 6 (source bar 7)
+      72, 70, 70, 69, 69, _, _, 74, 67, _, _, _, 70, 79, _, _,  // bar 7 (source bar 8)
+      74, _, _, _, _, _, 79, _, 82, _, _, _, _, _, 79, _,  // bar 8 (source bar 9)
+      78, _, _, _, _, _, 79, 81, 79, _, _, _, _, _, _, _,  // bar 9 (source bar 10)
+      75, _, _, _, _, _, 77, 79, 74, _, _, _, _, _, _, _,  // bar 10 (source bar 11)
+      72, 70, 70, 69, 69, _, _, 74, 67, _, _, _, _, _, _, _,  // bar 11 (source bar 12)
+      74, _, _, 79, 82, 86, 91, 94, 86, _, _, _, _, _, 94, _,  // bar 12 (source bar 13)
+      93, _, _, _, _, _, 94, 84, 94, _, _, _, _, _, _, _,  // bar 13 (source bar 14)
+      75, 77, 79, 75, 74, 75, 77, 74, 72, 74, 75, 72, 70, 72, 74, 70,  // bar 14 (source bar 15)
+      72, 70, 70, 69, 69, _, _, 74, 79, _, _, _, 91, _, _, _,  // bar 15 (source bar 16)
+      86, _, _, _, 86, _, _, _, 87, _, _, _, _, _, 86, _,  // bar 16 (source bar 17)
+      _, _, 87, _, _, _, 75, 72, 74, 72, 71, 74, 72, _, _, _,  // bar 17 (source bar 18)
+      84, _, _, _, 84, _, _, _, 86, _, _, _, _, _, 84, _,  // bar 18 (source bar 19)
+      _, _, 82, _, _, _, 74, 70, 72, 70, 69, 72, 70, _, _, _,  // bar 19 (source bar 20)
+      81, _, _, _, 81, _, _, _, 84, _, 82, _, _, _, 81, _,  // bar 20 (source bar 21)
+      _, _, 79, _, _, _, 78, 79, 81, 79, 78, 81, 79, _, _, _,  // bar 21 (source bar 22)
+      86, _, _, _, _, _, _, 74, 76, _, _, _, 78, _, _, _,  // bar 22 (source bar 23)
+      81, 79, 79, _, _, _, 78, 79, 81, 79, 79, 81, 79, _, _, _,  // bar 23 (source bar 24)
+      86, _, _, _, 86, _, _, _, 87, _, _, _, _, _, 86, _,  // bar 24 (source bar 25)
+      _, _, 87, _, _, _, 75, 72, 74, 72, 71, 74, 72, _, _, _,  // bar 25 (source bar 26)
+      84, _, _, _, 84, _, _, _, 86, _, _, _, _, _, 84, _,  // bar 26 (source bar 27)
+      _, _, 82, _, _, _, 74, 70, 72, 70, 69, 72, 70, _, _, _,  // bar 27 (source bar 28)
+      81, _, _, _, 81, _, _, _, 84, _, 82, _, _, _, 81, _,  // bar 28 (source bar 29)
+      _, _, 79, _, _, _, 78, 79, 81, 79, 78, 81, 79, _, _, _,  // bar 29 (source bar 30)
+      86, _, _, _, _, _, _, 74, 76, _, _, _, 78, _, _, _,  // bar 30 (source bar 31)
+      81, 79, 79, _, _, _, 78, 79, 81, 79, 79, 81, 79, _, _, _,  // bar 31 (source bar 32)
+      79, _, 74, _, 74, _, 74, _, 74, _, 72, _, 71, _, 72, _,  // bar 32 (source bar 33)
+      74, _, 71, _, 74, _, 71, _, 79, _, 74, _, 74, _, 74, _,  // bar 33 (source bar 34)
+      74, _, 72, _, 71, _, 69, _, 67, _, 62, _, 67, _, 62, _,  // bar 34 (source bar 35)
+      79, _, 74, _, 74, _, 74, _, 74, _, 72, _, 71, _, 72, _,  // bar 35 (source bar 36)
+      74, _, 71, _, 74, _, 71, _, 79, _, 74, _, 74, _, 74, _,  // bar 36 (source bar 37)
+      74, _, 72, _, 71, _, 69, _, 67, _, 62, _, 67, _, 62, _,  // bar 37 (source bar 38)
+      71, _, 67, _, 72, _, 67, _, 71, _, 67, _, 69, _, 66, _,  // bar 38 (source bar 39)
+      83, _, 83, _, 84, _, 84, _, 86, _, 91, _, 86, _, _, _,  // bar 39 (source bar 40)
+      71, _, 67, _, 72, _, 67, _, 74, _, 72, _, 74, _, 71, _,  // bar 40 (source bar 41)
+      86, _, 84, _, 83, _, 81, _, 79, _, 91, _, 67, _, _, _,  // bar 41 (source bar 42)
+      71, _, 67, _, 72, _, 67, _, 71, _, 67, _, 69, _, 66, _,  // bar 42 (source bar 43)
+      83, _, 83, _, 84, _, 84, _, 86, _, 91, _, 86, _, _, _,  // bar 43 (source bar 44)
+      71, _, 67, _, 72, _, 67, _, 74, _, 72, _, 74, _, 71, _,  // bar 44 (source bar 45)
+      86, _, 84, _, 83, _, 81, _, 79, _, 91, _, 67, _, _, _,  // bar 45 (source bar 46)
+      62, _, _, _, _, _, 67, _, 70, _, _, _, _, _, 67, _,  // bar 46 (source bar 47)
+      66, _, _, _, _, _, 67, 69, 67, _, _, _, _, _, _, _,  // bar 47 (source bar 48)
+      63, _, _, _, _, _, 65, 67, 62, _, _, _, _, _, _, _,  // bar 48 (source bar 49)
+      60, 58, 58, 57, 57, _, _, 62, 55, _, _, _, _, _, _, _,  // bar 49 (source bar 50)
+      74, _, _, 79, 82, 86, 91, 94, 86, _, _, _, _, _, 94, _,  // bar 50 (source bar 51)
+      93, _, _, _, _, _, 94, 84, 94, _, _, _, _, _, _, _,  // bar 51 (source bar 52)
+      75, 77, 79, 75, 74, 75, 77, 74, 72, 74, 75, 72, 70, 72, 74, 70,  // bar 52 (source bar 53)
+      72, 70, 70, 69, 69, _, _, 74, 67, _, _, _, 91, _, _, _,  // bar 53 (source bar 54)
+      86, _, _, _, 86, _, _, _, 87, _, _, _, _, _, 86, _,  // bar 54 (source bar 55)
+      _, _, 87, _, _, _, 83, 84, 86, 84, 83, 86, 84, _, _, _,  // bar 55 (source bar 56)
+      84, _, _, _, 84, _, _, _, 86, _, _, _, _, _, 84, _,  // bar 56 (source bar 57)
+      _, _, 70, _, _, _, 81, 82, 84, 82, 81, 84, 82, _, _, _,  // bar 57 (source bar 58)
+      81, _, _, _, 81, _, _, _, 84, _, 82, _, _, _, 81, _,  // bar 58 (source bar 59)
+      _, _, 79, _, _, _, 78, 79, 81, 79, 78, 81, 79, _, _, _,  // bar 59 (source bar 60)
+      86, _, _, _, _, _, _, 74, 76, _, _, _, 78, _, _, _,  // bar 60 (source bar 61)
+      81, 79, 79, _, _, _, 78, 79, 81, 79, 79, 81, 79, _, _, _,  // bar 61 (source bar 62)
+      91, _, _, _, 86, _, _, _, 79, _, _, _, _, _, _, _,  // bar 62 (source bar 63)
+    ],
     // "Price Ali" — Prince Ali (Aladdin), bars 16-74 (~1:20), merged top line
     // across tracks 0,2,3,4,5 (--lead 0,2,3,4,5), ends on A#4/Bb.
     priceali: [
@@ -2896,6 +3147,27 @@
       prog: P.bloodytiers, lead: L.bloodytiers, drums: 'rock', pad: 'organ', bars: 34,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'organ' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    ch_rasputin: {
+      // 'four' drums for the disco four-on-the-floor pulse. Full 51 bars,
+      // maxLoops: 1 -- a single pass through the whole song.
+      title: 'Costputin', influence: "Boney M — Rasputin", bpm: 128, key: 'B minor',
+      prog: P.rasputin, lead: L.rasputin, drums: 'four', pad: 'saw', bars: 51,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'saw' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    ch_hungarian: {
+      // 'chamber' drums + 'strings' pad + 'piano' lead for a classical-dance
+      // feel. Full 63 bars, maxLoops: 1. Per feedback ("melody too soft"):
+      // same mix-balance recipe as ch_frozen's identical "backing too loud,
+      // piano should be the star" fix -- leadGain/leadSustainMul push the
+      // piano up and give it a bit more ring, drumGain/padGain pull the
+      // chamber kit and strings pad back to give it room.
+      title: 'Hungarian Expense No. 5', influence: 'Brahms — Hungarian Dance No. 5', bpm: 140, key: 'G minor',
+      prog: P.hungarian, lead: L.hungarian, drums: 'chamber', pad: 'strings', bars: 63,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'piano' },
+      drumGain: 0.7, padGain: 0.7, leadGain: 2.0, leadSustainMul: 2.0,
+      bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_priceali: {
       title: 'Price Ali', influence: '', bpm: 177, key: '',
