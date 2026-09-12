@@ -316,10 +316,17 @@
       experimental: true,
       ultra: { fall: 1.3, introBars: [[0, 4], [16, 20], [32, 34]], introMinGap: 3 },
       maxLoops: 1 },
-    // Costputin — Boney M's Rasputin, full 51 bars (~1:36). Merged top line
-    // (Koto intro riff + Violin/Jazz Guitar/Elec. Piano/Pizzicato from bar 23
-    // on) since no single track carries the tune the whole way.
+    // Costputin — Boney M's Rasputin, full 51 bars (~1:36). Koto (bars 1-22,
+    // the intro riff) merged with Pizzicato (bars 23-51, the vocal-register
+    // melody) -- per feedback ("melody doesn't match notes well"), DROPPED
+    // Jazz Guitar/Elec. Piano from the merge: both are heavily chordal (avg
+    // ~3-4 simultaneous notes) and were filling Pizzicato's real melodic
+    // rests with chord-comping tones instead of silence. See P.rasputin.
     { key: 'ch_rasputin', name: 'Costputin', sub: 'Boney M · disco · 1:36', tag: '', biome: 'arena',
+      experimental: true,
+      maxLoops: 1 },
+    // Hungarian Expense No. 5 — Brahms' Hungarian Dance No. 5, full 63 bars.
+    { key: 'ch_hungarian', name: 'Hungarian Expense No. 5', sub: 'Brahms · classical · 1:48', tag: '', biome: 'arena',
       experimental: true,
       maxLoops: 1 },
     // Disney batch (from MIDI via mid2chart.js).
