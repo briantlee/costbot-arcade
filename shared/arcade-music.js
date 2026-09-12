@@ -705,11 +705,15 @@
       { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 53)
     ],
     // "Bloody Tiers" — Castlevania II, Bloody Tears. Source bars 1-16 are the
-    // whole unique loop (the file's own bars 17-32 are an exact repeat of
-    // 1-16) -- charted once, TRACKS.ch_bloodytiers repeats it via maxLoops
-    // instead of duplicating the data. --lead 5 (8-Bit Sawtooth) / --bass 3
-    // (Bass Guitar) picked over the tool's own --bass 1 suggestion since this
-    // MIDI has a real named bass track.
+    // whole unique loop (the file's own bars 17-32 exactly repeat 1-16).
+    // Per feedback ("song can end a little after 1:02"), hand-extended here to
+    // 34 bars -- two full loops (bars 1-32) plus a 2-bar tag (bars 33-34,
+    // repeating 1-2 again) -- landing at ~1:03 (34 bars @130bpm). TRACKS plays
+    // this exact sequence once (maxLoops: 1) rather than relying on the
+    // engine's whole-loop auto-repeat, which could only land on ~59s or
+    // ~88.6s. --lead 5 (8-Bit Sawtooth) / --bass 3 (Bass Guitar) picked over
+    // the tool's own --bass 1 suggestion since this MIDI has a real named
+    // bass track.
     bloodytiers: [
       { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 1)
       { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 2)
@@ -727,6 +731,24 @@
       { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 14)
       { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 15)
       { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 16)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 17 = repeat of 1)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 18 = repeat of 2)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 19 = repeat of 3)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 20 = repeat of 4)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 21 = repeat of 5)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 22 = repeat of 6)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 23 = repeat of 7)
+      { root: 26, tones: [0, 3, 7] },  // D1 min  (source bar 24 = repeat of 8)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 25 = repeat of 9)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 26 = repeat of 10)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 27 = repeat of 11)
+      { root: 26, tones: [0, 4, 7] },  // D1 maj  (source bar 28 = repeat of 12)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 29 = repeat of 13)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 30 = repeat of 14)
+      { root: 29, tones: [0, 4, 7] },  // F1 maj  (source bar 31 = repeat of 15)
+      { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 32 = repeat of 16)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (bar 33, 2-bar tag = repeat of 1)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (bar 34, 2-bar tag = repeat of 2)
     ],
     // "Price Ali" — Prince Ali (Aladdin), source bars 16-74 (~1:20), intro
     // trimmed and tail cut to end on the Bb tonic. Roots octave-normalized.
@@ -2106,8 +2128,9 @@
       82, _, _, _, 92, _, 84, _, _, _, 94, _, 91, _, 87, _,  // bar 51 (source bar 52)
       68, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 52 (source bar 53)
     ],
-    // "Bloody Tiers" — Castlevania II, Bloody Tears, source bars 1-16 (the
-    // file's own unique loop). See P.bloodytiers.
+    // "Bloody Tiers" — Castlevania II, Bloody Tears. Hand-extended to 34 bars
+    // (see P.bloodytiers for why): bars 0-15 are the file's own unique loop,
+    // 16-31 repeat it verbatim, and 32-33 are the 2-bar tag.
     bloodytiers: [
       67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 0 (source bar 1)
       69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 1 (source bar 2)
@@ -2125,6 +2148,24 @@
       69, _, _, 67, _, _, 79, _, 70, 82, 69, 81, 67, 79, 65, 77,  // bar 13 (source bar 14)
       69, _, 67, 79, _, _, _, _, 69, _, 67, 79, _, _, _, _,  // bar 14 (source bar 15)
       69, _, 67, 79, _, _, _, _, 82, _, 84, _, 81, 82, _, _,  // bar 15 (source bar 16)
+      67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 16 (source bar 17)
+      69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 17 (source bar 18)
+      67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 18 (source bar 19)
+      69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 19 (source bar 20)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 70, 69, 70,  // bar 20 (source bar 21)
+      72, _, _, 77, _, _, 74, _, _, _, _, _, 72, _, 70, _,  // bar 21 (source bar 22)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 72, 70, 72,  // bar 22 (source bar 23)
+      75, _, _, 77, _, _, _, _, 74, _, _, 75, _, _, _, _,  // bar 23 (source bar 24)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 70, 69, 70,  // bar 24 (source bar 25)
+      72, _, _, 77, _, _, 74, _, _, _, _, _, 72, _, 70, _,  // bar 25 (source bar 26)
+      72, _, 77, 74, _, _, _, _, _, _, _, _, _, 72, 70, 72,  // bar 26 (source bar 27)
+      75, _, _, 77, _, _, _, _, 74, _, 76, _, 78, _, 81, _,  // bar 27 (source bar 28)
+      69, _, _, 67, _, _, 79, _, 69, _, _, 67, _, _, 79, _,  // bar 28 (source bar 29)
+      69, _, _, 67, _, _, 79, _, 70, 82, 69, 81, 67, 79, 65, 77,  // bar 29 (source bar 30)
+      69, _, 67, 79, _, _, _, _, 69, _, 67, 79, _, _, _, _,  // bar 30 (source bar 31)
+      69, _, 67, 79, _, _, _, _, 82, _, 84, _, 81, 82, _, _,  // bar 31 (source bar 32)
+      67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 32, 2-bar tag (repeat of bar 0)
+      69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 33, 2-bar tag (repeat of bar 1)
     ],
     // "Price Ali" — Prince Ali (Aladdin), bars 16-74 (~1:20), merged top line
     // across tracks 0,2,3,4,5 (--lead 0,2,3,4,5), ends on A#4/Bb.
@@ -2847,11 +2888,12 @@
       // Per request: go strong on organ (new 'organ' lead + matching 'organ'
       // pad — Hammond-style drawbar stack, see leadOrgan/organChord above),
       // otherwise stay true to the original MIDI (no bpm/pitch changes, no
-      // reharmonization). bars: 16 is the file's own unique loop (its bars
-      // 17-32 exactly repeat 1-16) — maxLoops on the roster entry repeats it
-      // to fill the requested runtime instead of duplicating the chart data.
+      // reharmonization). bars: 34 is the hand-extended length (see
+      // P.bloodytiers) -- 2 full loops of the file's own 16-bar unit plus a
+      // 2-bar tag, landing at ~1:03; maxLoops: 1 on the roster entry plays it
+      // exactly once, no further engine-level looping.
       title: 'Bloody Tiers', influence: 'Castlevania II: Simon\'s Quest — Bloody Tears', bpm: 130, key: 'G minor',
-      prog: P.bloodytiers, lead: L.bloodytiers, drums: 'rock', pad: 'organ', bars: 16,
+      prog: P.bloodytiers, lead: L.bloodytiers, drums: 'rock', pad: 'organ', bars: 34,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'organ' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
