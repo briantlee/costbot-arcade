@@ -3158,11 +3158,16 @@
     },
     ch_hungarian: {
       // 'chamber' drums + 'strings' pad + 'piano' lead for a classical-dance
-      // feel. Full 63 bars, maxLoops: 1.
+      // feel. Full 63 bars, maxLoops: 1. Per feedback ("melody too soft"):
+      // same mix-balance recipe as ch_frozen's identical "backing too loud,
+      // piano should be the star" fix -- leadGain/leadSustainMul push the
+      // piano up and give it a bit more ring, drumGain/padGain pull the
+      // chamber kit and strings pad back to give it room.
       title: 'Hungarian Expense No. 5', influence: 'Brahms — Hungarian Dance No. 5', bpm: 140, key: 'G minor',
       prog: P.hungarian, lead: L.hungarian, drums: 'chamber', pad: 'strings', bars: 63,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'piano' },
-      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+      drumGain: 0.7, padGain: 0.7, leadGain: 2.0, leadSustainMul: 2.0,
+      bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_priceali: {
       title: 'Price Ali', influence: '', bpm: 177, key: '',

@@ -335,6 +335,7 @@
       maxLoops: 1 },
     // Hungarian Expense No. 5 — Brahms' Hungarian Dance No. 5, full 63 bars.
     { key: 'ch_hungarian', name: 'Hungarian Expense No. 5', sub: 'Brahms · classical · 1:48', tag: '', biome: 'arena',
+      art: 'cb_hungarian.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
     // Disney batch (from MIDI via mid2chart.js).
