@@ -289,6 +289,15 @@
       // tappable notes without inventing any.
       medium: { minGap: 2 },
       maxLoops: 1 },
+    // FF7 batch (from MIDI via mid2chart.js). Cloud Costs: per request, rebuilt
+    // as an uptempo/rap-style rhythm — see TRACKS.ch_cloudcosts for the
+    // bpm/drums tuning behind that.
+    { key: 'ch_cloudcosts', name: 'Cloud Costs', sub: 'FF7 · Main Theme, rap remix · 38s', tag: '', biome: 'arena',
+      experimental: true,
+      maxLoops: 2 },
+    { key: 'ch_letthebillingbegin', name: 'Let the Billing Begin', sub: 'FF7 · Battle Theme · 43s', tag: '', biome: 'arena',
+      experimental: true,
+      maxLoops: 2 },
     // Disney batch (from MIDI via mid2chart.js).
     { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · How Far I\'ll Go · 1:04', tag: '', biome: 'arena', art: 'cb_moana.jpg', artDim: 0.3,
       maxLoops: 1 },

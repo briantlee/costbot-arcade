@@ -582,6 +582,71 @@
       { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 30)
       { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 31)
     ],
+    // "Cloud Costs" — FFVII Main Theme, source bars 1-24 (full theme), bpm
+    // bumped 88->150 for an uptempo/rap-style feel (see TRACKS.ch_cloudcosts).
+    cloudcosts: [
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 1)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 2)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 3)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 4)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 5)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 6)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 7)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 8)
+      { root: 44, tones: [0, 3, 7] },  // G#2 min  (source bar 9)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 10)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 11)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 12)
+      { root: 32, tones: [0, 3, 7] },  // G#1 min  (source bar 13)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 14)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 15)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 16)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 17)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 18)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 19)
+      { root: 44, tones: [0, 3, 7] },  // G#2 min  (source bar 20)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 21)
+      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 22)
+      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 23)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 24)
+    ],
+    // "Let the Billing Begin" — FFVII battle theme ("Let the Battle Begin!"),
+    // source bars 1-32 — intro riff + main F-minor loop, ends on the D#
+    // turnaround back to the top.
+    letthebillingbegin: [
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 1)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 2)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 3)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 4)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 5)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 6)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 7)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 8)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 9)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 10)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 11)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 12)
+      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 13)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 14)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 15)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 16)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 17)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 18)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 19)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 20)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 21)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 22)
+      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 23)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 24)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 25)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 26)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 27)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 28)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 29)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 30)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 31)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 32)
+    ],
     // "Price Ali" — Prince Ali (Aladdin), source bars 16-74 (~1:20), intro
     // trimmed and tail cut to end on the Bb tonic. Roots octave-normalized.
     priceali: [
@@ -1845,6 +1910,70 @@
       60, _, 64, _, 67, _, 64, _, 55, _, 60, _, 64, _, 60, _,  // bar 29
       57, _, 60, _, 64, _, 60, _, 50, _, 57, _, 60, _, 57, _,  // bar 30
     ],
+    // "Cloud Costs" — FFVII Main Theme, source bars 1-24, single combined
+    // piano track (--lead 0 --bass 0). See P.cloudcosts.
+    cloudcosts: [
+      64, _, _, _, _, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 0 (source bar 1)
+      75, _, _, _, _, _, _, _, 73, _, _, _, _, _, _, _,  // bar 1 (source bar 2)
+      56, _, _, _, 64, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 2 (source bar 3)
+      71, _, _, _, 69, _, _, _, 64, _, _, _, 66, _, _, _,  // bar 3 (source bar 4)
+      64, _, _, _, _, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 4 (source bar 5)
+      75, _, _, _, _, _, _, _, 73, _, _, _, _, _, _, _,  // bar 5 (source bar 6)
+      56, _, _, _, 64, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 6 (source bar 7)
+      71, _, _, _, 69, _, _, _, 64, _, _, _, 66, _, _, _,  // bar 7 (source bar 8)
+      68, _, _, _, _, _, _, _, 51, _, _, _, _, _, _, _,  // bar 8 (source bar 9)
+      61, _, _, _, 68, _, _, _, 71, _, _, _, 68, _, _, _,  // bar 9 (source bar 10)
+      66, _, 50, _, 54, _, 57, _, 54, _, 57, _, 62, _, 66, _,  // bar 10 (source bar 11)
+      64, _, 54, _, 57, _, 61, _, 63, _, 66, _, 71, _, 75, _,  // bar 11 (source bar 12)
+      76, _, 47, _, 56, 32, 59, _, 78, _, 59, _, 80, _, _, _,  // bar 12 (source bar 13)
+      87, _, 44, _, 52, _, 56, _, 85, _, 56, _, 52, _, 49, _,  // bar 13 (source bar 14)
+      40, _, 47, _, 76, _, 56, _, 78, _, 56, _, 80, _, _, _,  // bar 14 (source bar 15)
+      83, _, 43, _, 81, _, 43, _, 76, _, 50, _, 78, _, 60, _,  // bar 15 (source bar 16)
+      76, _, 47, _, 56, _, 59, _, 78, _, 59, _, 80, _, _, _,  // bar 16 (source bar 17)
+      87, _, 44, _, 52, _, 56, _, 85, _, 56, _, 52, _, 49, _,  // bar 17 (source bar 18)
+      40, _, 47, _, 76, _, 56, _, 78, _, 56, _, 80, _, _, _,  // bar 18 (source bar 19)
+      83, _, 52, _, 57, _, 59, _, 81, _, _, _, 73, _, _, _,  // bar 19 (source bar 20)
+      80, _, 52, _, 57, _, 59, _, 61, _, 57, _, 78, _, _, _,  // bar 20 (source bar 21)
+      76, _, 54, _, 57, _, 61, _, 75, _, _, _, 47, _, _, _,  // bar 21 (source bar 22)
+      76, _, 59, _, 68, _, 59, _, 47, _, 56, _, 64, _, 56, _,  // bar 22 (source bar 23)
+      40, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 23 (source bar 24)
+    ],
+    // "Let the Billing Begin" — FFVII battle theme, source bars 1-32, single
+    // combined piano track (--lead 0 --bass 0). See P.letthebillingbegin.
+    letthebillingbegin: [
+      77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _,  // bar 0 (source bar 1)
+      77, _, 65, _, 72, _, 75, _, 78, _, 77, _, 75, _, 78, _,  // bar 1 (source bar 2)
+      77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _,  // bar 2 (source bar 3)
+      77, _, 68, _, 75, _, _, _, 75, _, _, _, 75, _, _, _,  // bar 3 (source bar 4)
+      77, _, 41, _, 41, _, 53, _, 41, _, 41, _, 53, _, 41, _,  // bar 4 (source bar 5)
+      41, _, 77, _, 72, _, 75, _, 78, _, 77, _, 75, _, 77, _,  // bar 5 (source bar 6)
+      70, _, 41, _, 68, _, 53, _, 67, _, 41, _, 65, _, 41, _,  // bar 6 (source bar 7)
+      41, _, 53, _, 72, _, _, _, 75, _, _, _, 78, _, _, _,  // bar 7 (source bar 8)
+      53, _, 41, _, 41, _, 55, _, 41, _, 41, _, 56, _, 41, _,  // bar 8 (source bar 9)
+      41, _, 58, _, 41, _, 41, _, 60, _, _, _, 63, _, _, _,  // bar 9 (source bar 10)
+      65, _, 37, _, 37, _, 67, _, 37, _, 37, _, 68, _, 37, _,  // bar 10 (source bar 11)
+      37, _, 70, _, 37, _, 37, _, 72, _, _, _, 75, _, _, _,  // bar 11 (source bar 12)
+      77, _, 34, _, 34, _, 79, _, 34, _, 34, _, 80, _, 34, _,  // bar 12 (source bar 13)
+      34, _, 82, _, 34, _, 34, _, 84, _, 34, _, 46, _, 34, _,  // bar 13 (source bar 14)
+      80, _, 41, _, 41, _, 77, _, 41, _, 41, _, 53, _, 41, _,  // bar 14 (source bar 15)
+      41, _, 65, _, 67, _, 68, _, 70, _, 68, _, 67, _, 70, _,  // bar 15 (source bar 16)
+      68, _, 77, _, 79, _, 80, _, 82, _, 80, _, 79, _, 82, _,  // bar 16 (source bar 17)
+      77, _, 53, _, 54, _, 78, _, 54, _, 78, _, 75, _, _, _,  // bar 17 (source bar 18)
+      53, _, 41, _, 41, _, 55, _, 41, _, 41, _, 56, _, 41, _,  // bar 18 (source bar 19)
+      41, _, 58, _, 41, _, 41, _, 60, _, _, _, 63, _, _, _,  // bar 19 (source bar 20)
+      65, _, 37, _, 37, _, 67, _, 37, _, 37, _, 68, _, 37, _,  // bar 20 (source bar 21)
+      37, _, 70, _, 37, _, 37, _, 72, _, _, _, 75, _, _, _,  // bar 21 (source bar 22)
+      77, _, 34, _, 34, _, 79, _, 34, _, 34, _, 80, _, 34, _,  // bar 22 (source bar 23)
+      34, _, 82, _, 34, _, 34, _, 84, _, 34, _, 46, _, 34, _,  // bar 23 (source bar 24)
+      80, _, 41, _, 41, _, 77, _, 41, _, 41, _, 53, _, 41, _,  // bar 24 (source bar 25)
+      41, _, 65, _, 67, _, 68, _, 70, _, 68, _, 67, _, 70, _,  // bar 25 (source bar 26)
+      68, _, 77, _, 79, _, 80, _, 82, _, 80, _, 79, _, 82, _,  // bar 26 (source bar 27)
+      77, _, 53, _, 54, _, 78, _, 54, _, 78, _, 75, _, _, _,  // bar 27 (source bar 28)
+      65, _, 77, _, 77, _, 65, _, 77, _, 77, _, 65, _, 77, _,  // bar 28 (source bar 29)
+      77, _, 65, _, 67, _, 68, _, 70, _, 68, _, 67, _, 70, _,  // bar 29 (source bar 30)
+      68, _, 77, _, 79, _, 80, _, 82, _, 80, _, 79, _, 72, _,  // bar 30 (source bar 31)
+      77, _, 76, _, 77, _, 79, _, 80, _, 79, _, 80, _, 82, _,  // bar 31 (source bar 32)
+    ],
     // "Price Ali" — Prince Ali (Aladdin), bars 16-74 (~1:20), merged top line
     // across tracks 0,2,3,4,5 (--lead 0,2,3,4,5), ends on A#4/Bb.
     priceali: [
@@ -2536,6 +2665,22 @@
       title: 'Materia Girl', influence: "Yuffie's Theme (Final Fantasy VII)", bpm: 119, key: 'G',
       prog: P.stolentokens, lead: L.stolentokens, bassLine: L.stolentokensBass, drums: 'rock', pad: 'power', bars: 31,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'chip' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    ch_cloudcosts: {
+      // Per request: uptempo/rap-style rhythm. Source is a slow 88bpm string
+      // theme — bumped to 150bpm and switched to 'break' drums (syncopated
+      // ghost snares, closest boom-bap-ish pattern in the drum kit) with the
+      // bass pushed forward (bassGain up) to carry the beat under the lead.
+      title: 'Cloud Costs', influence: 'FFVII Main Theme', bpm: 150, key: '',
+      prog: P.cloudcosts, lead: L.cloudcosts, drums: 'break', pad: 'power', bars: 24,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
+      drumGain: 1.2, bassGain: 0.65, bassSubGain: 1.0,
+    },
+    ch_letthebillingbegin: {
+      title: 'Let the Billing Begin', influence: 'FFVII Battle Theme ("Let the Battle Begin!")', bpm: 178, key: 'F minor',
+      prog: P.letthebillingbegin, lead: L.letthebillingbegin, drums: 'rock', pad: 'power', bars: 32,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_priceali: {
