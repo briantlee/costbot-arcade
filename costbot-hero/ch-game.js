@@ -290,9 +290,9 @@
       medium: { minGap: 2 },
       maxLoops: 1 },
     // FF7 batch (from MIDI via mid2chart.js). Financial Fantasy 7: per request,
-    // rebuilt as an uptempo/rap-style rhythm — see TRACKS.ch_cloudcosts for the
+    // rebuilt as an uptempo/rap-style rhythm — see TRACKS.ch_financialfantasy7 for the
     // bpm/drums tuning behind that.
-    { key: 'ch_cloudcosts', name: 'Financial Fantasy 7', sub: 'FF7 · Main Theme, rap remix · 30s', tag: '', biome: 'arena',
+    { key: 'ch_financialfantasy7', name: 'Financial Fantasy 7', sub: 'FF7 · Main Theme, rap remix · 30s', tag: '', biome: 'arena',
       experimental: true,
       maxLoops: 2 },
     { key: 'ch_letthebillingbegin', name: 'Let the Billing Begin', sub: 'FF7 · Battle Theme · 43s', tag: '', biome: 'arena',

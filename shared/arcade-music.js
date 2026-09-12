@@ -583,8 +583,8 @@
       { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 31)
     ],
     // "Financial Fantasy 7" — FFVII Main Theme, source bars 1-24 (full theme), bpm
-    // bumped 88->150 for an uptempo/rap-style feel (see TRACKS.ch_cloudcosts).
-    cloudcosts: [
+    // bumped 88->150 for an uptempo/rap-style feel (see TRACKS.ch_financialfantasy7).
+    financialfantasy7: [
       { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 1)
       { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 2)
       { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 3)
@@ -1911,8 +1911,8 @@
       57, _, 60, _, 64, _, 60, _, 50, _, 57, _, 60, _, 57, _,  // bar 30
     ],
     // "Financial Fantasy 7" — FFVII Main Theme, source bars 1-24, single combined
-    // piano track (--lead 0 --bass 0). See P.cloudcosts.
-    cloudcosts: [
+    // piano track (--lead 0 --bass 0). See P.financialfantasy7.
+    financialfantasy7: [
       64, _, _, _, _, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 0 (source bar 1)
       75, _, _, _, _, _, _, _, 73, _, _, _, _, _, _, _,  // bar 1 (source bar 2)
       56, _, _, _, 64, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 2 (source bar 3)
@@ -2667,14 +2667,14 @@
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'chip' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
-    ch_cloudcosts: {
+    ch_financialfantasy7: {
       // Per request: uptempo/rap-style rhythm. Source is a slow 88bpm string
       // theme — bumped to 150bpm then 190bpm ("make it faster") and switched
       // to 'break' drums (syncopated ghost snares, closest boom-bap-ish
       // pattern in the drum kit) with the bass pushed forward (bassGain up)
       // to carry the beat under the lead.
       title: 'Financial Fantasy 7', influence: 'FFVII Main Theme', bpm: 190, key: '',
-      prog: P.cloudcosts, lead: L.cloudcosts, drums: 'break', pad: 'power', bars: 24,
+      prog: P.financialfantasy7, lead: L.financialfantasy7, drums: 'break', pad: 'power', bars: 24,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.65, bassSubGain: 1.0,
     },
