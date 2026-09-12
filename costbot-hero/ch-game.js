@@ -289,6 +289,33 @@
       // tappable notes without inventing any.
       medium: { minGap: 2 },
       maxLoops: 1 },
+    // FF7 batch (from MIDI via mid2chart.js). Both now chart the FULL source
+    // arrangement (maxLoops 1) instead of a short excerpt looped. Financial
+    // Fantasy 7: per request, rebuilt as an uptempo/rap-style rhythm — see
+    // TRACKS.ch_financialfantasy7 for the bpm/drums tuning behind that.
+    { key: 'ch_financialfantasy7', name: 'Financial Fantasy 7', sub: 'FF7 · Main Theme, rap remix · 1:06', tag: '', biome: 'arena', art: 'cb_ff7.jpg', artDim: 0.3,
+      experimental: true,
+      maxLoops: 1 },
+    { key: 'ch_letthebillingbegin', name: 'Let the Billing Begin', sub: 'FF7 · Battle Theme · 1:11', tag: '', biome: 'arena', art: 'cb_cloud.jpg', artDim: 0.3,
+      experimental: true,
+      maxLoops: 1 },
+    // Bloody Tiers — Castlevania II "Bloody Tears". Per feedback, trimmed from
+    // ~1:29 (three 16-bar loops) to ~1:03 (two loops + a 2-bar tag, hand-
+    // extended into TRACKS.ch_bloodytiers -- see arcade-music.js), so
+    // maxLoops stays 1 here. Ultra eased for this song specifically (fall
+    // 1.0 -> 1.3): the alternating melody/pedal-tone 16ths mean Ultra's
+    // keep-every-onset density reads twice as fast as it does on a plainer
+    // melody, so the shared Ultra fall was too punishing here. That same
+    // riff is bars 0-3 verbatim, then repeats at 16-19 (the loop restart)
+    // and again at 32-33 (the 2-bar tag) -- per feedback ("more ADADAD
+    // later"), introBars now eases all three windows (minGap 3, same as
+    // Normal), not just the opening one; every bar in between keeps Ultra's
+    // real minGap: 1.
+    { key: 'ch_bloodytiers', name: 'Bloody Tiers', sub: 'Castlevania II · Bloody Tears · 1:03', tag: '', biome: 'arena',
+      art: 'cb_alucard.jpg', artDim: 0.3,
+      experimental: true,
+      ultra: { fall: 1.3, introBars: [[0, 4], [16, 20], [32, 34]], introMinGap: 3 },
+      maxLoops: 1 },
     // Disney batch (from MIDI via mid2chart.js).
     { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · How Far I\'ll Go · 1:04', tag: '', biome: 'arena', art: 'cb_moana.jpg', artDim: 0.3,
       maxLoops: 1 },
@@ -833,6 +860,19 @@
       // chord hit (see isChordEligible below) and must never be swallowed by
       // minGap thinning just because the previous bar's tail note sits close to
       // it — that hit happens in the music every single bar, chart included.
+      // introBars/introMinGap (optional, per-song-per-diff) is the one
+      // exception to "no ramp": a wider minGap in specific bar windows, for a
+      // song whose densest material isn't just the intro but recurs verbatim
+      // later too (e.g. Bloody Tiers' alternating melody/pedal-tone riff:
+      // bars 0-3, then again at 16-19 when the file's own loop restarts, then
+      // again in the 2-bar tag at 32-33 — the same lane-alternating pattern
+      // ("ADADAD...") every time). introBars is either a number N (shorthand
+      // for the single window [0, N)) or a list of [startBar, endBar) pairs
+      // to ease every one of those windows. Still real onsets, just fewer of
+      // them in those bars — every other bar is untouched.
+      const introWindows = (Array.isArray(diff.introBars) ? diff.introBars : diff.introBars ? [[0, diff.introBars]] : [])
+        .map(([a, b]) => [a * STEPS_PER_BAR, b * STEPS_PER_BAR]);
+      const inIntroWindow = (S) => introWindows.some(([a, b]) => S >= a && S < b);
       const kept = [];
       let lastKept = -Infinity;
       for (let S = 0; S < noteCut; S++) {
@@ -840,7 +880,8 @@
         const m = lead[src];
         if (m == null) continue;
         const isBarStart = diff.chordSize >= 2 && src % STEPS_PER_BAR === 0;
-        if (S - lastKept < diff.minGap && !isBarStart) continue;
+        const minGap = (inIntroWindow(S) && diff.introMinGap != null) ? diff.introMinGap : diff.minGap;
+        if (S - lastKept < minGap && !isBarStart) continue;
         lastKept = S;
         kept.push({ src, midi: m, time: firstStep0 + (startStepAbs + S) * stepDur + lat });
       }
