@@ -582,12 +582,13 @@
       { root: 55, tones: [0, 4, 7] },  // G3 maj  (source bar 30)
       { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 31)
     ],
-    // "Financial Fantasy 7" -- FFVII Main Theme, FULL arrangement (ff7_main_piano.mid,
-    // 87 bars) replacing the earlier 24-bar excerpt. --min-pitch 60 isolates the
-    // right-hand melody from the single combined piano track -- without it, the
-    // left-hand bass/accompaniment notes leaked into the lead whenever the melody
-    // rested, which read as "the melody doesn't match the notes". bpm bumped
-    // 72->190 for the uptempo/rap-style feel (see TRACKS.ch_financialfantasy7).
+    // "Financial Fantasy 7" -- FFVII Main Theme, trimmed to source bars 1-52:
+    // the theme plays through, repeats once, and resolves (bar 52) right before
+    // a new ascending bridge phrase would start at bar 53 -- ~45s shorter than
+    // the full 87-bar arrangement. --min-pitch 60 isolates the right-hand
+    // melody off the single combined piano track's left-hand accompaniment.
+    // bpm bumped 72->190 for the uptempo/rap-style feel (see
+    // TRACKS.ch_financialfantasy7).
     financialfantasy7: [
       { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 1)
       { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 2)
@@ -641,47 +642,14 @@
       { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 50)
       { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 51)
       { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 52)
-      { root: 52, tones: [0, 4, 7] },  // E3 maj  (source bar 53)
-      { root: 52, tones: [0, 3, 7] },  // E3 min  (source bar 54)
-      { root: 64, tones: [0, 3, 7] },  // E4 min  (source bar 55)
-      { root: 47, tones: [0, 3, 7] },  // B2 min  (source bar 56)
-      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 57)
-      { root: 53, tones: [0, 4, 7] },  // F3 maj  (source bar 58)
-      { root: 53, tones: [0, 4, 7] },  // F3 maj  (source bar 59)
-      { root: 46, tones: [0, 4, 7] },  // A#2 maj  (source bar 60)
-      { root: 28, tones: [0, 3, 7] },  // E1 min  (source bar 61)
-      { root: 52, tones: [0, 3, 7] },  // E3 min  (source bar 62)
-      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 63)
-      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 64)
-      { root: 40, tones: [0, 3, 7] },  // E2 min  (source bar 65)
-      { root: 52, tones: [0, 3, 7] },  // E3 min  (source bar 66)
-      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 67)
-      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 68)
-      { root: 40, tones: [0, 3, 7] },  // E2 min  (source bar 69)
-      { root: 40, tones: [0, 3, 7] },  // E2 min  (source bar 70)
-      { root: 40, tones: [0, 3, 7] },  // E2 min  (source bar 71)
-      { root: 53, tones: [0, 3, 7] },  // F3 min  (source bar 72)
-      { root: 40, tones: [0, 3, 7] },  // E2 min  (source bar 73)
-      { root: 40, tones: [0, 3, 7] },  // E2 min  (source bar 74)
-      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 75)
-      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 76)
-      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 77)
-      { root: 62, tones: [0, 4, 7] },  // D4 maj  (source bar 78)
-      { root: 54, tones: [0, 3, 7] },  // F#3 min  (source bar 79)
-      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 80)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 81)
-      { root: 49, tones: [0, 3, 7] },  // C#3 min  (source bar 82)
-      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 83)
-      { root: 47, tones: [0, 4, 7] },  // B2 maj  (source bar 84)
-      { root: 44, tones: [0, 3, 7] },  // G#2 min  (source bar 85)
-      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 86)
-      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 87)
     ],
     // "Let the Billing Begin" -- FFVII battle theme ("Let the Battle Begin!"),
-    // FULL 108-bar arrangement (was source bars 1-32 only) -- intro riff, a
-    // soaring bridge, then the whole thing runs through again. Same --min-pitch 60
-    // fix as Financial Fantasy 7 (single combined piano track; without it the low
-    // F2/A#1 bass ostinato was leaking into the lead as bogus melody notes).
+    // trimmed to source bars
+    // 1-76: the intro riff, a soaring bridge, and the theme's FIRST resolving
+    // cadence (bar 76 mirrors bar 14's ending) -- cut right before the riff
+    // restarts, ~45s shorter than the full 108-bar arrangement. --min-pitch 60
+    // isolates the melody off the single combined piano track's left-hand
+    // accompaniment.
     letthebillingbegin: [
       { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 1)
       { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 2)
@@ -759,38 +727,6 @@
       { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 74)
       { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 75)
       { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 76)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 77)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 78)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 79)
-      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 80)
-      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 81)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 82)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 83)
-      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 84)
-      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 85)
-      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 86)
-      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 87)
-      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 88)
-      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 89)
-      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 90)
-      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 91)
-      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 92)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 93)
-      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 94)
-      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 95)
-      { root: 77, tones: [0, 3, 7] },  // F5 min  (source bar 96)
-      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 97)
-      { root: 58, tones: [0, 4, 7] },  // A#3 maj  (source bar 98)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 99)
-      { root: 77, tones: [0, 3, 7] },  // F5 min  (source bar 100)
-      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 101)
-      { root: 60, tones: [0, 4, 7] },  // C4 maj  (source bar 102)
-      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 103)
-      { root: 34, tones: [0, 3, 7] },  // A#1 min  (source bar 104)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 105)
-      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 106)
-      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 107)
-      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 108)
     ],
     // "Price Ali" — Prince Ali (Aladdin), source bars 16-74 (~1:20), intro
     // trimmed and tail cut to end on the Bb tonic. Roots octave-normalized.
@@ -2055,9 +1991,9 @@
       60, _, 64, _, 67, _, 64, _, 55, _, 60, _, 64, _, 60, _,  // bar 29
       57, _, 60, _, 64, _, 60, _, 50, _, 57, _, 60, _, 57, _,  // bar 30
     ],
-    // "Financial Fantasy 7" -- FFVII Main Theme, FULL 87-bar arrangement from
-    // ff7_main_piano.mid (--lead 1 --bass 1 --min-pitch 60 to isolate the melody
-    // off the left-hand accompaniment). See P.financialfantasy7.
+    // "Financial Fantasy 7" -- FFVII Main Theme, trimmed to source bars 1-52
+    // (see P.financialfantasy7 for why). --lead 1 --bass 1 --min-pitch 60 to
+    // isolate the melody off the left-hand accompaniment.
     financialfantasy7: [
       _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 0 (source bar 1)
       64, _, _, _, _, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 1 (source bar 2)
@@ -2111,45 +2047,10 @@
       80, _, _, _, _, _, _, _, 61, _, _, _, 78, _, _, _,  // bar 49 (source bar 50)
       76, _, _, _, _, _, 61, _, 75, _, _, _, _, _, _, _,  // bar 50 (source bar 51)
       76, _, _, _, _, _, _, _, _, _, _, _, 64, _, 68, _,  // bar 51 (source bar 52)
-      _, _, _, _, 64, _, 66, _, 68, _, 71, _, 76, _, 78, _,  // bar 52 (source bar 53)
-      79, _, _, _, 64, _, 66, _, 67, _, 71, _, 76, _, 83, _,  // bar 53 (source bar 54)
-      81, _, 79, _, 78, _, 76, _, 71, _, 67, _, 64, _, _, _,  // bar 54 (source bar 55)
-      66, _, _, _, _, _, _, _, 62, _, _, _, _, _, _, _,  // bar 55 (source bar 56)
-      64, _, _, _, 69, _, _, _, _, _, _, _, _, _, _, _,  // bar 56 (source bar 57)
-      _, _, _, _, _, _, 60, _, _, _, _, _, _, _, _, _,  // bar 57 (source bar 58)
-      77, _, 81, _, 83, _, 84, _, _, _, _, _, _, _, _, _,  // bar 58 (source bar 59)
-      81, _, _, _, _, _, _, _, 77, _, _, _, _, _, _, _,  // bar 59 (source bar 60)
-      79, _, _, _, 95, _, _, _, _, _, _, _, _, _, _, _,  // bar 60 (source bar 61)
-      76, _, 79, _, 83, _, 84, _, 83, _, 79, _, 76, _, 71, _,  // bar 61 (source bar 62)
-      76, _, 79, _, 83, _, 84, _, 83, _, 79, _, 76, _, 71, _,  // bar 62 (source bar 63)
-      76, _, 79, _, 83, _, 84, _, 83, _, 79, _, 76, _, 71, _,  // bar 63 (source bar 64)
-      76, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 64 (source bar 65)
-      88, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 65 (source bar 66)
-      85, _, _, _, _, _, _, _, _, _, 61, _, 64, _, 68, _,  // bar 66 (source bar 67)
-      76, _, 73, _, 68, _, 64, _, 73, _, 68, _, 64, 61, _, _,  // bar 67 (source bar 68)
-      _, _, _, _, _, _, _, _, 79, _, _, _, _, _, _, _,  // bar 68 (source bar 69)
-      78, _, _, _, _, _, _, _, 76, _, _, _, _, _, _, _,  // bar 69 (source bar 70)
-      82, _, _, _, _, _, _, _, 63, 61, _, 66, 67, 73, _, 78,  // bar 70 (source bar 71)
-      76, 67, _, 75, 73, 70, _, 67, 66, _, _, 64, 61, _, _, _,  // bar 71 (source bar 72)
-      _, _, _, _, _, _, _, _, 83, _, _, _, _, _, _, _,  // bar 72 (source bar 73)
-      79, _, _, _, _, _, _, _, 76, _, _, _, _, _, _, _,  // bar 73 (source bar 74)
-      80, _, _, _, _, _, _, 61, 64, 63, _, 68, 73, 76, _, 80,  // bar 74 (source bar 75)
-      81, _, _, 60, 62, 64, _, 67, 76, _, _, _, _, _, _, _,  // bar 75 (source bar 76)
-      81, 67, _, 72, 74, 76, _, 79, 88, _, _, _, _, _, _, _,  // bar 76 (source bar 77)
-      86, _, _, _, 81, _, 83, _, 84, _, _, _, _, _, _, _,  // bar 77 (source bar 78)
-      _, _, _, _, 81, _, _, _, 78, _, _, 74, _, 69, _, _,  // bar 78 (source bar 79)
-      72, _, _, _, 67, _, 69, _, 71, _, _, _, _, _, _, _,  // bar 79 (source bar 80)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 80 (source bar 81)
-      _, _, _, _, 79, _, 64, _, 78, _, _, _, 79, _, _, _,  // bar 81 (source bar 82)
-      83, _, _, _, _, _, 63, _, 79, _, 63, _, _, _, _, _,  // bar 82 (source bar 83)
-      _, _, _, _, 84, _, 63, _, 83, _, _, _, 84, _, _, _,  // bar 83 (source bar 84)
-      87, _, _, _, _, _, _, _, 63, _, 83, _, 80, _, 75, _,  // bar 84 (source bar 85)
-      79, _, _, _, _, _, _, _, _, _, 60, _, 86, _, _, _,  // bar 85 (source bar 86)
-      83, 91, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 86 (source bar 87)
     ],
-    // "Let the Billing Begin" -- FFVII battle theme, FULL 108-bar arrangement
-    // (--lead 0 --bass 0 --min-pitch 60, same combined-track fix). See
-    // P.letthebillingbegin.
+    // "Let the Billing Begin" -- FFVII battle theme, trimmed to source bars
+    // 1-76 (see P.letthebillingbegin for why). --min-pitch 60 isolates the
+    // melody off the combined piano track's left-hand accompaniment.
     letthebillingbegin: [
       77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _,  // bar 0 (source bar 1)
       77, _, 65, _, 72, _, 75, _, 78, _, 77, _, 75, _, 78, _,  // bar 1 (source bar 2)
@@ -2227,38 +2128,6 @@
       _, _, 70, _, _, _, _, _, 72, _, _, _, 75, _, _, _,  // bar 73 (source bar 74)
       77, _, _, _, _, _, 79, _, _, _, _, _, 80, _, _, _,  // bar 74 (source bar 75)
       _, _, 82, _, _, _, _, _, 84, _, _, _, _, _, _, _,  // bar 75 (source bar 76)
-      80, _, _, _, _, _, 77, _, _, _, _, _, _, _, _, _,  // bar 76 (source bar 77)
-      _, _, 65, _, 67, _, 68, _, 70, _, 68, _, 67, _, 70, _,  // bar 77 (source bar 78)
-      68, _, 77, _, 79, _, 80, _, 82, _, 80, _, 79, _, 82, _,  // bar 78 (source bar 79)
-      77, _, _, _, _, _, 78, _, _, _, 78, _, 75, _, _, _,  // bar 79 (source bar 80)
-      65, _, 77, _, 77, _, 65, _, 77, _, 77, _, 65, _, 77, _,  // bar 80 (source bar 81)
-      77, _, 65, _, 67, _, 68, _, 70, _, 68, _, 67, _, 70, _,  // bar 81 (source bar 82)
-      68, _, 77, _, 79, _, 80, _, 82, _, 80, _, 79, _, 72, _,  // bar 82 (source bar 83)
-      77, _, 76, _, 77, _, 79, _, 80, _, 79, _, 80, _, 82, _,  // bar 83 (source bar 84)
-      _, _, 72, _, 71, _, 72, _, 70, _, 68, _, 65, _, 67, _,  // bar 84 (source bar 85)
-      68, _, _, _, 74, _, _, _, 75, _, _, _, 77, _, _, _,  // bar 85 (source bar 86)
-      80, _, _, _, 67, _, 68, _, _, _, 70, _, 72, _, 73, _,  // bar 86 (source bar 87)
-      75, _, _, _, 73, _, 75, _, _, _, 77, _, 79, _, 80, _,  // bar 87 (source bar 88)
-      82, _, 81, _, 76, _, 77, _, 79, _, 77, _, 75, _, 73, _,  // bar 88 (source bar 89)
-      77, _, 70, _, 72, _, 73, _, 75, _, 73, _, 77, _, 73, _,  // bar 89 (source bar 90)
-      73, _, _, _, _, _, 72, _, _, _, _, _, 70, _, _, _,  // bar 90 (source bar 91)
-      _, _, 82, _, 84, _, 85, _, 87, _, 89, _, 91, _, 92, _,  // bar 91 (source bar 92)
-      _, _, 89, _, 92, _, _, _, 91, _, 94, _, _, _, 92, _,  // bar 92 (source bar 93)
-      84, _, _, _, 94, _, 85, _, 70, _, 84, _, 92, _, 89, _,  // bar 93 (source bar 94)
-      68, _, 89, _, 92, _, _, _, 91, _, 94, _, _, _, 92, _,  // bar 94 (source bar 95)
-      84, _, _, _, 94, _, 85, _, _, _, 84, _, 92, _, 89, _,  // bar 95 (source bar 96)
-      _, _, 87, _, 91, _, _, _, 89, _, 92, _, _, _, 91, _,  // bar 96 (source bar 97)
-      82, _, _, _, 92, _, 84, _, 67, _, 94, _, 91, _, 87, _,  // bar 97 (source bar 98)
-      70, _, 89, _, 92, _, _, _, 91, _, 94, _, _, _, 92, _,  // bar 98 (source bar 99)
-      84, _, _, _, 94, _, 85, _, _, _, 84, _, 92, _, 89, _,  // bar 99 (source bar 100)
-      _, _, 89, _, 92, _, _, _, 91, _, 94, _, _, _, 92, _,  // bar 100 (source bar 101)
-      84, _, _, _, 94, _, 85, _, 68, _, 84, _, 92, _, 89, _,  // bar 101 (source bar 102)
-      67, _, 87, _, 91, _, _, _, 89, _, 92, _, _, _, 91, _,  // bar 102 (source bar 103)
-      82, _, _, _, 92, _, 84, _, _, _, 94, _, 91, _, 87, _,  // bar 103 (source bar 104)
-      68, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 104 (source bar 105)
-      _, _, 65, _, 72, _, 75, _, 78, _, 77, _, 75, _, 78, _,  // bar 105 (source bar 106)
-      77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _, 77, _,  // bar 106 (source bar 107)
-      77, _, 68, _, 77, _, _, _, 77, _, _, _, 77, _, _, _,  // bar 107 (source bar 108)
     ],
     // "Price Ali" — Prince Ali (Aladdin), bars 16-74 (~1:20), merged top line
     // across tracks 0,2,3,4,5 (--lead 0,2,3,4,5), ends on A#4/Bb.
@@ -2954,22 +2823,26 @@
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_financialfantasy7: {
-      // Full 87-bar arrangement (was a 24-bar excerpt from a different, shorter
-      // MIDI). Per request: uptempo/rap-style rhythm. Source is a slow 72bpm
-      // piano piece — bumped to 190bpm ("make it faster") and switched to
-      // 'break' drums (syncopated ghost snares, closest boom-bap-ish pattern
-      // in the drum kit) with the bass pushed forward (bassGain up) to carry
-      // the beat under the lead. maxLoops 1 since this is now the full song.
+      // Trimmed to source bars 1-52 (theme + one repeat, ending on its own
+      // cadence right before a new bridge phrase) — ~45s shorter than the full
+      // 87-bar arrangement, per request. Per earlier request: uptempo/rap-style
+      // rhythm. Source is a slow 72bpm piano piece — bumped to 190bpm ("make it
+      // faster") and switched to 'break' drums (syncopated ghost snares,
+      // closest boom-bap-ish pattern in the drum kit) with the bass pushed
+      // forward (bassGain up) to carry the beat under the lead. maxLoops 1
+      // since this plays straight through once.
       title: 'Financial Fantasy 7', influence: 'FFVII Main Theme', bpm: 190, key: '',
-      prog: P.financialfantasy7, lead: L.financialfantasy7, drums: 'break', pad: 'power', bars: 87,
+      prog: P.financialfantasy7, lead: L.financialfantasy7, drums: 'break', pad: 'power', bars: 52,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.65, bassSubGain: 1.0,
     },
     ch_letthebillingbegin: {
-      // Full 108-bar arrangement (was bars 1-32 only). maxLoops 1 since this
-      // now plays the whole song once through instead of looping an excerpt.
+      // Trimmed to source bars 1-76 (intro riff + bridge, ending on the same
+      // cadence that closes bar 14) — ~45s shorter than the full 108-bar
+      // arrangement, per request. maxLoops 1 since this plays straight through
+      // once.
       title: 'Let the Billing Begin', influence: 'FFVII Battle Theme ("Let the Battle Begin!")', bpm: 178, key: 'F minor',
-      prog: P.letthebillingbegin, lead: L.letthebillingbegin, drums: 'rock', pad: 'power', bars: 108,
+      prog: P.letthebillingbegin, lead: L.letthebillingbegin, drums: 'rock', pad: 'power', bars: 76,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
