@@ -65,10 +65,8 @@ const DECIMAL_PAIR = /^[0-9]{2}$/;
 function parsePostgresUrl(connectionString) {
   const malformed = connectionString.split('').some((character, index) =>
     character === '%' && (
-      index + 1 >= connectionString.length ||
-      !HEX_DIGIT.test(connectionString[index + 1]) ||
-      index + 2 >= connectionString.length ||
-      !HEX_DIGIT.test(connectionString[index + 2])
+      (index + 1 < connectionString.length && !HEX_DIGIT.test(connectionString[index + 1])) ||
+      (index + 2 < connectionString.length && !HEX_DIGIT.test(connectionString[index + 2]))
     ),
   );
   if (!connectionString.includes(' ') && !malformed) return new URL(connectionString);
