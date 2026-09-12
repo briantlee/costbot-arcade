@@ -750,6 +750,65 @@
       { root: 43, tones: [0, 3, 7] },  // G2 min  (bar 33, 2-bar tag = repeat of 1)
       { root: 38, tones: [0, 3, 7] },  // D2 min  (bar 34, 2-bar tag = repeat of 2)
     ],
+    // "Costputin" — Boney M's Rasputin, full 51 bars. Multi-track arrangement:
+    // --lead 2,6,7,9,13 merges Koto (the intro riff, bars 1-22, before the
+    // other lead instruments enter) with Violin/Jazz Guitar/Elec. Piano/
+    // Pizzicato (the vocal-register melody from bar 23 on) into one
+    // continuous top line — none of those tracks alone covers the whole
+    // song. --bass 3 (Bass Guitar) drives the B minor / F# minor roots.
+    rasputin: [
+      { root: 48, tones: [0, 4, 7] },  // C3 maj  (source bar 1)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 2)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 3)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 4)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 5)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 6)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 7)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 8)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 9)
+      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 10)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 11)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 12)
+      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 13)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 14)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 15)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 16)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 17)
+      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 18)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 19)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 20)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 21)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 22)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 23)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 24)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 25)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 26)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 27)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 28)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 29)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 30)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 31)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 32)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 33)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 34)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 35)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 36)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 37)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 38)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 39)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 40)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 41)
+      { root: 35, tones: [0, 3, 7] },  // B1 min  (source bar 42)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 43)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 44)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 45)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 46)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 47)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 48)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 49)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 50)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 51)
+    ],
     // "Price Ali" — Prince Ali (Aladdin), source bars 16-74 (~1:20), intro
     // trimmed and tail cut to end on the Bb tonic. Roots octave-normalized.
     priceali: [
@@ -2167,6 +2226,60 @@
       67, 62, 74, 62, 72, 62, 70, 62, 69, 62, 70, 62, 69, 62, 67, 62,  // bar 32, 2-bar tag (repeat of bar 0)
       69, 62, 70, 62, 72, 62, 70, 62, 69, 62, 65, 62, 69, 62, 67, 62,  // bar 33, 2-bar tag (repeat of bar 1)
     ],
+    // "Costputin" — Boney M's Rasputin, full 51 bars. See P.rasputin.
+    rasputin: [
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 0 (source bar 1)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, 54, 57,  // bar 1 (source bar 2)
+      59, _, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 54, 57,  // bar 2 (source bar 3)
+      59, 59, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 54, 57,  // bar 3 (source bar 4)
+      59, _, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 54, 57,  // bar 4 (source bar 5)
+      59, 59, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 59, 59,  // bar 5 (source bar 6)
+      59, _, _, _, 66, _, _, 59, 66, 61, 59, 57, 59, _, 66, 66,  // bar 6 (source bar 7)
+      67, 59, 69, _, 67, _, 66, 59, 66, 61, 59, 57, 61, _, 62, 57,  // bar 7 (source bar 8)
+      64, _, _, _, 64, _, _, 59, 64, 61, 59, 57, 61, _, 62, 57,  // bar 8 (source bar 9)
+      64, 59, 66, 66, 64, _, 61, 59, 59, 61, 59, 57, 59, _, 59, 59,  // bar 9 (source bar 10)
+      59, _, _, _, 66, _, _, 59, 66, 61, 59, 57, 59, _, 66, 66,  // bar 10 (source bar 11)
+      67, 59, 69, _, 67, _, 66, 59, 66, 61, 59, 57, 61, _, 62, 57,  // bar 11 (source bar 12)
+      64, _, _, _, 64, _, _, 59, 64, 61, 59, 57, 61, _, 62, 57,  // bar 12 (source bar 13)
+      64, 59, 66, 66, 64, _, 61, 59, 59, 61, 59, 57, 59, _, _, _,  // bar 13 (source bar 14)
+      59, _, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 54, 57,  // bar 14 (source bar 15)
+      59, 59, _, _, 59, _, _, 59, 59, 61, 59, 57, 59, _, 54, 57,  // bar 15 (source bar 16)
+      64, _, _, _, 64, _, _, 64, 66, 66, 59, 57, 66, _, 54, 57,  // bar 16 (source bar 17)
+      66, 59, _, _, 66, _, _, 66, 66, 66, 59, 57, 66, _, 54, 57,  // bar 17 (source bar 18)
+      66, _, _, _, 66, _, _, _, 66, _, _, _, 66, _, _, _,  // bar 18 (source bar 19)
+      66, _, _, _, 66, _, _, _, 66, _, _, _, 66, _, _, _,  // bar 19 (source bar 20)
+      66, _, _, _, 66, _, _, _, 66, _, _, _, 66, _, _, _,  // bar 20 (source bar 21)
+      66, _, _, _, 66, _, _, _, 66, _, _, _, 66, _, _, _,  // bar 21 (source bar 22)
+      71, _, _, _, 71, _, _, 71, 71, 73, 74, 76, 78, _, 83, 81,  // bar 22 (source bar 23)
+      83, _, 81, _, 83, _, 78, _, _, _, 76, _, 78, _, _, _,  // bar 23 (source bar 24)
+      71, _, _, _, 71, _, _, 71, 71, 73, 74, 76, 78, _, 78, 81,  // bar 24 (source bar 25)
+      83, _, 74, _, 76, _, 78, _, _, _, _, _, _, _, _, _,  // bar 25 (source bar 26)
+      _, _, _, _, 71, _, _, 71, _, _, 71, _, _, _, 71, _,  // bar 26 (source bar 27)
+      _, _, _, _, 71, _, _, 71, _, _, 71, _, 73, _, 74, _,  // bar 27 (source bar 28)
+      76, _, _, _, 76, _, _, 71, 76, _, 71, _, 73, _, 74, _,  // bar 28 (source bar 29)
+      76, _, 76, _, 74, _, 73, 66, 71, _, 71, 73, 74, _, 78, 81,  // bar 29 (source bar 30)
+      83, _, _, _, 83, 86, 83, 81, 83, _, 71, _, _, _, 71, _,  // bar 30 (source bar 31)
+      _, _, _, _, 71, _, _, 71, _, _, 71, _, 73, _, 74, _,  // bar 31 (source bar 32)
+      76, _, _, _, 76, _, _, 71, 76, _, 71, _, 73, _, 74, _,  // bar 32 (source bar 33)
+      76, _, 76, _, 74, _, 73, 66, 71, 73, 74, 76, 78, 76, 74, 73,  // bar 33 (source bar 34)
+      71, _, _, _, 71, _, 73, 71, 74, _, 71, _, 76, _, 71, _,  // bar 34 (source bar 35)
+      78, _, 79, _, 78, _, 76, 71, 74, _, 71, _, 71, _, 71, _,  // bar 35 (source bar 36)
+      73, _, _, _, 73, _, _, 71, 73, _, 71, _, 71, _, 71, _,  // bar 36 (source bar 37)
+      73, _, _, _, 66, _, _, 66, 73, 71, 73, 74, 76, 74, 76, 78,  // bar 37 (source bar 38)
+      83, _, _, _, 71, _, 73, 71, 74, _, 71, _, 76, _, 71, _,  // bar 38 (source bar 39)
+      78, _, 79, _, 78, _, 76, 71, 74, _, 71, _, 71, _, 71, _,  // bar 39 (source bar 40)
+      73, _, _, _, 76, _, _, 71, 74, _, 66, _, _, _, 73, _,  // bar 40 (source bar 41)
+      83, 81, 78, 81, 83, 81, 78, 81, 83, _, 71, _, 83, _, 71, _,  // bar 41 (source bar 42)
+      83, _, _, _, 83, _, _, _, 81, _, 81, _, 81, _, _, _,  // bar 42 (source bar 43)
+      80, _, 80, _, 80, _, 80, _, 78, _, 83, 83, 81, _, 83, _,  // bar 43 (source bar 44)
+      _, _, 81, _, 81, _, 81, _, 80, _, _, _, 80, _, _, _,  // bar 44 (source bar 45)
+      78, _, 78, _, 76, _, 78, _, 90, 90, 90, 90, 88, _, 90, _,  // bar 45 (source bar 46)
+      83, _, _, _, 83, _, _, _, 81, _, 81, _, 81, 78, 79, 81,  // bar 46 (source bar 47)
+      83, _, 80, _, 80, _, 80, _, 78, _, 76, _, 81, 83, 85, 86,  // bar 47 (source bar 48)
+      88, _, 81, _, 81, _, 81, _, 80, _, _, _, 80, _, _, _,  // bar 48 (source bar 49)
+      87, _, 78, _, 76, _, 78, _, _, _, _, _, _, _, _, _,  // bar 49 (source bar 50)
+      71, 69, 66, 69, 71, 76, 78, 81, 83, _, _, _, 83, _, _, _,  // bar 50 (source bar 51)
+    ],
     // "Price Ali" — Prince Ali (Aladdin), bars 16-74 (~1:20), merged top line
     // across tracks 0,2,3,4,5 (--lead 0,2,3,4,5), ends on A#4/Bb.
     priceali: [
@@ -2895,6 +3008,14 @@
       title: 'Bloody Tiers', influence: 'Castlevania II: Simon\'s Quest — Bloody Tears', bpm: 130, key: 'G minor',
       prog: P.bloodytiers, lead: L.bloodytiers, drums: 'rock', pad: 'organ', bars: 34,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'organ' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+    ch_rasputin: {
+      // 'four' drums for the disco four-on-the-floor pulse. Full 51 bars,
+      // maxLoops: 1 -- a single pass through the whole song.
+      title: 'Costputin', influence: "Boney M — Rasputin", bpm: 128, key: 'B minor',
+      prog: P.rasputin, lead: L.rasputin, drums: 'four', pad: 'saw', bars: 51,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'saw' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
     },
     ch_priceali: {

@@ -316,6 +316,12 @@
       experimental: true,
       ultra: { fall: 1.3, introBars: [[0, 4], [16, 20], [32, 34]], introMinGap: 3 },
       maxLoops: 1 },
+    // Costputin — Boney M's Rasputin, full 51 bars (~1:36). Merged top line
+    // (Koto intro riff + Violin/Jazz Guitar/Elec. Piano/Pizzicato from bar 23
+    // on) since no single track carries the tune the whole way.
+    { key: 'ch_rasputin', name: 'Costputin', sub: 'Boney M · disco · 1:36', tag: '', biome: 'arena',
+      experimental: true,
+      maxLoops: 1 },
     // Disney batch (from MIDI via mid2chart.js).
     { key: 'ch_howfarowe', name: "How Far I'll Owe", sub: 'Moana · How Far I\'ll Go · 1:04', tag: '', biome: 'arena', art: 'cb_moana.jpg', artDim: 0.3,
       maxLoops: 1 },
