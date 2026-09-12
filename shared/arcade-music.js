@@ -2669,10 +2669,11 @@
     },
     ch_cloudcosts: {
       // Per request: uptempo/rap-style rhythm. Source is a slow 88bpm string
-      // theme — bumped to 150bpm and switched to 'break' drums (syncopated
-      // ghost snares, closest boom-bap-ish pattern in the drum kit) with the
-      // bass pushed forward (bassGain up) to carry the beat under the lead.
-      title: 'Fiscal Fantasy VII', influence: 'FFVII Main Theme', bpm: 150, key: '',
+      // theme — bumped to 150bpm then 190bpm ("make it faster") and switched
+      // to 'break' drums (syncopated ghost snares, closest boom-bap-ish
+      // pattern in the drum kit) with the bass pushed forward (bassGain up)
+      // to carry the beat under the lead.
+      title: 'Fiscal Fantasy VII', influence: 'FFVII Main Theme', bpm: 190, key: '',
       prog: P.cloudcosts, lead: L.cloudcosts, drums: 'break', pad: 'power', bars: 24,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.65, bassSubGain: 1.0,
