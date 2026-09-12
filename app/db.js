@@ -29,8 +29,53 @@ const RDS_CA_BUNDLE_PATH = '/etc/ssl/certs/aix-proto-rds-ca.pem';
 const RDS_HOST_SUFFIX = '.rds.amazonaws.com';
 const SUPPORTED_RDS_HOST_SUFFIX = '.us-east-1.rds.amazonaws.com';
 
+// Every wait on the database is finite (#1018). Two platform ceilings make an unbounded wait
+// useless rather than merely untidy: the front door abandons a held request at ~10.5 s (#944), so
+// nothing acquired or computed after that can reach a caller, and every app shares one ALB rate
+// bucket, so a request queued for a pool slot spends the shared budget on nothing. The two bounds
+// split that ~10.5 s so a request that clears both still answers inside it:
+//   connectionTimeoutMillis 2000 - pool checkout + TCP/TLS connect. Dead time (no work happens in
+//     it), so it gets the smaller share: ~20% of the budget, and a saturated pool sheds load in 2 s
+//     instead of queueing every request behind it (pg's default, 0, waits forever).
+//   statement_timeout 8000 - any single statement, lock waits included. Cancelled before the front
+//     door gives up, so the caller gets a fast, retryable error instead of a 502 at 10.5 s; the
+//     remaining ~0.5 s is headroom for that error response to land.
+// Not set: lock_timeout (a lock wait is already inside the 8 s statement bound; a tighter one is an
+// app-level load-shedding policy - `SET LOCAL lock_timeout` in the transaction that wants it - and
+// a 2 s default would turn a startup DDL/advisory-lock wait behind a peer pod into a failure nobody
+// deadlined), and idle_in_transaction_session_timeout (no template path holds a transaction open
+// across non-DB I/O; bounding an unreachable state is fake protection). An app may set either on
+// its own connections, and SET / SET LOCAL still override the session default, so an app's
+// STRICTER bound keeps winning.
+const POOL_MAX = 4;
+const CONNECTION_TIMEOUT_MS = 2000;
+const STATEMENT_TIMEOUT_MS = 8000;
+
 function normalizeHostname(host) {
   return host.toLowerCase().replace(/\.$/, '');
+}
+
+// pg-connection-string repairs spaces/malformed percent escapes BEFORE parsing a URL. Do that
+// before composing startup options too, or pg's later whole-string encodeURI would double-encode
+// the '=' in our options. These anchored character/token checks mirror that driver's repair,
+// including its decimal-only escape restoration; URL remains the parser. Keep this dependency
+// free so TLS/schema validation and injected strict-pool tests do not require an installed pg.
+const HEX_DIGIT = /^[a-f0-9]$/i;
+const DECIMAL_PAIR = /^[0-9]{2}$/;
+function parsePostgresUrl(connectionString) {
+  const malformed = connectionString.split('').some((character, index) =>
+    character === '%' && (
+      index + 1 >= connectionString.length ||
+      !HEX_DIGIT.test(connectionString[index + 1]) ||
+      index + 2 >= connectionString.length ||
+      !HEX_DIGIT.test(connectionString[index + 2])
+    ),
+  );
+  if (!connectionString.includes(' ') && !malformed) return new URL(connectionString);
+  const repaired = encodeURI(connectionString).split('%25').map((part, index) =>
+    `${index === 0 ? '' : DECIMAL_PAIR.test(part.slice(0, 2)) ? '%' : '%25'}${part}`,
+  ).join('');
+  return new URL(repaired);
 }
 
 function readValidatedCaBundle(caBundlePath) {
@@ -86,6 +131,98 @@ function normalizeSchema(raw) {
     .replace(/^[^a-z]+/, '')
     .slice(0, 48);
   return norm || 'app';
+}
+
+// The Postgres startup `options` for every pooled connection: this app's schema first on the
+// search_path, then the server-side bound above. Startup options become the SESSION DEFAULTS
+// (pg_settings.source = 'client'), so they survive RESET / RESET ALL and are already in force for
+// the first statement - no post-connect SET, nothing to race. `schema` must be exactly what
+// normalizeSchema produces; it is quoted so a name that collides with a reserved word (e.g. "user")
+// still works. Pure + exported so the pin and the bound are testable without a database.
+//
+// The guard below is deliberate, not belt-and-braces: the startup `options` value is split on
+// whitespace and unescaped by the server, so a schema carrying a space, a quote or a backslash
+// could close the search_path pin early and smuggle in further `-c name=value` settings (a
+// startup-parameter injection). getPool() only ever passes appSchema(), which is normalized, but
+// this helper is exported and copied into every app, so it refuses anything else itself rather
+// than trusting its caller. Anchored to normalizeSchema's exact output space: a lowercase ASCII
+// letter, then up to 47 of [a-z0-9_] (48 chars total).
+const NORMALIZED_SCHEMA = /^[a-z][a-z0-9_]{0,47}$/;
+
+function poolSessionOptions(schema) {
+  if (typeof schema !== 'string' || !NORMALIZED_SCHEMA.test(schema)) {
+    throw new TypeError(
+      `poolSessionOptions: schema must be a normalizeSchema() identifier, got ${JSON.stringify(schema)}`,
+    );
+  }
+  return `-c search_path="${schema}",public -c statement_timeout=${STATEMENT_TIMEOUT_MS}`;
+}
+
+// PostgreSQL pg_split_opts (src/backend/utils/init/postinit.c): ASCII whitespace separates
+// tokens, backslash escapes the next character, quotes are literal, a final escape is dropped.
+// Retain source offsets so inserting defaults never rewrites a caller's escaped setting values.
+const POSTGRES_OPTION_SPACE = ' \t\n\r\v\f';
+function startupOptionTokens(options) {
+  const tokens = [];
+  let position = 0;
+  while (position < options.length) {
+    if (POSTGRES_OPTION_SPACE.includes(options[position])) {
+      position += 1;
+      continue;
+    }
+    const start = position;
+    let value = '';
+    while (position < options.length && !POSTGRES_OPTION_SPACE.includes(options[position])) {
+      if (options[position] === '\\') position += 1;
+      if (position < options.length) value += options[position++];
+    }
+    tokens.push({ start, value });
+  }
+  return tokens;
+}
+
+// The argument-taking switches from process_postgres_switches' getopt specification
+// (src/backend/tcop/postgres.c). Includes '-' for --name=value and ignored startup switches:
+// e.g. -C -- consumes '--' as its argument; -bC -- does too. Only a terminal delimiter that
+// getopt encounters as an OPTION needs defaults inserted before it. Leave invalid nonterminal
+// delimiters to PostgreSQL, and never remove '--' from a value or an option argument.
+const POSTGRES_OPTIONS_WITH_ARGUMENT = 'BCcDdfhkNprStvW-';
+function terminalOptionDelimiter(options) {
+  const tokens = startupOptionTokens(options);
+  let needsArgument = false;
+  for (const [index, { start, value }] of tokens.entries()) {
+    if (needsArgument) {
+      needsArgument = false;
+      continue;
+    }
+    if (value === '--') return index === tokens.length - 1 ? start : undefined;
+    if (!value.startsWith('-') || value.length === 1) return undefined;
+    for (let character = 1; character < value.length; character += 1) {
+      if (POSTGRES_OPTIONS_WITH_ARGUMENT.includes(value[character])) {
+        needsArgument = character === value.length - 1;
+        break;
+      }
+    }
+  }
+  return undefined;
+}
+
+function boundedStartupOptions(url, schema) {
+  // Match pg-connection-string: decoded, case-sensitive names; the LAST options parameter wins.
+  const supplied = url.searchParams.getAll('options').at(-1) || '';
+  if (supplied.includes('\0')) throw new TypeError('Database startup options cannot contain NUL');
+  const defaults = poolSessionOptions(schema);
+  const delimiter = terminalOptionDelimiter(supplied);
+  if (delimiter !== undefined) {
+    return `${supplied.slice(0, delimiter)}${defaults} ${supplied.slice(delimiter)}`;
+  }
+  // PostgreSQL's pg_split_opts splits on unescaped whitespace, treats quotes literally, and
+  // drops an unmatched final backslash. Preserve that grammar verbatim. Remove only that final
+  // escape before appending a delimiter, or it would escape the delimiter and swallow our -c.
+  let end = supplied.length;
+  while (end > 0 && supplied[end - 1] === '\\') end -= 1;
+  const prefix = (supplied.length - end) % 2 === 1 ? supplied.slice(0, -1) : supplied;
+  return `${prefix} ${defaults}`;
 }
 
 // This app's schema, normalized. Priority: APP_SCHEMA env (baked by the build) -> manifest.json
@@ -169,7 +306,7 @@ async function resolveDatabaseUrl() {
 
 function rdsSslOptions(connectionString, options = {}) {
   const { source = 'direct', caBundlePath = RDS_CA_BUNDLE_PATH } = options;
-  const url = new URL(connectionString);
+  const url = parsePostgresUrl(connectionString);
   const hosts = effectiveHostnames(url);
   const rdsHosts = hosts.filter((host) => host.endsWith(RDS_HOST_SUFFIX));
   if (rdsHosts.length > 0 && rdsHosts.length !== hosts.length) {
@@ -205,9 +342,22 @@ function rdsSslOptions(connectionString, options = {}) {
 }
 
 function postgresConnectionConfig(connectionString, options = {}) {
-  const url = new URL(connectionString);
-  const ssl = rdsSslOptions(connectionString, options);
-  if (!ssl) return { connectionString };
+  // The original strict-TLS path normalized URL spaces before pg parsed credentials.
+  // Preserve that order: pg's raw-string repair double-encodes valid hex-letter escapes.
+  // Non-RDS URLs retain the driver's raw-input semantics, including malformed-percent repair.
+  const normalized = new URL(connectionString).toString();
+  const ssl = rdsSslOptions(normalized, options);
+  const url = parsePostgresUrl(ssl ? normalized : connectionString);
+  if (options.schema !== undefined) {
+    // Keep benign URL settings, then apply our session defaults LAST, inside the URL itself:
+    // node-postgres merges URL options OVER an explicit Pool.options string. Startup defaults
+    // protect the first query and RESET ALL without a post-connect SET race.
+    url.searchParams.set('options', boundedStartupOptions(url, options.schema));
+    // pg sends this as a separate startup field, which PostgreSQL applies AFTER options.
+    // Remove all decoded occurrences so it cannot undo the statement bound above.
+    url.searchParams.delete('statement_timeout');
+  }
+  if (!ssl) return { connectionString: options.schema === undefined ? connectionString : url.toString() };
 
   // pg lets URL TLS parameters override an explicit ssl object. Remove every case-variant so a
   // direct DATABASE_URL cannot disable verification or replace the packaged CA. Keep `host=`
@@ -236,23 +386,23 @@ async function getPool() {
   try {
     connectionConfig = postgresConnectionConfig(resolved.url, {
       source: resolved.source,
+      schema,
     });
   } catch (err) {
-    console.error('aix-db: RDS TLS setup failed -> no persistence:', err.message);
+    console.error('aix-db: connection setup failed -> no persistence:', err.message);
     return null;
   }
   try {
     const { Pool } = require('pg');
     const pool = new Pool({
-      ...connectionConfig,
       // RDS: trust only the packaged Amazon CA bundle and verify the endpoint hostname. Local
       // development URLs keep their existing plaintext/custom behavior.
-      max: 4,
-      // Every pooled connection starts with this app's schema first on the search_path, so
-      // unqualified statements create in / read from the app's own schema (race-free vs. SET).
-      // `schema` is a normalized [a-z][a-z0-9_]* identifier; quote it so a name that collides with a
-      // reserved word (e.g. "user") still works.
-      options: `-c search_path="${schema}",public`,
+      ...connectionConfig,
+      max: POOL_MAX,
+      // A checkout that finds all POOL_MAX connections busy - or a connect to an endpoint that
+      // never answers - rejects with pg-pool's 'timeout exceeded when trying to connect' /
+      // 'Connection terminated due to connection timeout' instead of waiting forever.
+      connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
     });
     // pg emits 'error' on the POOL when an idle client dies (server restart, network blip, an RDS
     // failover). Without a listener Node treats it as an uncaught exception and kills the process,
@@ -286,6 +436,13 @@ module.exports = {
   appSlug,
   appDbSecretId,
   normalizeSchema,
+  poolSessionOptions,
   postgresConnectionConfig,
   rdsSslOptions,
+  // The bounds, for an app that wants to size its own deadlines against them.
+  poolBounds: Object.freeze({
+    max: POOL_MAX,
+    connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
+    statementTimeoutMillis: STATEMENT_TIMEOUT_MS,
+  }),
 };
