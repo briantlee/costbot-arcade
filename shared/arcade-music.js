@@ -1181,6 +1181,50 @@
       { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 40)
     ],
 
+    // "Budget Boom" (Street Fighter II · Guile's Theme), transcribed from
+    // guile2.mid — --lead 0 (Electric Guitar) --bass 2 (Slap Bass). Source
+    // bars 1-35: a 1-note pickup (bar 1), the theme's own 33-bar phrase
+    // (bars 2-34), then a 1-bar rest (bar 35) — bars 36-69 of the source are
+    // a near-exact repeat of bars 2-34, so this 35-bar unit is charted once
+    // and maxLoops handles the repeat instead of duplicating the data.
+    guile2: [
+      { root: 62, tones: [0, 4, 7] },  // D4 maj  (source bar 1)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 2)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 3)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 4)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 5)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 6)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 7)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 8)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 9)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 10)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 11)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 12)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 13)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 14)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 15)
+      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 16)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 17)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 18)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 19)
+      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 20)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 21)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 22)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 23)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 24)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 25)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 26)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 27)
+      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 28)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 29)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 30)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 31)
+      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 32)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 33)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 34)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 35)
+    ],
+
   };
 
   // ===========================================================================
@@ -2810,6 +2854,49 @@
       80, _, 82, _, _, _, 79, _, _, _, _, _, _, _, _, _,  // bar 39 (source bar 40)
     ],
 
+    // "Budget Boom" (Street Fighter II · Guile's Theme), transcribed from
+    // guile2.mid's Electric Guitar track (--lead 0), the theme's own lead
+    // riff. Source bar 0 is a 1-note pickup into the 33-bar main theme
+    // (bars 1-33), then bar 34 is a 1-bar rest before the source repeats —
+    // charted once, maxLoops on the roster entry handles the repeat.
+    guile2: [
+      _, _, _, _, _, _, _, _, _, _, 74, _, _, _, _, _,  // bar 0 (source bar 1)
+      75, _, 75, 74, _, 74, 75, _, _, _, _, _, _, _, 74, _,  // bar 1 (source bar 2)
+      75, _, 75, 74, _, 74, 75, _, _, _, _, _, _, _, 74, _,  // bar 2 (source bar 3)
+      75, 74, _, 75, _, 74, _, 77, _, 77, 75, _, 74, _, 70, _,  // bar 3 (source bar 4)
+      75, _, 75, 74, _, 74, 75, _, _, _, _, _, _, _, 74, _,  // bar 4 (source bar 5)
+      75, _, 75, 74, _, 74, 75, _, _, _, _, _, _, _, 74, _,  // bar 5 (source bar 6)
+      75, 74, _, 75, _, 74, _, 77, _, 77, 75, _, 74, _, 70, _,  // bar 6 (source bar 7)
+      60, _, _, _, _, _, _, _, _, _, 62, _, 63, 65, _, _,  // bar 7 (source bar 8)
+      67, _, _, _, 65, _, _, 70, _, _, 68, _, 67, 68, _, _,  // bar 8 (source bar 9)
+      62, _, _, _, 63, _, _, 65, _, _, 58, _, 62, 65, _, _,  // bar 9 (source bar 10)
+      68, _, _, _, 70, _, _, 67, _, _, _, _, 62, _, _, _,  // bar 10 (source bar 11)
+      60, _, _, _, _, _, _, _, _, _, 62, _, 63, 65, _, _,  // bar 11 (source bar 12)
+      67, _, _, _, 65, _, 65, _, _, _, 65, _, 67, 68, _, _,  // bar 12 (source bar 13)
+      70, _, _, _, _, _, _, _, _, _, 72, _, 74, 75, _, _,  // bar 13 (source bar 14)
+      79, _, _, _, 77, _, _, _, 74, _, _, _, 70, _, _, _,  // bar 14 (source bar 15)
+      72, _, _, _, _, _, _, _, _, _, 74, _, 75, _, 77, _,  // bar 15 (source bar 16)
+      72, _, _, _, _, _, _, _, _, _, 74, _, 75, 77, _, _,  // bar 16 (source bar 17)
+      79, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 17 (source bar 18)
+      _, _, _, _, _, _, _, _, _, _, _, _, 70, _, 70, _,  // bar 18 (source bar 19)
+      80, _, _, _, _, _, _, _, _, _, 79, _, 77, 79, _, _,  // bar 19 (source bar 20)
+      77, _, _, _, 75, _, _, _, 74, _, _, _, 70, _, _, _,  // bar 20 (source bar 21)
+      72, _, _, _, 67, _, _, _, _, _, _, _, _, _, _, _,  // bar 21 (source bar 22)
+      _, _, _, _, _, _, _, _, _, _, _, _, 70, _, 70, _,  // bar 22 (source bar 23)
+      72, _, _, _, _, _, _, _, _, _, 74, _, 75, 77, _, 79,  // bar 23 (source bar 24)
+      _, _, _, 80, _, _, 77, _, _, _, 74, _, 72, 74, _, _,  // bar 24 (source bar 25)
+      74, _, _, _, 75, _, _, 77, _, _, 70, _, 74, 77, _, 80,  // bar 25 (source bar 26)
+      _, _, _, _, _, _, 79, 77, 79, _, _, _, 77, _, 75, _,  // bar 26 (source bar 27)
+      72, _, _, _, _, _, _, _, _, _, 74, _, 75, _, 77, _,  // bar 27 (source bar 28)
+      _, _, _, _, _, _, _, _, _, _, 79, _, 75, 74, _, _,  // bar 28 (source bar 29)
+      72, 74, 75, 72, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 29 (source bar 30)
+      _, _, _, _, _, _, _, _, _, _, _, _, 70, _, 70, _,  // bar 30 (source bar 31)
+      72, _, _, _, _, _, _, _, _, _, 74, _, 75, 77, _, 79,  // bar 31 (source bar 32)
+      _, _, _, 72, _, _, 82, _, _, _, 80, _, 79, _, 77, _,  // bar 32 (source bar 33)
+      74, 75, _, 72, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 33 (source bar 34)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 34 (source bar 35)
+    ],
+
   };
 
   // ===========================================================================
@@ -3457,6 +3544,17 @@
       arpEvery: 0, bassEvery: 1, gain: 0.55, voices: { lead: 'nylon' },
       bassGain: 0.42, bassSubGain: 0.8, bassCutoffStart: 700, bassCutoffEnd: 160,
       leadGain: 2.3, padGain: 0.55, drumGain: 0.75,
+    },
+    // "Budget Boom" (Street Fighter II · Guile's Theme), transcribed from
+    // guile2.mid. 'dist' lead + 'power' pad for the guitar-rock riff, 'rock'
+    // drums for a real kit under it. 120bpm (the source's own tempo) is
+    // ordinary range for bassEvery: 1 (unlike ch_gerudo2's 236bpm case —
+    // see that entry's history — no static risk here).
+    ch_guile2: {
+      title: 'Budget Boom', influence: "Street Fighter II · Guile's Theme, guitar rock", bpm: 120, key: 'C minor',
+      prog: P.guile2, lead: L.guile2, drums: 'rock', pad: 'power', bars: 35,
+      arpEvery: 0, bassEvery: 1, gain: 0.55, voices: { lead: 'dist' },
+      leadGain: 2.0, padGain: 0.7, drumGain: 1.0, bassGain: 0.48, bassSubGain: 0.9,
     },
   };
 

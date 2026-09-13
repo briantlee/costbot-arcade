@@ -383,6 +383,19 @@
     { key: 'ch_pirate', name: 'Ledger of the Caribbean', sub: "Pirates of the Caribbean · He's a Pirate · 1:12", tag: '', biome: 'arena', art: 'cb_pirate.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 2 },
+    // "Budget Boom" — Street Fighter II's Guile's Theme, re-transcribed from
+    // a different MIDI (guile2.mid, --lead 0 "Electric Guitar" --bass 2
+    // "Slap Bass", see TRACKS.ch_guile2/P.guile2/L.guile2 in arcade-music.js).
+    // Source bars 36-69 are a near-exact repeat of bars 2-34, so the chart
+    // covers just the 35-bar unit (1-note pickup + 33-bar theme + 1-bar
+    // rest) once; maxLoops: 2 (~2:20 @120bpm) for the full "loops forever"
+    // feel this theme is known for. The first Guile attempt (single guitar-
+    // MIDI, key `guile`) was pulled from the roster for a rebuild — this is
+    // a fresh transcription from a different source file, own internal key
+    // (`guile2`) so it doesn't collide.
+    { key: 'ch_guile2', name: 'Budget Boom', sub: "Street Fighter II · Guile's Theme, guitar rock · 2:20", tag: '', biome: 'arena', art: 'cb_guile.jpg', artDim: 0.3,
+      experimental: true,
+      maxLoops: 2 },
   ];
 
   const DIFFS = {
