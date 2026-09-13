@@ -380,9 +380,19 @@
     // Difficulty ladder checked for collapse (144 onsets / 224 steps): minGap
     // 4/3/2/1 keep 36.8% / 45.1% / 67.4% / 100% — a real spread every tier, no
     // override needed.
+    // Round 2 (feedback, grouped with ch_guile2/ch_gerudo2: "these are a
+    // little too easy on Ultra"): Ultra's minGap: 1 already keeps every one
+    // of the 144 real onsets, so there's no more timing to claim by
+    // thinning. 9 of the 14 bars land a real onset on their own bar-start
+    // (step 0), so chordSize: 2 (same mechanic as ch_guile2/ch_imperial)
+    // adds a genuine second voice there drawn from P.pirate's own tones —
+    // real Dm-Am-F-Bb-Gm-A harmony from the Bass Guitar track, not invented
+    // notes. fall: 0.85 (vs the shared Ultra 1.0) tightens reaction time on
+    // top of that, same lever applied to ch_guile2/ch_gerudo2 in this round.
     { key: 'ch_pirate', name: 'Ledger of the Caribbean', sub: "Pirates of the Caribbean · He's a Pirate · 1:12", tag: '', biome: 'arena', art: 'cb_pirate.jpg', artDim: 0.3,
       experimental: true,
-      maxLoops: 2 },
+      maxLoops: 2,
+      ultra: { chordSize: 2, fall: 0.85 } },
     // "Wall Street Fighter" — Street Fighter II's Guile's Theme, re-transcribed from
     // a different MIDI (guile2.mid, --lead 0 "Electric Guitar" --bass 2
     // "Slap Bass", see TRACKS.ch_guile2/P.guile2/L.guile2 in arcade-music.js).
@@ -414,10 +424,18 @@
     // single ~1:08 pass (was ~2:20) — the closest clean cadence to the
     // requested 1:05, ending right on the theme's own resolving bar 34
     // instead of a mid-phrase cut.
+    // Round 4 (feedback, grouped with ch_pirate/ch_gerudo2: "these are a
+    // little too easy on Ultra"): chordSize stays at 2 (3 was already
+    // rejected as annoying, this isn't the knob to push again) — instead
+    // fall: 0.85 (vs the shared Ultra 1.0) tightens reaction time, same
+    // lever applied to the other two songs in this round.
+    // (A follow-up try at diff.maxLoops: 2 instead of fall — "extra bars"
+    // for Ultra only — made the loop-back point play choppy/desynced, since
+    // the backing sequencer isn't diff-aware; reverted, back to fall: 0.85.)
     { key: 'ch_guile2', name: 'Wall Street Fighter', sub: "Street Fighter II · Guile's Theme, guitar rock · 1:08", tag: '', biome: 'arena', art: 'cb_guile.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1,
-      ultra: { chordSize: 2 } },
+      ultra: { chordSize: 2, fall: 0.85 } },
     // "Gerudough Valley" v2 — re-transcribed from a different, jazz-combo-
     // arrangement MIDI (gerudo2.mid) per explicit request to follow the Jazz
     // Guitar track and skip Acoustic Gtr + Electric Drum Kit (--lead 4 --bass
@@ -430,9 +448,18 @@
     // (single acoustic-piano MIDI, key `gerudo`) was pulled from the roster
     // for feeling "off" — this is a fresh transcription from a different
     // source file, own internal key (`gerudo2`) so it doesn't collide.
+    // Round 4 (feedback, grouped with ch_pirate/ch_guile2: "these are a
+    // little too easy on Ultra"): Ultra's minGap: 1 already keeps every real
+    // onset, but 23 of the 47 bars land one on their own bar-start, so
+    // chordSize: 2 (same mechanic as ch_guile2/ch_imperial) adds a genuine
+    // second voice there drawn from P.gerudo2's own tones — real
+    // F#m-D-E-C#m harmony from the Bass Guitar track. fall: 0.85 (vs the
+    // shared Ultra 1.0) tightens reaction time on top of that, same lever
+    // applied to ch_pirate/ch_guile2 in this round.
     { key: 'ch_gerudo2', name: 'Gerudough Valley', sub: 'Zelda, Gerudo Valley (jazz combo) · 1:36', tag: '', biome: 'dusk', art: 'cb_gerudo.jpg', artDim: 0.3,
       experimental: true,
-      maxLoops: 2 },
+      maxLoops: 2,
+      ultra: { chordSize: 2, fall: 0.85 } },
   ];
 
   const DIFFS = {
