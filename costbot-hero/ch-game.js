@@ -426,13 +426,17 @@
     // instead of a mid-phrase cut.
     // Round 4 (feedback, grouped with ch_pirate/ch_gerudo2: "these are a
     // little too easy on Ultra"): chordSize stays at 2 (3 was already
-    // rejected as annoying, this isn't the knob to push again) — instead
-    // fall: 0.85 (vs the shared Ultra 1.0) tightens reaction time, same
-    // lever applied to the other two songs in this round.
+    // rejected as annoying, this isn't the knob to push again). First tried
+    // fall: 0.85 (tighter reaction time, same lever as the other two songs
+    // this round), but follow-up feedback asked for extra bars instead of
+    // faster timing. diff.maxLoops (new, optional per-difficulty override —
+    // see beginRun() in ch-game.js) lets Ultra alone run the loop twice
+    // (~2:16) while Easy/Normal/Hard stay at the single ~1:08 pass — "extra
+    // bars to play through" rather than a faster fall.
     { key: 'ch_guile2', name: 'Wall Street Fighter', sub: "Street Fighter II · Guile's Theme, guitar rock · 1:08", tag: '', biome: 'arena', art: 'cb_guile.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1,
-      ultra: { chordSize: 2, fall: 0.85 } },
+      ultra: { chordSize: 2, maxLoops: 2 } },
     // "Gerudough Valley" v2 — re-transcribed from a different, jazz-combo-
     // arrangement MIDI (gerudo2.mid) per explicit request to follow the Jazz
     // Guitar track and skip Acoustic Gtr + Electric Drum Kit (--lead 4 --bass
@@ -1128,7 +1132,11 @@
         // plus the player's own calibration offset (menu-adjustable)
         const lat = (actx.outputLatency || actx.baseLatency || 0.02) + (meta.calibMs || 0) / 1000;
 
-        const chart = buildChart(track, diff, firstStep0, startStepAbs, lat, song.maxLoops);
+        // diff.maxLoops (optional, per-difficulty) overrides the song's own
+        // maxLoops — e.g. a harder tier can run the loop an extra time for
+        // "more bars to play through" instead of (or alongside) a tighter
+        // fall/chordSize, without lengthening every other difficulty too.
+        const chart = buildChart(track, diff, firstStep0, startStepAbs, lat, diff.maxLoops != null ? diff.maxLoops : song.maxLoops);
         // per-song backdrop: one biome + one generated prop set, made once at
         // song start (not per-frame). The highway trapezoid (see geom()) is
         // widest at the bottom and only narrows going up, so it never reaches
