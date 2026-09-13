@@ -330,6 +330,7 @@
     // to what hard already was, and hard up to Ultra's density (same trick
     // as Materia Girl's medium override, just applied more broadly here).
     { key: 'ch_rasputin', name: 'Costputin', sub: 'Boney M · disco · 1:36', tag: '', biome: 'arena',
+      art: 'cb_rasputin.jpg', artDim: 0.3,
       experimental: true,
       easy: { minGap: 2 }, medium: { minGap: 2 }, hard: { minGap: 1 },
       maxLoops: 1 },
@@ -345,6 +346,21 @@
       maxLoops: 1 },
     { key: 'ch_guest', name: 'Bill Our Guest', sub: 'Beauty and the Beast · Be Our Guest · 1:01', tag: '', biome: 'arena', art: 'cb_be_our_guest.jpg', artDim: 0.3,
       maxLoops: 1 },
+    // "We Don't Talk About Budget" (Encanto), transcribed from MIDI (see
+    // TRACKS.ch_bruno in arcade-music.js — nylon-guitar lead, real drum kit,
+    // reverted from an earlier samba treatment to stay true to the MIDI —
+    // and the Electric-Piano-top-note patch for the hook's 8-bar gap).
+    // bars: 40 at 132bpm is one linear pass (~1:13), no repeat, so
+    // maxLoops: 1. Onset density (41.4%) collapses Easy/Medium together
+    // under the shared minGap 4/3 (51.7%/55.1% kept, barely different) —
+    // shifted the whole ladder down one notch (Easy takes the old Medium
+    // gap, Medium takes the old Hard gap) for a real spread: 55.1% / 86.4% /
+    // 100% kept across Easy/Medium/Hard.
+    { key: 'ch_bruno', name: 'We Don\'t Talk About Budget', sub: "Encanto, We Don't Talk About Bruno · 1:13", tag: '', biome: 'arena', art: 'cb_bruno.jpg', artDim: 0.3,
+      maxLoops: 1,
+      easy:   { minGap: 3 },
+      medium: { minGap: 2 },
+      hard:   { minGap: 1 } },
     // Playtest entry — no art yet. Lead track (idx 1, "Trombone") carries the
     // vocal melody; the intro's iconic synth riff lives on a different track
     // (idx 5/9) so it's silent on this track — chart starts at source bar 9
@@ -357,6 +373,66 @@
     { key: 'ch_rickroll', name: 'Never Gonna Bill You Up', sub: 'Rick Astley · Never Gonna Give You Up · 1:13', tag: '', biome: 'arena', art: 'cb_rickroll.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
+    // Ledger of the Caribbean — He's a Pirate (Pirates of the Caribbean).
+    // Source bars 1-14 (2-bar syncopated pedal intro + the 6-bar main phrase
+    // twice, once an octave up), a short unit at ~36s/pass, so maxLoops: 2
+    // for a normal ~1:12 runtime (see TRACKS.ch_pirate in arcade-music.js).
+    // Difficulty ladder checked for collapse (144 onsets / 224 steps): minGap
+    // 4/3/2/1 keep 36.8% / 45.1% / 67.4% / 100% — a real spread every tier, no
+    // override needed.
+    { key: 'ch_pirate', name: 'Ledger of the Caribbean', sub: "Pirates of the Caribbean · He's a Pirate · 1:12", tag: '', biome: 'arena', art: 'cb_pirate.jpg', artDim: 0.3,
+      experimental: true,
+      maxLoops: 2 },
+    // "Wall Street Fighter" — Street Fighter II's Guile's Theme, re-transcribed from
+    // a different MIDI (guile2.mid, --lead 0 "Electric Guitar" --bass 2
+    // "Slap Bass", see TRACKS.ch_guile2/P.guile2/L.guile2 in arcade-music.js).
+    // Source bars 36-69 are a near-exact repeat of bars 2-34, so the chart
+    // covers just the unique 34-bar unit (1-note pickup + 33-bar theme)
+    // once; maxLoops: 1. The first Guile attempt (single guitar-
+    // MIDI, key `guile`) was pulled from the roster for a rebuild — this is
+    // a fresh transcription from a different source file, own internal key
+    // (`guile2`) so it doesn't collide.
+    // Round 2 (feedback: "Ultra is too easy, are there more notes from the
+    // MIDI we can add?"): the Electric Guitar lead is real but sparse (152
+    // onsets/35 bars) and Ultra's minGap: 1 already keeps every one of them,
+    // so there's no more *timing* to claim without inventing notes. There
+    // IS more real material going unused, though — guile2.mid's Grand Piano
+    // track doubles the guitar melody in harmony almost note-for-note (same
+    // rhythm, a 3rd/6th below), i.e. real chord tones the MIDI actually
+    // plays that our single-lane chart drops. chordSize (same mechanic as
+    // ch_imperial/the old ch_guile) expands each bar-start note into a
+    // multi-lane chord using P.guile2's own tones (real bass-track harmony,
+    // same idea) — ultra: { chordSize: 2 } adds one extra simultaneous note
+    // on ~27 of the 35 bar-starts, genuinely raising the note count Ultra
+    // asks the player to hit instead of just tightening timing further.
+    // chordSize: 3 was tried first and reverted per feedback ("annoying") —
+    // 2-note chords only.
+    // Round 3 (feedback: "end around 1:05, make the background more
+    // intense — long electric guitar chord intro, rap/beatbox beats"): see
+    // TRACKS.ch_guile2 in arcade-music.js for the breakBars/crashBars/drums
+    // mix change. Dropped the trailing 1-bar rest and maxLoops: 2 -> 1 for a
+    // single ~1:08 pass (was ~2:20) — the closest clean cadence to the
+    // requested 1:05, ending right on the theme's own resolving bar 34
+    // instead of a mid-phrase cut.
+    { key: 'ch_guile2', name: 'Wall Street Fighter', sub: "Street Fighter II · Guile's Theme, guitar rock · 1:08", tag: '', biome: 'arena', art: 'cb_guile.jpg', artDim: 0.3,
+      experimental: true,
+      maxLoops: 1,
+      ultra: { chordSize: 2 } },
+    // "Gerudough Valley" v2 — re-transcribed from a different, jazz-combo-
+    // arrangement MIDI (gerudo2.mid) per explicit request to follow the Jazz
+    // Guitar track and skip Acoustic Gtr + Electric Drum Kit (--lead 4 --bass
+    // 0, see TRACKS.ch_gerudo2/P.gerudo2/L.gerudo2 in arcade-music.js). The
+    // guitar rests for ~16 bars mid-song (a Trombone-led passage) and is
+    // silent for the first 14 bars too, so the chart runs source bars 15-61
+    // — right where the guitar enters through right before that rest — a
+    // continuous 47-bar phrase instead of charting dead air. 47 bars @236bpm
+    // is ~48s/pass; maxLoops: 2 for a ~1:36 runtime. The first Gerudo attempt
+    // (single acoustic-piano MIDI, key `gerudo`) was pulled from the roster
+    // for feeling "off" — this is a fresh transcription from a different
+    // source file, own internal key (`gerudo2`) so it doesn't collide.
+    { key: 'ch_gerudo2', name: 'Gerudough Valley', sub: 'Zelda, Gerudo Valley (jazz combo) · 1:36', tag: '', biome: 'dusk', art: 'cb_gerudo.jpg', artDim: 0.3,
+      experimental: true,
+      maxLoops: 2 },
   ];
 
   const DIFFS = {

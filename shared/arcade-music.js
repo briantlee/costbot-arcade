@@ -1107,6 +1107,182 @@
       { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 51)
       { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 52)
     ],
+
+    // "Ledger of the Caribbean", transcribed from MIDI (He's a Pirate — Pirates
+    // of the Caribbean, D minor). Bars 0-1 (source bars 1-2) are the famous
+    // syncopated pedal-D hit with no bass motion under it (mid2chart's root
+    // finder grabbed the pedal note itself, once even an octave too high, since
+    // there's no separate bass note in those bars to anchor on) — hand-set to
+    // the tonic Dm here instead. Everything else is mid2chart's own bass-track
+    // root, just shifted up an octave (+12) to land in the same low-40s
+    // register the rest of the roster's bass lines use (see P.rickroll etc.)
+    // rather than the source file's very low octave-1 bass. Confirms i-v-VI-
+    // III-iv-V (Dm-Am-F-Bb-Gm-A) both times through the 6-bar phrase.
+    pirate: [
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 1, hand-set: pedal D, no bass)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 2, hand-set: pedal D, no bass)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 3)
+      { root: 45, tones: [0, 3, 7] },  // A2 min  (source bar 4)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 5)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj (source bar 6)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 7)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 8, dominant)
+      { root: 45, tones: [0, 3, 7] },  // A2 min  (source bar 9)
+      { root: 45, tones: [0, 3, 7] },  // A2 min  (source bar 10)
+      { root: 41, tones: [0, 4, 7] },  // F2 maj  (source bar 11)
+      { root: 46, tones: [0, 4, 7] },  // A#2 maj (source bar 12)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 13)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 14, dominant)
+    ],
+
+    // "We Don't Talk About Budget" (Encanto), transcribed from MIDI. Roots
+    // from the Grand Piano track's own left hand (--bass 0); qualities are
+    // the tool's sounding-3rd guess, ear-checked.
+    bruno: [
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 1)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 2)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 3)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 4)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 5)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 6)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 7)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 8)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 9)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 10)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 11)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 12)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 13)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 14)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 15)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 16)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 17)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 18)
+      { root: 44, tones: [0, 4, 7] },  // G#2 maj  (source bar 19)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 20)
+      { root: 44, tones: [0, 4, 7] },  // G#2 maj  (source bar 21)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 22)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 23)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 24)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 25)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 26)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 27)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 28)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 29)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 30)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 31)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 32)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 33)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 34)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 35)
+      { root: 41, tones: [0, 3, 7] },  // F2 min  (source bar 36)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 37)
+      { root: 43, tones: [0, 4, 7] },  // G2 maj  (source bar 38)
+      { root: 44, tones: [0, 4, 7] },  // G#2 maj  (source bar 39)
+      { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 40)
+    ],
+
+    // "Wall Street Fighter" (Street Fighter II · Guile's Theme), transcribed from
+    // guile2.mid — --lead 0 (Electric Guitar) --bass 2 (Slap Bass). Source
+    // bars 1-34: a 1-note pickup (bar 1), the theme's own 33-bar phrase
+    // (bars 2-34) — bars 36-69 of the source are a near-exact repeat of
+    // bars 2-34, so only the unique 34-bar unit is charted. Per request to
+    // end around 1:05, dropped the trailing 1-bar rest (source bar 35, all
+    // silence) that used to precede the loop-back and set maxLoops: 1 — a
+    // single ~1:08 pass ending right on bar 34's own resolving cadence
+    // instead of the earlier "loop forever" 2:20 treatment.
+    guile2: [
+      { root: 62, tones: [0, 4, 7] },  // D4 maj  (source bar 1)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 2)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 3)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 4)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 5)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 6)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 7)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 8)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 9)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 10)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 11)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 12)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 13)
+      { root: 38, tones: [0, 3, 7] },  // D2 min  (source bar 14)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 15)
+      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 16)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 17)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 18)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 19)
+      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 20)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 21)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 22)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 23)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 24)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 25)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 26)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 27)
+      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 28)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 29)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 30)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 31)
+      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 32)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 33)
+      { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 34)
+    ],
+
+    // "Gerudough Valley" v2 (Zelda · Gerudo Valley), re-transcribed from a
+    // different, jazz-combo-arrangement MIDI (gerudo2.mid: Bass Guitar /
+    // Trombone / Electric Drum Kit / Acoustic Gtr / Jazz Guitar tracks) per
+    // request to follow the Jazz Guitar and skip Acoustic Gtr + Electric Drum
+    // Kit. Roots from the Bass Guitar track (--bass 0) — same classic i-VII-
+    // i-VI loop (F#m-E-F#m-D, tool's maj/min guess, ear-check per usual).
+    gerudo2: [
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 15)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 16)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 17)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 18)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 19)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 20)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 21)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 22)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 23)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 24)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 25)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 26)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 27)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 28)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 29)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 30)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 31)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 32)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 33)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 34)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 35)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 36)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 37)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 38)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 39)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 40)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 41)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 42)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 43)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 44)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 45)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 46)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 47)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 48)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 49)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 50)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 51)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 52)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 53)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 54)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 55)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 56)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 57)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 58)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 59)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 60)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 61)
+    ],
+
   };
 
   // ===========================================================================
@@ -2645,6 +2821,199 @@
       61, _, _, 60, 58, _, 56, 58, 61, 58, 61, _, _, _, 63, _,  // bar 42 (source bar 51)
       60, _, _, 58, 56, _, _, _, 56, _, 63, _, _, _, 61, _,  // bar 43 (source bar 52)
     ],
+
+    // "Ledger of the Caribbean" — He's a Pirate. Single format-0 piano-
+    // reduction track (avg ~2.5-3.5 simultaneous notes -- bass + inner voices
+    // + melody all on one track), so --lead 0 --bass 0 with --min-pitch 60:
+    // the melody sits at C4 (60) and above throughout (an octave up, C5+, for
+    // the bars-9-14 repeat), while the walking bass/chord comping lives at
+    // A#2-B3 and below, landing right under that floor. Verified bar-by-bar
+    // against the raw note dump: every run of dropped steps lines up with a
+    // bass-only onset (no real melody note lost), and the two rests this
+    // produces mid-phrase are genuine (the tune holds/rests there while the
+    // bass walks). Source bars 1-14: the iconic 2-bar syncopated-pedal intro,
+    // then the 6-bar main phrase twice (once at C4-ish, once an octave up,
+    // per the source), ending right before bar 15's new (unrelated) material
+    // -- a clean phrase boundary. bpm 93 and pitches are the source file's
+    // own, unaltered.
+    pirate: [
+      62, _, 62, 62, _, 62, 62, _, 62, 62, 62, 62, 62, _, 62, 62,  // bar 0 (source bar 1)
+      _, 62, 62, _, 62, 62, 62, 62, 62, _, 62, 62, _, 62, 62, _,  // bar 1 (source bar 2)
+      62, 62, _, 60, 62, _, 62, _, 62, 64, 65, _, 65, _, 65, 67,  // bar 2 (source bar 3)
+      64, _, 64, _, 62, 60, 60, 62, _, _, _, 60, 62, _, 62, _,  // bar 3 (source bar 4)
+      62, 64, 65, _, 65, _, 65, 67, 64, _, 64, _, 62, 60, 62, _,  // bar 4 (source bar 5)
+      _, _, _, 60, 62, _, 62, _, 62, 65, 67, _, 67, _, 67, 69,  // bar 5 (source bar 6)
+      70, _, 70, _, 69, 67, 69, 62, _, _, 62, 64, 65, _, 65, _,  // bar 6 (source bar 7)
+      67, _, 69, 62, _, _, 62, 65, 64, _, 64, _, 65, 62, 64, _,  // bar 7 (source bar 8)
+      _, _, 69, 72, 74, _, 74, _, 74, 76, 77, _, 77, _, 77, 79,  // bar 8 (source bar 9)
+      76, _, 76, _, 74, 72, 72, 74, _, _, 69, 72, 74, _, 74, _,  // bar 9 (source bar 10)
+      74, 76, 77, _, 77, _, 77, 79, 76, _, 76, _, 74, 72, 74, _,  // bar 10 (source bar 11)
+      _, _, 69, 72, 74, _, 74, _, 74, 77, 79, _, 79, _, 79, 81,  // bar 11 (source bar 12)
+      82, _, 82, _, 81, 79, 81, 74, _, _, 74, 76, 77, _, 77, _,  // bar 12 (source bar 13)
+      79, _, 81, 74, _, _, 74, 77, 76, _, 76, _, 74, 73, 74, _,  // bar 13 (source bar 14)
+    ],
+
+    // "We Don't Talk About Budget" (Encanto), transcribed from MIDI.
+    // --lead 4,6,7,11 (Violin + Muted E-Guitar + Koto + Saxophone, merged —
+    // each near-monophonic, avgPoly 0.45-1.01, none chordal enough to
+    // corrupt the "highest note wins" merge per the Rasputin lesson) covers
+    // the verses (bars 1-22), the Koto bridge (31-36) and the return to the
+    // verse motif (37-40) — but source bars 23-30 are a total silence in
+    // that merge: that's the song's own big call-and-response hook ("we
+    // don't talk about Bruno"), where the Grand Piano/Slap Bass/drums all
+    // slam in together instead of any single solo instrument carrying it.
+    // Patched those 8 bars in separately from the Electric Piano's own top
+    // note (--lead 1 --bass 0 --bars 23:30) — its dense chord comping still
+    // reads as a real, singable line on top (repeated G4 chant + a
+    // descending run), which matches the hook's actual insistent, chanted
+    // melody. Two mid2chart runs, hand-spliced; P.bruno's roots already
+    // covered the full 1-40 range from the one --bass 0 pass, so only L
+    // needed patching.
+    bruno: [
+      _, _, _, _, _, _, _, _, 75, _, 68, _, 75, _, 68, _,  // bar 0 (source bar 1)
+      75, _, 74, _, _, _, 71, _, _, _, 67, _, _, _, 65, _,  // bar 1 (source bar 2)
+      _, _, 67, _, _, _, _, _, 75, _, 72, _, 75, _, 72, _,  // bar 2 (source bar 3)
+      75, _, 77, _, _, _, 74, _, _, _, _, _, _, _, _, _,  // bar 3 (source bar 4)
+      _, _, _, _, 79, _, _, _, 79, 75, 79, _, 79, _, 75, _,  // bar 4 (source bar 5)
+      75, 72, 75, _, 75, _, 74, _, 77, 74, 77, 74, 77, _, 79, _,  // bar 5 (source bar 6)
+      77, _, 79, _, 79, _, 80, _, 79, _, 82, _, _, _, 80, _,  // bar 6 (source bar 7)
+      79, _, 77, _, _, _, 67, _, 67, _, 72, _, _, _, 72, _,  // bar 7 (source bar 8)
+      71, _, 72, _, 75, _, 70, _, 75, _, 79, _, _, _, 75, _,  // bar 8 (source bar 9)
+      72, _, 74, _, _, _, 67, _, 74, _, 79, _, _, _, 68, _,  // bar 9 (source bar 10)
+      _, _, 67, _, _, _, 80, _, 80, 80, 80, _, 80, _, 75, 80,  // bar 10 (source bar 11)
+      _, 75, 79, _, _, _, 67, 67, 67, 67, 67, 67, 67, 67, 74, _,  // bar 11 (source bar 12)
+      _, _, _, _, 72, _, 74, _, 75, _, 77, _, 79, _, _, 80,  // bar 12 (source bar 13)
+      _, _, 79, _, _, _, 65, _, 62, 65, 68, _, 75, _, 71, _,  // bar 13 (source bar 14)
+      _, _, 72, _, 72, _, 74, _, 75, _, 77, _, 79, _, _, 80,  // bar 14 (source bar 15)
+      _, _, 79, _, _, _, _, _, 67, 65, 67, _, 74, _, 75, _,  // bar 15 (source bar 16)
+      74, _, 72, _, 72, _, 74, _, 75, _, 77, _, 79, _, _, 80,  // bar 16 (source bar 17)
+      _, _, 82, _, _, _, 68, 71, 74, _, 68, _, 65, _, 65, _,  // bar 17 (source bar 18)
+      67, _, 77, _, 75, _, _, _, 80, _, 75, _, 80, _, 75, _,  // bar 18 (source bar 19)
+      80, _, 79, _, _, _, 74, _, _, _, 71, _, _, _, 67, _,  // bar 19 (source bar 20)
+      _, _, 72, _, _, _, _, _, 80, _, 75, _, 80, _, 75, _,  // bar 20 (source bar 21)
+      80, _, 82, _, _, _, 79, _, _, _, _, _, _, _, _, _,  // bar 21 (source bar 22)
+      _, _, _, _, 65, 67, 67, 67, 67, _, 67, 67, 67, _, 67, 67,  // bar 22 (source bar 23) [Electric Piano top note]
+      67, _, 65, _, 65, 67, 67, 67, 67, _, 67, 67, 67, _, 67, 67,  // bar 23 (source bar 24) [Electric Piano top note]
+      67, _, 65, _, 65, 67, 65, 67, 67, _, 67, 67, 67, _, 65, _,  // bar 24 (source bar 25) [Electric Piano top note]
+      63, _, 60, _, 67, _, _, _, _, _, _, _, 77, _, _, _,  // bar 25 (source bar 26) [Electric Piano top note]
+      75, _, 74, _, 72, 67, 67, 67, 67, _, 67, 67, 67, _, 67, _,  // bar 26 (source bar 27) [Electric Piano top note]
+      67, _, 65, _, 65, 67, 67, 67, 67, _, 67, 67, 67, 67, 67, _,  // bar 27 (source bar 28) [Electric Piano top note]
+      67, _, 65, _, 65, 67, 67, 67, 67, _, 67, 67, 67, _, 65, _,  // bar 28 (source bar 29) [Electric Piano top note]
+      63, _, 60, _, 67, _, _, _, _, _, 67, 67, 65, _, 68, _,  // bar 29 (source bar 30) [Electric Piano top note]
+      _, _, _, _, 84, _, 84, _, 84, _, _, _, 80, _, _, _,  // bar 30 (source bar 31)
+      _, _, 83, _, _, _, 83, _, 83, _, 80, _, 80, _, _, _,  // bar 31 (source bar 32)
+      79, _, 84, _, 84, _, _, _, 84, _, _, _, 80, _, _, _,  // bar 32 (source bar 33)
+      79, _, 83, _, _, _, 83, _, _, _, 80, _, 80, _, _, _,  // bar 33 (source bar 34)
+      79, _, 84, _, 84, _, _, _, 84, _, _, _, 80, _, _, _,  // bar 34 (source bar 35)
+      79, _, 83, _, _, _, 83, _, _, _, 80, _, 80, _, _, _,  // bar 35 (source bar 36)
+      _, _, _, _, 75, _, _, _, 80, _, 75, _, 80, _, 75, _,  // bar 36 (source bar 37)
+      80, _, 79, _, _, _, 74, _, _, _, 71, _, _, _, 67, _,  // bar 37 (source bar 38)
+      _, _, 72, _, _, _, _, _, 80, _, 75, _, 80, _, 75, _,  // bar 38 (source bar 39)
+      80, _, 82, _, _, _, 79, _, _, _, _, _, _, _, _, _,  // bar 39 (source bar 40)
+    ],
+
+    // "Wall Street Fighter" (Street Fighter II · Guile's Theme), transcribed from
+    // guile2.mid's Electric Guitar track (--lead 0), the theme's own lead
+    // riff. Bar 0 is a 1-note pickup into the 33-bar main theme (bars 1-33),
+    // ending on bar 33's own resolving cadence. Per request to end around
+    // 1:05, dropped the trailing 1-bar rest that used to sit after this
+    // (source bar 35, all silence, only needed for a seamless loop-back) and
+    // switched to a single maxLoops: 1 pass (~1:08) instead of looping.
+    guile2: [
+      _, _, _, _, _, _, _, _, _, _, 74, _, _, _, _, _,  // bar 0 (source bar 1)
+      75, _, 75, 74, _, 74, 75, _, _, _, _, _, _, _, 74, _,  // bar 1 (source bar 2)
+      75, _, 75, 74, _, 74, 75, _, _, _, _, _, _, _, 74, _,  // bar 2 (source bar 3)
+      75, 74, _, 75, _, 74, _, 77, _, 77, 75, _, 74, _, 70, _,  // bar 3 (source bar 4)
+      75, _, 75, 74, _, 74, 75, _, _, _, _, _, _, _, 74, _,  // bar 4 (source bar 5)
+      75, _, 75, 74, _, 74, 75, _, _, _, _, _, _, _, 74, _,  // bar 5 (source bar 6)
+      75, 74, _, 75, _, 74, _, 77, _, 77, 75, _, 74, _, 70, _,  // bar 6 (source bar 7)
+      60, _, _, _, _, _, _, _, _, _, 62, _, 63, 65, _, _,  // bar 7 (source bar 8)
+      67, _, _, _, 65, _, _, 70, _, _, 68, _, 67, 68, _, _,  // bar 8 (source bar 9)
+      62, _, _, _, 63, _, _, 65, _, _, 58, _, 62, 65, _, _,  // bar 9 (source bar 10)
+      68, _, _, _, 70, _, _, 67, _, _, _, _, 62, _, _, _,  // bar 10 (source bar 11)
+      60, _, _, _, _, _, _, _, _, _, 62, _, 63, 65, _, _,  // bar 11 (source bar 12)
+      67, _, _, _, 65, _, 65, _, _, _, 65, _, 67, 68, _, _,  // bar 12 (source bar 13)
+      70, _, _, _, _, _, _, _, _, _, 72, _, 74, 75, _, _,  // bar 13 (source bar 14)
+      79, _, _, _, 77, _, _, _, 74, _, _, _, 70, _, _, _,  // bar 14 (source bar 15)
+      72, _, _, _, _, _, _, _, _, _, 74, _, 75, _, 77, _,  // bar 15 (source bar 16)
+      72, _, _, _, _, _, _, _, _, _, 74, _, 75, 77, _, _,  // bar 16 (source bar 17)
+      79, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 17 (source bar 18)
+      _, _, _, _, _, _, _, _, _, _, _, _, 70, _, 70, _,  // bar 18 (source bar 19)
+      80, _, _, _, _, _, _, _, _, _, 79, _, 77, 79, _, _,  // bar 19 (source bar 20)
+      77, _, _, _, 75, _, _, _, 74, _, _, _, 70, _, _, _,  // bar 20 (source bar 21)
+      72, _, _, _, 67, _, _, _, _, _, _, _, _, _, _, _,  // bar 21 (source bar 22)
+      _, _, _, _, _, _, _, _, _, _, _, _, 70, _, 70, _,  // bar 22 (source bar 23)
+      72, _, _, _, _, _, _, _, _, _, 74, _, 75, 77, _, 79,  // bar 23 (source bar 24)
+      _, _, _, 80, _, _, 77, _, _, _, 74, _, 72, 74, _, _,  // bar 24 (source bar 25)
+      74, _, _, _, 75, _, _, 77, _, _, 70, _, 74, 77, _, 80,  // bar 25 (source bar 26)
+      _, _, _, _, _, _, 79, 77, 79, _, _, _, 77, _, 75, _,  // bar 26 (source bar 27)
+      72, _, _, _, _, _, _, _, _, _, 74, _, 75, _, 77, _,  // bar 27 (source bar 28)
+      _, _, _, _, _, _, _, _, _, _, 79, _, 75, 74, _, _,  // bar 28 (source bar 29)
+      72, 74, 75, 72, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 29 (source bar 30)
+      _, _, _, _, _, _, _, _, _, _, _, _, 70, _, 70, _,  // bar 30 (source bar 31)
+      72, _, _, _, _, _, _, _, _, _, 74, _, 75, 77, _, 79,  // bar 31 (source bar 32)
+      _, _, _, 72, _, _, 82, _, _, _, 80, _, 79, _, 77, _,  // bar 32 (source bar 33)
+      74, 75, _, 72, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 33 (source bar 34)
+    ],
+
+    // "Gerudough Valley" v2 (Zelda · Gerudo Valley), re-transcribed from
+    // gerudo2.mid's Jazz Guitar track (--lead 4 --bass 0), per request to
+    // follow the jazz guitar and skip Acoustic Gtr + Electric Drum Kit. The
+    // Jazz Guitar rests for ~16 bars mid-song (a Trombone-led passage, source
+    // bars 62-77) — cut the chart at source bar 61, right before that gap,
+    // instead of charting 16 bars of dead air; source bars 1-14 are also
+    // silent on this track (Trombone/other instruments carry the intro), so
+    // the chart starts where the guitar actually enters (source bar 15).
+    gerudo2: [
+      _, _, 61, _, 66, _, 68, _, 69, _, _, _, _, _, 61, _,  // bar 0 (source bar 15)
+      66, _, 68, _, 69, _, _, _, _, _, _, _, _, _, _, _,  // bar 1 (source bar 16)
+      _, _, 62, _, 66, _, 68, _, 69, _, _, _, _, _, 62, _,  // bar 2 (source bar 17)
+      66, _, 68, _, 69, _, _, _, _, _, _, _, _, _, _, _,  // bar 3 (source bar 18)
+      _, _, 59, _, 64, _, 66, _, 68, _, _, _, _, _, 59, _,  // bar 4 (source bar 19)
+      64, _, 66, _, 68, _, _, _, _, _, _, _, _, _, _, _,  // bar 5 (source bar 20)
+      _, _, 66, _, 68, _, 66, _, 65, _, _, _, _, _, _, _,  // bar 6 (source bar 21)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 7 (source bar 22)
+      _, _, 61, _, 66, _, 68, _, 69, _, _, _, _, _, 61, _,  // bar 8 (source bar 23)
+      66, _, 68, _, 69, _, _, _, _, _, _, _, _, _, _, _,  // bar 9 (source bar 24)
+      _, _, 62, _, 66, _, 68, _, 69, _, _, _, _, _, 62, _,  // bar 10 (source bar 25)
+      66, _, 68, _, 69, _, _, _, _, _, _, _, _, _, _, _,  // bar 11 (source bar 26)
+      _, _, 59, _, 64, _, 66, _, 68, _, _, _, _, _, 59, _,  // bar 12 (source bar 27)
+      64, _, 66, _, 68, _, _, _, _, _, _, _, _, _, _, _,  // bar 13 (source bar 28)
+      _, _, 69, _, 71, _, 69, _, 68, _, _, _, _, _, _, _,  // bar 14 (source bar 29)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 15 (source bar 30)
+      _, _, _, _, 61, _, _, _, _, _, 69, _, _, _, _, _,  // bar 16 (source bar 31)
+      68, _, _, _, _, _, 66, _, _, _, _, _, 61, _, _, _,  // bar 17 (source bar 32)
+      64, _, _, _, _, _, _, _, 64, _, _, _, 64, _, 62, _,  // bar 18 (source bar 33)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 19 (source bar 34)
+      _, _, _, _, 59, _, _, _, _, _, 68, _, _, _, _, _,  // bar 20 (source bar 35)
+      66, _, _, _, _, _, 64, _, _, _, _, _, 62, _, _, _,  // bar 21 (source bar 36)
+      61, _, _, _, _, _, _, _, 62, _, _, _, 62, _, 61, _,  // bar 22 (source bar 37)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 23 (source bar 38)
+      _, _, _, _, 61, _, _, _, _, _, 69, _, _, _, _, _,  // bar 24 (source bar 39)
+      68, _, _, _, _, _, 66, _, _, _, _, _, 61, _, _, _,  // bar 25 (source bar 40)
+      64, _, _, _, _, _, _, _, 64, _, _, _, 64, _, 62, _,  // bar 26 (source bar 41)
+      _, _, _, _, _, _, _, _, _, _, _, _, 57, _, _, _,  // bar 27 (source bar 42)
+      59, _, _, _, _, _, _, _, _, _, _, _, 66, _, _, _,  // bar 28 (source bar 43)
+      64, _, _, _, _, _, _, _, _, _, _, _, 62, _, _, _,  // bar 29 (source bar 44)
+      61, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 30 (source bar 45)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 31 (source bar 46)
+      _, _, _, _, 69, _, _, _, _, _, 68, _, _, _, _, _,  // bar 32 (source bar 47)
+      69, _, _, _, _, _, 68, _, _, _, _, _, 61, _, _, _,  // bar 33 (source bar 48)
+      64, _, _, _, _, _, _, _, _, _, 62, _, 61, _, 62, _,  // bar 34 (source bar 49)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 35 (source bar 50)
+      _, _, _, _, 68, _, _, _, _, _, 66, _, _, _, _, _,  // bar 36 (source bar 51)
+      68, _, _, _, _, _, 64, _, _, _, _, _, 62, _, _, _,  // bar 37 (source bar 52)
+      61, _, _, _, _, _, _, _, 62, _, _, _, 62, _, 61, _,  // bar 38 (source bar 53)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 39 (source bar 54)
+      _, _, _, _, 54, _, 56, _, 57, _, 61, _, _, _, _, _,  // bar 40 (source bar 55)
+      54, _, 56, _, 57, _, 61, _, _, _, _, _, _, _, _, _,  // bar 41 (source bar 56)
+      _, _, _, _, 54, _, 56, _, 57, _, 62, _, _, _, _, _,  // bar 42 (source bar 57)
+      54, _, 56, _, 57, _, 62, _, _, _, _, _, 62, _, _, _,  // bar 43 (source bar 58)
+      59, _, _, _, _, _, _, _, _, _, _, _, 68, _, _, _,  // bar 44 (source bar 59)
+      66, _, _, _, _, _, _, _, _, _, _, _, 59, _, _, _,  // bar 45 (source bar 60)
+      61, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 46 (source bar 61)
+    ],
+
   };
 
   // ===========================================================================
@@ -3241,6 +3610,134 @@
       bassGain: 0.62, bassSubGain: 1.25, bassCutoffStart: 750, bassCutoffEnd: 180,
       crashBars: [0],
     },
+    // "Ledger of the Caribbean", transcribed from MIDI (He's a Pirate —
+    // Pirates of the Caribbean, D minor, at the source's own 93bpm pulse).
+    // Same recipe as ch_gameofloans (another dark orchestral epic): 'brass'
+    // lead for the horn-like hook, 'strings' pad for the wash under it, and
+    // 'heartbeat' drums for the driving, ominous pulse that matches this
+    // piece's famous relentless low ostinato. 14 bars is the source's own
+    // 2-bar intro + 6-bar phrase x2 (see L.pirate/P.pirate) — a short unit,
+    // so maxLoops: 2 (set on the roster entry, not here) gets it to a normal
+    // ~72s runtime instead of a 36s single pass.
+    ch_pirate: {
+      title: 'Ledger of the Caribbean', influence: "Pirates of the Caribbean — He's a Pirate", bpm: 93, key: 'D minor',
+      prog: P.pirate, lead: L.pirate, drums: 'heartbeat', pad: 'strings', bars: 14,
+      arpEvery: 0, bassEvery: 1, gain: 0.65, voices: { lead: 'brass' },
+    },
+    // "We Don't Talk About Budget" (Encanto), transcribed from MIDI, per
+    // request: acoustic-guitar feel, sped up. Source is 104bpm; revved to
+    // 132bpm for the "sped up" ask. voices.lead: 'nylon' is a new plucked
+    // nylon-guitar voice (arcade-music.js had no acoustic-guitar timbre
+    // before this — the palette was saw/dist/brass/chip/organ/piano; the
+    // source itself even has a real, if sparse, Acoustic Gtr track). bars:
+    // 40 is one linear pass (not a repeating loop unit) covering verse + the
+    // "no no no" hook + the Koto bridge, so maxLoops: 1.
+    // Round 2 (feedback: "melody is too soft and muted by the background"):
+    // leadGain 1.9 pushes the pluck's own volume well above the backing;
+    // padGain/drumGain pulled back below their 1.0 default so the pad and
+    // drums stop competing with it — same "melody should be the star"
+    // recipe ch_frozen/ch_fiscalicia used, applied here via gain balance
+    // rather than sustain (leadSustainMul would do nothing for this voice —
+    // leadNylon's pluck decay is a fixed 0.22s cap regardless of the `dur`
+    // it's passed).
+    // Round 3 (feedback: revert the latino-samba rhythm, stay true to the
+    // MIDI): drums back to 'rock' — a real kit pattern, matching the
+    // source's own dense "Electric Drum Kit" track — instead of the
+    // invented samba surdo+shaker groove.
+    // Round 4 (feedback: "melody needs to be louder/stronger, still doesn't
+    // quite match the beat/notes"): dumped the actual Electric Drum Kit
+    // track's onsets and it's a steady maracas pulse on steps 0,4,8,12 plus
+    // a pickup at 14, every bar — that's exactly the engine's 'four' case,
+    // not 'rock' (which kicks 0,8,11 and only snares 4/12 — no hit at all on
+    // beat 3, wrong spot for the pickup). Switched to 'four' so the backing
+    // pulse actually lines up with the source instead of a generic
+    // approximation of "a real kit". leadGain pushed further, 1.9 -> 2.3
+    // (still under 'rickroll's precedent 2.0-2.2 range, but this backing has
+    // more going on than that song's did); padGain/drumGain pulled back
+    // further too.
+    ch_bruno: {
+      title: 'We Don\'t Talk About Budget', influence: 'Encanto · "We Don\'t Talk About Bruno," sped up', bpm: 132, key: 'F minor',
+      prog: P.bruno, lead: L.bruno, drums: 'four', pad: 'saw', bars: 40,
+      arpEvery: 0, bassEvery: 1, gain: 0.55, voices: { lead: 'nylon' },
+      bassGain: 0.42, bassSubGain: 0.8, bassCutoffStart: 700, bassCutoffEnd: 160,
+      leadGain: 2.3, padGain: 0.55, drumGain: 0.75,
+    },
+    // "Wall Street Fighter" (Street Fighter II · Guile's Theme), transcribed from
+    // guile2.mid. 'dist' lead + 'power' pad for the guitar-rock riff. 120bpm
+    // (the source's own tempo) is ordinary range for bassEvery: 1 (unlike
+    // ch_gerudo2's 236bpm case — see that entry's history — no static risk
+    // here).
+    // Round 2 (feedback: "something more intense — start off as a long
+    // electric guitar chord, try some rap beats/beatbox style"):
+    // breakBars: [0] silences the kit on bar 0 (kept alive by just a soft
+    // backbeat hat — see the `quiet` branch in playStep) so the only thing
+    // ringing that whole bar is the sustained 'power' pad chord (a real
+    // distorted power-chord voice, already the closest thing this engine has
+    // to "one long electric guitar chord") under the source's own quiet
+    // pickup note; crashBars: [0] adds a cymbal hit to punctuate it. drums
+    // 'rock' -> 'break' for the rest of the song — syncopated ghost snares,
+    // the closest thing in this kit to a boom-bap/beatbox rap groove (same
+    // style used for Financial Fantasy 7's "rap remix"). padGain pushed up
+    // (0.7 -> 1.0) so the intro chord and the on-beat power chords hit
+    // harder throughout, matching the more intense ask.
+    ch_guile2: {
+      title: 'Wall Street Fighter', influence: "Street Fighter II · Guile's Theme, guitar rock", bpm: 120, key: 'C minor',
+      prog: P.guile2, lead: L.guile2, drums: 'break', pad: 'power', bars: 34,
+      arpEvery: 0, bassEvery: 1, gain: 0.55, voices: { lead: 'dist' },
+      leadGain: 2.0, padGain: 1.0, drumGain: 1.05, bassGain: 0.48, bassSubGain: 0.9,
+      breakBars: [0], crashBars: [0],
+    },
+
+    // "Gerudough Valley" v2 (Zelda · Gerudo Valley), re-transcribed to follow
+    // the source's own Jazz Guitar track per request — 'nylon' is the
+    // closest thing this synth palette has to a clean guitar tone (no
+    // dedicated jazz-electric voice exists yet). leadGain pushed well above
+    // the backing so the guitar carries the tune over the bass/pad.
+    // Round 2 (feedback: "background rhythm sounds like electric static,
+    // give it a happy upbeat background bass"): the culprit was bassEvery: 1
+    // at this song's 236bpm — bass() retriggers its resonant (Q=7) lowpass-
+    // swept sawtooth on literally every 16th step, and at 236bpm that's
+    // faster than every other bassEvery:1 song in the roster (next-highest
+    // is 210bpm), so the individual plucks blur into a buzzy wash instead of
+    // a bassline. Switched to bassEvery: 4 — a clear on-the-beat walking
+    // pulse (with the engine's own every-other-beat octave jump giving it a
+    // bounce) — plus a touch more subGain/gain for a rounder, happier tone.
+    // Also swapped drums 'bossa' (lazy/lofi) for 'four' (four-on-the-floor
+    // dance kit, same happy/upbeat pattern used for ch_bruno's "sped up"
+    // remix and ch_rickroll's dancehall one) and brought drumGain back up
+    // toward its 1.0 default now that it isn't fighting a buzzing bass.
+    // Round 3 (feedback: "the melody around 0:13 is too soft, needs to be
+    // much louder and more prominent — background rhythm is perfect"):
+    // drums/bass/pad left untouched per that last point, leadGain alone
+    // pushed 2.2 -> 3.2 (above every other song's leadGain in this file,
+    // ch_bruno's 2.3 was the prior ceiling) so the nylon pluck cuts through
+    // this song's busy four-on-the-floor/walking-bass backing instead of
+    // getting buried during sparser passages.
+    // Round 4 (feedback: "still feels too quiet, what if we changed the
+    // lead to a piano?"): the real culprit was likely voice, not just gain —
+    // leadNylon's pluck decay is a HARD-CAPPED 0.22s regardless of dur/mul
+    // (see leadNylon's own comment), so it was already ringing at its max
+    // possible length at 3.2x gain and had no more sustain to give, only
+    // peak volume. Switched voices.lead to 'piano' (no such cap — its decay
+    // runs the full `dur` it's given) and added leadSustainMul: 3 to
+    // lengthen that ring well past nylon's ceiling, so notes stay present
+    // in the mix rather than flickering out. Kept leadGain: 3.2 (piano's
+    // own base peak of 0.11 is lower than nylon's 0.23, so the same
+    // multiplier is not "too loud" here — the extra sustain is doing the
+    // real work of "louder/more prominent" now, not just peak level).
+    // Round 5 (feedback: "can you make the piano even louder?"): leadGain
+    // 3.2 -> 4.4. There's no master limiter/compressor in this engine (see
+    // ch-game.js's audio init — just a plain 0.9 gain to destination), so
+    // pushing much further risks real digital clipping rather than getting
+    // "warmer" — this is a meaningful bump, not a token one, but flag it if
+    // it starts crackling instead of just sounding loud.
+    ch_gerudo2: {
+      title: 'Gerudough Valley', influence: 'Zelda · Gerudo Valley, jazz combo', bpm: 236, key: 'F# minor',
+      prog: P.gerudo2, lead: L.gerudo2, drums: 'four', pad: 'strings', bars: 47,
+      arpEvery: 0, bassEvery: 4, gain: 0.5, voices: { lead: 'piano' },
+      leadGain: 4.4, leadSustainMul: 3, padGain: 0.35, drumGain: 0.9,
+      bassGain: 0.5, bassSubGain: 0.9, bassCutoffStart: 650, bassCutoffEnd: 150,
+    },
   };
 
   // Which track plays in which situation, per theme.
@@ -3483,6 +3980,29 @@
       f.connect(g); g.connect(out); g.connect(delay);
       lfo.start(t); lfo.stop(t + dur + 0.1);
     }
+    function leadNylon(t, midi, dur, mul) {
+      // Plucked nylon-guitar: unlike every other lead here, the decay is a
+      // fixed short pluck (~0.22s) independent of the held `dur` — a real
+      // string keeps ringing (or gets re-plucked) rather than sustaining
+      // for exactly as long as the note is "held" the way a synth pad does.
+      // A brighter partial an octave + a fifth up decays even faster than
+      // the fundamental (real plucked strings lose their high harmonics
+      // first), which is what reads as "pluck" rather than "bowed/blown".
+      // Peak (0.23) and filter cutoff (3200Hz) tuned brighter than a typical
+      // pad voice specifically so a short pluck still cuts through a busy
+      // backing instead of reading as "soft and muted" underneath it — both
+      // songs using this voice needed their own TRACKS-level leadGain boost
+      // on top of this, so the base level got bumped too (0.19 -> 0.23).
+      mul = mul == null ? 1 : mul;
+      const pluck = Math.min(dur, 0.22);
+      const g = ctx.createGain(); env(g, t, 0.004, pluck, 0.23 * mul);
+      const g2 = ctx.createGain(); env(g2, t, 0.002, pluck * 0.4, 0.08 * mul);
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 3200;
+      const o1 = ctx.createOscillator(); o1.type = 'triangle'; o1.frequency.value = mtof(midi);
+      const o2 = ctx.createOscillator(); o2.type = 'triangle'; o2.frequency.value = mtof(midi + 19); // octave + fifth
+      o1.connect(f); o2.connect(g2); f.connect(g); g.connect(out); g.connect(delay); g2.connect(out);
+      o1.start(t); o2.start(t); o1.stop(t + pluck + 0.1); o2.stop(t + pluck * 0.4 + 0.1);
+    }
     function piano(t, midi, dur, peak) {
       const g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t);
@@ -3550,6 +4070,7 @@
     }
 
     const LEADS = { saw: leadSaw, dist: leadDist, brass: leadBrass, chip: leadChip, organ: leadOrgan,
+                    nylon: leadNylon,
                     piano: (t, m, d, mul) => piano(t, m, d, 0.11 * (mul == null ? 1 : mul)) };
 
     // ---- sequencer ----------------------------------------------------------
