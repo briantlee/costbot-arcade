@@ -418,6 +418,21 @@
       experimental: true,
       maxLoops: 1,
       ultra: { chordSize: 2 } },
+    // "Gerudough Valley" v2 — re-transcribed from a different, jazz-combo-
+    // arrangement MIDI (gerudo2.mid) per explicit request to follow the Jazz
+    // Guitar track and skip Acoustic Gtr + Electric Drum Kit (--lead 4 --bass
+    // 0, see TRACKS.ch_gerudo2/P.gerudo2/L.gerudo2 in arcade-music.js). The
+    // guitar rests for ~16 bars mid-song (a Trombone-led passage) and is
+    // silent for the first 14 bars too, so the chart runs source bars 15-61
+    // — right where the guitar enters through right before that rest — a
+    // continuous 47-bar phrase instead of charting dead air. 47 bars @236bpm
+    // is ~48s/pass; maxLoops: 2 for a ~1:36 runtime. The first Gerudo attempt
+    // (single acoustic-piano MIDI, key `gerudo`) was pulled from the roster
+    // for feeling "off" — this is a fresh transcription from a different
+    // source file, own internal key (`gerudo2`) so it doesn't collide.
+    { key: 'ch_gerudo2', name: 'Gerudough Valley', sub: 'Zelda, Gerudo Valley (jazz combo) · 1:36', tag: '', biome: 'dusk', art: 'cb_gerudo.jpg', artDim: 0.3,
+      experimental: true,
+      maxLoops: 2 },
   ];
 
   const DIFFS = {

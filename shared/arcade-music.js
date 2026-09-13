@@ -1227,6 +1227,62 @@
       { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 34)
     ],
 
+    // "Gerudough Valley" v2 (Zelda · Gerudo Valley), re-transcribed from a
+    // different, jazz-combo-arrangement MIDI (gerudo2.mid: Bass Guitar /
+    // Trombone / Electric Drum Kit / Acoustic Gtr / Jazz Guitar tracks) per
+    // request to follow the Jazz Guitar and skip Acoustic Gtr + Electric Drum
+    // Kit. Roots from the Bass Guitar track (--bass 0) — same classic i-VII-
+    // i-VI loop (F#m-E-F#m-D, tool's maj/min guess, ear-check per usual).
+    gerudo2: [
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 15)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 16)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 17)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 18)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 19)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 20)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 21)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 22)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 23)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 24)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 25)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 26)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 27)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 28)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 29)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 30)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 31)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 32)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 33)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 34)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 35)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 36)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 37)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 38)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 39)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 40)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 41)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 42)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 43)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 44)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 45)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 46)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 47)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 48)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 49)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 50)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 51)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 52)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 53)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 54)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 55)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 56)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 57)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 58)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 59)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 60)
+      { root: 37, tones: [0, 4, 7] },  // C#2 maj  (source bar 61)
+    ],
+
   };
 
   // ===========================================================================
@@ -2900,6 +2956,64 @@
       74, 75, _, 72, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 33 (source bar 34)
     ],
 
+    // "Gerudough Valley" v2 (Zelda · Gerudo Valley), re-transcribed from
+    // gerudo2.mid's Jazz Guitar track (--lead 4 --bass 0), per request to
+    // follow the jazz guitar and skip Acoustic Gtr + Electric Drum Kit. The
+    // Jazz Guitar rests for ~16 bars mid-song (a Trombone-led passage, source
+    // bars 62-77) — cut the chart at source bar 61, right before that gap,
+    // instead of charting 16 bars of dead air; source bars 1-14 are also
+    // silent on this track (Trombone/other instruments carry the intro), so
+    // the chart starts where the guitar actually enters (source bar 15).
+    gerudo2: [
+      _, _, 61, _, 66, _, 68, _, 69, _, _, _, _, _, 61, _,  // bar 0 (source bar 15)
+      66, _, 68, _, 69, _, _, _, _, _, _, _, _, _, _, _,  // bar 1 (source bar 16)
+      _, _, 62, _, 66, _, 68, _, 69, _, _, _, _, _, 62, _,  // bar 2 (source bar 17)
+      66, _, 68, _, 69, _, _, _, _, _, _, _, _, _, _, _,  // bar 3 (source bar 18)
+      _, _, 59, _, 64, _, 66, _, 68, _, _, _, _, _, 59, _,  // bar 4 (source bar 19)
+      64, _, 66, _, 68, _, _, _, _, _, _, _, _, _, _, _,  // bar 5 (source bar 20)
+      _, _, 66, _, 68, _, 66, _, 65, _, _, _, _, _, _, _,  // bar 6 (source bar 21)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 7 (source bar 22)
+      _, _, 61, _, 66, _, 68, _, 69, _, _, _, _, _, 61, _,  // bar 8 (source bar 23)
+      66, _, 68, _, 69, _, _, _, _, _, _, _, _, _, _, _,  // bar 9 (source bar 24)
+      _, _, 62, _, 66, _, 68, _, 69, _, _, _, _, _, 62, _,  // bar 10 (source bar 25)
+      66, _, 68, _, 69, _, _, _, _, _, _, _, _, _, _, _,  // bar 11 (source bar 26)
+      _, _, 59, _, 64, _, 66, _, 68, _, _, _, _, _, 59, _,  // bar 12 (source bar 27)
+      64, _, 66, _, 68, _, _, _, _, _, _, _, _, _, _, _,  // bar 13 (source bar 28)
+      _, _, 69, _, 71, _, 69, _, 68, _, _, _, _, _, _, _,  // bar 14 (source bar 29)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 15 (source bar 30)
+      _, _, _, _, 61, _, _, _, _, _, 69, _, _, _, _, _,  // bar 16 (source bar 31)
+      68, _, _, _, _, _, 66, _, _, _, _, _, 61, _, _, _,  // bar 17 (source bar 32)
+      64, _, _, _, _, _, _, _, 64, _, _, _, 64, _, 62, _,  // bar 18 (source bar 33)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 19 (source bar 34)
+      _, _, _, _, 59, _, _, _, _, _, 68, _, _, _, _, _,  // bar 20 (source bar 35)
+      66, _, _, _, _, _, 64, _, _, _, _, _, 62, _, _, _,  // bar 21 (source bar 36)
+      61, _, _, _, _, _, _, _, 62, _, _, _, 62, _, 61, _,  // bar 22 (source bar 37)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 23 (source bar 38)
+      _, _, _, _, 61, _, _, _, _, _, 69, _, _, _, _, _,  // bar 24 (source bar 39)
+      68, _, _, _, _, _, 66, _, _, _, _, _, 61, _, _, _,  // bar 25 (source bar 40)
+      64, _, _, _, _, _, _, _, 64, _, _, _, 64, _, 62, _,  // bar 26 (source bar 41)
+      _, _, _, _, _, _, _, _, _, _, _, _, 57, _, _, _,  // bar 27 (source bar 42)
+      59, _, _, _, _, _, _, _, _, _, _, _, 66, _, _, _,  // bar 28 (source bar 43)
+      64, _, _, _, _, _, _, _, _, _, _, _, 62, _, _, _,  // bar 29 (source bar 44)
+      61, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 30 (source bar 45)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 31 (source bar 46)
+      _, _, _, _, 69, _, _, _, _, _, 68, _, _, _, _, _,  // bar 32 (source bar 47)
+      69, _, _, _, _, _, 68, _, _, _, _, _, 61, _, _, _,  // bar 33 (source bar 48)
+      64, _, _, _, _, _, _, _, _, _, 62, _, 61, _, 62, _,  // bar 34 (source bar 49)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 35 (source bar 50)
+      _, _, _, _, 68, _, _, _, _, _, 66, _, _, _, _, _,  // bar 36 (source bar 51)
+      68, _, _, _, _, _, 64, _, _, _, _, _, 62, _, _, _,  // bar 37 (source bar 52)
+      61, _, _, _, _, _, _, _, 62, _, _, _, 62, _, 61, _,  // bar 38 (source bar 53)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 39 (source bar 54)
+      _, _, _, _, 54, _, 56, _, 57, _, 61, _, _, _, _, _,  // bar 40 (source bar 55)
+      54, _, 56, _, 57, _, 61, _, _, _, _, _, _, _, _, _,  // bar 41 (source bar 56)
+      _, _, _, _, 54, _, 56, _, 57, _, 62, _, _, _, _, _,  // bar 42 (source bar 57)
+      54, _, 56, _, 57, _, 62, _, _, _, _, _, 62, _, _, _,  // bar 43 (source bar 58)
+      59, _, _, _, _, _, _, _, _, _, _, _, 68, _, _, _,  // bar 44 (source bar 59)
+      66, _, _, _, _, _, _, _, _, _, _, _, 59, _, _, _,  // bar 45 (source bar 60)
+      61, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 46 (source bar 61)
+    ],
+
   };
 
   // ===========================================================================
@@ -3572,6 +3686,57 @@
       arpEvery: 0, bassEvery: 1, gain: 0.55, voices: { lead: 'dist' },
       leadGain: 2.0, padGain: 1.0, drumGain: 1.05, bassGain: 0.48, bassSubGain: 0.9,
       breakBars: [0], crashBars: [0],
+    },
+
+    // "Gerudough Valley" v2 (Zelda · Gerudo Valley), re-transcribed to follow
+    // the source's own Jazz Guitar track per request — 'nylon' is the
+    // closest thing this synth palette has to a clean guitar tone (no
+    // dedicated jazz-electric voice exists yet). leadGain pushed well above
+    // the backing so the guitar carries the tune over the bass/pad.
+    // Round 2 (feedback: "background rhythm sounds like electric static,
+    // give it a happy upbeat background bass"): the culprit was bassEvery: 1
+    // at this song's 236bpm — bass() retriggers its resonant (Q=7) lowpass-
+    // swept sawtooth on literally every 16th step, and at 236bpm that's
+    // faster than every other bassEvery:1 song in the roster (next-highest
+    // is 210bpm), so the individual plucks blur into a buzzy wash instead of
+    // a bassline. Switched to bassEvery: 4 — a clear on-the-beat walking
+    // pulse (with the engine's own every-other-beat octave jump giving it a
+    // bounce) — plus a touch more subGain/gain for a rounder, happier tone.
+    // Also swapped drums 'bossa' (lazy/lofi) for 'four' (four-on-the-floor
+    // dance kit, same happy/upbeat pattern used for ch_bruno's "sped up"
+    // remix and ch_rickroll's dancehall one) and brought drumGain back up
+    // toward its 1.0 default now that it isn't fighting a buzzing bass.
+    // Round 3 (feedback: "the melody around 0:13 is too soft, needs to be
+    // much louder and more prominent — background rhythm is perfect"):
+    // drums/bass/pad left untouched per that last point, leadGain alone
+    // pushed 2.2 -> 3.2 (above every other song's leadGain in this file,
+    // ch_bruno's 2.3 was the prior ceiling) so the nylon pluck cuts through
+    // this song's busy four-on-the-floor/walking-bass backing instead of
+    // getting buried during sparser passages.
+    // Round 4 (feedback: "still feels too quiet, what if we changed the
+    // lead to a piano?"): the real culprit was likely voice, not just gain —
+    // leadNylon's pluck decay is a HARD-CAPPED 0.22s regardless of dur/mul
+    // (see leadNylon's own comment), so it was already ringing at its max
+    // possible length at 3.2x gain and had no more sustain to give, only
+    // peak volume. Switched voices.lead to 'piano' (no such cap — its decay
+    // runs the full `dur` it's given) and added leadSustainMul: 3 to
+    // lengthen that ring well past nylon's ceiling, so notes stay present
+    // in the mix rather than flickering out. Kept leadGain: 3.2 (piano's
+    // own base peak of 0.11 is lower than nylon's 0.23, so the same
+    // multiplier is not "too loud" here — the extra sustain is doing the
+    // real work of "louder/more prominent" now, not just peak level).
+    // Round 5 (feedback: "can you make the piano even louder?"): leadGain
+    // 3.2 -> 4.4. There's no master limiter/compressor in this engine (see
+    // ch-game.js's audio init — just a plain 0.9 gain to destination), so
+    // pushing much further risks real digital clipping rather than getting
+    // "warmer" — this is a meaningful bump, not a token one, but flag it if
+    // it starts crackling instead of just sounding loud.
+    ch_gerudo2: {
+      title: 'Gerudough Valley', influence: 'Zelda · Gerudo Valley, jazz combo', bpm: 236, key: 'F# minor',
+      prog: P.gerudo2, lead: L.gerudo2, drums: 'four', pad: 'strings', bars: 47,
+      arpEvery: 0, bassEvery: 4, gain: 0.5, voices: { lead: 'piano' },
+      leadGain: 4.4, leadSustainMul: 3, padGain: 0.35, drumGain: 0.9,
+      bassGain: 0.5, bassSubGain: 0.9, bassCutoffStart: 650, bassCutoffEnd: 150,
     },
   };
 
