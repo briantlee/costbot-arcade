@@ -387,9 +387,8 @@
     // a different MIDI (guile2.mid, --lead 0 "Electric Guitar" --bass 2
     // "Slap Bass", see TRACKS.ch_guile2/P.guile2/L.guile2 in arcade-music.js).
     // Source bars 36-69 are a near-exact repeat of bars 2-34, so the chart
-    // covers just the 35-bar unit (1-note pickup + 33-bar theme + 1-bar
-    // rest) once; maxLoops: 2 (~2:20 @120bpm) for the full "loops forever"
-    // feel this theme is known for. The first Guile attempt (single guitar-
+    // covers just the unique 34-bar unit (1-note pickup + 33-bar theme)
+    // once; maxLoops: 1. The first Guile attempt (single guitar-
     // MIDI, key `guile`) was pulled from the roster for a rebuild — this is
     // a fresh transcription from a different source file, own internal key
     // (`guile2`) so it doesn't collide.
@@ -408,9 +407,16 @@
     // asks the player to hit instead of just tightening timing further.
     // chordSize: 3 was tried first and reverted per feedback ("annoying") —
     // 2-note chords only.
-    { key: 'ch_guile2', name: 'Wall Street Fighter', sub: "Street Fighter II · Guile's Theme, guitar rock · 2:20", tag: '', biome: 'arena', art: 'cb_guile.jpg', artDim: 0.3,
+    // Round 3 (feedback: "end around 1:05, make the background more
+    // intense — long electric guitar chord intro, rap/beatbox beats"): see
+    // TRACKS.ch_guile2 in arcade-music.js for the breakBars/crashBars/drums
+    // mix change. Dropped the trailing 1-bar rest and maxLoops: 2 -> 1 for a
+    // single ~1:08 pass (was ~2:20) — the closest clean cadence to the
+    // requested 1:05, ending right on the theme's own resolving bar 34
+    // instead of a mid-phrase cut.
+    { key: 'ch_guile2', name: 'Wall Street Fighter', sub: "Street Fighter II · Guile's Theme, guitar rock · 1:08", tag: '', biome: 'arena', art: 'cb_guile.jpg', artDim: 0.3,
       experimental: true,
-      maxLoops: 2,
+      maxLoops: 1,
       ultra: { chordSize: 2 } },
   ];
 

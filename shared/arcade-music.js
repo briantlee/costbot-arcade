@@ -1183,10 +1183,13 @@
 
     // "Wall Street Fighter" (Street Fighter II · Guile's Theme), transcribed from
     // guile2.mid — --lead 0 (Electric Guitar) --bass 2 (Slap Bass). Source
-    // bars 1-35: a 1-note pickup (bar 1), the theme's own 33-bar phrase
-    // (bars 2-34), then a 1-bar rest (bar 35) — bars 36-69 of the source are
-    // a near-exact repeat of bars 2-34, so this 35-bar unit is charted once
-    // and maxLoops handles the repeat instead of duplicating the data.
+    // bars 1-34: a 1-note pickup (bar 1), the theme's own 33-bar phrase
+    // (bars 2-34) — bars 36-69 of the source are a near-exact repeat of
+    // bars 2-34, so only the unique 34-bar unit is charted. Per request to
+    // end around 1:05, dropped the trailing 1-bar rest (source bar 35, all
+    // silence) that used to precede the loop-back and set maxLoops: 1 — a
+    // single ~1:08 pass ending right on bar 34's own resolving cadence
+    // instead of the earlier "loop forever" 2:20 treatment.
     guile2: [
       { root: 62, tones: [0, 4, 7] },  // D4 maj  (source bar 1)
       { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 2)
@@ -1222,7 +1225,6 @@
       { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 32)
       { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 33)
       { root: 36, tones: [0, 3, 7] },  // C2 min  (source bar 34)
-      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 35)
     ],
 
   };
@@ -2856,9 +2858,11 @@
 
     // "Wall Street Fighter" (Street Fighter II · Guile's Theme), transcribed from
     // guile2.mid's Electric Guitar track (--lead 0), the theme's own lead
-    // riff. Source bar 0 is a 1-note pickup into the 33-bar main theme
-    // (bars 1-33), then bar 34 is a 1-bar rest before the source repeats —
-    // charted once, maxLoops on the roster entry handles the repeat.
+    // riff. Bar 0 is a 1-note pickup into the 33-bar main theme (bars 1-33),
+    // ending on bar 33's own resolving cadence. Per request to end around
+    // 1:05, dropped the trailing 1-bar rest that used to sit after this
+    // (source bar 35, all silence, only needed for a seamless loop-back) and
+    // switched to a single maxLoops: 1 pass (~1:08) instead of looping.
     guile2: [
       _, _, _, _, _, _, _, _, _, _, 74, _, _, _, _, _,  // bar 0 (source bar 1)
       75, _, 75, 74, _, 74, 75, _, _, _, _, _, _, _, 74, _,  // bar 1 (source bar 2)
@@ -2894,7 +2898,6 @@
       72, _, _, _, _, _, _, _, _, _, 74, _, 75, 77, _, 79,  // bar 31 (source bar 32)
       _, _, _, 72, _, _, 82, _, _, _, 80, _, 79, _, 77, _,  // bar 32 (source bar 33)
       74, 75, _, 72, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 33 (source bar 34)
-      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 34 (source bar 35)
     ],
 
   };
@@ -3546,15 +3549,29 @@
       leadGain: 2.3, padGain: 0.55, drumGain: 0.75,
     },
     // "Wall Street Fighter" (Street Fighter II · Guile's Theme), transcribed from
-    // guile2.mid. 'dist' lead + 'power' pad for the guitar-rock riff, 'rock'
-    // drums for a real kit under it. 120bpm (the source's own tempo) is
-    // ordinary range for bassEvery: 1 (unlike ch_gerudo2's 236bpm case —
-    // see that entry's history — no static risk here).
+    // guile2.mid. 'dist' lead + 'power' pad for the guitar-rock riff. 120bpm
+    // (the source's own tempo) is ordinary range for bassEvery: 1 (unlike
+    // ch_gerudo2's 236bpm case — see that entry's history — no static risk
+    // here).
+    // Round 2 (feedback: "something more intense — start off as a long
+    // electric guitar chord, try some rap beats/beatbox style"):
+    // breakBars: [0] silences the kit on bar 0 (kept alive by just a soft
+    // backbeat hat — see the `quiet` branch in playStep) so the only thing
+    // ringing that whole bar is the sustained 'power' pad chord (a real
+    // distorted power-chord voice, already the closest thing this engine has
+    // to "one long electric guitar chord") under the source's own quiet
+    // pickup note; crashBars: [0] adds a cymbal hit to punctuate it. drums
+    // 'rock' -> 'break' for the rest of the song — syncopated ghost snares,
+    // the closest thing in this kit to a boom-bap/beatbox rap groove (same
+    // style used for Financial Fantasy 7's "rap remix"). padGain pushed up
+    // (0.7 -> 1.0) so the intro chord and the on-beat power chords hit
+    // harder throughout, matching the more intense ask.
     ch_guile2: {
       title: 'Wall Street Fighter', influence: "Street Fighter II · Guile's Theme, guitar rock", bpm: 120, key: 'C minor',
-      prog: P.guile2, lead: L.guile2, drums: 'rock', pad: 'power', bars: 35,
+      prog: P.guile2, lead: L.guile2, drums: 'break', pad: 'power', bars: 34,
       arpEvery: 0, bassEvery: 1, gain: 0.55, voices: { lead: 'dist' },
-      leadGain: 2.0, padGain: 0.7, drumGain: 1.0, bassGain: 0.48, bassSubGain: 0.9,
+      leadGain: 2.0, padGain: 1.0, drumGain: 1.05, bassGain: 0.48, bassSubGain: 0.9,
+      breakBars: [0], crashBars: [0],
     },
   };
 
