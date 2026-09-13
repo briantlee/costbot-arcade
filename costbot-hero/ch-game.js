@@ -373,38 +373,6 @@
     { key: 'ch_rickroll', name: 'Never Gonna Bill You Up', sub: 'Rick Astley · Never Gonna Give You Up · 1:13', tag: '', biome: 'arena', art: 'cb_rickroll.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 1 },
-    // Street Fighter II's Guile's Theme (from MIDI via mid2chart.js). Lead is
-    // source track 6 ("Electric Guitar"), the harmonized-6ths riff — full
-    // coverage from source bar 7 through 29 (23 bars), which is exactly where
-    // the guitar riff runs before the first full-bar rest, so no --min-pitch
-    // filtering was needed. Runs ~45s per pass; maxLoops: 2 (~1:30 total) —
-    // the real theme is famous for looping seamlessly, so repeating this
-    // excerpt once fits rather than padding with a linear arrangement.
-    // Round 2 (feedback: "doesn't sound like the MIDI, feels like a
-    // different song completely" — see TRACKS.ch_guile/P.guile/L.guile for
-    // the corrected track choice). bars 23->33, maxLoops 2->1 since this
-    // excerpt is now the whole non-repeating pass (~65s) rather than a short
-    // loop unit.
-    // Round 3 (feedback: "missing a lot of the midi"): the source track is
-    // block chords (avgPoly ~2.87, almost always 3 notes at once) and taking
-    // only the top note per step — the only thing a single-lane chart can
-    // do with a chord — was discarding the other 2 voices every time,
-    // reading thinner than the actual source texture. chordSize (same
-    // mechanic ch_imperial uses) expands bar-start notes into real 2/3-note
-    // chords drawn from this song's own P.guile progression, restoring that
-    // harmonic density on Medium/Hard instead of leaving it a bare melody.
-    // Round 4 (feedback: "is that the full song? feels partial"): checked
-    // bar-by-bar — source bars 34-68 aren't missing new material, they're a
-    // near-exact repeat of bars 1-33 (e.g. bars 35-40 are identical to bars
-    // 1-6). Nothing distinct was left out. The real issue was maxLoops: 1 —
-    // a single 65s pass that just ends reads as cut short for a piece
-    // that's famous specifically for looping seamlessly forever. Restored
-    // maxLoops: 2 (~2:10 total) so it actually loops like the source does.
-    { key: 'ch_guile', name: 'Budget Boom', sub: "Street Fighter · Guile's Theme, guitar rock · 2:10", tag: '', biome: 'arena', art: 'cb_guile.jpg', artDim: 0.3,
-      experimental: true,
-      maxLoops: 2,
-      medium: { chordSize: 2 },
-      hard:   { chordSize: 3 } },
     // Ledger of the Caribbean — He's a Pirate (Pirates of the Caribbean).
     // Source bars 1-14 (2-bar syncopated pedal intro + the 6-bar main phrase
     // twice, once an octave up), a short unit at ~36s/pass, so maxLoops: 2
@@ -415,64 +383,6 @@
     { key: 'ch_pirate', name: 'Ledger of the Caribbean', sub: "Pirates of the Caribbean · He's a Pirate · 1:12", tag: '', biome: 'arena', art: 'cb_pirate.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 2 },
-    // "Overdue Valley" (Zelda · Gerudo Valley), transcribed from MIDI (see
-    // TRACKS.ch_gerudo in arcade-music.js — reverted from an earlier techno
-    // treatment to stay true to the source: nylon-guitar lead, real drum
-    // kit, strings pad standing in for the arrangement's own horn section).
-    // 38 bars at the source's own 230bpm is one pass in ~39.7s; maxLoops: 2
-    // brings a run to ~1:19. Onset density (40.1%) collapses Easy/Medium
-    // together under the shared minGap 4/3 (both 54.9% kept) and Medium/
-    // Hard/Ultra all converge to 100% kept regardless (the real note gaps
-    // are never wider than 2 steps) — shifted the ladder down one notch so
-    // Easy is the only thinned tier (54.9% kept), same shape as
-    // Fiscalicia/Game of Loans when a tune doesn't have enough onset
-    // spacing for a 3-way split above Easy.
-    // Round 4 (feedback: "seems kind of hard, especially at the beginning"):
-    // this is the fastest song in the whole roster (230bpm, next is 210) and
-    // minGap thinning is already maxed out — minGap 3 and 4 land on the exact
-    // same 54.9% (the tune's rests are only ever 2 or 4 steps wide, nothing
-    // wider), so there's no more note-COUNT relief available for Easy/Medium.
-    // What IS available: fall (visual lead time), which doesn't touch onset
-    // count/pacing at all, just how much warning you get. At the shared
-    // defaults, Easy's minimum reachable gap here (196ms) is already tighter
-    // than ch_bruno's Normal (227ms) or a typical 150bpm song's Normal
-    // (200ms) — this tune is simply denser-per-second than anything else in
-    // the roster. Slowed Easy/Medium fall well past the shared 2.15/1.90 to
-    // give much more warning before a hit; left Hard/Ultra at the shared
-    // fall so the song still has a genuinely fast top tier.
-    // Round 5 (feedback: "the intro is super hard, even on normal" — cut the
-    // first ~10s): dropped source bars 1-6 (rising flourish + a 4-bar rest)
-    // entirely — bars: 32 now, starting right on the riff. 32 bars @230bpm is
-    // ~33.4s/pass; maxLoops: 2 stays, now landing at ~1:07 instead of ~1:19.
-    // Re-simulated minGap thinning on the shorter lead array: still the same
-    // shape (minGap 3/4 both 54.7%, 2/1 both 100%), so the existing
-    // easy/medium/hard overrides didn't need to change.
-    // Round 6 (feedback: "too much DFDFDFDFDFDFDF"): simulated ch-game.js's
-    // real lane-assignment logic (pitchToLane's rolling window + the
-    // "nudge off a repeated lane" rule) against this song's actual lead
-    // data. Root cause: the riff holds the same pitch for long runs (e.g.
-    // six 66s in a row), and every one of those identical-pitch repeats
-    // computes the same raw lane, so the repeat-nudge rule alternates it
-    // with its neighbor every single time — a long, faithful musical
-    // repeat turns into a mechanical D-F-D-F-D-F ping-pong. At minGap 2
-    // (medium, 100% kept — no thinning) that pattern runs almost
-    // uninterrupted: A=12.8% S=8.1% D=41.5% F=37.6%. Thinning to minGap 3
-    // (Easy's setting) breaks up enough of those identical-pitch runs that
-    // the window lands on different lane pairs at different points:
-    // A=20.3% S=24.2% D=28.1% F=27.3% — a real, even spread. So medium now
-    // matches easy's minGap (3); the two tiers are differentiated by fall
-    // speed only (3.0 vs 2.5) rather than note count, same "converge when a
-    // tune can't support a density split" move as Fiscalicia/Game of Loans,
-    // just extended one tier further here since the density split was
-    // actively making the chart worse to play, not just equally faithful.
-    // Hard/Ultra (minGap 1, full density) intentionally keep the true
-    // repeated-note pattern uncompressed — that's the advanced tier.
-    { key: 'ch_gerudo', name: 'Overdue Valley', sub: 'Zelda, Gerudo Valley · 1:07', tag: '', biome: 'dusk', art: 'cb_gerudo.jpg', artDim: 0.3,
-      experimental: true,
-      maxLoops: 2,
-      easy:   { minGap: 3, fall: 3.0 },
-      medium: { minGap: 3, fall: 2.5 },
-      hard:   { minGap: 1 } },
   ];
 
   const DIFFS = {

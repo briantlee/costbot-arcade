@@ -1108,58 +1108,6 @@
       { root: 27, tones: [0, 4, 7] },  // D#1 maj  (source bar 52)
     ],
 
-    // "Budget Boom" — Street Fighter II's Guile's Theme.
-    // Round 2 (feedback: "doesn't sound like the MIDI, feels like a
-    // different song completely"): the original chart used track 6
-    // ("Electric Guitar") as lead, which only starts at source bar 7 and
-    // turned out to be a secondary rhythm-guitar figure, not the actual
-    // theme. Tracks 0/1/2 ("Grand Piano"/"Pizzicato"/"Acoustic Gtr" — all
-    // three IDENTICAL note-for-note) span the whole 68-bar file and contain
-    // the real, instantly-recognizable repeating theme (avgPoly 2.87 —
-    // block chords, but the top voice via highest-note-per-step is a clean,
-    // clearly-phrased melody, confirmed by eye: bars 1-2 repeat bars 4-5
-    // exactly, and the whole 33-bar excerpt below repeats verbatim starting
-    // at the source's own bar 34 — genuinely the same short theme looping,
-    // which matches this piece's actual reputation). Re-transcribed with
-    // --lead 0 --bass 3, source bars 1-33 (the one full non-repeating pass
-    // before the source's own exact repeat begins) — now starts right from
-    // the real intro instead of skipping into a mid-song rhythm figure.
-    guile: [
-      { root: 25, tones: [0, 3, 7] },  // C#1 min  (source bar 1)
-      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 2)
-      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 3)
-      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 4)
-      { root: 32, tones: [0, 4, 7] },  // G#1 maj  (source bar 5)
-      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 6)
-      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 7)
-      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 8)
-      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 9)
-      { root: 32, tones: [0, 3, 7] },  // G#1 min  (source bar 10)
-      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 11)
-      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 12)
-      { root: 32, tones: [0, 3, 7] },  // G#1 min  (source bar 13)
-      { root: 32, tones: [0, 3, 7] },  // G#1 min  (source bar 14)
-      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 15)
-      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 16)
-      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 17)
-      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 18)
-      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 19)
-      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 20)
-      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 21)
-      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 22)
-      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 23)
-      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 24)
-      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 25)
-      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 26)
-      { root: 32, tones: [0, 3, 7] },  // G#1 min  (source bar 27)
-      { root: 32, tones: [0, 3, 7] },  // G#1 min  (source bar 28)
-      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 29)
-      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 30)
-      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 31)
-      { root: 32, tones: [0, 3, 7] },  // G#1 min  (source bar 32)
-      { root: 37, tones: [0, 3, 7] },  // C#2 min  (source bar 33)
-    ],
-
     // "Ledger of the Caribbean", transcribed from MIDI (He's a Pirate — Pirates
     // of the Caribbean, D minor). Bars 0-1 (source bars 1-2) are the famous
     // syncopated pedal-D hit with no bass motion under it (mid2chart's root
@@ -1233,46 +1181,6 @@
       { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 40)
     ],
 
-    // "Overdue Valley" (Zelda · Gerudo Valley), transcribed from MIDI. Roots
-    // from the Bass Guitar track (--bass 2).
-    // Round 5 (feedback: "the intro is super hard, even on normal" — cut the
-    // first ~10s): source bars 1-6 (a rising pickup flourish then a 4-bar
-    // rest before the riff drops) are gone; the chart now starts right on
-    // the riff at the old source bar 7, renumbered as the new bar 1.
-    gerudo: [
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 7)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 8)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 9)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 10)
-      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 11)
-      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 12)
-      { root: 49, tones: [0, 4, 7] },  // C#3 maj  (source bar 13)
-      { root: 49, tones: [0, 4, 7] },  // C#3 maj  (source bar 14)
-      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 15)
-      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 16)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 17)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 18)
-      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 19)
-      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 20)
-      { root: 49, tones: [0, 4, 7] },  // C#3 maj  (source bar 21)
-      { root: 49, tones: [0, 4, 7] },  // C#3 maj  (source bar 22)
-      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 23)
-      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 24)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 25)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 26)
-      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 27)
-      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 28)
-      { root: 49, tones: [0, 4, 7] },  // C#3 maj  (source bar 29)
-      { root: 49, tones: [0, 4, 7] },  // C#3 maj  (source bar 30)
-      { root: 42, tones: [0, 3, 7] },  // F#2 min  (source bar 31)
-      { root: 42, tones: [0, 4, 7] },  // F#2 maj  (source bar 32)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 33)
-      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 34)
-      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 35)
-      { root: 40, tones: [0, 4, 7] },  // E2 maj  (source bar 36)
-      { root: 49, tones: [0, 4, 7] },  // C#3 maj  (source bar 37)
-      { root: 49, tones: [0, 4, 7] },  // C#3 maj  (source bar 38)
-    ],
   };
 
   // ===========================================================================
@@ -2812,48 +2720,6 @@
       60, _, _, 58, 56, _, _, _, 56, _, 63, _, _, _, 61, _,  // bar 43 (source bar 52)
     ],
 
-    // "Budget Boom" — Round 2 (feedback: "doesn't sound like the MIDI"):
-    // re-transcribed from track 0 ("Grand Piano"/"Pizzicato"/"Acoustic Gtr",
-    // all identical), the real theme, instead of track 6's secondary rhythm
-    // figure. avgPoly 2.87 (block chords), read via highest-note-per-step —
-    // the top voice traces a clean, clearly-phrased, repeating melody (see
-    // P.guile's comment). --lead 0 --bass 3, source bars 1-33.
-    guile: [
-      64, _, 64, 63, _, 63, 64, _, _, _, _, _, _, 64, 63, _,  // bar 0 (source bar 1)
-      64, _, 64, 63, _, 63, 64, _, _, _, _, _, _, 64, 63, _,  // bar 1 (source bar 2)
-      64, 63, _, 64, _, 63, _, 66, _, 66, 64, _, 63, _, 59, _,  // bar 2 (source bar 3)
-      64, _, 64, 63, _, 63, 64, _, _, _, _, _, _, 64, 63, _,  // bar 3 (source bar 4)
-      64, _, 64, 63, _, 63, 64, _, _, _, _, _, _, 64, 63, _,  // bar 4 (source bar 5)
-      64, 63, _, 64, _, 63, _, 66, _, 66, 64, _, 63, _, 59, _,  // bar 5 (source bar 6)
-      64, 63, _, 64, _, _, _, _, _, _, 63, _, _, 64, _, _,  // bar 6 (source bar 7)
-      64, 63, _, 64, _, _, _, _, _, _, 63, _, _, 64, _, _,  // bar 7 (source bar 8)
-      66, 64, _, 66, _, _, _, _, _, _, 64, _, _, 66, _, _,  // bar 8 (source bar 9)
-      66, _, _, _, 68, _, _, _, _, _, 66, _, _, 68, _, _,  // bar 9 (source bar 10)
-      64, 63, _, 64, _, _, _, _, _, _, 63, _, _, 64, _, _,  // bar 10 (source bar 11)
-      64, 63, _, 64, _, _, _, _, _, _, 63, _, _, 64, _, _,  // bar 11 (source bar 12)
-      66, 64, _, 66, _, _, _, _, _, _, 64, _, _, 66, _, _,  // bar 12 (source bar 13)
-      _, _, _, _, 68, _, _, _, 66, _, _, _, 68, _, _, _,  // bar 13 (source bar 14)
-      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 14 (source bar 15)
-      66, _, _, _, _, _, _, _, 63, _, _, _, _, _, _, _,  // bar 15 (source bar 16)
-      64, 63, _, 64, _, _, _, _, _, _, 64, _, _, 63, _, _,  // bar 16 (source bar 17)
-      64, _, 64, 63, _, 63, 64, _, _, _, _, _, _, 64, 63, _,  // bar 17 (source bar 18)
-      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 18 (source bar 19)
-      66, _, _, _, _, _, _, _, 63, _, _, _, _, _, _, _,  // bar 19 (source bar 20)
-      64, 63, _, 64, _, _, _, _, _, _, 64, _, _, 63, _, _,  // bar 20 (source bar 21)
-      64, _, 64, 63, _, 63, 64, _, _, _, _, _, 64, _, 63, _,  // bar 21 (source bar 22)
-      64, 63, _, 64, _, _, _, _, _, _, 63, _, _, 64, _, 64,  // bar 22 (source bar 23)
-      _, _, _, 66, _, _, 64, _, 66, _, 66, _, 66, 64, _, _,  // bar 23 (source bar 24)
-      66, 64, _, _, 66, _, _, _, _, _, 64, _, _, 66, _, 68,  // bar 24 (source bar 25)
-      _, _, _, _, _, _, 66, _, 68, _, 68, _, 68, 66, _, _,  // bar 25 (source bar 26)
-      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 26 (source bar 27)
-      66, _, _, _, _, _, _, _, 63, _, _, _, _, _, _, _,  // bar 27 (source bar 28)
-      63, _, 63, 64, _, _, _, _, _, _, 64, _, _, 63, _, _,  // bar 28 (source bar 29)
-      64, _, 64, 63, _, 63, 64, _, _, _, _, _, 64, _, 63, _,  // bar 29 (source bar 30)
-      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 30 (source bar 31)
-      66, _, _, _, _, _, _, _, 63, _, _, _, _, _, _, _,  // bar 31 (source bar 32)
-      64, 63, _, 64, _, _, _, _, _, _, _, _, _, _, 63, _,  // bar 32 (source bar 33)
-    ],
-
     // "Ledger of the Caribbean" — He's a Pirate. Single format-0 piano-
     // reduction track (avg ~2.5-3.5 simultaneous notes -- bass + inner voices
     // + melody all on one track), so --lead 0 --bass 0 with --min-pitch 60:
@@ -2944,50 +2810,6 @@
       80, _, 82, _, _, _, 79, _, _, _, _, _, _, _, _, _,  // bar 39 (source bar 40)
     ],
 
-    // "Overdue Valley" (Zelda · Gerudo Valley), transcribed from MIDI
-    // (--lead 0 --bass 2, the Acoustic Gtr ostinato / Bass Guitar roots —
-    // the guitar plays almost every one of the 230-bar source's bars, so no
-    // merge needed). Source bars 1-2 are a rising pickup flourish, then
-    // bars 3-6 are a genuine 4-bar rest before the driving descending riff
-    // drops at bar 7 — kept as-is rather than trimmed, since a flourish
-    // into a held silence into the beat is exactly a techno build-and-drop.
-    // Cut at source bar 38 (end of the riff's 4th full pass), landing on
-    // the same resolving 3-note tail ("59,65,65,65…") the phrase always
-    // cadences on, rather than the full 230-bar/4-minute source.
-    gerudo: [
-      61, _, 66, _, 66, _, 66, _, _, _, 66, _, 66, _, 66, _,  // bar 0 (source bar 7)
-      61, _, 66, _, 66, _, 66, _, _, _, 66, _, 66, _, 66, _,  // bar 1 (source bar 8)
-      62, _, 66, _, 66, _, 66, _, _, _, 66, _, 66, _, 66, _,  // bar 2 (source bar 9)
-      62, _, 66, _, 66, _, 66, _, _, _, 66, _, 66, _, 66, _,  // bar 3 (source bar 10)
-      62, _, 64, _, 64, _, 64, _, _, _, 64, _, 64, _, 64, _,  // bar 4 (source bar 11)
-      62, _, 64, _, 64, _, 64, _, _, _, 64, _, 64, _, 64, _,  // bar 5 (source bar 12)
-      59, _, 65, _, 65, _, 65, _, _, _, 65, _, 65, _, 65, _,  // bar 6 (source bar 13)
-      59, _, 65, _, 65, _, 65, _, _, _, 65, _, 65, _, 65, _,  // bar 7 (source bar 14)
-      61, _, 66, _, 66, _, 68, _, 69, _, 66, _, 66, _, 66, _,  // bar 8 (source bar 15)
-      66, _, 68, _, 69, _, 66, _, _, _, 66, _, 66, _, 66, _,  // bar 9 (source bar 16)
-      62, _, 66, _, 66, _, 68, _, 69, _, 66, _, 66, _, 66, _,  // bar 10 (source bar 17)
-      66, _, 68, _, 69, _, 66, _, _, _, 66, _, 66, _, 66, _,  // bar 11 (source bar 18)
-      62, _, 64, _, 64, _, 66, _, 68, _, 64, _, 64, _, 64, _,  // bar 12 (source bar 19)
-      64, _, 66, _, 68, _, 64, _, _, _, 64, _, 64, _, 64, _,  // bar 13 (source bar 20)
-      59, _, 66, _, 68, _, 66, _, 65, _, 65, _, 65, _, 65, _,  // bar 14 (source bar 21)
-      59, _, 65, _, 65, _, 65, _, _, _, 65, _, 65, _, 65, _,  // bar 15 (source bar 22)
-      61, _, 66, _, 66, _, 68, _, 69, _, 66, _, 66, _, 66, _,  // bar 16 (source bar 23)
-      66, _, 68, _, 69, _, 66, _, _, _, 66, _, 66, _, 66, _,  // bar 17 (source bar 24)
-      62, _, 66, _, 66, _, 68, _, 69, _, 66, _, 66, _, 66, _,  // bar 18 (source bar 25)
-      66, _, 68, _, 69, _, 66, _, _, _, 66, _, 66, _, 66, _,  // bar 19 (source bar 26)
-      62, _, 64, _, 64, _, 66, _, 68, _, 64, _, 64, _, 64, _,  // bar 20 (source bar 27)
-      64, _, 66, _, 68, _, 64, _, _, _, 64, _, 64, _, 64, _,  // bar 21 (source bar 28)
-      59, _, 69, _, 71, _, 69, _, 68, _, 65, _, 65, _, 65, _,  // bar 22 (source bar 29)
-      59, _, 65, _, 65, _, 65, _, _, _, 65, _, 65, _, 65, _,  // bar 23 (source bar 30)
-      61, _, 66, _, 66, _, 66, _, _, _, 69, _, 66, _, 66, _,  // bar 24 (source bar 31)
-      68, _, 66, _, 66, _, 66, _, _, _, 66, _, 66, _, 66, _,  // bar 25 (source bar 32)
-      64, _, 66, _, 66, _, 66, _, 64, _, 66, _, 66, _, 66, _,  // bar 26 (source bar 33)
-      62, _, 66, _, 66, _, 66, _, _, _, 66, _, 66, _, 66, _,  // bar 27 (source bar 34)
-      62, _, 64, _, 64, _, 64, _, _, _, 68, _, 64, _, 64, _,  // bar 28 (source bar 35)
-      66, _, 64, _, 64, _, 64, _, _, _, 64, _, 64, _, 64, _,  // bar 29 (source bar 36)
-      61, _, 65, _, 65, _, 65, _, 62, _, 65, _, 65, _, 65, _,  // bar 30 (source bar 37)
-      59, _, 65, _, 65, _, 65, _, _, _, 65, _, 65, _, 65, _,  // bar 31 (source bar 38)
-    ],
   };
 
   // ===========================================================================
@@ -3584,28 +3406,6 @@
       bassGain: 0.62, bassSubGain: 1.25, bassCutoffStart: 750, bassCutoffEnd: 180,
       crashBars: [0],
     },
-    // "Budget Boom" — Street Fighter II's Guile's Theme, guitar riff (dist
-    // lead, matching ch_priceali/ch_howfarowe's rock-guitar template). Drums
-    // deliberately set to 'chamber' (kick on 0/8, snare on 4/12), NOT 'rock'
-    // (which adds an extra kick on 11) or 'march' (which adds a flam ghost-
-    // snare on 3/11): the source's actual drum track (idx 5, "Electric Drum
-    // Kit") plays a plain kick-snare-kick-snare backbeat with no extra hits
-    // in its most common bar pattern — 'chamber' is the one canned style
-    // that matches note-for-note, even though every other 'chamber' user in
-    // this file pairs it with a 'strings' pad for a classical feel; this one
-    // keeps 'power' + 'dist' for the rock arrangement since that's what the
-    // actual drum hits call for, not the genre the style name suggests.
-    // Round 2: bars 23 -> 33 (the corrected melody track's full one-pass
-    // length, ~65s) and maxLoops dropped to 1 on the roster entry — this
-    // excerpt already covers the whole non-repeating arc of the piece
-    // (the source's own exact repeat starts right after bar 33), so looping
-    // it again would just replay the identical 65s twice.
-    ch_guile: {
-      title: 'Budget Boom', influence: "Street Fighter II · Guile's Theme, guitar rock", bpm: 122, key: '',
-      prog: P.guile, lead: L.guile, drums: 'chamber', pad: 'power', bars: 33,
-      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
-      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
-    },
     // "Ledger of the Caribbean", transcribed from MIDI (He's a Pirate —
     // Pirates of the Caribbean, D minor, at the source's own 93bpm pulse).
     // Same recipe as ch_gameofloans (another dark orchestral epic): 'brass'
@@ -3657,47 +3457,6 @@
       arpEvery: 0, bassEvery: 1, gain: 0.55, voices: { lead: 'nylon' },
       bassGain: 0.42, bassSubGain: 0.8, bassCutoffStart: 700, bassCutoffEnd: 160,
       leadGain: 2.3, padGain: 0.55, drumGain: 0.75,
-    },
-    // "Overdue Valley" (Zelda · Gerudo Valley), transcribed from MIDI.
-    // Round 2 (feedback: revert the techno treatment, stay true to the
-    // MIDI): voices.lead is now 'nylon' (the plucked nylon-guitar voice
-    // built for ch_bruno) instead of 'saw' — the source track really is
-    // Acoustic Gtr, so this is the first song 'nylon' actually matches its
-    // own transcription rather than standing in for a missing timbre.
-    // drums: 'rock' (a real kit, matching the source's own Drum Kit track)
-    // instead of the invented 'techno' pumping pattern. pad: 'strings'
-    // instead of 'saw' — the source arrangement has real French Horn +
-    // Trombone (a genuine horn section, bars 23-222), which 'strings' reads
-    // closer to than a bright synth pad. bpm stays at the source's own
-    // declared 230 — that was never the "techno" part, it's just how fast
-    // this MIDI actually is.
-    // Round 3 (feedback: "notes aren't matching the melody, taking too much
-    // bass clef"): checked the raw MIDI note-by-note — the guitar track
-    // STRUMS full chords rather than playing a single line (e.g. source bar
-    // 7 alternates a 57+61 dyad with a 57+61+66 triad every 2 steps), so
-    // "highest note per step" is correctly reading the top of each strum;
-    // within these 38 bars there was only one true bass-register outlier
-    // (a lone pitch-49 pickup note under the melody's ~56-69 register,
-    // dropped above via --min-pitch 55 -- --min-pitch 58/60/62/64 all
-    // barely changed the onset count, confirming there's no separate
-    // bass-vs-melody register split hiding in this track to unearth further).
-    // Root cause of "too much bass" was mix balance, not the melody data:
-    // same leadGain/padGain/drumGain recipe as ch_bruno's fix, since this is
-    // 'nylon' again (a quick pluck) now sitting under an even lusher
-    // 'strings' pad than ch_bruno's 'saw'.
-    // Round 7 (feedback: "too much background music, horse galloping
-    // noises... main melody is wayyy too soft" — the 'rock' kick/snare
-    // pattern reads as a cantering gallop at this tempo when it's this loud
-    // relative to the lead). Cut padGain/drumGain hard (0.6/0.8 -> 0.25/0.35)
-    // and added an explicit bassGain (default 0.30 was untouched before this
-    // round) down to 0.15, so the backing recedes to actual support instead
-    // of competing with the tune; leadGain pushed further, 1.9 -> 2.8, well
-    // past every other song's leadGain in this file — this voice needs it.
-    ch_gerudo: {
-      title: 'Overdue Valley', influence: 'Zelda · Gerudo Valley, guitar ostinato', bpm: 230, key: 'F# minor',
-      prog: P.gerudo, lead: L.gerudo, drums: 'rock', pad: 'strings', bars: 32,
-      arpEvery: 0, bassEvery: 1, gain: 0.45, voices: { lead: 'nylon' },
-      leadGain: 2.8, padGain: 0.25, drumGain: 0.35, bassGain: 0.15,
     },
   };
 
