@@ -3597,11 +3597,23 @@
     // ch_bruno's 2.3 was the prior ceiling) so the nylon pluck cuts through
     // this song's busy four-on-the-floor/walking-bass backing instead of
     // getting buried during sparser passages.
+    // Round 4 (feedback: "still feels too quiet, what if we changed the
+    // lead to a piano?"): the real culprit was likely voice, not just gain —
+    // leadNylon's pluck decay is a HARD-CAPPED 0.22s regardless of dur/mul
+    // (see leadNylon's own comment), so it was already ringing at its max
+    // possible length at 3.2x gain and had no more sustain to give, only
+    // peak volume. Switched voices.lead to 'piano' (no such cap — its decay
+    // runs the full `dur` it's given) and added leadSustainMul: 3 to
+    // lengthen that ring well past nylon's ceiling, so notes stay present
+    // in the mix rather than flickering out. Kept leadGain: 3.2 (piano's
+    // own base peak of 0.11 is lower than nylon's 0.23, so the same
+    // multiplier is not "too loud" here — the extra sustain is doing the
+    // real work of "louder/more prominent" now, not just peak level).
     ch_gerudo2: {
       title: 'Gerudough Valley', influence: 'Zelda · Gerudo Valley, jazz combo', bpm: 236, key: 'F# minor',
       prog: P.gerudo2, lead: L.gerudo2, drums: 'four', pad: 'strings', bars: 47,
-      arpEvery: 0, bassEvery: 4, gain: 0.5, voices: { lead: 'nylon' },
-      leadGain: 3.2, padGain: 0.35, drumGain: 0.9,
+      arpEvery: 0, bassEvery: 4, gain: 0.5, voices: { lead: 'piano' },
+      leadGain: 3.2, leadSustainMul: 3, padGain: 0.35, drumGain: 0.9,
       bassGain: 0.5, bassSubGain: 0.9, bassCutoffStart: 650, bassCutoffEnd: 150,
     },
   };
