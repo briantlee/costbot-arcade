@@ -1181,7 +1181,7 @@
       { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 40)
     ],
 
-    // "Overdue Valley" v2 (Zelda · Gerudo Valley), re-transcribed from a
+    // "Gerudough Valley" v2 (Zelda · Gerudo Valley), re-transcribed from a
     // different, jazz-combo-arrangement MIDI (gerudo2.mid: Bass Guitar /
     // Trombone / Electric Drum Kit / Acoustic Gtr / Jazz Guitar tracks) per
     // request to follow the Jazz Guitar and skip Acoustic Gtr + Electric Drum
@@ -2866,7 +2866,7 @@
       80, _, 82, _, _, _, 79, _, _, _, _, _, _, _, _, _,  // bar 39 (source bar 40)
     ],
 
-    // "Overdue Valley" v2 (Zelda · Gerudo Valley), re-transcribed from
+    // "Gerudough Valley" v2 (Zelda · Gerudo Valley), re-transcribed from
     // gerudo2.mid's Jazz Guitar track (--lead 4 --bass 0), per request to
     // follow the jazz guitar and skip Acoustic Gtr + Electric Drum Kit. The
     // Jazz Guitar rests for ~16 bars mid-song (a Trombone-led passage, source
@@ -3572,18 +3572,30 @@
       bassGain: 0.42, bassSubGain: 0.8, bassCutoffStart: 700, bassCutoffEnd: 160,
       leadGain: 2.3, padGain: 0.55, drumGain: 0.75,
     },
-    // "Overdue Valley" v2 (Zelda · Gerudo Valley), re-transcribed to follow
+    // "Gerudough Valley" v2 (Zelda · Gerudo Valley), re-transcribed to follow
     // the source's own Jazz Guitar track per request — 'nylon' is the
     // closest thing this synth palette has to a clean guitar tone (no
-    // dedicated jazz-electric voice exists yet); 'bossa' drums for a lounge-
-    // jazz feel instead of a rock kit, matching the arrangement's vibe rather
-    // than the (skipped) Electric Drum Kit track. leadGain pushed well above
+    // dedicated jazz-electric voice exists yet). leadGain pushed well above
     // the backing so the guitar carries the tune over the bass/pad.
+    // Round 2 (feedback: "background rhythm sounds like electric static,
+    // give it a happy upbeat background bass"): the culprit was bassEvery: 1
+    // at this song's 236bpm — bass() retriggers its resonant (Q=7) lowpass-
+    // swept sawtooth on literally every 16th step, and at 236bpm that's
+    // faster than every other bassEvery:1 song in the roster (next-highest
+    // is 210bpm), so the individual plucks blur into a buzzy wash instead of
+    // a bassline. Switched to bassEvery: 4 — a clear on-the-beat walking
+    // pulse (with the engine's own every-other-beat octave jump giving it a
+    // bounce) — plus a touch more subGain/gain for a rounder, happier tone.
+    // Also swapped drums 'bossa' (lazy/lofi) for 'four' (four-on-the-floor
+    // dance kit, same happy/upbeat pattern used for ch_bruno's "sped up"
+    // remix and ch_rickroll's dancehall one) and brought drumGain back up
+    // toward its 1.0 default now that it isn't fighting a buzzing bass.
     ch_gerudo2: {
-      title: 'Overdue Valley', influence: 'Zelda · Gerudo Valley, jazz combo', bpm: 236, key: 'F# minor',
-      prog: P.gerudo2, lead: L.gerudo2, drums: 'bossa', pad: 'strings', bars: 47,
-      arpEvery: 0, bassEvery: 1, gain: 0.5, voices: { lead: 'nylon' },
-      leadGain: 2.2, padGain: 0.35, drumGain: 0.55, bassGain: 0.42,
+      title: 'Gerudough Valley', influence: 'Zelda · Gerudo Valley, jazz combo', bpm: 236, key: 'F# minor',
+      prog: P.gerudo2, lead: L.gerudo2, drums: 'four', pad: 'strings', bars: 47,
+      arpEvery: 0, bassEvery: 4, gain: 0.5, voices: { lead: 'nylon' },
+      leadGain: 2.2, padGain: 0.35, drumGain: 0.9,
+      bassGain: 0.5, bassSubGain: 0.9, bassCutoffStart: 650, bassCutoffEnd: 150,
     },
   };
 
