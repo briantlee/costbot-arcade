@@ -3590,11 +3590,18 @@
     // dance kit, same happy/upbeat pattern used for ch_bruno's "sped up"
     // remix and ch_rickroll's dancehall one) and brought drumGain back up
     // toward its 1.0 default now that it isn't fighting a buzzing bass.
+    // Round 3 (feedback: "the melody around 0:13 is too soft, needs to be
+    // much louder and more prominent — background rhythm is perfect"):
+    // drums/bass/pad left untouched per that last point, leadGain alone
+    // pushed 2.2 -> 3.2 (above every other song's leadGain in this file,
+    // ch_bruno's 2.3 was the prior ceiling) so the nylon pluck cuts through
+    // this song's busy four-on-the-floor/walking-bass backing instead of
+    // getting buried during sparser passages.
     ch_gerudo2: {
       title: 'Gerudough Valley', influence: 'Zelda · Gerudo Valley, jazz combo', bpm: 236, key: 'F# minor',
       prog: P.gerudo2, lead: L.gerudo2, drums: 'four', pad: 'strings', bars: 47,
       arpEvery: 0, bassEvery: 4, gain: 0.5, voices: { lead: 'nylon' },
-      leadGain: 2.2, padGain: 0.35, drumGain: 0.9,
+      leadGain: 3.2, padGain: 0.35, drumGain: 0.9,
       bassGain: 0.5, bassSubGain: 0.9, bassCutoffStart: 650, bassCutoffEnd: 150,
     },
   };
