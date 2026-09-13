@@ -403,13 +403,15 @@
     // plays that our single-lane chart drops. chordSize (same mechanic as
     // ch_imperial/the old ch_guile) expands each bar-start note into a
     // multi-lane chord using P.guile2's own tones (real bass-track harmony,
-    // same idea) — ultra: { chordSize: 3 } adds a 2nd/3rd simultaneous note
+    // same idea) — ultra: { chordSize: 2 } adds one extra simultaneous note
     // on ~27 of the 35 bar-starts, genuinely raising the note count Ultra
     // asks the player to hit instead of just tightening timing further.
+    // chordSize: 3 was tried first and reverted per feedback ("annoying") —
+    // 2-note chords only.
     { key: 'ch_guile2', name: 'Wall Street Fighter', sub: "Street Fighter II · Guile's Theme, guitar rock · 2:20", tag: '', biome: 'arena', art: 'cb_guile.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 2,
-      ultra: { chordSize: 3 } },
+      ultra: { chordSize: 2 } },
   ];
 
   const DIFFS = {
