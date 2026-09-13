@@ -3609,11 +3609,17 @@
     // own base peak of 0.11 is lower than nylon's 0.23, so the same
     // multiplier is not "too loud" here — the extra sustain is doing the
     // real work of "louder/more prominent" now, not just peak level).
+    // Round 5 (feedback: "can you make the piano even louder?"): leadGain
+    // 3.2 -> 4.4. There's no master limiter/compressor in this engine (see
+    // ch-game.js's audio init — just a plain 0.9 gain to destination), so
+    // pushing much further risks real digital clipping rather than getting
+    // "warmer" — this is a meaningful bump, not a token one, but flag it if
+    // it starts crackling instead of just sounding loud.
     ch_gerudo2: {
       title: 'Gerudough Valley', influence: 'Zelda · Gerudo Valley, jazz combo', bpm: 236, key: 'F# minor',
       prog: P.gerudo2, lead: L.gerudo2, drums: 'four', pad: 'strings', bars: 47,
       arpEvery: 0, bassEvery: 4, gain: 0.5, voices: { lead: 'piano' },
-      leadGain: 3.2, leadSustainMul: 3, padGain: 0.35, drumGain: 0.9,
+      leadGain: 4.4, leadSustainMul: 3, padGain: 0.35, drumGain: 0.9,
       bassGain: 0.5, bassSubGain: 0.9, bassCutoffStart: 650, bassCutoffEnd: 150,
     },
   };
