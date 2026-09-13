@@ -1181,7 +1181,7 @@
       { root: 43, tones: [0, 3, 7] },  // G2 min  (source bar 40)
     ],
 
-    // "Budget Boom" (Street Fighter II · Guile's Theme), transcribed from
+    // "Wall Street Fighter" (Street Fighter II · Guile's Theme), transcribed from
     // guile2.mid — --lead 0 (Electric Guitar) --bass 2 (Slap Bass). Source
     // bars 1-35: a 1-note pickup (bar 1), the theme's own 33-bar phrase
     // (bars 2-34), then a 1-bar rest (bar 35) — bars 36-69 of the source are
@@ -2854,7 +2854,7 @@
       80, _, 82, _, _, _, 79, _, _, _, _, _, _, _, _, _,  // bar 39 (source bar 40)
     ],
 
-    // "Budget Boom" (Street Fighter II · Guile's Theme), transcribed from
+    // "Wall Street Fighter" (Street Fighter II · Guile's Theme), transcribed from
     // guile2.mid's Electric Guitar track (--lead 0), the theme's own lead
     // riff. Source bar 0 is a 1-note pickup into the 33-bar main theme
     // (bars 1-33), then bar 34 is a 1-bar rest before the source repeats —
@@ -3545,13 +3545,13 @@
       bassGain: 0.42, bassSubGain: 0.8, bassCutoffStart: 700, bassCutoffEnd: 160,
       leadGain: 2.3, padGain: 0.55, drumGain: 0.75,
     },
-    // "Budget Boom" (Street Fighter II · Guile's Theme), transcribed from
+    // "Wall Street Fighter" (Street Fighter II · Guile's Theme), transcribed from
     // guile2.mid. 'dist' lead + 'power' pad for the guitar-rock riff, 'rock'
     // drums for a real kit under it. 120bpm (the source's own tempo) is
     // ordinary range for bassEvery: 1 (unlike ch_gerudo2's 236bpm case —
     // see that entry's history — no static risk here).
     ch_guile2: {
-      title: 'Budget Boom', influence: "Street Fighter II · Guile's Theme, guitar rock", bpm: 120, key: 'C minor',
+      title: 'Wall Street Fighter', influence: "Street Fighter II · Guile's Theme, guitar rock", bpm: 120, key: 'C minor',
       prog: P.guile2, lead: L.guile2, drums: 'rock', pad: 'power', bars: 35,
       arpEvery: 0, bassEvery: 1, gain: 0.55, voices: { lead: 'dist' },
       leadGain: 2.0, padGain: 0.7, drumGain: 1.0, bassGain: 0.48, bassSubGain: 0.9,

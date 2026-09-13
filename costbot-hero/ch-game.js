@@ -383,7 +383,7 @@
     { key: 'ch_pirate', name: 'Ledger of the Caribbean', sub: "Pirates of the Caribbean · He's a Pirate · 1:12", tag: '', biome: 'arena', art: 'cb_pirate.jpg', artDim: 0.3,
       experimental: true,
       maxLoops: 2 },
-    // "Budget Boom" — Street Fighter II's Guile's Theme, re-transcribed from
+    // "Wall Street Fighter" — Street Fighter II's Guile's Theme, re-transcribed from
     // a different MIDI (guile2.mid, --lead 0 "Electric Guitar" --bass 2
     // "Slap Bass", see TRACKS.ch_guile2/P.guile2/L.guile2 in arcade-music.js).
     // Source bars 36-69 are a near-exact repeat of bars 2-34, so the chart
@@ -393,9 +393,23 @@
     // MIDI, key `guile`) was pulled from the roster for a rebuild — this is
     // a fresh transcription from a different source file, own internal key
     // (`guile2`) so it doesn't collide.
-    { key: 'ch_guile2', name: 'Budget Boom', sub: "Street Fighter II · Guile's Theme, guitar rock · 2:20", tag: '', biome: 'arena', art: 'cb_guile.jpg', artDim: 0.3,
+    // Round 2 (feedback: "Ultra is too easy, are there more notes from the
+    // MIDI we can add?"): the Electric Guitar lead is real but sparse (152
+    // onsets/35 bars) and Ultra's minGap: 1 already keeps every one of them,
+    // so there's no more *timing* to claim without inventing notes. There
+    // IS more real material going unused, though — guile2.mid's Grand Piano
+    // track doubles the guitar melody in harmony almost note-for-note (same
+    // rhythm, a 3rd/6th below), i.e. real chord tones the MIDI actually
+    // plays that our single-lane chart drops. chordSize (same mechanic as
+    // ch_imperial/the old ch_guile) expands each bar-start note into a
+    // multi-lane chord using P.guile2's own tones (real bass-track harmony,
+    // same idea) — ultra: { chordSize: 3 } adds a 2nd/3rd simultaneous note
+    // on ~27 of the 35 bar-starts, genuinely raising the note count Ultra
+    // asks the player to hit instead of just tightening timing further.
+    { key: 'ch_guile2', name: 'Wall Street Fighter', sub: "Street Fighter II · Guile's Theme, guitar rock · 2:20", tag: '', biome: 'arena', art: 'cb_guile.jpg', artDim: 0.3,
       experimental: true,
-      maxLoops: 2 },
+      maxLoops: 2,
+      ultra: { chordSize: 3 } },
   ];
 
   const DIFFS = {
