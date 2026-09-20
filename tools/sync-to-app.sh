@@ -113,6 +113,12 @@ EXCLUDES=(
   --exclude 'shots/'          # generated test screenshots
   --exclude 'smoketest.js'    # dev-only harness, needs playwright
   --exclude '.gitignore'
+  --exclude '.git/'           # repo metadata — this dir IS the repo root now
+                              # (it wasn't, back when arcade/ was a subdir of CostBot),
+                              # so without this rsync ships .git/ into public/ and
+                              # serves it at /a/<slug>/.git/
+  --exclude '.DS_Store'
+  --exclude '_config.yml'     # Jekyll config for the static Pages build, not web content
   --exclude 'tools/'          # this script
   --exclude 'app/'            # the app mirror — server source, NOT web content
   --exclude '*.md'
