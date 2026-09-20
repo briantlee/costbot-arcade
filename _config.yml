@@ -1,0 +1,10 @@
+title: CostBot Arcade
+description: Browser games that fund CostBot's build work with earned AI tokens
+theme: jekyll-theme-primer
+baseurl: /CostManagement/costbot-arcade
+exclude:
+  - node_modules
+  - vendor
+  # Server source for the aix-proto app, mirrored here so it has a history.
+  # It is NOT web content and Pages must not serve it — see app/README.md.
+  - app

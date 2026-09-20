@@ -36,11 +36,11 @@
 #
 # For a fast local loop you usually do NOT need this at all — run the app with
 # ARCADE_PUBLIC pointed straight at the source and skip copying entirely:
-#   ARCADE_PUBLIC=~/projects/costbot/arcade node server.js
+#   ARCADE_PUBLIC=~/projects/costbot-arcade node server.js
 # ============================================================================
 set -euo pipefail
 
-SRC="${ARCADE_SRC:-$HOME/projects/costbot/arcade}"
+SRC="${ARCADE_SRC:-$HOME/projects/costbot-arcade}"
 DEST="${ARCADE_DEST:-$HOME/aix-proto/examples/costbot-arcade/public}"
 APP_DIR="$(dirname "$DEST")"
 APP_SRC="$SRC/app"

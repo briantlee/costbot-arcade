@@ -5,7 +5,7 @@ games, you earn the tokens, it ships. One source tree, served two ways.
 
 | | Where | What it gives you |
 |---|---|---|
-| **Static** | GitHub Pages — `/CostManagement/CostBot/arcade/` | The games. No accounts, no scores, no API. |
+| **Static** | GitHub Pages — `/CostManagement/costbot-arcade/` | The games. No accounts, no scores, no API. |
 | **Dynamic** | aix-proto — `/a/costbot-arcade/` | The same games, plus MyID identity, per-player profiles and leaderboards. |
 
 ```
@@ -67,7 +67,7 @@ copy, so there is no syncing during development at all:
 
 ```bash
 cd ~/aix-proto/examples/costbot-arcade
-npm run dev                     # ARCADE_PUBLIC defaults to ~/projects/costbot/arcade
+npm run dev                     # ARCADE_PUBLIC defaults to ~/projects/costbot-arcade
 # -> http://localhost:3000
 ```
 

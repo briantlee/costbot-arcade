@@ -20,7 +20,7 @@ const { getPool } = require('./db');
 const PORT = Number(process.env.PORT) || 3000;
 // The image ships a copy of the arcade at ./public. For a local dev loop, point
 // ARCADE_PUBLIC at the real source tree instead and skip copying altogether:
-//   ARCADE_PUBLIC=~/projects/costbot/arcade node server.js
+//   ARCADE_PUBLIC=~/projects/costbot-arcade node server.js
 const PUBLIC_DIR = process.env.ARCADE_PUBLIC
   ? nodePath.resolve(process.env.ARCADE_PUBLIC)
   : nodePath.join(__dirname, 'public');
