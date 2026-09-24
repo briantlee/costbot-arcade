@@ -9,7 +9,7 @@
  *   scene.add(bot.root);
  *   bot.setOutfit('detective');
  *   bot.cheer();                  // hop, spin, fist pumps (~1.6s)
- *   bot.antic('yawn');            // idle bits: 'yawn' | 'tablet' | 'loop'
+ *   bot.antic('yawn');            // idle bits: 'yawn' | 'tablet' | 'loop' | 'wave'
  *   // every frame:
  *   bot.update(t, dt, { lookX, lookY });
  *
@@ -354,7 +354,7 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   let celebrate = 0, anticName = null, anticT = 0, anticDur = 0;
   let nextBlink = 2, blinkT = 0, billow = 1;
   const lerp = THREE.MathUtils.lerp;
-  const ANTICS = { yawn: 2.6, tablet: 3.2, loop: 1.3 };
+  const ANTICS = { yawn: 2.6, tablet: 3.2, loop: 1.3, wave: 2.2 };
 
   function applyOutfit() {
     const o = OUTFITS.find((x) => x.id === outfit) || OUTFITS[0];
@@ -409,13 +409,16 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       let lookX = opts.lookX || 0, lookY = opts.lookY || 0;
       if (a === 'tablet') { lookX = 0.25; lookY = -0.55 * env; }
       if (a === 'yawn') lookY = 0.35 * env;
+      if (a === 'wave') { lookX = -0.2; lookY = 0.1; }
       head.rotation.y = lerp(head.rotation.y, lookX * 0.45, 0.08);
       head.rotation.x = lerp(head.rotation.x, -lookY * 0.3, 0.08);
       head.rotation.z = lerp(head.rotation.z, a === 'yawn' ? 0.12 * env : 0, 0.08);
 
+      const waving = a === 'wave';
       armUp.shoulder.rotation.z = lerp(armUp.shoulder.rotation.z,
-        (a === 'yawn' ? 2.9 : 2.0) + Math.sin(t * (party ? 12 : 2)) * (party ? 0.2 : 0.05), 0.2);
-      armUp.elbow.rotation.z = a === 'yawn' ? lerp(armUp.elbow.rotation.z, 0.2, 0.1) : lerp(armUp.elbow.rotation.z, 0.8, 0.1);
+        waving ? 2.55 + Math.sin(anticT * 11) * 0.38 * env
+          : (a === 'yawn' ? 2.9 : 2.0) + Math.sin(t * (party ? 12 : 2)) * (party ? 0.2 : 0.05), 0.2);
+      armUp.elbow.rotation.z = lerp(armUp.elbow.rotation.z, a === 'yawn' ? 0.2 : waving ? 0.35 : 0.8, 0.1);
       armUp.shoulder.rotation.x = -0.35;
       let dz = party ? -2.2 : -0.45, dx = party ? 0 : -0.25, ex = party ? 0 : -1.0 + Math.sin(t * 1.6) * 0.08;
       if (a === 'tablet') { dz = -0.35; dx = -0.9 * env; ex = -1.25; }
