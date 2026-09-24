@@ -98,6 +98,7 @@ Ideas that have never had a hub card. Kept here so they are not re-invented.
 | Waste Hunter | Roguelite survivor | Dollars saved → tokens, banked in the Bot Bay |
 | Mudslides | Endless runner | Tokens collected on the hill |
 | Holiday in Colombia | Fishing sim | Tokens reclaimed from the fish |
+| Cloud Patrol | 3D rail shooter | Coins grabbed, bosses beaten, plus a cut of score |
 
 Shared building blocks live in `arcade/shared/` — `arcade-music.js` (soundtrack
 and themes), `arcade-biomes.js` (arena palettes and procedural scenery),
