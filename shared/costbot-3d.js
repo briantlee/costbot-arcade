@@ -46,10 +46,14 @@ export const OUTFITS = [
     colors: { white: 0x9bd94a, silver: 0x5f9e2a, cape: 0x1f5e2a, capeIn: 0x113a19, eye: 0xd6ff5c, antenna: 0x76b900 } },
 ];
 
-const NO_OUTLINE = new Set(['line', 'visor', 'eye', 'cape', 'capeIn', 'screen']);
+const NO_OUTLINE = new Set(['line', 'visor', 'eye', 'cape', 'capeIn', 'screen', 'hilite', 'visorHi', 'capeLine']);
+// OutlineEffect takes LINEAR rgb and does not convert it, so the icon's #0d1b3a navy has to be
+// given pre-linearised — as sRGB numbers it renders a washed-out slate instead.
+const INK = new THREE.Color(0x0d1b3a);
+const OUTLINE = { thickness: 0.013, color: [INK.r, INK.g, INK.b] };
 
 function makeGradient() {
-  const g = new THREE.DataTexture(new Uint8Array([165, 220, 255]), 3, 1, THREE.RedFormat);
+  const g = new THREE.DataTexture(new Uint8Array([118, 196, 255]), 3, 1, THREE.RedFormat);
   g.minFilter = g.magFilter = THREE.NearestFilter;
   g.needsUpdate = true;
   return g;
@@ -85,9 +89,11 @@ function materialSets() {
     teal: toon(PAL.teal), cape: toon(PAL.cape, { side: THREE.BackSide }), capeIn: toon(PAL.capeIn, { side: THREE.FrontSide }),
     felt: toon(0x5a3a22), black: toon(0x1d1a24), red: toon(0xc8202c), fluff: toon(0xffffff), band: toon(0x6b2fa0),
     green: toon(0x1f7a3a), glass: flat(0xbfefff, { transparent: true, opacity: 0.45 }), screen: flat(0xffffff, { map: screen }),
+    // icon-style shine and ink: flat white glints, a lighter band across the visor, the cape's edge line
+    hilite: flat(0xffffff, { transparent: true, opacity: 0.92 }), visorHi: flat(0x2b5391), capeLine: flat(0x0d1b3a),
   };
   for (const [k, m] of Object.entries(cartoon)) {
-    m.userData.outlineParameters = NO_OUTLINE.has(k) || k === 'glass' ? { visible: false } : { thickness: 0.009, color: [0.05, 0.1, 0.23] };
+    m.userData.outlineParameters = NO_OUTLINE.has(k) || k === 'glass' ? { visible: false } : OUTLINE;
   }
   const glossy = {
     white: phys(PAL.white, { metalness: 0.05 }), silver: phys(PAL.silver, { metalness: 0.6 }),
@@ -103,6 +109,9 @@ function materialSets() {
     band: phys(0x6b2fa0), green: phys(0x1f7a3a, { roughness: 0.7 }),
     glass: phys(0xbfefff, { transparent: true, opacity: 0.35, roughness: 0.05 }),
     screen: new THREE.MeshBasicMaterial({ map: screen, toneMapped: false }),
+    // glossy gets real specular instead, so the painted-on bits hide
+    hilite: new THREE.MeshBasicMaterial({ visible: false }), visorHi: new THREE.MeshBasicMaterial({ visible: false }),
+    capeLine: new THREE.MeshBasicMaterial({ visible: false }),
   };
   return { cartoon, glossy };
 }
@@ -182,10 +191,17 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
 
   const visor = surfacePatch(0, 0.02, 0.88, 0.46, 5, 1.008);
   part(visor.geo, 'visor', head, visor.center.toArray());
-  part(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(visor.edge, true), 240, 0.05, 12, true), 'white', head);
+  part(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(visor.edge, true), 240, 0.06, 12, true), 'white', head);
+  // painted shine: a streak on the helmet's upper left, a glint beside it, and a lighter band along the visor top
+  for (const [lon, lat, w, h] of [[-0.52, 0.6, 0.27, 0.095], [-0.18, 0.78, 0.07, 0.045]]) {
+    const hl = surfacePatch(lon, lat, w, h, 2, 1.004);
+    part(hl.geo, 'hilite', head, hl.center.toArray());
+  }
+  const vband = surfacePatch(0.02, 0.37, 0.7, 0.05, 4, 1.014);
+  part(vband.geo, 'visorHi', head, vband.center.toArray());
 
   const eyes = [-0.3, 0.3].map((lon) => {
-    const e = surfacePatch(lon, 0.07, 0.1, 0.17, 2, 1.03);
+    const e = surfacePatch(lon, 0.07, 0.115, 0.19, 2, 1.03);
     return part(e.geo, 'eye', head, e.center.toArray());
   });
   const smilePts = [];
@@ -219,6 +235,7 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   part(new THREE.SphereGeometry(0.11, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), 'silver', head, [0, 0.97, 0]);
   part(new THREE.CylinderGeometry(0.035, 0.035, 0.55, 12), 'silver', head, [0, 1.3, 0]);
   const antenna = part(new THREE.SphereGeometry(0.15, 24, 16), 'antenna', head, [0, 1.62, 0]);
+  part(new THREE.SphereGeometry(0.045, 10, 8), 'hilite', antenna, [-0.06, 0.07, 0.11]);
 
   // chest shield: gold plate, teal inset, raised $ — bent to follow the belly
   const shieldShape = new THREE.Shape();
@@ -281,25 +298,40 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
 
   // cape: collar at the neck, sheet re-shaped each frame to trail behind and to his right
   part(new THREE.TorusGeometry(0.56, 0.08, 10, 40), 'cape', pose, [0, 1.85, -0.02]).rotation.x = Math.PI / 2 + 0.15;
-  const capeGeo = new THREE.PlaneGeometry(1, 1, 28, 20);
+  const CAPE_COLS = 29, CAPE_ROWS = 21;   // PlaneGeometry(1, 1, 28, 20) → 29×21 vertices, row 0 at the collar
+  const capeGeo = new THREE.PlaneGeometry(1, 1, CAPE_COLS - 1, CAPE_ROWS - 1);
   const capeUV = capeGeo.attributes.uv;
   part(capeGeo, 'cape', pose);
   part(capeGeo, 'capeIn', pose);
   capeGeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 1, -0.6), 2.6);   // it moves; never cull it
+  const capeLine = part(new THREE.BufferGeometry(), 'capeLine', pose);
+  capeLine.castShadow = false;
+  capeLine.frustumCulled = false;
   function updateCape(t, billow) {
     const p = capeGeo.attributes.position;
     for (let i = 0; i < p.count; i++) {
       const u = capeUV.getX(i) * 2 - 1, k = 1 - capeUV.getY(i);
-      const th = u * (1.5 - 0.6 * k);
+      const th = u * (1.5 - 0.35 * k);
       const rk = Math.sqrt(k);
       const flutter = (Math.sin(t * 2.4 + k * 5 + u * 3) * 0.12 + Math.sin(t * 3.9 + u * 5) * 0.04) * k * billow;
       p.setXYZ(i,
-        Math.sin(th) * (0.62 + 0.8 * rk + 0.3 * k) - k * k * 0.6 * billow,
-        1.85 - k * 2.1 + k * k * 0.4 * billow,
+        Math.sin(th) * (0.62 + 0.8 * rk + 0.75 * k) - k * k * 0.75 * billow,
+        // scalloped hem, like the icon's cape
+        1.85 - k * 2.1 + k * k * 0.4 * billow + Math.cos(u * Math.PI * 3.5) * 0.09 * k ** 3,
         -Math.cos(th) * (0.58 + 0.5 * rk) - k * k * 0.5 * billow + flutter);
     }
     p.needsUpdate = true;
     capeGeo.computeVertexNormals();
+    // ink the cape's edge by hand: a thin sheet has no silhouette for OutlineEffect to find
+    if (capeLine.visible && capeLine.material.visible) {
+      const pts = [];
+      const at = (col, row) => new THREE.Vector3().fromBufferAttribute(p, row * CAPE_COLS + col);
+      for (let r = 0; r < CAPE_ROWS; r++) pts.push(at(0, r));
+      for (let c = 1; c < CAPE_COLS; c++) pts.push(at(c, CAPE_ROWS - 1));
+      for (let r = CAPE_ROWS - 2; r >= 0; r--) pts.push(at(CAPE_COLS - 1, r));
+      capeLine.geometry.dispose();
+      capeLine.geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 120, 0.035, 5, false);
+    }
   }
 
   // ---- outfit gear (hidden until an outfit asks for it) ----
