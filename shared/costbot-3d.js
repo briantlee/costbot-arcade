@@ -26,7 +26,7 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 const DOLLAR_FONT = new Font({"cssFontWeight":"bold","ascender":1216,"underlinePosition":-100,"cssFontStyle":"normal","boundingBox":{"yMin":-333,"xMin":-162,"yMax":1216,"xMax":1681},"resolution":1000,"original_font_information":{"postscript_name":"Helvetiker-Bold","version_string":"Version 1.00 2004 initial release","vendor_url":"http://www.magenta.gr","full_font_name":"Helvetiker Bold","font_family_name":"Helvetiker","copyright":"Copyright (c) Magenta ltd, 2004.","description":"","trademark":"","designer":"","designer_url":"","unique_font_identifier":"Magenta ltd:Helvetiker Bold:22-10-104","license_url":"http://www.ellak.gr/fonts/MgOpen/license.html","license_description":"Copyright (c) 2004 by MAGENTA Ltd. All Rights Reserved.\r\n\r\nPermission is hereby granted, free of charge, to any person obtaining a copy of the fonts accompanying this license (\"Fonts\") and associated documentation files (the \"Font Software\"), to reproduce and distribute the Font Software, including without limitation the rights to use, copy, merge, publish, distribute, and/or sell copies of the Font Software, and to permit persons to whom the Font Software is furnished to do so, subject to the following conditions: \r\n\r\nThe above copyright and this permission notice shall be included in all copies of one or more of the Font Software typefaces.\r\n\r\nThe Font Software may be modified, altered, or added to, and in particular the designs of glyphs or characters in the Fonts may be modified and additional glyphs or characters may be added to the Fonts, only if the fonts are renamed to names not containing the word \"MgOpen\", or if the modifications are accepted for inclusion in the Font Software itself by the each appointed Administrator.\r\n\r\nThis License becomes null and void to the extent applicable to Fonts or Font Software that has been modified and is distributed under the \"MgOpen\" name.\r\n\r\nThe Font Software may be sold as part of a larger software package but no copy of one or more of the Font Software typefaces may be sold by itself. \r\n\r\nTHE FONT SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL MAGENTA OR PERSONS OR BODIES IN CHARGE OF ADMINISTRATION AND MAINTENANCE OF THE FONT SOFTWARE BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM OTHER DEALINGS IN THE FONT SOFTWARE.","manufacturer_name":"Magenta ltd","font_sub_family_name":"Bold"},"descender":-334,"familyName":"Helvetiker","lineHeight":1549,"underlineThickness":50,"glyphs":{"$":{"x_min":0,"x_max":704,"ha":800,"o":"m 682 693 l 495 693 q 468 782 491 749 q 391 831 441 824 l 391 579 q 633 462 562 534 q 704 259 704 389 q 616 57 704 136 q 391 -22 528 -22 l 391 -156 l 308 -156 l 308 -22 q 76 69 152 -7 q 0 300 0 147 l 183 300 q 215 191 190 230 q 308 128 245 143 l 308 414 q 84 505 157 432 q 12 700 12 578 q 89 902 12 824 q 308 981 166 981 l 308 1069 l 391 1069 l 391 981 q 595 905 521 981 q 682 693 670 829 m 308 599 l 308 831 q 228 796 256 831 q 200 712 200 762 q 225 642 200 668 q 308 599 251 617 m 391 128 q 476 174 449 140 q 504 258 504 207 q 391 388 504 354 l 391 128 "}}});
 
 const PAL = {
-  white: 0xf1f4f8, silver: 0xc9d1dd, line: 0x0d1b3a, visor: 0x122a52, eye: 0x8fe3ee,
+  white: 0xe2edf7, body: 0xc4d4e6, silver: 0xc2cfdd, line: 0x0d1b3a, visor: 0x122a52, eye: 0x8fe3ee,
   antenna: 0x2c8fa6, gold: 0xf4b41a, goldDark: 0xeaa716, teal: 0x1f8a8c, cape: 0x2f6bd0, capeIn: 0x1d4fa0,
 };
 
@@ -52,12 +52,26 @@ const NO_OUTLINE = new Set(['line', 'visor', 'eye', 'cape', 'capeIn', 'screen', 
 const INK = new THREE.Color(0x0d1b3a);
 const OUTLINE = { thickness: 0.013, color: [INK.r, INK.g, INK.b] };
 
-function makeGradient() {
-  const g = new THREE.DataTexture(new Uint8Array([118, 196, 255]), 3, 1, THREE.RedFormat);
+// Cel bands, shadow → mid → lit, as RGBA multipliers. The icon's shadows are a cool blue-gray
+// rather than a darker grey, so the body's bands are tinted; everything else stays neutral so
+// gold and cape shadows don't go muddy.
+function makeGradient(bands) {
+  const g = new THREE.DataTexture(new Uint8Array(bands.flatMap((b) => [...b, 255])), bands.length, 1, THREE.RGBAFormat);
   g.minFilter = g.magFilter = THREE.NearestFilter;
   g.needsUpdate = true;
   return g;
 }
+// three's toon shader reads only .r of the gradient; read .rgb so the bands can carry a tint
+const tintedBands = (m) => {
+  m.onBeforeCompile = (sh) => {
+    sh.fragmentShader = sh.fragmentShader.replace(
+      '#include <gradientmap_pars_fragment>',
+      THREE.ShaderChunk.gradientmap_pars_fragment.replace('return vec3( texture2D( gradientMap, coord ).r );',
+        'return texture2D( gradientMap, coord ).rgb;'));
+  };
+  m.customProgramCacheKey = () => 'costbot-tinted-bands';
+  return m;
+};
 
 function screenTexture() {
   // the tablet CostBot checks when he is bored: a tiny cost chart, trending down
@@ -78,13 +92,15 @@ function screenTexture() {
 }
 
 function materialSets() {
-  const gradient = makeGradient();
-  const toon = (color, o = {}) => new THREE.MeshToonMaterial({ color, gradientMap: gradient, toneMapped: false, ...o });
+  const gradient = makeGradient([[118, 118, 118], [196, 196, 196], [255, 255, 255]]);
+  const coolBands = makeGradient([[86, 118, 164], [176, 196, 224], [255, 255, 255]]);
+  const toon = (color, o = {}) => tintedBands(new THREE.MeshToonMaterial({ color, gradientMap: gradient, toneMapped: false, ...o }));
+  const toonBody = (color) => toon(color, { gradientMap: coolBands });
   const flat = (color, o = {}) => new THREE.MeshBasicMaterial({ color, toneMapped: false, ...o });
   const phys = (color, o = {}) => new THREE.MeshPhysicalMaterial({ color, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.15, ...o });
   const screen = screenTexture();
   const cartoon = {
-    white: toon(PAL.white), silver: toon(PAL.silver), line: flat(PAL.line), visor: toon(PAL.visor),
+    white: toonBody(PAL.white), body: toonBody(PAL.body), silver: toonBody(PAL.silver), line: flat(PAL.line), visor: toon(PAL.visor),
     eye: flat(PAL.eye), antenna: toon(PAL.antenna), gold: toon(PAL.gold), goldDark: toon(PAL.goldDark),
     teal: toon(PAL.teal), cape: toon(PAL.cape, { side: THREE.BackSide }), capeIn: toon(PAL.capeIn, { side: THREE.FrontSide }),
     felt: toon(0x5a3a22), black: toon(0x1d1a24), red: toon(0xc8202c), fluff: toon(0xffffff), band: toon(0x6b2fa0),
@@ -96,7 +112,7 @@ function materialSets() {
     m.userData.outlineParameters = NO_OUTLINE.has(k) || k === 'glass' ? { visible: false } : OUTLINE;
   }
   const glossy = {
-    white: phys(PAL.white, { metalness: 0.05 }), silver: phys(PAL.silver, { metalness: 0.6 }),
+    white: phys(PAL.white, { metalness: 0.05 }), body: phys(PAL.white, { metalness: 0.05 }), silver: phys(PAL.silver, { metalness: 0.6 }),
     line: phys(0x8e9cb3, { metalness: 0.5 }), visor: phys(PAL.visor, { roughness: 0.06, metalness: 0.3 }),
     eye: new THREE.MeshStandardMaterial({ color: 0x2fd8ff, emissive: 0x19c8f0, emissiveIntensity: 1.4 }),
     antenna: phys(PAL.antenna, { emissive: PAL.antenna, emissiveIntensity: 0.8 }),
@@ -120,6 +136,8 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   const SETS = materialSets();
   const BASE = {};
   for (const s of Object.values(SETS)) for (const [k, m] of Object.entries(s)) if (m.color) BASE[k] = BASE[k] || m.color.getHex();
+  BASE.body = PAL.body;
+  const shade = (hex) => new THREE.Color(hex).multiplyScalar(0.92).getHex();   // outfit body: a touch under the helmet
   let current = style;
 
   const part = (geo, slot, parent, pos = [0, 0, 0]) => {
@@ -142,7 +160,7 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   const bodyR = (y) => Math.sqrt(Math.max(0, 1 - (y / BODY_H) ** 2)) * BODY_R * (1 - 0.12 * y / BODY_H);
   const bodyPts = [];
   for (let i = 0; i <= 32; i++) { const y = -Math.cos(i / 32 * Math.PI) * BODY_H; bodyPts.push(new THREE.Vector2(bodyR(y), y)); }
-  part(new THREE.LatheGeometry(bodyPts, 48), 'white', pose, [0, BODY_Y, 0]).scale.z = BODY_Z;
+  part(new THREE.LatheGeometry(bodyPts, 48), 'body', pose, [0, BODY_Y, 0]).scale.z = BODY_Z;
   const waist = part(new THREE.TorusGeometry(bodyR(-0.52) + 0.005, 0.018, 8, 64), 'line', pose, [0, BODY_Y - 0.52, 0]);
   waist.rotation.x = Math.PI / 2;
   waist.scale.y = BODY_Z;
@@ -269,19 +287,19 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
     const shoulder = new THREE.Group();
     shoulder.position.set(side * 0.72, 1.55, 0.05);
     pose.add(shoulder);
-    part(new THREE.SphereGeometry(0.19, 20, 14), 'white', shoulder);
-    part(new THREE.CapsuleGeometry(0.16, 0.25, 6, 16), 'white', shoulder, [0, -0.24, 0]);
+    part(new THREE.SphereGeometry(0.19, 20, 14), 'body', shoulder);
+    part(new THREE.CapsuleGeometry(0.16, 0.25, 6, 16), 'body', shoulder, [0, -0.24, 0]);
     const elbow = new THREE.Group();
     elbow.position.y = -0.44;
     shoulder.add(elbow);
     part(new THREE.TorusGeometry(0.165, 0.02, 8, 24), 'line', elbow).rotation.x = Math.PI / 2;
-    part(new THREE.CapsuleGeometry(0.165, 0.2, 6, 16), 'white', elbow, [0, -0.17, 0]);
+    part(new THREE.CapsuleGeometry(0.165, 0.2, 6, 16), 'body', elbow, [0, -0.17, 0]);
     part(new THREE.TorusGeometry(0.17, 0.035, 8, 24), 'silver', elbow, [0, -0.33, 0]).rotation.x = Math.PI / 2;
     const fist = new THREE.Group();
     fist.position.y = -0.52;
     elbow.add(fist);
-    part(new THREE.SphereGeometry(0.22, 20, 14), 'white', fist).scale.set(1, 0.92, 1);
-    part(new THREE.SphereGeometry(0.085, 12, 8), 'white', fist, [-side * 0.07, 0.04, 0.18]);
+    part(new THREE.SphereGeometry(0.22, 20, 14), 'body', fist).scale.set(1, 0.92, 1);
+    part(new THREE.SphereGeometry(0.085, 12, 8), 'body', fist, [-side * 0.07, 0.04, 0.18]);
     return { shoulder, elbow, fist };
   }
   const armUp = makeArm(1);     // CostBot's left: the "up, up and away" fist
@@ -291,7 +309,7 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
     const hip = new THREE.Group();
     hip.position.set(s * 0.3, 0.45, 0);
     pose.add(hip);
-    part(new THREE.CapsuleGeometry(0.21, 0.42, 6, 16), 'white', hip, [0, -0.35, 0]);
+    part(new THREE.CapsuleGeometry(0.21, 0.42, 6, 16), 'body', hip, [0, -0.35, 0]);
     part(new THREE.TorusGeometry(0.212, 0.018, 8, 24), 'line', hip, [0, -0.42, 0]).rotation.x = Math.PI / 2;
     return hip;
   });
@@ -393,12 +411,14 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
     for (const set of Object.values(SETS)) {
       for (const [k, m] of Object.entries(set)) {
         if (!m.color || BASE[k] == null || k === 'screen') continue;
-        m.color.setHex((o.colors && o.colors[k] != null) ? o.colors[k] : BASE[k]);
+        // the body follows the helmet's outfit colour unless an outfit gives it its own
+        const want = o.colors && (o.colors[k] != null ? o.colors[k] : k === 'body' ? o.colors.white : null);
+        m.color.setHex(want != null ? (k === 'body' && o.colors[k] == null ? shade(want) : want) : BASE[k]);
         if (m.emissive && (k === 'eye' || k === 'antenna')) m.emissive.setHex((o.colors && o.colors[k]) || (k === 'eye' ? 0x19c8f0 : PAL.antenna));
       }
-      if (set.white.metalness != null && set === SETS.glossy) {
-        set.white.metalness = o.metal ? 0.9 : 0.05;
-        set.white.roughness = o.metal ? 0.22 : 0.3;
+      if (set === SETS.glossy) for (const m of [set.white, set.body]) {
+        m.metalness = o.metal ? 0.9 : 0.05;
+        m.roughness = o.metal ? 0.22 : 0.3;
       }
     }
     for (const [name, g] of Object.entries(gear)) g.visible = !!(o.gear && o.gear.includes(name));
