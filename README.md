@@ -21,6 +21,7 @@ arcade/
   mudslides/            the endless runner
     assets/             its own art (the Mudslide glass, the wipeout shot)
   mudsliders/           redirect stub — the game's old name, old URL
+  cloud-patrol/         the 3D rail shooter (three.js) — CostBot vs. waste and vendor bosses
   shared/
     assets/             art used by the landing page itself (CostBot, CostBotLand)
                         the token coin ships in three sizes — pick the one that
@@ -31,6 +32,10 @@ arcade/
     arcade-music.js     soundtrack engine — 8 tracks, 6 themes
     arcade-biomes.js    arena palettes + procedural scenery
     arcade-sync.js      optional bridge to a server profile
+    costbot-3d.js       CostBot as a three.js model (ES module): outfits, idle antics,
+                        cheer — shared by the 3D cabinets and the Hub mascot
+    vendor/three/       three.js r170 + the few addons we use, vendored (no CDN,
+                        no build step) — see its README for the import map
   app/                  the SERVER half, mirrored from the aix-proto repo —
                         server.js, db.js, manifest.json, tests. Not web content;
                         excluded from Pages and from the image. See app/README.md
@@ -130,6 +135,7 @@ the console is the expected, healthy path here.
 cd arcade/waste-hunter && node smoketest.js      # ~90s: full game suite
 FULL=1 node smoketest.js                         # plays a whole stage; use for pacing work
 cd arcade/mudslides && node smoketest.js         # ~15s: runner suite
+cd arcade/cloud-patrol && node smoketest.js      # ~60s: menus, secrets, a run, a boss, a death
 cd ~/aix-proto/examples/costbot-arcade && npm test
 ```
 
@@ -152,6 +158,7 @@ from. Both now report `dollarsSaved: 0` and are ranked on their own metrics inst
 | Waste Hunter | dollars saved, per stage | best run |
 | Mudslides | distance, top speed, near misses, tokens | distance |
 | Holiday in Colombia | longest streak, heaviest, fish landed, tokens | longest streak |
+| Cloud Patrol | best score, best combo, tokens | best score |
 
 Those metrics live in `runs` as their own columns (`distance`, `near_misses`,
 `top_speed`, `streak`, `heaviest_g`, `fish` — all additive migrations, existing rows
