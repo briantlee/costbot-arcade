@@ -9,7 +9,7 @@
  *   scene.add(bot.root);
  *   bot.setOutfit('detective');
  *   bot.cheer();                  // hop, spin, fist pumps (~1.6s)
- *   bot.antic('yawn');            // idle bits: 'yawn' | 'tablet' | 'loop' | 'wave'
+ *   bot.antic('yawn');            // idle bits: 'yawn' | 'tablet' | 'loop' | 'wave' | 'dizzy'
  *   // every frame:
  *   bot.update(t, dt, { lookX, lookY });
  *
@@ -19,11 +19,6 @@
  * and matches the flat icon; 'glossy' is plastic-and-metal and suits bloom.
  * ==========================================================================*/
 import * as THREE from 'three';
-import { Font } from 'three/addons/loaders/FontLoader.js';
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-
-// helvetiker bold, trimmed to the one glyph the shield needs
-const DOLLAR_FONT = new Font({"cssFontWeight":"bold","ascender":1216,"underlinePosition":-100,"cssFontStyle":"normal","boundingBox":{"yMin":-333,"xMin":-162,"yMax":1216,"xMax":1681},"resolution":1000,"original_font_information":{"postscript_name":"Helvetiker-Bold","version_string":"Version 1.00 2004 initial release","vendor_url":"http://www.magenta.gr","full_font_name":"Helvetiker Bold","font_family_name":"Helvetiker","copyright":"Copyright (c) Magenta ltd, 2004.","description":"","trademark":"","designer":"","designer_url":"","unique_font_identifier":"Magenta ltd:Helvetiker Bold:22-10-104","license_url":"http://www.ellak.gr/fonts/MgOpen/license.html","license_description":"Copyright (c) 2004 by MAGENTA Ltd. All Rights Reserved.\r\n\r\nPermission is hereby granted, free of charge, to any person obtaining a copy of the fonts accompanying this license (\"Fonts\") and associated documentation files (the \"Font Software\"), to reproduce and distribute the Font Software, including without limitation the rights to use, copy, merge, publish, distribute, and/or sell copies of the Font Software, and to permit persons to whom the Font Software is furnished to do so, subject to the following conditions: \r\n\r\nThe above copyright and this permission notice shall be included in all copies of one or more of the Font Software typefaces.\r\n\r\nThe Font Software may be modified, altered, or added to, and in particular the designs of glyphs or characters in the Fonts may be modified and additional glyphs or characters may be added to the Fonts, only if the fonts are renamed to names not containing the word \"MgOpen\", or if the modifications are accepted for inclusion in the Font Software itself by the each appointed Administrator.\r\n\r\nThis License becomes null and void to the extent applicable to Fonts or Font Software that has been modified and is distributed under the \"MgOpen\" name.\r\n\r\nThe Font Software may be sold as part of a larger software package but no copy of one or more of the Font Software typefaces may be sold by itself. \r\n\r\nTHE FONT SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL MAGENTA OR PERSONS OR BODIES IN CHARGE OF ADMINISTRATION AND MAINTENANCE OF THE FONT SOFTWARE BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM OTHER DEALINGS IN THE FONT SOFTWARE.","manufacturer_name":"Magenta ltd","font_sub_family_name":"Bold"},"descender":-334,"familyName":"Helvetiker","lineHeight":1549,"underlineThickness":50,"glyphs":{"$":{"x_min":0,"x_max":704,"ha":800,"o":"m 682 693 l 495 693 q 468 782 491 749 q 391 831 441 824 l 391 579 q 633 462 562 534 q 704 259 704 389 q 616 57 704 136 q 391 -22 528 -22 l 391 -156 l 308 -156 l 308 -22 q 76 69 152 -7 q 0 300 0 147 l 183 300 q 215 191 190 230 q 308 128 245 143 l 308 414 q 84 505 157 432 q 12 700 12 578 q 89 902 12 824 q 308 981 166 981 l 308 1069 l 391 1069 l 391 981 q 595 905 521 981 q 682 693 670 829 m 308 599 l 308 831 q 228 796 256 831 q 200 712 200 762 q 225 642 200 668 q 308 599 251 617 m 391 128 q 476 174 449 140 q 504 258 504 207 q 391 388 504 354 l 391 128 "}}});
 
 const PAL = {
   white: 0xe2edf7, body: 0xc4d4e6, silver: 0xc2cfdd, line: 0x0d1b3a, visor: 0x122a52, eye: 0x8fe3ee,
@@ -132,6 +127,50 @@ function materialSets() {
   return { cartoon, glossy };
 }
 
+// The chest shield, painted at 1024px so it stays crisp up close. `f` is the texture frame in
+// shield units (x across, y up); the shape is the icon's: flat top, clipped corners, short point.
+function shieldTexture(f) {
+  const W = 1024, k = W / (f.x1 - f.x0), H = Math.round((f.y1 - f.y0) * k);
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  const X = (x) => (x - f.x0) * k, Y = (y) => (f.y1 - y) * k;
+  const OUTER = [[-0.36, 0.26], [0.36, 0.26], [0.5, 0.05], [0, -0.38], [-0.5, 0.05]];
+  const inset = (s, dy) => OUTER.map(([x, y]) => [x * s, y * s + dy]);
+  const path = (pts) => { g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(X(x), Y(y)) : g.moveTo(X(x), Y(y)))); g.closePath(); };
+  const INK = '#0d1b3a';
+  g.lineJoin = 'round'; g.lineCap = 'round';
+  // ink + gold rim
+  path(OUTER);
+  g.lineWidth = 0.075 * k; g.strokeStyle = INK; g.stroke();
+  const gold = g.createLinearGradient(0, Y(0.26), 0, Y(-0.38));
+  gold.addColorStop(0, '#ffc93a'); gold.addColorStop(0.55, '#f4b41a'); gold.addColorStop(1, '#e09a10');
+  g.fillStyle = gold; g.fill();
+  // teal inset with a lighter facet on the upper left, inked at its edge
+  const IN = inset(0.72, 0.012);
+  path(IN);
+  const teal = g.createLinearGradient(0, Y(0.2), 0, Y(-0.27));
+  teal.addColorStop(0, '#249aa0'); teal.addColorStop(1, '#146a72');
+  g.fillStyle = teal; g.fill();
+  g.save(); g.clip();
+  g.beginPath(); g.moveTo(X(IN[0][0]), Y(IN[0][1])); g.lineTo(X(0), Y(IN[0][1])); g.lineTo(X(-0.02), Y(-0.08)); g.lineTo(X(IN[4][0]), Y(IN[4][1])); g.closePath();
+  g.fillStyle = 'rgba(120,220,220,.22)'; g.fill();
+  g.restore();
+  path(IN); g.lineWidth = 0.028 * k; g.strokeStyle = INK; g.stroke();
+  // the $ — chunky, gold, inked
+  g.font = `900 ${Math.round(0.56 * k)}px "Arial Black","Segoe UI Black","Helvetica Neue",system-ui,sans-serif`;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  const dx = X(0), dy = Y(-0.02);
+  g.lineWidth = 0.05 * k; g.strokeStyle = INK; g.strokeText('$', dx, dy);
+  const dg = g.createLinearGradient(0, dy - 0.22 * k, 0, dy + 0.22 * k);
+  dg.addColorStop(0, '#ffd24a'); dg.addColorStop(1, '#eea514');
+  g.fillStyle = dg; g.fillText('$', dx, dy);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
 export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   const SETS = materialSets();
   const BASE = {};
@@ -161,7 +200,10 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   const bodyPts = [];
   for (let i = 0; i <= 32; i++) { const y = -Math.cos(i / 32 * Math.PI) * BODY_H; bodyPts.push(new THREE.Vector2(bodyR(y), y)); }
   part(new THREE.LatheGeometry(bodyPts, 48), 'body', pose, [0, BODY_Y, 0]).scale.z = BODY_Z;
-  const waist = part(new THREE.TorusGeometry(bodyR(-0.52) + 0.005, 0.018, 8, 64), 'line', pose, [0, BODY_Y - 0.52, 0]);
+  // the belly line: just under the shield's point and heavy, as on the icon (it used to sit down by
+  // the hips, where the legs hid it)
+  const WAIST_Y = -0.2;
+  const waist = part(new THREE.TorusGeometry(bodyR(WAIST_Y) + 0.004, 0.026, 8, 64), 'line', pose, [0, BODY_Y + WAIST_Y, 0]);
   waist.rotation.x = Math.PI / 2;
   waist.scale.y = BODY_Z;
 
@@ -255,32 +297,35 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   const antenna = part(new THREE.SphereGeometry(0.15, 24, 16), 'antenna', head, [0, 1.62, 0]);
   part(new THREE.SphereGeometry(0.045, 10, 8), 'hilite', antenna, [-0.06, 0.07, 0.11]);
 
-  // chest shield: gold plate, teal inset, raised $ — bent to follow the belly
-  const shieldShape = new THREE.Shape();
-  shieldShape.moveTo(0, -0.5);
-  shieldShape.lineTo(0.5, 0.02);
-  shieldShape.lineTo(0.36, 0.28);
-  shieldShape.lineTo(-0.36, 0.28);
-  shieldShape.lineTo(-0.5, 0.02);
-  shieldShape.closePath();
-  const bend = (geo) => {
-    const p = geo.attributes.position;
+  // chest shield: painted like the icon's — navy ink, gold rim, teal inset, bold outlined $ —
+  // as one crisp texture on a grid wrapped onto the belly. Built from extruded slabs it gave
+  // OutlineEffect a dozen hard edges to trace and came out cracked, with a doubled-looking $.
+  // Proportions follow the 2D icon: ~0.46 of the head's width, ~1.6 wide to 1 tall.
+  const SH_W = 1.12, SH_TOP = 1.62;                  // world width, top edge just under the collar
+  const SHIELD = { x0: -0.56, x1: 0.56, y0: -0.44, y1: 0.32 };   // texture frame, in shield units
+  const shieldK = SH_W / (SHIELD.x1 - SHIELD.x0);    // shield units -> world
+  const shieldCY = SH_TOP - 0.26 * shieldK;
+  const emblemMap = shieldTexture(SHIELD);
+  SETS.cartoon.emblem = new THREE.MeshBasicMaterial({ map: emblemMap, transparent: true, alphaTest: 0.04, toneMapped: false });
+  SETS.cartoon.emblem.userData.outlineParameters = { visible: false };   // it carries its own ink
+  SETS.glossy.emblem = new THREE.MeshPhysicalMaterial({ map: emblemMap, transparent: true, alphaTest: 0.04,
+    roughness: 0.28, metalness: 0.25, clearcoat: 1, clearcoatRoughness: 0.1 });
+  const decalGeo = new THREE.PlaneGeometry((SHIELD.x1 - SHIELD.x0) * shieldK, (SHIELD.y1 - SHIELD.y0) * shieldK, 48, 36);
+  { // wrap the grid onto the belly: z is the lathe's actual surface at each (x, y), plus a hair
+    const p = decalGeo.attributes.position;
+    const yMid = shieldCY + ((SHIELD.y1 + SHIELD.y0) / 2) * shieldK;
     for (let i = 0; i < p.count; i++) {
-      p.setZ(i, p.getZ(i) - p.getX(i) ** 2 * 0.85 - Math.max(0, p.getY(i)) ** 2 * 1.0 - Math.min(0, p.getY(i)) ** 2 * 0.25);
+      const x = p.getX(i), y = p.getY(i) + yMid;
+      const R = bodyR(y - BODY_Y);
+      p.setXYZ(i, x, y, Math.sqrt(Math.max(0, R * R - x * x)) * BODY_Z + 0.012);
     }
-    geo.computeVertexNormals();
-    return geo;
-  };
-  const emblem = new THREE.Group();
-  emblem.position.set(0, BODY_Y + 0.17, 0.73);
-  emblem.scale.setScalar(1.22);
+    decalGeo.computeVertexNormals();
+  }
+  part(decalGeo, 'emblem', pose).castShadow = false;
+  // a handle at the shield's centre for callers that burst things out of the chest
+  const emblem = new THREE.Object3D();
+  emblem.position.set(0, shieldCY, bodyR(shieldCY - BODY_Y) * BODY_Z);
   pose.add(emblem);
-  part(bend(new THREE.ExtrudeGeometry(shieldShape, { depth: 0.06, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.025, bevelSegments: 3 })), 'goldDark', emblem);
-  part(bend(new THREE.ExtrudeGeometry(shieldShape, { depth: 0.03, bevelEnabled: false }).scale(0.8, 0.8, 1)), 'teal', emblem, [0, 0.015, 0.06]);
-  const dollar = new TextGeometry('$', { font: DOLLAR_FONT, size: 0.42, depth: 0.05, curveSegments: 10,
-    bevelEnabled: true, bevelThickness: 0.012, bevelSize: 0.01, bevelSegments: 2 });
-  dollar.center();
-  part(bend(dollar), 'gold', emblem, [0, -0.03, 0.12]);
 
   // arms: shoulder pivot -> upper arm -> elbow pivot -> forearm -> fist
   function makeArm(side) {
@@ -399,12 +444,37 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   part(new THREE.BoxGeometry(0.62, 0.44, 0.04), 'black', tablet);
   part(new THREE.PlaneGeometry(0.56, 0.38), 'screen', tablet, [0, 0, 0.022]);
 
+  // ---- dizzy props: swirly eyes and a ring of stars, hidden until he has been spun too hard ----
+  const swirls = eyes.map((e) => {
+    const g = new THREE.Group();
+    g.position.copy(e.position); g.rotation.copy(e.rotation);
+    head.add(g);
+    for (const r of [0.1, 0.055]) part(new THREE.TorusGeometry(r, 0.02, 6, 24, Math.PI * 1.6), 'eye', g);
+    g.visible = false;
+    return g;
+  });
+  const starShape = new THREE.Shape();
+  for (let i = 0; i < 10; i++) {
+    const a = i / 10 * Math.PI * 2 + Math.PI / 2, r = i % 2 ? 0.07 : 0.17;
+    i ? starShape.lineTo(Math.cos(a) * r, Math.sin(a) * r) : starShape.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+  }
+  const starGeo = new THREE.ExtrudeGeometry(starShape, { depth: 0.05, bevelEnabled: false }).center();
+  const stars = new THREE.Group();
+  stars.position.y = 1.3;
+  head.add(stars);
+  for (let i = 0; i < 3; i++) {
+    const st = part(starGeo, 'gold', stars);
+    st.position.set(Math.cos(i / 3 * Math.PI * 2) * 0.95, 0, Math.sin(i / 3 * Math.PI * 2) * 0.95);
+  }
+  stars.visible = false;
+  const FALL_PIVOT = 1.5;                   // he topples about his middle, not his feet
+
   // ---- behaviour ----
   let outfit = 'classic';
   let celebrate = 0, anticName = null, anticT = 0, anticDur = 0;
   let nextBlink = 2, blinkT = 0, billow = 1;
   const lerp = THREE.MathUtils.lerp;
-  const ANTICS = { yawn: 2.6, tablet: 3.2, loop: 1.3, wave: 2.2 };
+  const ANTICS = { yawn: 2.6, tablet: 3.2, loop: 1.3, wave: 2.2, dizzy: 3.6 };
 
   function applyOutfit() {
     const o = OUTFITS.find((x) => x.id === outfit) || OUTFITS[0];
@@ -457,6 +527,20 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       if (a === 'loop') pose.rotation.x = REST.x - (1 - Math.cos(p * Math.PI)) * Math.PI;
       pose.rotation.x += opts.leanX || 0;     // cabinets lean him into the flight
       pose.rotation.z += opts.leanZ || 0;     // and bank him into turns
+      let fall = 0, drop = 0, wob = 0;
+      if (a === 'dizzy') {
+        const ease = (x) => x * x * (3 - 2 * x);
+        if (p < 0.3) wob = Math.sin(anticT * 13) * 0.28 * (p / 0.3);
+        else if (p < 0.42) { const q = (p - 0.3) / 0.12; fall = -1.42 * q * q; drop = -0.9 * q * q; }
+        else if (p < 0.78) { const q = p - 0.42; fall = -1.42 + Math.sin(q * 38) * 0.05 * Math.max(0, 1 - q * 7); drop = -0.9; }
+        else { const q = (p - 0.78) / 0.22; const e = ease(q); fall = -1.42 * (1 - e) + Math.sin(q * Math.PI) * 0.12; drop = -0.9 * (1 - e) + Math.sin(q * Math.PI) * 0.6; }
+      }
+      pose.rotation.z += fall + wob;
+      pose.position.set(FALL_PIVOT * Math.sin(fall), FALL_PIVOT * (1 - Math.cos(fall)) + drop, 0);
+      const dizzy = a === 'dizzy';
+      for (const g of swirls) { g.visible = dizzy; g.rotation.z = -t * 9; }
+      stars.visible = dizzy && p > 0.36 && p < 0.86;
+      if (stars.visible) stars.rotation.y = t * 4;
 
       let lookX = opts.lookX || 0, lookY = opts.lookY || 0;
       if (a === 'tablet') { lookX = 0.25; lookY = -0.55 * env; }
@@ -464,7 +548,7 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       if (a === 'wave') { lookX = -0.2; lookY = 0.1; }
       head.rotation.y = lerp(head.rotation.y, lookX * 0.45, 0.08);
       head.rotation.x = lerp(head.rotation.x, -lookY * 0.3, 0.08);
-      head.rotation.z = lerp(head.rotation.z, a === 'yawn' ? 0.12 * env : 0, 0.08);
+      head.rotation.z = lerp(head.rotation.z, a === 'yawn' ? 0.12 * env : a === 'dizzy' ? Math.sin(t * 7) * 0.2 : 0, 0.12);
 
       const waving = a === 'wave';
       armUp.shoulder.rotation.z = lerp(armUp.shoulder.rotation.z,
@@ -490,7 +574,7 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       let eyeY = party ? 0.4 : blinkT > 0 ? 0.1 : 1;
       if (a === 'yawn') eyeY = 1 - 0.8 * env;
       if (a === 'tablet') eyeY = 0.8;
-      for (const e of eyes) e.scale.y = lerp(e.scale.y, eyeY, 0.35);
+      for (const e of eyes) { e.scale.y = lerp(e.scale.y, eyeY, 0.35); e.visible = a !== 'dizzy'; }
       yawnO.visible = a === 'yawn' && env > 0.4;
       smile.visible = !yawnO.visible;
 
