@@ -25,12 +25,21 @@ export const VENDORS = [
   { name: "Glean", color: "#343CED" },
 ];
 
-// Waste. hp is laser hits; points before the combo multiplier.
+// Waste. hp is laser hits; points before the combo multiplier; `stage` is the first
+// stage it shows up in (each stage's title card announces its newcomer).
 export const ENEMIES = {
-  ebs:   { name: 'Idle EBS volume',    hp: 1, points: 50,  radius: 0.9, blurb: 'Attached to nothing, billed by the GB-month. Tumbles, snoring.' },
-  ghost: { name: 'Ghost consumer',     hp: 1, points: 75,  radius: 0.9, blurb: 'A Kinesis reader nobody owns. Weaves side to side.' },
-  nat:   { name: 'Runaway NAT Gateway', hp: 2, points: 120, radius: 1.0, blurb: 'Processing charges on every byte. Homes in on you — two hits.' },
+  ebs:         { name: 'Idle EBS volume',        hp: 1, points: 50,  radius: 0.9,  stage: 1, weight: 3,   blurb: 'Attached to nothing, billed by the GB-month. Tumbles, snoring.' },
+  ghost:       { name: 'Ghost consumer',          hp: 1, points: 75,  radius: 0.9,  stage: 1, weight: 3,   blurb: 'A Kinesis reader nobody owns. Weaves side to side.' },
+  nat:         { name: 'Runaway NAT Gateway',     hp: 2, points: 120, radius: 1.0,  stage: 2, weight: 2,   blurb: 'Processing charges on every byte. Homes in on you — two hits.' },
+  untagged:    { name: 'Untagged resource',       hp: 2, points: 90,  radius: 0.95, stage: 2, weight: 2,   blurb: 'Nobody owns it. The first hit tags it, the second takes it down — finish what you tag for a bonus.' },
+  elasticIp:   { name: 'Unattached Elastic IP',   hp: 1, points: 160, radius: 0.6,  stage: 3, weight: 1.6, blurb: 'Tiny, fast, zigzagging. Hard to hit, worth a lot.' },
+  cardinality: { name: 'Cardinality explosion',   hp: 1, points: 60,  radius: 1.0,  stage: 4, weight: 1.6, blurb: 'A metric covered in tags. Shoot it and it splits into three.' },
+  zombie:      { name: 'Zombie snapshot',         hp: 1, points: 110, radius: 0.9,  stage: 5, weight: 1.5, blurb: 'Destroy it and it comes back once. Snapshots never quite die.' },
+  lb:          { name: 'Orphaned load balancer',  hp: 4, points: 220, radius: 1.1,  stage: 6, weight: 1,   blurb: 'Tanky, and shielded head-on — shoot it when it turns side-on.' },
+  cardmini:    { name: 'Stray metric',            hp: 1, points: 30,  radius: 0.55, stage: 99, weight: 0,  blurb: '' },   // spawned by a cardinality explosion
 };
+// Not shootable: a hazard like the obstacles, but in the air.
+export const LOG_FLOOD = { name: 'Log flood', stage: 7, every: 9, blurb: 'A wall of scrolling logs sweeping in — fly over or under it.' };
 
 export const POWERUPS = {
   shield: { name: 'Savings Plan', icon: '🛡️', color: 0x4fb3ff, seconds: 10, blurb: 'Commit and you are covered: absorbs one hit.' },
@@ -44,7 +53,6 @@ export const BALANCE = {
   spawnEvery: 0.85, spawnFloor: 0.38,                 // seconds between waste spawns
   coinEvery: 0.55,
   powerupEvery: 14,
-  bossEvery: 40,                                      // seconds of play between bosses
   bossHp: 26, bossHpStep: 10,
   fireEvery: 0.14, dashCooldown: 1.8, dashTime: 0.35,
   invulnTime: 1.6,
@@ -52,6 +60,12 @@ export const BALANCE = {
   comboStep: 10, comboMaxMult: 4,                     // +0.5x per 10 in a row, capped
   // tokens: a coin is worth tokensPerCoin, a boss bossTokens, plus score/scorePerToken
   tokensPerCoin: 1, bossTokens: 25, scorePerToken: 400,
+  // stage structure (the Space Harrier half): each stage is stageSeconds of waves, then a boss
+  stageSeconds: 32, obstacleEvery: 1.2, formationEvery: 7,
+  bonusSeconds: 20, bonusTokenCap: 40,           // piggy-bank ride: a token per smash, capped
+  maxContinues: 3,
+  // every oneUpCoins coins a Mudslide (from the Mudslides cabinet) flies in: grab it for a life
+  oneUpCoins: 100, maxLives: 5, oneUpFullBonus: 1000,
 };
 
 export const BOSS_LINES = [

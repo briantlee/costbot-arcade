@@ -21,7 +21,9 @@ arcade/
   mudslides/            the endless runner
     assets/             its own art (the Mudslide glass, the wipeout shot)
   mudsliders/           redirect stub — the game's old name, old URL
-  cloud-patrol/         the 3D rail shooter (three.js) — CostBot vs. waste and vendor bosses
+  cloud-patrol/         the 3D rail shooter (three.js) — a Space Harrier homage: checkerboard
+                        stages, obstacles, formations, the Megabill serpent, a piggy-bank bonus
+                        (cp-world.js builds the world, cp-game.js runs it)
   shared/
     assets/             art used by the landing page itself (CostBot, CostBotLand)
                         the token coin ships in three sizes — pick the one that
@@ -135,7 +137,7 @@ the console is the expected, healthy path here.
 cd arcade/waste-hunter && node smoketest.js      # ~90s: full game suite
 FULL=1 node smoketest.js                         # plays a whole stage; use for pacing work
 cd arcade/mudslides && node smoketest.js         # ~15s: runner suite
-cd arcade/cloud-patrol && node smoketest.js      # ~60s: menus, secrets, a run, a boss, a death
+cd arcade/cloud-patrol && node smoketest.js      # ~90s: menus, secrets, obstacles, formations, both bosses, bonus, continue, initials
 cd ~/aix-proto/examples/costbot-arcade && npm test
 ```
 
