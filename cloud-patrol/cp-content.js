@@ -55,6 +55,8 @@ export const BALANCE = {
   stageSeconds: 32, obstacleEvery: 1.2, formationEvery: 7,
   bonusSeconds: 20, bonusTokenCap: 40,           // piggy-bank ride: a token per smash, capped
   maxContinues: 3,
+  // every oneUpCoins coins a Mudslide (from the Mudslides cabinet) flies in: grab it for a life
+  oneUpCoins: 100, maxLives: 5, oneUpFullBonus: 1000,
 };
 
 export const BOSS_LINES = [

@@ -263,6 +263,18 @@ function buildFactories() {
       const mat = glow(0.45, 1.5, 1.8);
       return () => new THREE.Mesh(geo, mat);
     })(),
+    // the 1-UP: the Mudslides cabinet's own Mudslide glass, glowing
+    mudslide() {
+      const g = new THREE.Group();
+      const map = new THREE.TextureLoader().load(new URL('../mudslides/assets/mudslide.png', import.meta.url).href);
+      map.colorSpace = THREE.SRGBColorSpace;
+      const glass = new THREE.Sprite(new THREE.SpriteMaterial({ map, transparent: true, depthWrite: false }));
+      glass.scale.set(2.3, 2.3, 1); g.add(glass);
+      const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot, color: 0xffd9a0, transparent: true, opacity: 0.7, depthWrite: false, blending: THREE.AdditiveBlending }));
+      halo.scale.setScalar(4); g.add(halo);
+      g.userData.halo = halo;
+      return g;
+    },
     powerup(kind) {
       const def = POWERUPS[kind];
       const g = new THREE.Group();
@@ -505,6 +517,7 @@ export function mount(target, opts = {}) {
       <span>Vendor bills</span><span class="d">Every stage ends in a boss: a megabill vendor's badge, or the Megabill itself — a serpent of overdue invoices. Shoot the pages off, then hit the head.</span>
       <span>🐷 Bonus stage</span><span class="d">Every third stage, ride the piggy bank: invincible for ${B.bonusSeconds}s, smash everything for tokens.</span>
       <span>Skimming</span><span class="d">Fly low and CostBot runs along the ground.</span>
+      <span>🍫 Mudslide</span><span class="d">Every ${B.oneUpCoins} coins a Mudslide flies in — grab it for an extra life (up to ${B.maxLives}).</span>
       <div class="h">Combo</div>
       <span>×${B.comboMaxMult} max</span><span class="d">Every ${B.comboStep} coins or kills in a row adds ×0.5. Getting hit resets it.</span>
       <div class="h">Psst</div>
@@ -1046,6 +1059,7 @@ export function mount(target, opts = {}) {
     let mesh, hp = 1, r = 0.9;
     if (kind === 'coin') { mesh = F.coin(); r = 0.8; }
     else if (kind in ENEMIES) { mesh = F[kind](); hp = ENEMIES[kind].hp; r = ENEMIES[kind].radius; }
+    else if (kind === 'mudslide') { mesh = F.mudslide(); r = 1.3; }
     else { mesh = F.powerup(kind); r = 0.95; }
     mesh.position.set(x, y, z);
     scene.add(mesh);
@@ -1227,6 +1241,27 @@ export function mount(target, opts = {}) {
       r.coins += 1; r.st.coins += 1; bumpCombo(); addScore(B.coinPoints);
       sparks.burst(th.mesh.position, '#ffd23a', 10, 4);
       audio.coin();
+      if (r.coins % B.oneUpCoins === 0) {
+        // a Mudslide flies in along his lane — miss it and it's gone till the next hundred
+        // off to one side of his lane, so it isn't hidden behind him on the way in — steer into it
+        const side = r.px > 0 ? -1 : r.px < 0 ? 1 : pick([-1, 1]);
+        spawnThing('mudslide', clamp(r.px + side * rand(1.8, 2.8), -FIELD.x + 0.5, FIELD.x - 0.5), clamp(r.py + HIT_Y + rand(-0.5, 0.8), 1.4, 6), -110);
+        toastMsg(`🍫 ${fmt(r.coins)} coins — a Mudslide is on the way! Grab it for an extra life.`, 3);
+        voice.say('Mudslide incoming!');
+      }
+    } else if (th.kind === 'mudslide') {
+      sparks.burst(th.mesh.position, '#b07a4a', 40, 9);
+      sparks.burst(th.mesh.position, '#fff1d6', 30, 7);
+      audio.fanfare();
+      hitStop(0.06, 0.15);
+      if (r.lives < B.maxLives) {
+        r.lives += 1;
+        bannerMsg('1-UP! 🍫<small>a Mudslide — extra life</small>', 1.8);
+        voice.say('One up!', { urgent: true });
+      } else {
+        addScore(B.oneUpFullBonus, th.mesh.position, '#ffd9a0');
+        bannerMsg('🍫 FULL UP<small>lives maxed — +1,000 instead</small>', 1.8);
+      }
     } else {
       const def = POWERUPS[th.kind];
       r.pups[th.kind] = def.seconds;
@@ -1342,6 +1377,9 @@ export function mount(target, opts = {}) {
         if (!pathed && m.position.z > -70 && m.position.z < -4) {
           m.position.x = lerp(m.position.x, pc.x, dt * 0.9); m.position.y = lerp(m.position.y, pc.y, dt * 0.9);
         }
+      } else if (th.kind === 'mudslide') {
+        m.position.y = th.baseY + Math.sin(t * 3 + th.phase) * 0.35;
+        m.userData.halo.material.opacity = 0.5 + Math.sin(t * 6) * 0.25;
       } else {
         m.rotation.y += dt;
         m.position.y = th.baseY + Math.sin(t * 2 + th.phase) * 0.3;
@@ -1466,7 +1504,7 @@ export function mount(target, opts = {}) {
     setV('top', `TOP ${fmt(Math.max(profile.best, arcadeTop, table()[0] ? table()[0].s : 0, r.score))}`);
     setV('mult', `×${mult()} · combo ${r.combo}`);
     setV('stage', bonus ? `🐷 BONUS · ${Math.ceil(r.phaseT)}s` : `STAGE ${r.stage + 1} · ${stageFor(r.stage).name}`);
-    setV('hearts', '❤️'.repeat(Math.max(0, r.lives)) + '🖤'.repeat(Math.max(0, B.lives - r.lives)));
+    setV('hearts', '❤️'.repeat(Math.max(0, r.lives)) + '🖤'.repeat(Math.max(0, B.lives - r.lives)));   // extra lives show as extra hearts
     setV('runTok', `+${fmt(tokensFor(r))} tokens`);
     const pupHtml = Object.entries(r.pups).filter(([, sec]) => sec > 0)
       .map(([k, sec]) => `<div class="cp-pup">${POWERUPS[k].icon} ${POWERUPS[k].name} ${Math.ceil(sec)}s</div>`).join('')
@@ -1599,6 +1637,7 @@ export function mount(target, opts = {}) {
     // test hooks
     _hurt: () => { if (run) { run.invuln = 0; hurt(); } },
     _killBoss: () => { if (run && run.boss) killBoss(); },
+    _coins: (n) => { if (run) { run.coins = n - 1; grab({ kind: 'coin', mesh: bot.root }); } },
     _phase: (p) => { if (run) { if (p === 'bonus') enterBonus(); else if (p === 'boss') { setPhase('boss', 0); spawnBoss(); } } },
     destroy() {
       alive = false;

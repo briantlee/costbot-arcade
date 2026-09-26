@@ -206,84 +206,47 @@ export function makePiggy() {
 }
 
 // ---------------------------------------------------------------------------
-// CostBot's voice: synthesized babble, Animal Crossing style. Every letter is a
-// tiny blip — a click for a consonant, a buzzy vowel shaped by two formant filters
-// — sung on a bouncy pitch contour pitched between a kid and a robot. Nothing is
-// intelligible, on purpose; the words are on screen. Plays through the game's own
-// audio master, so M mutes it with everything else.
+// CostBot's voice: the browser's own speech (so you can hear the words), pitched
+// up into kid/androgynous territory and a little quick, with a two-note synth
+// "bee-boop" in front of every line for the robot. Speech synthesis can't be run
+// through WebAudio effects, so the chirp is where the robot lives. M mutes both.
 // ---------------------------------------------------------------------------
-const VOWELS = {                        // F1/F2 formants (Hz) per vowel shape
-  a: [800, 1250], e: [520, 1900], i: [330, 2400], o: [520, 900], u: [380, 950],
-};
-const shapeOf = (ch) => (/[aä]/.test(ch) ? 'a' : /[eé]/.test(ch) ? 'e' : /[iy]/.test(ch) ? 'i' : /[ow]/.test(ch) ? 'o' : /[u]/.test(ch) ? 'u' : null);
 export function makeVoice(getNodes) {
-  let muted = false, busyUntil = 0;
-  const live = new Set();
-  const stopAll = () => { for (const n of live) { try { n.stop(); } catch { /* already stopped */ } } live.clear(); busyUntil = 0; };
-  function blip(ctx, out, t, f0, shape, dur, consonant) {
-    // voiced part: a square buzz with a little vibrato, through two formant band-passes
-    const osc = ctx.createOscillator(); osc.type = 'square';
-    osc.frequency.setValueAtTime(f0, t);
-    osc.frequency.linearRampToValueAtTime(f0 * 1.04, t + dur * 0.5);
-    osc.frequency.linearRampToValueAtTime(f0 * 0.98, t + dur);
-    const [F1, F2] = VOWELS[shape];
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.5, t + 0.008);
-    g.gain.setValueAtTime(0.5, t + dur * 0.6);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    for (const [F, q, k] of [[F1, 6, 1], [F2, 9, 0.6]]) {
-      const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = F * (f0 / 440) ** 0.25; bp.Q.value = q;
-      const lvl = ctx.createGain(); lvl.gain.value = k;
-      osc.connect(bp).connect(lvl).connect(g);
-    }
-    g.connect(out);
-    osc.start(t); osc.stop(t + dur + 0.02);
-    live.add(osc); osc.onended = () => live.delete(osc);
-    if (consonant) {                      // a short noise click in front of the vowel
-      const len = Math.floor(ctx.sampleRate * 0.018), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
-      const src = ctx.createBufferSource(); src.buffer = buf;
-      const hp = ctx.createBiquadFilter(); hp.type = 'bandpass'; hp.frequency.value = 2600 + (consonant.charCodeAt(0) % 7) * 400; hp.Q.value = 1.5;
-      const cg = ctx.createGain(); cg.gain.value = 0.35;
-      src.connect(hp).connect(cg).connect(out);
-      src.start(t - 0.012);
-      live.add(src); src.onended = () => live.delete(src);
-    }
+  const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
+  let voice = null, muted = false, last = 0;
+  const pickVoice = () => {
+    if (!synth) return;
+    const vs = synth.getVoices().filter((v) => /^en/i.test(v.lang));
+    // neutral-leaning voices read as "not quite a person" once pitched up
+    voice = vs.find((v) => /aria|jenny|zira|google us english|samantha/i.test(v.name)) || vs[0] || null;
+  };
+  if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; }
+  function chirp() {
+    const n = getNodes && getNodes();
+    if (!n) return;
+    const { ctx, master } = n;
+    [[880, 0], [1320, 0.07]].forEach(([f, dt]) => {
+      const o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + dt;
+      o.type = 'square'; o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.07, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+      o.connect(g).connect(master); o.start(t); o.stop(t + 0.08);
+    });
   }
   return {
-    setMuted(m) { muted = m; if (m) stopAll(); },
-    // `urgent` lines cut in; the rest wait for quiet and are skipped if he's mid-sentence
+    setMuted(m) { muted = m; if (m && synth) synth.cancel(); },
+    // `urgent` lines cut in; the rest wait for quiet and are rate-limited
     say(text, { urgent = false } = {}) {
-      const n = getNodes && getNodes();
-      if (!n || muted) return;
-      const { ctx, master } = n;
-      if (!urgent && ctx.currentTime < busyUntil) return;
-      if (urgent) stopAll();
-      const out = ctx.createGain(); out.gain.value = 0.55; out.connect(master);
-      const words = text.toLowerCase().replace(/[^a-z0-9 !?.,'-]/g, '').slice(0, 48);
-      const question = /\?\s*$/.test(text), exclaim = /!\s*$/.test(text);
-      const base = 410 + Math.random() * 40;               // between a kid and a little robot
-      let t = ctx.currentTime + 0.03, pending = '', idx = 0;
-      const last = words.replace(/[^a-z0-9]/g, '').length;
-      for (const ch of words) {
-        if (ch === ' ') { t += 0.035; continue; }
-        if (/[.,!?]/.test(ch)) { t += 0.09; continue; }
-        const shape = shapeOf(ch);
-        if (!shape) { pending = ch; if (/[0-9]/.test(ch)) { blip(ctx, out, t, base * 1.2, 'i', 0.05, null); t += 0.06; idx += 1; } continue; }
-        idx += 1;
-        // sing-song: each syllable hops around a small scale; questions rise, shouts lift
-        const step = [0, 3, 5, 2, 7, 4][(ch.charCodeAt(0) + idx) % 6];
-        const tail = idx / Math.max(1, last);
-        const lift = question ? tail * 6 : exclaim ? 2 + tail * 2 : -tail * 2;
-        const f0 = base * 2 ** ((step + lift) / 12);
-        const dur = 0.055 + (shape === 'a' || shape === 'o' ? 0.015 : 0);
-        blip(ctx, out, t, f0, shape, dur, pending || null);
-        pending = '';
-        t += dur + 0.012;
-      }
-      busyUntil = t;
+      if (!synth || muted) return;
+      const now = performance.now();
+      if (!urgent && (synth.speaking || now - last < 1500)) return;
+      if (urgent) synth.cancel();
+      last = now;
+      chirp();
+      const u = new SpeechSynthesisUtterance(text);
+      if (voice) u.voice = voice;
+      u.pitch = 1.55; u.rate = 1.1; u.volume = 0.95;
+      setTimeout(() => synth.speak(u), 140);     // let the bee-boop land first
     },
-    stop: stopAll,
+    stop() { if (synth) synth.cancel(); },
   };
 }
