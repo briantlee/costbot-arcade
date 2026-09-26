@@ -46,6 +46,7 @@ const HIT_R = 0.75;
 const SPAWN_Z = -140;
 const BOSS_R = 3.4;
 const MUSIC_VOL = 0.45;
+const MASTER_VOL = 0.16;    // everything (music + sfx + chirps) runs through this; halved from 0.32 — it was loud
 
 const NO_WALLET = { tokens: 0, earn: () => 0, spend: () => false, bank: () => 0, init: () => ({}), onChange: () => () => {} };
 const wallet = () => window.ArcadeWallet || NO_WALLET;
@@ -85,7 +86,7 @@ function makeAudio() {
     if (!Ctor) return null;
     ctx = new Ctor();
     master = ctx.createGain();
-    master.gain.value = muted ? 0.0001 : 0.32;
+    master.gain.value = muted ? 0.0001 : MASTER_VOL;
     master.connect(ctx.destination);
     return ctx;
   }
@@ -122,7 +123,7 @@ function makeAudio() {
     setMuted(m) {
       muted = m;
       const c = ensure();
-      if (c && master) master.gain.setTargetAtTime(muted ? 0.0001 : 0.32, c.currentTime, 0.05);
+      if (c && master) master.gain.setTargetAtTime(muted ? 0.0001 : MASTER_VOL, c.currentTime, 0.05);
     },
     // cha-ching: two bright bells over a register rattle
     coin: () => { tone(1318, 0.09, 'triangle', 0.13); tone(1976, 0.22, 'triangle', 0.12, null, 0.06); },

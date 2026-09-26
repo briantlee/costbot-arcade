@@ -244,7 +244,7 @@ export function makeVoice(getNodes) {
       chirp();
       const u = new SpeechSynthesisUtterance(text);
       if (voice) u.voice = voice;
-      u.pitch = 1.55; u.rate = 1.1; u.volume = 0.95;
+      u.pitch = 1.55; u.rate = 1.1; u.volume = 0.5;     // halved along with the game audio
       setTimeout(() => synth.speak(u), 140);     // let the bee-boop land first
     },
     stop() { if (synth) synth.cancel(); },
