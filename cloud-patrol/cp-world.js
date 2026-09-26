@@ -213,14 +213,26 @@ export function makePiggy() {
 // thinner band (androgynous). Plays through the game master, so M mutes it.
 // If the engine can't load, falls back to browser speech.
 // ---------------------------------------------------------------------------
-const VOICE = {
-  espeak: { pitch: 62, speed: 158, variant: 'f2', wordgap: 1 },   // eSpeak's own knobs (0–99 pitch, wpm)
-  rate: 1.12,          // playback speed-up: raises pitch ~2 semitones and quickens him
-  ringHz: 52,          // the robot: ring-mod frequency…
-  ringMix: 0.42,       // …and how much of it sits under the clean voice
-  combMs: 6, combFeedback: 0.32, combMix: 0.22,
-  level: 0.7,
-};
+// Presets for the (temporary) Voice Lab. espeak = eSpeak's own knobs (pitch 0–99,
+// speed wpm, variant); rate = playback speed-up (pitch + tempo); ringHz/ringMix =
+// the robot; comb* = tin-can shimmer. engine:'browser' uses built-in speech instead.
+export const DEFAULT_VOICE = 'chip';
+export const VOICE_PRESETS = [
+  // the default: Chiptune Buddy tuned in the lab to high pitch, medium speed, medium robot
+  { id: 'chip', name: 'Chiptune Buddy (default)', espeak: { pitch: 84, speed: 165, variant: 'klatt2' }, rate: 1.3, ringHz: 110, ringMix: 0.4, combMs: 3, combFeedback: 0.4, combMix: 0.2 },
+  { id: 'costbot', name: 'CostBot (classic)', espeak: { pitch: 62, speed: 158, variant: 'f2' }, rate: 1.12, ringHz: 52, ringMix: 0.42, combMs: 6, combFeedback: 0.32, combMix: 0.22 },
+  { id: 'littlebot', name: 'Little Bot', espeak: { pitch: 82, speed: 170, variant: 'f5' }, rate: 1.2, ringHz: 70, ringMix: 0.3, combMs: 5, combFeedback: 0.25, combMix: 0.15 },
+  { id: 'sprite', name: 'Sprite', espeak: { pitch: 92, speed: 182, variant: 'f4' }, rate: 1.25, ringHz: 90, ringMix: 0.22, combMs: 4, combFeedback: 0.2, combMix: 0.1 },
+  { id: 'retro', name: 'Retro Computer', espeak: { pitch: 50, speed: 150, variant: 'klatt' }, rate: 1.0, ringHz: 0, ringMix: 0, combMs: 8, combFeedback: 0.2, combMix: 0.12 },
+  { id: 'klattkid', name: 'Klatt Kid', espeak: { pitch: 86, speed: 165, variant: 'klatt3' }, rate: 1.16, ringHz: 46, ringMix: 0.25, combMs: 6, combFeedback: 0.25, combMix: 0.15 },
+  { id: 'tincan', name: 'Tin Can', espeak: { pitch: 60, speed: 150, variant: 'm3' }, rate: 1.1, ringHz: 62, ringMix: 0.58, combMs: 7, combFeedback: 0.5, combMix: 0.45 },
+  { id: 'dalek', name: 'Dalek-lite', espeak: { pitch: 38, speed: 140, variant: 'm1' }, rate: 1.0, ringHz: 30, ringMix: 0.75, combMs: 9, combFeedback: 0.35, combMix: 0.25 },
+  { id: 'soft', name: 'Soft Synth', espeak: { pitch: 72, speed: 150, variant: 'whisperf' }, rate: 1.1, ringHz: 50, ringMix: 0.3, combMs: 6, combFeedback: 0.3, combMix: 0.3 },
+  { id: 'croak', name: 'Croak Bot', espeak: { pitch: 70, speed: 152, variant: 'croak' }, rate: 1.15, ringHz: 55, ringMix: 0.35, combMs: 6, combFeedback: 0.3, combMix: 0.2 },
+  { id: 'clean', name: 'Clean Kid (no robot)', espeak: { pitch: 86, speed: 165, variant: 'f3' }, rate: 1.15, ringHz: 0, ringMix: 0, combMs: 6, combFeedback: 0, combMix: 0 },
+  { id: 'browser', name: 'Browser speech (built-in)', engine: 'browser', pitch: 1.5, rate: 1.1 },
+];
+let VOICE = { ...VOICE_PRESETS[0], level: 0.7 };
 let meSpeakReady = null;
 function loadMeSpeak() {
   if (meSpeakReady) return meSpeakReady;
@@ -250,18 +262,18 @@ export function makeVoice(getNodes) {
     const out = ctx.createGain(); out.gain.value = VOICE.level;
     src.connect(hp);
     // clean voice
-    const dry = ctx.createGain(); dry.gain.value = 1 - VOICE.ringMix * 0.5;
+    const dry = ctx.createGain(); dry.gain.value = 1 - (VOICE.ringMix || 0) * 0.5;
     hp.connect(dry).connect(lp);
     // ring modulator: the voice multiplied by a low sine — the classic robot
     const ring = ctx.createGain(); ring.gain.value = 0;
-    const lfo = ctx.createOscillator(); lfo.frequency.value = VOICE.ringHz;
+    const lfo = ctx.createOscillator(); lfo.frequency.value = VOICE.ringHz || 1;
     lfo.connect(ring.gain);
-    const ringOut = ctx.createGain(); ringOut.gain.value = VOICE.ringMix;
+    const ringOut = ctx.createGain(); ringOut.gain.value = VOICE.ringHz ? VOICE.ringMix : 0;
     hp.connect(ring).connect(ringOut).connect(lp);
     // a short comb for that tin-can shimmer
-    const dl = ctx.createDelay(0.05); dl.delayTime.value = VOICE.combMs / 1000;
-    const fb = ctx.createGain(); fb.gain.value = VOICE.combFeedback;
-    const comb = ctx.createGain(); comb.gain.value = VOICE.combMix;
+    const dl = ctx.createDelay(0.05); dl.delayTime.value = (VOICE.combMs || 6) / 1000;
+    const fb = ctx.createGain(); fb.gain.value = VOICE.combFeedback || 0;
+    const comb = ctx.createGain(); comb.gain.value = VOICE.combMix || 0;
     hp.connect(dl); dl.connect(fb).connect(dl); dl.connect(comb).connect(lp);
     lp.connect(out).connect(master);
     const t = ctx.currentTime + 0.02;
@@ -273,8 +285,21 @@ export function makeVoice(getNodes) {
     src.onended = () => { if (current === src) current = null; };
   }
 
+  let browserVoice = null;
   return {
     setMuted(m) { muted = m; if (m) stopCurrent(); },
+    // Voice Lab: pick a preset (plus optional overrides: { pitch, speed, robot } as 0–1 sliders)
+    setPreset(id, tweak = {}) {
+      const base = VOICE_PRESETS.find((x) => x.id === id) || VOICE_PRESETS[0];
+      VOICE = { ...base, espeak: { ...(base.espeak || {}) }, level: 0.7 };
+      if (tweak.pitch != null && VOICE.espeak) VOICE.espeak.pitch = Math.round(tweak.pitch * 99);
+      if (tweak.speed != null && VOICE.espeak) VOICE.espeak.speed = Math.round(110 + tweak.speed * 110);
+      if (tweak.robot != null && VOICE.espeak) { VOICE.ringMix = tweak.robot * 0.8; VOICE.ringHz = VOICE.ringHz || 52; VOICE.combMix = tweak.robot * 0.4; }
+      browserVoice = tweak.browserVoice || null;
+      return VOICE;
+    },
+    get preset() { return VOICE; },
+    get ready() { return !!engine; },
     // `urgent` lines cut in; the rest wait for quiet and are skipped if he's mid-sentence
     say(text, { urgent = false } = {}) {
       if (muted) return;
@@ -283,15 +308,19 @@ export function makeVoice(getNodes) {
       const { ctx, master } = n;
       if (!urgent && ctx.currentTime < busyUntil) return;
       if (urgent) stopCurrent();
-      if (engine) {
-        const wav = engine.speak(text, { rawdata: 'array', ...VOICE.espeak });
+      if (engine && VOICE.engine !== 'browser') {
+        // eSpeak spells out some capitalised words mid-sentence ("Cloud Zone" → "Z-O-N-E"),
+        // so Title-case words go in lowercase; ALL-CAPS acronyms are left alone.
+        const said = text.replace(/\b[A-Z][a-z]+\b/g, (w) => w.toLowerCase());
+        const wav = engine.speak(said, { rawdata: 'array', wordgap: 1, ...VOICE.espeak });
         if (!wav) return;
         const bytes = wav instanceof ArrayBuffer ? wav : new Uint8Array(wav).buffer;
         busyUntil = ctx.currentTime + 0.5;          // hold the slot while it decodes
         ctx.decodeAudioData(bytes.slice(0)).then((buf) => { if (!muted) play(ctx, master, buf); }).catch(() => {});
       } else if (synth) {                             // engine not loaded (yet): plain browser speech
         const u = new SpeechSynthesisUtterance(text);
-        u.pitch = 1.5; u.rate = 1.1; u.volume = 0.5;
+        u.pitch = VOICE.pitch || 1.5; u.rate = VOICE.rate || 1.1; u.volume = 0.5;
+        if (browserVoice) { const bv = synth.getVoices().find((x) => x.name === browserVoice); if (bv) u.voice = bv; }
         synth.speak(u);
         busyUntil = ctx.currentTime + 0.08 * text.length;
       }

@@ -31,9 +31,9 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { createCostBot, OUTFITS, makeCoinFactory } from '../shared/costbot-3d.js';
-import { VENDORS, ENEMIES, POWERUPS, BALANCE as B, QUIPS, SECRETS } from './cp-content.js';
+import { VENDORS, ENEMIES, LOG_FLOOD, POWERUPS, BALANCE as B, QUIPS, SECRETS } from './cp-content.js';
 import { createMidiMusic } from './cp-midi.js';
-import { STAGES, stageFor, BONUS_EVERY, makeGround, buildObstacles, makeSerpentSegment, makePiggy, makeVoice } from './cp-world.js';
+import { STAGES, stageFor, BONUS_EVERY, makeGround, buildObstacles, makeSerpentSegment, makePiggy, makeVoice, VOICE_PRESETS, DEFAULT_VOICE } from './cp-world.js';
 
 const GAME_ID = 'cloud-patrol';
 const KEY = 'costbot.cloudpatrol.v1';
@@ -264,6 +264,85 @@ function buildFactories() {
       const mat = glow(0.45, 1.5, 1.8);
       return () => new THREE.Mesh(geo, mat);
     })(),
+    // untagged resource: a grey crate with a "?" — the first hit slaps a price tag on it
+    untagged() {
+      const g = new THREE.Group();
+      const mat = new THREE.MeshStandardMaterial({ color: 0x7c8494, metalness: 0.3, roughness: 0.55 });
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.3, 1.3), mat));
+      const q = new THREE.Sprite(new THREE.SpriteMaterial({ map: textTex('?', '#ffd23a'), transparent: true, depthWrite: false }));
+      q.scale.set(1.6, 0.8, 1); q.position.y = 1.15; g.add(q);
+      const tag = new THREE.Sprite(new THREE.SpriteMaterial({ map: emojiTex('🏷️'), transparent: true, depthWrite: false }));
+      tag.scale.setScalar(1.1); tag.position.y = 1.15; tag.visible = false; g.add(tag);
+      g.userData = { mat, q, tag };
+      return g;
+    },
+    // unattached Elastic IP: a small glowing map pin
+    elasticIp() {
+      const g = new THREE.Group();
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.36, 16, 12), glow(0.4, 2.0, 2.4)); head.position.y = 0.25; g.add(head);
+      const tip = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.55, 12), glow(0.25, 1.1, 1.5)); tip.rotation.x = Math.PI; tip.position.y = -0.2; g.add(tip);
+      const ip = new THREE.Sprite(new THREE.SpriteMaterial({ map: textTex('IP', '#bff4ff'), transparent: true, depthWrite: false }));
+      ip.scale.set(1.0, 0.5, 1); ip.position.y = 0.95; g.add(ip);
+      return g;
+    },
+    // cardinality explosion: a Datadog-purple blob bristling with tags
+    cardinality(mini = false) {
+      const g = new THREE.Group();
+      const R = mini ? 0.45 : 0.85;
+      const blob = new THREE.Mesh(new THREE.IcosahedronGeometry(R, 1),
+        new THREE.MeshStandardMaterial({ color: 0x7b3fc8, emissive: 0x4a1f8f, emissiveIntensity: 0.9, roughness: 0.4, flatShading: true }));
+      g.add(blob);
+      const tagMat = new THREE.MeshStandardMaterial({ color: 0xffd23a, emissive: 0x6a4a00, roughness: 0.5 });
+      for (let i = 0; i < (mini ? 4 : 9); i++) {
+        const d = new THREE.Vector3().randomDirection();
+        const t2 = new THREE.Mesh(new THREE.BoxGeometry(R * 0.35, R * 0.18, 0.05), tagMat);
+        t2.position.copy(d.multiplyScalar(R * 1.05)); t2.lookAt(0, 0, 0); g.add(t2);
+      }
+      return g;
+    },
+    cardmini() { return this.cardinality(true); },
+    // zombie snapshot: a cracked disk with glowing green eyes
+    zombie() {
+      const g = new THREE.Group();
+      const mat = new THREE.MeshStandardMaterial({ color: 0x55605a, metalness: 0.5, roughness: 0.6, emissive: 0x0c2a12, emissiveIntensity: 0.6 });
+      const disk = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.3, 24), mat); disk.rotation.x = Math.PI / 2; g.add(disk);
+      const crack = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.2, 0.05), black); crack.position.z = 0.17; crack.rotation.z = 0.5; g.add(crack);
+      for (const sx of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), glow(0.6, 2.6, 0.6)); e.position.set(sx * 0.28, 0.18, 0.18); g.add(e); }
+      g.userData = { mat };
+      return g;
+    },
+    // orphaned load balancer: a balance scale behind a shield it turns away from you
+    lb() {
+      const g = new THREE.Group();
+      const metal = new THREE.MeshStandardMaterial({ color: 0xb8c4d6, metalness: 0.85, roughness: 0.3 });
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 1.6, 10), metal); g.add(pole);
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.08, 0.08), metal); beam.position.y = 0.72; g.add(beam);
+      for (const sx of [-1, 1]) {
+        const pan = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.28, 0.1, 18), metal); pan.position.set(sx * 0.9, 0.25, 0); g.add(pan);
+        const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.5, 6), metal); cord.position.set(sx * 0.9, 0.5, 0); g.add(cord);
+      }
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.55, 0.15, 18), metal); base.position.y = -0.8; g.add(base);
+      const shield = new THREE.Mesh(new THREE.CircleGeometry(1.25, 6),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(0.4, 1.2, 2.2), transparent: true, opacity: 0.28, side: THREE.DoubleSide, depthWrite: false, toneMapped: false }));
+      shield.position.z = 0.55; g.add(shield);
+      g.userData = { shield };
+      return g;
+    },
+    // the log flood: a wide band of scrolling log lines — a wall in the air
+    logflood() {
+      const tex = canvasTex(1024, 128, (c) => {
+        c.fillStyle = 'rgba(4,12,8,0.85)'; c.fillRect(0, 0, 1024, 128);
+        c.font = '600 18px ui-monospace,monospace';
+        const L = ['ERROR 503 upstream timeout', 'WARN retrying (attempt 7)', 'INFO GET /health 200', 'DEBUG cache miss key=usr:*', 'ERROR OOMKilled', 'INFO scaled to 48 pods'];
+        for (let row = 0; row < 6; row++) for (let x = -((row * 97) % 200); x < 1024; x += 330) {
+          c.fillStyle = row % 3 === 0 ? '#ff6b6b' : row % 3 === 1 ? '#ffd23a' : '#7dff9a'; c.fillText(L[(row + x) % L.length | 0] || L[0], x, 20 + row * 20);
+        }
+      });
+      tex.wrapS = THREE.RepeatWrapping;
+      const band = new THREE.Mesh(new THREE.PlaneGeometry(30, 1.7), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, toneMapped: false }));
+      band.userData = { tex };
+      return band;
+    },
     // the 1-UP: the Mudslides cabinet's own Mudslide glass, glowing
     mudslide() {
       const g = new THREE.Group();
@@ -390,6 +469,7 @@ const CSS = `
 .cp-howto kbd{background:#1b2a4a;border:1px solid #3b5a92;border-radius:6px;padding:1px 7px;font:600 12px ui-monospace,monospace}
 .cp-howto .h{grid-column:1/-1;color:var(--cyan);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-top:8px}
 .cp-howto .d{color:var(--muted)}
+.cp-howto .cp-st{font-style:normal;font-size:11px;color:var(--cyan);margin-left:4px}
 .cp-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,90vw);text-align:center;pointer-events:auto}
 .cp-results{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0 20px}
 .cp-results div{background:rgba(20,32,60,.6);border-radius:10px;padding:10px}
@@ -448,6 +528,18 @@ const CSS = `
   border:2px solid var(--line);border-radius:12px;background:rgba(20,32,60,.6)}
 .cp-slot.on b{border-color:#ffd23a;color:#ffd23a;box-shadow:0 0 18px rgba(255,210,58,.35)}
 .cp-slot button{padding:4px 12px !important;font-size:12px !important}
+.cp-temp{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#1a1200;background:#ffd23a;border-radius:6px;padding:2px 7px;vertical-align:middle}
+.cp-vlist{display:grid;gap:6px;margin:12px 0;max-height:38vh;overflow:auto}
+.cp-vrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:rgba(20,32,60,.45)}
+.cp-vrow.on{border-color:var(--cyan)}
+.cp-vrow em{font-style:normal;color:#ffd23a;font-size:12px;margin-left:6px}
+.cp-vrow button{padding:5px 10px !important;font-size:12px !important}
+.cp-vtune{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:6px 0 10px;font-size:13px;color:var(--muted)}
+.cp-vtune label{display:flex;flex-direction:column;gap:4px;pointer-events:auto}
+.cp-vtune .bv{grid-column:1/-1}
+.cp-vtune input,.cp-vtune select,.cp-vline select,.cp-vline input{pointer-events:auto;accent-color:#4fe3ff}
+.cp-vline{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:14px}
+.cp-vline select,.cp-vline input,.cp-vtune select{background:#0e1830;color:#e8eefc;border:1px solid var(--line);border-radius:8px;padding:7px 8px;font:13px system-ui,sans-serif}
 `;
 
 function el(html) {
@@ -486,7 +578,7 @@ export function mount(target, opts = {}) {
     <div class="cp-tag">Fly the cloud. Shoot down the waste, grab the coins, and shrink every megabill vendor's bill
       before it shrinks your budget.</div>
     <div class="cp-btns"><button class="primary" data-a="play">▶ Play</button><button data-a="locker">👕 Locker</button>
-      <button data-a="howto">❓ How to play</button></div>
+      <button data-a="howto">❓ How to play</button><button data-a="voicelab" title="Temporary: try CostBot voices">🎙 Voice Lab</button></div>
     <div class="cp-stats"><div>Best score<b data-v="best">0</b></div><div>Bosses beaten<b data-v="bosses">0</b></div>
       <div class="tok">Tokens on hand<b data-v="tokens">0</b></div></div>
     <div class="cp-hs"><div class="t">🏆 High scores</div><div class="cp-scores"></div></div>
@@ -497,7 +589,8 @@ export function mount(target, opts = {}) {
     <div class="cp-btns"><button data-a="back">← Back</button></div>
     <div class="cp-stats"><div class="tok">Tokens on hand<b data-v="tokens">0</b></div></div>
   </div></div></div>`);
-  const enemyRows = Object.values(ENEMIES).map((e) => `<span>${e.name}</span><span class="d">${e.blurb}</span>`).join('');
+  const enemyRows = Object.values(ENEMIES).filter((e) => e.blurb).map((e) => `<span>${e.name} <em class="cp-st">stage ${e.stage}+</em></span><span class="d">${e.blurb}</span>`).join('')
+    + `<span>${LOG_FLOOD.name} <em class="cp-st">stage ${LOG_FLOOD.stage}+</em></span><span class="d">${LOG_FLOOD.blurb}</span>`;
   const pupRows = Object.values(POWERUPS).map((p) => `<span>${p.icon} ${p.name}</span><span class="d">${p.blurb}</span>`).join('');
   const scrHow = el(`<div class="cp-screen menu"><div class="cp-panel" style="width:min(560px,56vw)"><div class="cp-card">
     <h2>❓ How to play</h2>
@@ -525,6 +618,23 @@ export function mount(target, opts = {}) {
       <span>🤫</span><span class="d">There are secrets. Some of them are very old.</span>
     </div>
     <div class="cp-btns"><button data-a="back">← Back</button></div>
+  </div></div></div>`);
+  // TEMPORARY: a lab for auditioning CostBot's voice. Pick a preset, nudge it, keep it.
+  const VOICE_LINES = ['Welcome to the Cloud Zone!', 'Get ready!', 'Here comes the bill!', 'Formation clear!', 'Ouch! Unbudgeted!',
+    'Mudslide incoming!', 'One up!', 'Continue?', 'Stage clear!', 'Budget exceeded.'];
+  const scrVoice = el(`<div class="cp-screen menu"><div class="cp-panel" style="width:min(620px,60vw)"><div class="cp-card">
+    <h2>🎙 Voice Lab <span class="cp-temp">temporary</span></h2>
+    <div class="sub">Try a voice, tune it, then ✓ Use it. Your pick is saved on this browser.</div>
+    <div class="cp-vlist"></div>
+    <div class="cp-vtune">
+      <label>Pitch <input type="range" min="0" max="1" step="0.01" data-t="pitch"></label>
+      <label>Speed <input type="range" min="0" max="1" step="0.01" data-t="speed"></label>
+      <label>Robot <input type="range" min="0" max="1" step="0.01" data-t="robot"></label>
+      <label class="bv">Browser voice <select data-t="browserVoice"></select></label>
+    </div>
+    <div class="cp-vline"><select data-t="line">${VOICE_LINES.map((l) => `<option>${l}</option>`).join('')}</select>
+      <input data-t="custom" placeholder="…or type your own line"><button data-a="vsay">▶ Say it</button></div>
+    <div class="cp-btns"><button data-a="back">← Back</button><button data-a="vreset">Reset to default</button></div>
   </div></div></div>`);
   const scrPause = el(`<div class="cp-screen dim"><div class="cp-center cp-card"><h2>Paused</h2>
     <div class="sub">The cloud will wait. It always bills by the hour anyway.</div>
@@ -565,7 +675,7 @@ export function mount(target, opts = {}) {
   const bubble = el('<div class="cp-bubble"></div>');
   const muteBtn = el('<button class="cp-mute" title="Mute (M)">🔊</button>');
   const pops = el('<div></div>');
-  [flash, pops, hud, scrTitle, scrLocker, scrHow, scrPause, scrOver, scrContinue, scrInitials, banner, toast, bubble, muteBtn].forEach((n) => ui.appendChild(n));
+  [flash, pops, hud, scrTitle, scrLocker, scrHow, scrVoice, scrPause, scrOver, scrContinue, scrInitials, banner, toast, bubble, muteBtn].forEach((n) => ui.appendChild(n));
   const V = (name) => ui.querySelectorAll(`[data-v="${name}"]`);
   const setV = (name, txt) => V(name).forEach((n) => { if (n.textContent !== String(txt)) n.textContent = txt; });
 
@@ -672,6 +782,8 @@ export function mount(target, opts = {}) {
   const musicSlot = (slot) => { if (music) music.setState(slot); };
   const voice = makeVoice(() => audio.nodes());
   voice.setMuted(!!profile.muted);
+  let vlab = profile.voice || { id: DEFAULT_VOICE, tweak: {} };
+  voice.setPreset(vlab.id, vlab.tweak);
   function toggleMute() {
     profile.muted = !profile.muted; save();
     audio.setMuted(profile.muted);
@@ -693,7 +805,7 @@ export function mount(target, opts = {}) {
 
   function show(name) {
     screen = name;
-    for (const [n, node] of [['title', scrTitle], ['locker', scrLocker], ['howto', scrHow], ['paused', scrPause], ['over', scrOver], ['continue', scrContinue], ['initials', scrInitials]]) {
+    for (const [n, node] of [['title', scrTitle], ['locker', scrLocker], ['howto', scrHow], ['voicelab', scrVoice], ['paused', scrPause], ['over', scrOver], ['continue', scrContinue], ['initials', scrInitials]]) {
       node.classList.toggle('on', n === name);
     }
     hud.classList.toggle('on', name === 'play' || name === 'paused' || name === 'continue');
@@ -702,6 +814,7 @@ export function mount(target, opts = {}) {
       musicSlot('menu');
     }
     if (name === 'locker') renderLocker();
+    if (name === 'voicelab') renderVoiceLab();
   }
 
   function say(text, secs = 2.2) { bubble.textContent = text; bubble.classList.add('on'); bubbleT = secs; }
@@ -746,6 +859,41 @@ export function mount(target, opts = {}) {
     }
   }
 
+  // ---- voice lab (temporary) ----
+  function sayLine() {
+    const custom = scrVoice.querySelector('[data-t="custom"]').value.trim();
+    voice.say(custom || scrVoice.querySelector('[data-t="line"]').value, { urgent: true });
+  }
+  function syncSliders() {
+    const p = voice.preset;
+    const e = p.espeak || {};
+    scrVoice.querySelector('[data-t="pitch"]').value = e.pitch != null ? e.pitch / 99 : 0.5;
+    scrVoice.querySelector('[data-t="speed"]').value = e.speed != null ? (e.speed - 110) / 110 : 0.5;
+    scrVoice.querySelector('[data-t="robot"]').value = (p.ringMix || 0) / 0.8;
+    const isB = p.engine === 'browser';
+    scrVoice.querySelectorAll('.cp-vtune label:not(.bv)').forEach((l) => { l.style.opacity = isB ? 0.35 : 1; });
+    scrVoice.querySelector('.cp-vtune .bv').style.display = isB ? '' : 'none';
+  }
+  function renderVoiceLab() {
+    const saved = (profile.voice && profile.voice.id) || DEFAULT_VOICE;
+    scrVoice.querySelector('.cp-vlist').innerHTML = VOICE_PRESETS.map((p) => `<div class="cp-vrow ${p.id === vlab.id ? 'on' : ''}">
+      <span>${p.name}${p.id === saved ? ' <em>✓ in use</em>' : ''}</span>
+      <button data-a="vtry" data-id="${p.id}">▶ Try</button><button data-a="vuse" data-id="${p.id}">✓ Use</button></div>`).join('');
+    const sel = scrVoice.querySelector('[data-t="browserVoice"]');
+    const vs = (window.speechSynthesis ? speechSynthesis.getVoices() : []).filter((v) => /^en/i.test(v.lang));
+    sel.innerHTML = '<option value="">(default)</option>' + vs.map((v) => `<option ${v.name === (vlab.tweak || {}).browserVoice ? 'selected' : ''}>${v.name}</option>`).join('');
+    if (!voice.ready) toastMsg('Loading the voice engine…', 1.5);
+    syncSliders();
+  }
+  scrVoice.addEventListener('input', (e) => {
+    const k = e.target.dataset && e.target.dataset.t;
+    if (!k || k === 'line' || k === 'custom') return;
+    vlab = { id: vlab.id, tweak: { ...(vlab.tweak || {}), [k]: k === 'browserVoice' ? e.target.value : +e.target.value } };
+    voice.setPreset(vlab.id, vlab.tweak);
+    if (vlab.id === ((profile.voice && profile.voice.id) || DEFAULT_VOICE)) { profile.voice = vlab; save(); }
+  });
+  scrVoice.addEventListener('change', (e) => { if (e.target.dataset && ['pitch', 'speed', 'robot', 'browserVoice', 'line'].includes(e.target.dataset.t)) sayLine(); });
+
   // ---- secrets ----
   function secretKey(k) {
     secretBuf.push(k.length === 1 ? k.toLowerCase() : k);
@@ -777,6 +925,7 @@ export function mount(target, opts = {}) {
   // ---- input ----
   const MOVE = { ArrowLeft: 1, ArrowRight: 1, ArrowUp: 1, ArrowDown: 1, a: 1, d: 1, w: 1, s: 1, ' ': 1 };
   function onKeyDown(e) {
+    if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;   // typing in the Voice Lab
     audio.resume();
     idleFor = 0;
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
@@ -813,6 +962,11 @@ export function mount(target, opts = {}) {
     if (a === 'play') startRun();
     else if (a === 'locker') show('locker');
     else if (a === 'howto') show('howto');
+    else if (a === 'voicelab') show('voicelab');
+    else if (a === 'vtry') { vlab = { id: b.dataset.id, tweak: {} }; voice.setPreset(vlab.id); syncSliders(); sayLine(); renderVoiceLab(); }
+    else if (a === 'vuse') { vlab = { id: b.dataset.id, tweak: vlab.id === b.dataset.id ? vlab.tweak : {} }; profile.voice = vlab; save(); voice.setPreset(vlab.id, vlab.tweak); toastMsg(`🎙 Voice set: ${VOICE_PRESETS.find((x) => x.id === vlab.id).name}`, 2); renderVoiceLab(); }
+    else if (a === 'vsay') sayLine();
+    else if (a === 'vreset') { vlab = { id: DEFAULT_VOICE, tweak: {} }; profile.voice = vlab; save(); voice.setPreset(DEFAULT_VOICE); syncSliders(); renderVoiceLab(); sayLine(); }
     else if (a === 'back' || a === 'menu') { bot.setOutfit(profile.outfit); show('title'); }
     else if (a === 'resume') resume();
     else if (a === 'quit') endRun('quit');
@@ -882,7 +1036,9 @@ export function mount(target, opts = {}) {
     setPhase('card', 2.6);
     stageTarget = stageFor(i);
     const st = stageFor(i);
-    bannerMsg(`STAGE ${i + 1}<small>${st.name}</small>`, 2.5);
+    const fresh = Object.values(ENEMIES).find((e) => e.stage === i + 1 && i > 0) || (LOG_FLOOD.stage === i + 1 ? LOG_FLOOD : null);
+    bannerMsg(`STAGE ${i + 1}<small>${st.name}${fresh ? ` · NEW: ${fresh.name}` : ''}</small>`, 2.5);
+    if (fresh) setTimeout(() => { if (run) toastMsg(`🆕 ${fresh.name} — ${fresh.blurb}`, 4); }, 900);
     voice.say(i === startStage ? 'Welcome to the Cloud Zone!' : 'Get ready!', { urgent: true });
     if (i === startStage) say(pick(QUIPS.start));
     musicSlot('stage');
@@ -1078,11 +1234,20 @@ export function mount(target, opts = {}) {
       spawnThing('coin', x, y, SPAWN_Z - i * 3.2);
     }
   }
+  // who shows up depends on the stage: each one adds a newcomer (see ENEMIES[].stage)
+  const roster = () => Object.entries(ENEMIES).filter(([, e]) => e.weight > 0 && e.stage <= run.stage + 1);
   function spawnWaste() {
-    const lvl = run.stage * 0.4 + run.stageTime / 60;
-    const roll = Math.random();
-    const kind = roll < 0.45 - lvl * 0.06 ? 'ebs' : roll < 0.8 - lvl * 0.04 ? 'ghost' : 'nat';
+    const list = roster();
+    let roll = Math.random() * list.reduce((a, [, e]) => a + e.weight, 0);
+    const [kind] = list.find(([, e]) => (roll -= e.weight) <= 0) || list[0];
     spawnThing(kind, rand(-FIELD.x, FIELD.x), rand(1, 6.8));
+  }
+  function spawnLogFlood() {
+    const mesh = F.logflood();
+    const y = rand(1.8, 5.6);
+    mesh.position.set(0, y, SPAWN_Z);
+    scene.add(mesh);
+    run.obst.push({ mesh, band: true, y, halfH: 0.85, depth: 0.6, hit: false, phase: rand(0, 6.28) });
   }
   function spawnObstacle(x = rand(-FIELD.x - 4, FIELD.x + 4)) {
     const kind = pick(stageFor(run.stage).obstacles);
@@ -1094,7 +1259,7 @@ export function mount(target, opts = {}) {
   }
   // squadrons in choreographed paths; clear a whole one for a bonus
   function spawnFormation() {
-    const type = pick(['conga', 'vee', 'ring']);
+    const type = pick(run.stage >= 1 ? ['conga', 'vee', 'ring'] : ['conga', 'ring']);
     const id = ++formSeq;
     const f = { id, type, total: 0, killed: 0, broken: false };
     run.forms.set(id, f);
@@ -1280,6 +1445,23 @@ export function mount(target, opts = {}) {
   }
   function killThing(th, j) {
     const def = ENEMIES[th.kind];
+    if (th.kind === 'zombie' && !th.revived) {            // snapshots never quite die… once
+      th.revived = true; th.hp = 1;
+      th.mesh.userData.mat.emissive.set(0x1f8f3a); th.mesh.userData.mat.emissiveIntensity = 1.4;
+      sparks.burst(th.mesh.position, '#7dff9a', 30, 7);
+      addScore(Math.round(def.points / 2), th.mesh.position, '#7dff9a');
+      pop(th.mesh.position.clone().add(new THREE.Vector3(0, 1, 0)), "IT'S BACK!", '#7dff9a');
+      audio.pop(); hitStop(0.03, 0.08);
+      return;
+    }
+    if (th.kind === 'cardinality') {                        // one metric becomes three
+      for (let k = 0; k < 3; k++) {
+        const mini = spawnThing('cardmini', th.mesh.position.x, th.mesh.position.y, th.mesh.position.z);
+        mini.vx = (k - 1) * 4 + rand(-0.5, 0.5); mini.vy = rand(-1.5, 2); mini.baseY = th.mesh.position.y;
+      }
+      pop(th.mesh.position, 'SPLIT!', '#c9a2ff');
+    }
+    if (th.kind === 'untagged' && th.tagged) addScore(60, th.mesh.position.clone().add(new THREE.Vector3(0, 0.8, 0)), '#ffd23a');
     run.kills += 1; run.st.kills += 1; bumpCombo(); addScore(def.points, th.mesh.position, '#7ff6ff');
     sparks.burst(th.mesh.position, th.kind === 'nat' ? '#ff4455' : th.kind === 'ghost' ? '#a9c4ff' : '#c0c8d8', 46, 10);
     sparks.burst(th.mesh.position, '#ffd23a', 10, 6);
@@ -1322,6 +1504,10 @@ export function mount(target, opts = {}) {
     if (r.spawnT <= 0) { spawnWaste(); r.spawnT = Math.max(B.spawnFloor, B.spawnEvery - r.stageTime * 0.004) * rand(0.7, 1.3); }
     r.obstT -= dt * (r.phase === 'waves' || bonus ? 1 : r.phase === 'boss' ? 0.5 : 0.2) * heat;
     if (r.obstT <= 0) { spawnObstacle(); r.obstT = B.obstacleEvery * rand(0.6, 1.4); }
+    if (r.phase === 'waves' && r.stage + 1 >= LOG_FLOOD.stage) {
+      r.floodT = (r.floodT ?? 4) - dt;
+      if (r.floodT <= 0) { spawnLogFlood(); r.floodT = LOG_FLOOD.every * rand(0.8, 1.3); }
+    }
     if (r.phase === 'waves') {
       r.formT -= dt;
       if (r.formT <= 0) { spawnFormation(); r.formT = B.formationEvery * rand(0.8, 1.3); }
@@ -1341,6 +1527,18 @@ export function mount(target, opts = {}) {
       const o = r.obst[i];
       o.mesh.position.z += r.speed * dt;
       const oz = o.mesh.position.z, ox = o.mesh.position.x;
+      if (o.band) {                                    // a log flood: fly over or under it
+        o.mesh.position.y = o.y + Math.sin(t * 1.3 + o.phase) * 0.8;
+        o.mesh.userData.tex.offset.x += dt * 0.25;
+        if (!o.hit && Math.abs(pc.z - oz) < o.depth + 0.5 && Math.abs(pc.y - o.mesh.position.y) < o.halfH + HIT_R * 0.6) {
+          o.hit = true;
+          if (bonus) { smash(pc.clone(), '#7dff9a'); scene.remove(o.mesh); r.obst.splice(i, 1); continue; }
+          sparks.burst(pc, '#7dff9a', 30, 8); hurt(true);
+          if (!run) return;
+        }
+        if (oz > 16) { scene.remove(o.mesh); r.obst.splice(i, 1); }
+        continue;
+      }
       if (!o.hit && Math.abs(pc.z - oz) < o.depth + 0.5 && Math.abs(pc.x - ox) < o.half + HIT_R * 0.8 && pc.y - HIT_R * 0.6 < GROUND_Y + o.height) {
         o.hit = true;
         if (bonus) { smash(pc.clone(), '#c0c8d8'); scene.remove(o.mesh); r.obst.splice(i, 1); continue; }
@@ -1378,6 +1576,22 @@ export function mount(target, opts = {}) {
         if (!pathed && m.position.z > -70 && m.position.z < -4) {
           m.position.x = lerp(m.position.x, pc.x, dt * 0.9); m.position.y = lerp(m.position.y, pc.y, dt * 0.9);
         }
+      } else if (th.kind === 'untagged') {
+        m.rotation.y += dt * 0.8; m.rotation.x += dt * 0.4;
+      } else if (th.kind === 'elasticIp') {
+        // a fast zigzag: triangle wave across the lane
+        const tri = (x) => 2 * Math.abs(2 * (x - Math.floor(x + 0.5))) - 1;
+        m.position.x = clamp(th.baseX + tri(t * 0.9 + th.phase) * 3.2, -FIELD.x, FIELD.x);
+        m.position.y = th.baseY + Math.sin(t * 5 + th.phase) * 0.3;
+        m.rotation.y += dt * 4;
+      } else if (th.kind === 'cardinality' || th.kind === 'cardmini') {
+        m.rotation.x += dt * 1.5; m.rotation.y += dt * 2;
+        m.scale.setScalar(1 + Math.sin(t * 6 + th.phase) * 0.06);
+      } else if (th.kind === 'zombie') {
+        m.rotation.z = Math.sin(t * 3 + th.phase) * 0.3;
+        m.position.y = th.baseY + Math.sin(t * 2 + th.phase) * 0.25;
+      } else if (th.kind === 'lb') {
+        m.rotation.y = t * 2.4 + th.phase;              // turning: the shield only covers its front
       } else if (th.kind === 'mudslide') {
         m.position.y = th.baseY + Math.sin(t * 3 + th.phase) * 0.35;
         m.userData.halo.material.opacity = 0.5 + Math.sin(t * 6) * 0.25;
@@ -1411,7 +1625,17 @@ export function mount(target, opts = {}) {
         if (!(th.kind in ENEMIES)) continue;
         if (lp.distanceTo(th.mesh.position) < th.r + 0.4) {
           hit = true;
+          if (th.kind === 'lb' && Math.cos(th.mesh.rotation.y) > 0.45) {   // shield facing you: blocked
+            sparks.burst(lp, '#6fc8ff', 10, 5); audio.bossHit();
+            continue;
+          }
           th.hp -= 1;
+          if (th.kind === 'untagged' && th.hp === 1) {                      // first hit: tag it
+            th.tagged = true;
+            th.mesh.userData.q.visible = false; th.mesh.userData.tag.visible = true;
+            th.mesh.userData.mat.color.set(0x3f7fe0);
+            pop(th.mesh.position, 'TAGGED', '#ffd23a');
+          }
           if (th.hp <= 0) killThing(th, j);
           else { sparks.burst(th.mesh.position, '#ffffff', 8, 4); audio.bossHit(); }
         }
@@ -1419,6 +1643,7 @@ export function mount(target, opts = {}) {
       // obstacles soak up shots
       for (const o of r.obst) {
         if (hit) break;
+        if (o.band) continue;
         if (Math.abs(lp.z - o.mesh.position.z) < o.depth && Math.abs(lp.x - o.mesh.position.x) < o.half && lp.y < GROUND_Y + o.height) {
           hit = true; sparks.burst(lp, '#9fdcff', 6, 4);
         }
