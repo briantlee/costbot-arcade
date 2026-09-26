@@ -32,6 +32,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { createCostBot, OUTFITS, makeCoinFactory } from '../shared/costbot-3d.js';
 import { VENDORS, ENEMIES, POWERUPS, BALANCE as B, QUIPS, SECRETS } from './cp-content.js';
+import { createMidiMusic } from './cp-midi.js';
 import { STAGES, stageFor, BONUS_EVERY, makeGround, buildObstacles, makeSerpentSegment, makePiggy, makeVoice } from './cp-world.js';
 
 const GAME_ID = 'cloud-patrol';
@@ -420,6 +421,9 @@ const CSS = `
 .cp-hs .t{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
 .cp-scores div{display:grid;grid-template-columns:28px 56px 1fr 40px;gap:6px;font:600 14px ui-monospace,monospace;padding:2px 0;color:#cfdcf5}
 .cp-scores div.me{color:#ffd23a}
+.cp-scores div.wide{grid-template-columns:28px 1fr 80px}
+.cp-scores div.wide span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cp-purse{margin:-8px 0 12px;color:var(--gold) !important}
 .cp-scores .empty{display:block;color:var(--muted);font-family:inherit}
 .cp-cont{text-align:center;pointer-events:auto}
 .cp-cont .q{font-size:clamp(34px,5vw,58px);font-weight:900;letter-spacing:.08em;text-shadow:0 0 24px rgba(255,80,110,.6)}
@@ -519,6 +523,7 @@ export function mount(target, opts = {}) {
       <div>Coins<b data-v="rCoins">0</b></div><div>Waste cleared<b data-v="rKills">0</b></div><div>Bosses<b data-v="rBosses">0</b></div>
       <div>Best combo<b data-v="rCombo">0</b></div><div>Time<b data-v="rTime">0</b></div><div>Tokens<b data-v="rTokens" style="color:var(--gold)">0</b></div>
     </div>
+    <div class="sub cp-purse" data-v="rPurse"></div>
     <div class="cp-hs"><div class="t">🏆 High scores</div><div class="cp-scores"></div></div>
     <div class="cp-btns" style="justify-content:center"><button class="primary" data-a="play">↻ Fly again</button><button data-a="menu">Menu</button></div>
   </div></div>`);
@@ -647,10 +652,11 @@ export function mount(target, opts = {}) {
   const audio = makeAudio();
   audio.setMuted(!!profile.muted);
   muteBtn.textContent = profile.muted ? '🔇' : '🔊';
-  const music = window.ArcadeMusic ? window.ArcadeMusic.create(() => audio.nodes()) : null;
-  if (music) { music.setTheme('synthwave'); music.setVolume(MUSIC_VOL); }
+  // the soundtrack: the Space Harrier MIDI, played through the cabinet's own synth voices
+  const music = createMidiMusic(() => audio.nodes(), new URL('./assets/space-harrier.mid', import.meta.url).href);
+  music.setVolume(MUSIC_VOL);
   const musicSlot = (slot) => { if (music) music.setState(slot); };
-  const voice = makeVoice();
+  const voice = makeVoice(() => audio.nodes());
   voice.setMuted(!!profile.muted);
   function toggleMute() {
     profile.muted = !profile.muted; save();
@@ -972,8 +978,9 @@ export function mount(target, opts = {}) {
     lastResult = result;
     onEvent('run:end', result);
     onComplete(result);
-    if (qualifies(result.score)) openInitials(result.score, result.stage);
-    else { renderScores(); show('over'); }
+    setV('rPurse', `${fmt(wallet().tokens)} in your arcade purse`);
+    if (!sync() && qualifies(result.score)) openInitials(result.score, result.stage);
+    else { renderScores(); show('over'); setTimeout(() => renderScores(), 1800); }
   }
 
   // ---- high-score table with arcade initials (local; the server board uses real names) ----
@@ -1009,10 +1016,29 @@ export function mount(target, opts = {}) {
     renderScores(mine);
     show('over');
   }
+  // Signed in on the arcade app, the panel IS the arcade leaderboard (best score per
+  // player, MyID names, the same ranking leaderboard/ shows). Static hosting has no
+  // server, so it falls back to this browser's own initials table.
+  const sync = () => (window.ArcadeSync && window.ArcadeSync.enabled ? window.ArcadeSync : null);
+  let arcadeTop = 0;
   function renderScores(highlight = -1) {
-    const rows = table().slice(0, 5).map((e, i) => `<div class="${i === highlight ? 'me' : ''}"><span>${i + 1}.</span><span>${e.i}</span><span>${fmt(e.s)}</span><span>S${e.st || 1}</span></div>`).join('')
-      || '<div class="empty">No scores yet — be the first.</div>';
-    ui.querySelectorAll('.cp-scores').forEach((n) => { n.innerHTML = rows; });
+    const paint = (title, rows) => {
+      ui.querySelectorAll('.cp-hs .t').forEach((n) => { n.textContent = title; });
+      ui.querySelectorAll('.cp-scores').forEach((n) => { n.innerHTML = rows || '<div class="empty">No scores yet — be the first.</div>'; });
+    };
+    const local = () => paint('🏆 High scores · this browser', table().slice(0, 5).map((e, i) =>
+      `<div class="${i === highlight ? 'me' : ''}"><span>${i + 1}.</span><span>${e.i}</span><span>${fmt(e.s)}</span><span>S${e.st || 1}</span></div>`).join(''));
+    const sy = sync();
+    if (!sy || !sy.gameBoards) { local(); return; }
+    sy.gameBoards(GAME_ID).then((data) => {
+      const list = data && data.metrics && data.metrics.score;
+      if (!list || !list.length) { local(); return; }
+      arcadeTop = list[0].value;
+      const me = sy.state && sy.state.displayName;
+      const esc = (x) => String(x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      paint('🏆 Arcade leaderboard', list.slice(0, 5).map((row, i) =>
+        `<div class="wide ${row.player === me ? 'me' : ''}"><span>${i + 1}.</span><span>${esc(row.player)}</span><span>${fmt(row.value)}</span></div>`).join(''));
+    }).catch(local);
   }
 
   // ---- spawning ----
@@ -1437,7 +1463,7 @@ export function mount(target, opts = {}) {
     // HUD — the score rolls up like an arcade counter
     r.shownScore = r.score - r.shownScore < 1 ? r.score : lerp(r.shownScore, r.score, 0.15);
     setV('score', fmt(r.shownScore));
-    setV('top', `TOP ${fmt(Math.max(profile.best, table()[0] ? table()[0].s : 0, r.score))}`);
+    setV('top', `TOP ${fmt(Math.max(profile.best, arcadeTop, table()[0] ? table()[0].s : 0, r.score))}`);
     setV('mult', `×${mult()} · combo ${r.combo}`);
     setV('stage', bonus ? `🐷 BONUS · ${Math.ceil(r.phaseT)}s` : `STAGE ${r.stage + 1} · ${stageFor(r.stage).name}`);
     setV('hearts', '❤️'.repeat(Math.max(0, r.lives)) + '🖤'.repeat(Math.max(0, B.lives - r.lives)));
@@ -1567,6 +1593,7 @@ export function mount(target, opts = {}) {
         things: run.things.length, obstacles: run.obst.length, formations: run.forms.size } };
     },
     get lastResult() { return lastResult; },
+    get music() { return music.debug; },
     start: startRun,
     secret: (id) => SECRETS[id] && triggerSecret(id, SECRETS[id]),
     // test hooks
