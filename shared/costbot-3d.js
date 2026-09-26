@@ -79,7 +79,7 @@ function screenTexture() {
   for (let y = 30; y < 176; y += 36) { g.beginPath(); g.moveTo(16, y); g.lineTo(240, y); g.stroke(); }
   g.strokeStyle = '#4fe3ff'; g.lineWidth = 7; g.lineJoin = 'round';
   g.beginPath();
-  [[16, 40], [60, 58], [100, 50], [140, 96], [180, 110], [240, 146]].forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+  [[16, 40], [60, 58], [100, 50], [140, 96], [180, 110], [240, 146]].forEach(([x, y], i) => { if (i) g.lineTo(x, y); else g.moveTo(x, y); });
   g.stroke();
   g.fillStyle = '#f4b41a'; g.font = 'bold 34px system-ui, sans-serif'; g.fillText('-18%', 150, 44);
   const t = new THREE.CanvasTexture(c);
@@ -138,7 +138,7 @@ function shieldTexture(f) {
   const X = (x) => (x - f.x0) * k, Y = (y) => (f.y1 - y) * k;
   const OUTER = [[-0.36, 0.26], [0.36, 0.26], [0.5, 0.05], [0, -0.38], [-0.5, 0.05]];
   const inset = (s, dy) => OUTER.map(([x, y]) => [x * s, y * s + dy]);
-  const path = (pts) => { g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(X(x), Y(y)) : g.moveTo(X(x), Y(y)))); g.closePath(); };
+  const path = (pts) => { g.beginPath(); pts.forEach(([x, y], i) => { if (i) g.lineTo(X(x), Y(y)); else g.moveTo(X(x), Y(y)); }); g.closePath(); };
   const INK = '#0d1b3a';
   g.lineJoin = 'round'; g.lineCap = 'round';
   // ink + gold rim

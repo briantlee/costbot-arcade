@@ -12,7 +12,7 @@
  * up, and nothing here is a real cost figure. The board ranks on guests kept
  * happy, not dollars.
  */
-(function (global) {
+((global) => {
   'use strict';
 
   // Logical playfield; the engine authors everything in these units and scales

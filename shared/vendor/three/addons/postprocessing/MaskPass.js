@@ -1,3 +1,4 @@
+// biome-ignore-all lint: vendored third-party code — do not hand-edit
 import { Pass } from './Pass.js';
 
 class MaskPass extends Pass {

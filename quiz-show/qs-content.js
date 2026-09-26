@@ -15,7 +15,7 @@
  * not copyrightable, actual lyrics are, so nothing here reproduces a lyric.
  * Real FinOps sits next to Disney on purpose — the mix is the point.
  * ==========================================================================*/
-(function (global) {
+((global) => {
   'use strict';
 
   const CATEGORIES = [

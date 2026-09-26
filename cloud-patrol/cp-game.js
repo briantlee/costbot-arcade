@@ -132,14 +132,14 @@ function makeAudio() {
     hurt: () => { tone(300, 0.35, 'sawtooth', 0.14, 60); noise(0.3, 0.3, 600); },
     shieldBreak: () => { tone(900, 0.25, 'triangle', 0.12, 300); noise(0.2, 0.2, 3000); },
     whoosh: () => noise(0.4, 0.35, 400, 'bandpass', 3000),
-    power: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.14, 'square', 0.07, null, i * 0.06)),
+    power: () => [523, 659, 784, 1046].forEach((f, i) => { tone(f, 0.14, 'square', 0.07, null, i * 0.06); }),
     beep: () => tone(1200, 0.05, 'sine', 0.06),
     click: () => tone(700, 0.06, 'square', 0.06, 900),
     alarm: () => { for (let i = 0; i < 3; i++) { tone(660, 0.16, 'sawtooth', 0.08, null, i * 0.36); tone(440, 0.16, 'sawtooth', 0.08, null, i * 0.36 + 0.18); } },
     bossHit: () => tone(260, 0.07, 'square', 0.05, 180),
     boom: () => { noise(1.1, 0.55, 500, 'lowpass', 60); tone(110, 0.9, 'sine', 0.3, 30); },
-    fanfare: () => [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, 0.22, 'triangle', 0.1, null, i * 0.09)),
-    gameOver: () => [392, 330, 262, 196].forEach((f, i) => tone(f, 0.3, 'triangle', 0.1, null, i * 0.2)),
+    fanfare: () => [523, 659, 784, 1046, 1318].forEach((f, i) => { tone(f, 0.22, 'triangle', 0.1, null, i * 0.09); }),
+    gameOver: () => [392, 330, 262, 196].forEach((f, i) => { tone(f, 0.3, 'triangle', 0.1, null, i * 0.2); }),
   };
 }
 
@@ -588,7 +588,7 @@ export function mount(target, opts = {}) {
   const TOUCH = params.get('touch') === '1' || matchMedia('(pointer: coarse)').matches;
   const onEvent = opts.onEvent || (() => {});
   const onComplete = opts.onComplete || (() => {});
-  let profile = mergeProfiles(loadProfile(), opts.profile);
+  const profile = mergeProfiles(loadProfile(), opts.profile);
   const save = () => {
     profile.updatedAt = Date.now();
     try { localStorage.setItem(KEY, JSON.stringify(profile)); } catch { /* private mode */ }
@@ -715,7 +715,7 @@ export function mount(target, opts = {}) {
   const pauseBtn = el('<button class="cp-pausebtn" data-a="pause" title="Pause">⏸</button>');
   const rotateHint = el('<div class="cp-rotate">📱 Turn your phone sideways for the full sky</div>');
   const pops = el('<div></div>');
-  [flash, pops, hud, scrTitle, scrLocker, scrHow, scrVoice, scrPause, scrOver, scrContinue, scrInitials, banner, toast, bubble, muteBtn, pauseBtn, rotateHint].forEach((n) => ui.appendChild(n));
+  [flash, pops, hud, scrTitle, scrLocker, scrHow, scrVoice, scrPause, scrOver, scrContinue, scrInitials, banner, toast, bubble, muteBtn, pauseBtn, rotateHint].forEach((n) => { ui.appendChild(n); });
   const V = (name) => ui.querySelectorAll(`[data-v="${name}"]`);
   const setV = (name, txt) => V(name).forEach((n) => { if (n.textContent !== String(txt)) n.textContent = txt; });
 
@@ -1308,7 +1308,7 @@ export function mount(target, opts = {}) {
   function spawnWaste() {
     const list = roster();
     let roll = Math.random() * list.reduce((a, [, e]) => a + e.weight, 0);
-    const [kind] = list.find(([, e]) => (roll -= e.weight) <= 0) || list[0];
+    const [kind] = list.find(([, e]) => { roll -= e.weight; return roll <= 0; }) || list[0];
     spawnThing(kind, rand(-FIELD.x, FIELD.x), rand(1, 6.8));
   }
   function spawnLogFlood() {
@@ -1333,17 +1333,17 @@ export function mount(target, opts = {}) {
     const f = { id, type, total: 0, killed: 0, broken: false };
     run.forms.set(id, f);
     const cx = rand(-3, 3), cy = rand(2.2, 5.2);
-    const add = (kind, i, z, path) => { const th = spawnThing(kind, cx, cy, z); th.form = id; th.path = path; f.total += 1; return th; };
+    const add = (kind, _i, z, path) => { const th = spawnThing(kind, cx, cy, z); th.form = id; th.path = path; f.total += 1; return th; };
     if (type === 'conga') {
       const amp = rand(3, 4.5);
       for (let i = 0; i < 7; i++) add('ghost', i, SPAWN_Z - i * 4, (th, tt) => {
         th.mesh.position.x = cx + Math.sin(tt * 1.5 + i * 0.55) * amp; th.mesh.position.y = cy + Math.cos(tt * 1.1 + i * 0.55) * 1.1;
       });
     } else if (type === 'vee') {
-      [[0, 0, 0], [-1.7, 0.7, 3], [1.7, 0.7, 3], [-3.4, 1.4, 6], [3.4, 1.4, 6]].forEach(([ox, oy, dz], i) => add('nat', i, SPAWN_Z - dz, (th) => {
+      [[0, 0, 0], [-1.7, 0.7, 3], [1.7, 0.7, 3], [-3.4, 1.4, 6], [3.4, 1.4, 6]].forEach(([ox, oy, dz], i) => { add('nat', i, SPAWN_Z - dz, (th) => {
         if (th.mesh.position.z > -45) return false;             // peel off and home in
         th.mesh.position.x = cx + ox; th.mesh.position.y = cy + oy;
-      }));
+      }); });
     } else {
       for (let i = 0; i < 6; i++) add('ebs', i, SPAWN_Z, (th, tt) => {
         const a = i / 6 * Math.PI * 2 + tt * 2;
@@ -1398,7 +1398,7 @@ export function mount(target, opts = {}) {
     const b = run.boss;
     sparks.burst(b.mesh.position, b.v.color, 120, 16);
     sparks.burst(b.mesh.position, '#ffd23a', 80, 12);
-    b.segs.forEach((sgm) => sparks.burst(sgm.mesh.position, '#f6f3ea', 24, 8));
+    b.segs.forEach((sgm) => { sparks.burst(sgm.mesh.position, '#f6f3ea', 24, 8); });
     for (let i = 0; i < 14; i++) {
       const c = spawnThing('coin', b.mesh.position.x + rand(-2, 2), b.mesh.position.y + rand(-1.5, 1.5), b.mesh.position.z + rand(-3, 3));
       c.vx = rand(-3, 3); c.vy = rand(-1, 1);
@@ -1893,7 +1893,8 @@ export function mount(target, opts = {}) {
       }
     }
     camera.position.lerp(camPos, inRun ? 0.12 : 0.05);
-    const look = camera.userData.look || (camera.userData.look = camLook.clone());
+    camera.userData.look ??= camLook.clone();
+    const look = camera.userData.look;
     look.lerp(camLook, inRun ? 0.12 : 0.05);
     camera.lookAt(look);
 
