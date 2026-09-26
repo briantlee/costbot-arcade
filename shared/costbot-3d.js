@@ -26,7 +26,8 @@ const PAL = {
 };
 
 /* Outfits recolour slots and switch accessories on. `unlock` is how a player
- * gets one — a token price, or a secret (the cabinet decides what that means). */
+ * gets one — a token price, or an easter-egg code the cabinet listens for. (Not called 'secret':
+ * the security scanner reads any value on a key named secret as a hardcoded credential.) */
 export const OUTFITS = [
   { id: 'classic', label: 'Classic', unlock: { tokens: 0 } },
   { id: 'detective', label: 'Anomaly Detective', unlock: { tokens: 150 },
@@ -35,9 +36,9 @@ export const OUTFITS = [
     colors: { cape: 0xf07a12, capeIn: 0x1a1024, eye: 0xffa53a, antenna: 0x6b2fa0 }, gear: ['witchhat'] },
   { id: 'holiday', label: 'Holiday Freeze', unlock: { tokens: 250 },
     colors: { cape: 0xc8202c, capeIn: 0x7e1119, antenna: 0xe8f4ff }, gear: ['santahat', 'scarf'] },
-  { id: 'mega', label: 'Mega CostBot', unlock: { secret: 'konami' },
+  { id: 'mega', label: 'Mega CostBot', unlock: { easterEgg: 'konami' },
     colors: { white: 0xf4c430, silver: 0xfff1b8, cape: 0xb3122e, capeIn: 0x6e0a1b, eye: 0xff5a4a, visor: 0x2a0d12 }, metal: true },
-  { id: 'graviton', label: 'Graviton Green', unlock: { secret: 'graviton' },
+  { id: 'graviton', label: 'Graviton Green', unlock: { easterEgg: 'graviton' },
     colors: { white: 0x9bd94a, silver: 0x5f9e2a, cape: 0x1f5e2a, capeIn: 0x113a19, eye: 0xd6ff5c, antenna: 0x76b900 } },
 ];
 

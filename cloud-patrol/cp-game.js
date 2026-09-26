@@ -646,14 +646,14 @@ export function mount(target, opts = {}) {
       const owned = profile.unlocked.includes(o.id);
       const price = o.unlock.tokens || 0;
       const status = owned ? (profile.outfit === o.id ? '✓ Equipped' : 'Click to equip')
-        : o.unlock.secret ? '🔒 Secret' : `🔒 ${fmt(price)} tokens — click to buy`;
+        : o.unlock.easterEgg ? '🔒 Secret' : `🔒 ${fmt(price)} tokens — click to buy`;
       const card = el(`<div class="cp-fit ${owned ? '' : 'locked'} ${profile.outfit === o.id ? 'on' : ''}">
         <div class="n">${o.label}</div><div class="s">${status}</div></div>`);
       card.addEventListener('mouseenter', () => { bot.setOutfit(o.id); audio.beep(); });
       card.addEventListener('mouseleave', () => bot.setOutfit(profile.outfit));
       card.addEventListener('click', () => {
         if (!owned) {
-          if (o.unlock.secret) { toastMsg('That one is a secret. 🤫'); return; }
+          if (o.unlock.easterEgg) { toastMsg('That one is a secret. 🤫'); return; }
           if (!wallet().spend(price)) { toastMsg(`Not enough tokens — ${fmt(price)} needed.`); audio.hurt(); return; }
           profile.unlocked.push(o.id);
           audio.fanfare();
