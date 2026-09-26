@@ -206,47 +206,96 @@ export function makePiggy() {
 }
 
 // ---------------------------------------------------------------------------
-// CostBot's voice: the browser's own speech (so you can hear the words), pitched
-// up into kid/androgynous territory and a little quick, with a two-note synth
-// "bee-boop" in front of every line for the robot. Speech synthesis can't be run
-// through WebAudio effects, so the chirp is where the robot lives. M mutes both.
+// CostBot's voice: eSpeak (meSpeak.js, vendored, GPL — see shared/vendor/mespeak)
+// renders each line to audio, and the cabinet's own WebAudio graph makes it
+// CostBot: a touch faster and higher (kid), a ring modulator blended under the
+// clean voice (robot, still intelligible), a short metallic comb (synth), and a
+// thinner band (androgynous). Plays through the game master, so M mutes it.
+// If the engine can't load, falls back to browser speech.
 // ---------------------------------------------------------------------------
+const VOICE = {
+  espeak: { pitch: 62, speed: 158, variant: 'f2', wordgap: 1 },   // eSpeak's own knobs (0–99 pitch, wpm)
+  rate: 1.12,          // playback speed-up: raises pitch ~2 semitones and quickens him
+  ringHz: 52,          // the robot: ring-mod frequency…
+  ringMix: 0.42,       // …and how much of it sits under the clean voice
+  combMs: 6, combFeedback: 0.32, combMix: 0.22,
+  level: 0.7,
+};
+let meSpeakReady = null;
+function loadMeSpeak() {
+  if (meSpeakReady) return meSpeakReady;
+  const base = new URL('../shared/vendor/mespeak/', import.meta.url).href;
+  meSpeakReady = new Promise((resolve, reject) => {
+    const sc = document.createElement('script');
+    sc.src = base + 'mespeak.js';
+    sc.onload = resolve; sc.onerror = reject;
+    document.head.appendChild(sc);
+  }).then(() => Promise.all([fetch(base + 'mespeak_config.json').then((r) => r.json()), fetch(base + 'voices/en-us.json').then((r) => r.json())]))
+    .then(([cfg, voice]) => { window.meSpeak.loadConfig(cfg); window.meSpeak.loadVoice(voice); return window.meSpeak; });
+  return meSpeakReady;
+}
+
 export function makeVoice(getNodes) {
+  let muted = false, engine = null, current = null, busyUntil = 0;
+  loadMeSpeak().then((m) => { engine = m; }).catch(() => { engine = null; });
   const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
-  let voice = null, muted = false, last = 0;
-  const pickVoice = () => {
-    if (!synth) return;
-    const vs = synth.getVoices().filter((v) => /^en/i.test(v.lang));
-    // neutral-leaning voices read as "not quite a person" once pitched up
-    voice = vs.find((v) => /aria|jenny|zira|google us english|samantha/i.test(v.name)) || vs[0] || null;
-  };
-  if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; }
-  function chirp() {
-    const n = getNodes && getNodes();
-    if (!n) return;
-    const { ctx, master } = n;
-    [[880, 0], [1320, 0.07]].forEach(([f, dt]) => {
-      const o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + dt;
-      o.type = 'square'; o.frequency.setValueAtTime(f, t);
-      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.07, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
-      o.connect(g).connect(master); o.start(t); o.stop(t + 0.08);
-    });
+  const stopCurrent = () => { if (current) { try { current.stop(); } catch { /* ended */ } current = null; } if (synth) synth.cancel(); busyUntil = 0; };
+
+  function play(ctx, master, audioBuf) {
+    const src = ctx.createBufferSource();
+    src.buffer = audioBuf;
+    src.playbackRate.value = VOICE.rate;
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 170;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 6200;
+    const out = ctx.createGain(); out.gain.value = VOICE.level;
+    src.connect(hp);
+    // clean voice
+    const dry = ctx.createGain(); dry.gain.value = 1 - VOICE.ringMix * 0.5;
+    hp.connect(dry).connect(lp);
+    // ring modulator: the voice multiplied by a low sine — the classic robot
+    const ring = ctx.createGain(); ring.gain.value = 0;
+    const lfo = ctx.createOscillator(); lfo.frequency.value = VOICE.ringHz;
+    lfo.connect(ring.gain);
+    const ringOut = ctx.createGain(); ringOut.gain.value = VOICE.ringMix;
+    hp.connect(ring).connect(ringOut).connect(lp);
+    // a short comb for that tin-can shimmer
+    const dl = ctx.createDelay(0.05); dl.delayTime.value = VOICE.combMs / 1000;
+    const fb = ctx.createGain(); fb.gain.value = VOICE.combFeedback;
+    const comb = ctx.createGain(); comb.gain.value = VOICE.combMix;
+    hp.connect(dl); dl.connect(fb).connect(dl); dl.connect(comb).connect(lp);
+    lp.connect(out).connect(master);
+    const t = ctx.currentTime + 0.02;
+    src.start(t); lfo.start(t);
+    const dur = audioBuf.duration / VOICE.rate;
+    lfo.stop(t + dur + 0.3);
+    busyUntil = t + dur;
+    current = src;
+    src.onended = () => { if (current === src) current = null; };
   }
+
   return {
-    setMuted(m) { muted = m; if (m && synth) synth.cancel(); },
-    // `urgent` lines cut in; the rest wait for quiet and are rate-limited
+    setMuted(m) { muted = m; if (m) stopCurrent(); },
+    // `urgent` lines cut in; the rest wait for quiet and are skipped if he's mid-sentence
     say(text, { urgent = false } = {}) {
-      if (!synth || muted) return;
-      const now = performance.now();
-      if (!urgent && (synth.speaking || now - last < 1500)) return;
-      if (urgent) synth.cancel();
-      last = now;
-      chirp();
-      const u = new SpeechSynthesisUtterance(text);
-      if (voice) u.voice = voice;
-      u.pitch = 1.55; u.rate = 1.1; u.volume = 0.5;     // halved along with the game audio
-      setTimeout(() => synth.speak(u), 140);     // let the bee-boop land first
+      if (muted) return;
+      const n = getNodes && getNodes();
+      if (!n) return;
+      const { ctx, master } = n;
+      if (!urgent && ctx.currentTime < busyUntil) return;
+      if (urgent) stopCurrent();
+      if (engine) {
+        const wav = engine.speak(text, { rawdata: 'array', ...VOICE.espeak });
+        if (!wav) return;
+        const bytes = wav instanceof ArrayBuffer ? wav : new Uint8Array(wav).buffer;
+        busyUntil = ctx.currentTime + 0.5;          // hold the slot while it decodes
+        ctx.decodeAudioData(bytes.slice(0)).then((buf) => { if (!muted) play(ctx, master, buf); }).catch(() => {});
+      } else if (synth) {                             // engine not loaded (yet): plain browser speech
+        const u = new SpeechSynthesisUtterance(text);
+        u.pitch = 1.5; u.rate = 1.1; u.volume = 0.5;
+        synth.speak(u);
+        busyUntil = ctx.currentTime + 0.08 * text.length;
+      }
     },
-    stop() { if (synth) synth.cancel(); },
+    stop: stopCurrent,
   };
 }
