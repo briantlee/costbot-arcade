@@ -131,7 +131,7 @@
     };
     document.getElementById('vol').oninput = (e) => {
       music.setVolume(e.target.value / 100);
-      Object.values(MIDI).forEach((m) => m.player.setVolume(e.target.value / 100));
+      for (const m of Object.values(MIDI)) m.player.setVolume(e.target.value / 100);
     };
 
     setInterval(() => {
