@@ -206,7 +206,7 @@ export function makePiggy() {
 }
 
 // ---------------------------------------------------------------------------
-// CostBot's voice: the browser's own speech synth, pitched down to a robot.
+// CostBot's voice: the browser's own speech synth, pitched all the way up — chipmunk CostBot.
 // A nod to Space Harrier's "Welcome to the Fantasy Zone!" — nothing sampled.
 // ---------------------------------------------------------------------------
 export function makeVoice() {
@@ -215,7 +215,8 @@ export function makeVoice() {
   const pickVoice = () => {
     if (!synth) return;
     const vs = synth.getVoices();
-    voice = vs.find((v) => /en[-_]US/i.test(v.lang) && /male|david|guy|fred|daniel/i.test(v.name)) || vs.find((v) => /^en/i.test(v.lang)) || null;
+    // a lighter voice squeaks best once the pitch is maxed
+    voice = vs.find((v) => /en[-_]US/i.test(v.lang) && /zira|aria|jenny|samantha|female/i.test(v.name)) || vs.find((v) => /^en/i.test(v.lang)) || null;
   };
   if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; }
   return {
@@ -229,7 +230,7 @@ export function makeVoice() {
       last = now;
       const u = new SpeechSynthesisUtterance(text);
       if (voice) u.voice = voice;
-      u.pitch = 0.45; u.rate = 1.05; u.volume = 0.9;
+      u.pitch = 2; u.rate = 1.35; u.volume = 0.9;     // pitch tops out at 2 in the Web Speech API
       synth.speak(u);
     },
     stop() { if (synth) synth.cancel(); },
