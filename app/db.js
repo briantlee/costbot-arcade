@@ -9,6 +9,8 @@
 // values file for all apps) or the skill. APP_SCHEMA takes precedence; Node also falls back to the
 // manifest.json / package.json "name" for a local build run without that arg.
 //
+// Controller-provided DATABASE_URL uses this workload's own Kubernetes Secret.
+// AIX_DB_DELIVERY=tenant-v1 skips schema creation and fails closed on persistence errors.
 // Credentials resolve the org-native way (AWS Secrets Manager via the pod's IRSA role, NOT Vault),
 // most-scoped first:
 //   1. a direct DATABASE_URL wins (local dev), else
@@ -18,9 +20,10 @@
 //   3. legacy fallback: the SHARED apps_rw credential named by RDS_SECRET_ARN, combined with
 //      RDS_ENDPOINT / RDS_DATABASE (pre-#471 deploys; logs a warning - no cross-app isolation).
 //
-// Fail-safe: if no DB is configured or the connection fails, getPool() returns null - your app
-// must fall back to memory and never crash on a missing DB. `pg` + @aws-sdk/client-secrets-manager
-// are loaded lazily, so an app that never persists needn't ship them.
+// If no DB is configured, connection fails, or beforeSchemaInit refuses the store, getPool()
+// rejects in tenant mode and returns null otherwise. Apps requiring persistent authority must
+// remain unavailable; only explicitly memory-capable apps may use a memory store. Dependencies
+// are lazy for apps without persistence.
 const { X509Certificate } = require('node:crypto');
 const { readFileSync } = require('node:fs');
 const { join } = require('node:path');
@@ -29,27 +32,210 @@ const RDS_CA_BUNDLE_PATH = '/etc/ssl/certs/aix-proto-rds-ca.pem';
 const RDS_HOST_SUFFIX = '.rds.amazonaws.com';
 const SUPPORTED_RDS_HOST_SUFFIX = '.us-east-1.rds.amazonaws.com';
 
-// Every wait on the database is finite (#1018). Two platform ceilings make an unbounded wait
-// useless rather than merely untidy: the front door abandons a held request at ~10.5 s (#944), so
-// nothing acquired or computed after that can reach a caller, and every app shares one ALB rate
-// bucket, so a request queued for a pool slot spends the shared budget on nothing. The two bounds
-// split that ~10.5 s so a request that clears both still answers inside it:
-//   connectionTimeoutMillis 2000 - pool checkout + TCP/TLS connect. Dead time (no work happens in
-//     it), so it gets the smaller share: ~20% of the budget, and a saturated pool sheds load in 2 s
-//     instead of queueing every request behind it (pg's default, 0, waits forever).
-//   statement_timeout 8000 - any single statement, lock waits included. Cancelled before the front
-//     door gives up, so the caller gets a fast, retryable error instead of a 502 at 10.5 s; the
-//     remaining ~0.5 s is headroom for that error response to land.
-// Not set: lock_timeout (a lock wait is already inside the 8 s statement bound; a tighter one is an
-// app-level load-shedding policy - `SET LOCAL lock_timeout` in the transaction that wants it - and
-// a 2 s default would turn a startup DDL/advisory-lock wait behind a peer pod into a failure nobody
-// deadlined), and idle_in_transaction_session_timeout (no template path holds a transaction open
-// across non-DB I/O; bounding an unreachable state is fake protection). An app may set either on
-// its own connections, and SET / SET LOCAL still override the session default, so an app's
-// STRICTER bound keeps winning.
+// Separate bounds, not a request/transaction budget. Acquisition/connect gets 2s; PostgreSQL
+// defaults each statement to 8s. The local response ceiling adds 250ms for a server cancellation
+// reply to arrive before quarantining the transport. It covers time queued in THIS client too.
+// A sequence of queries/rollback can exceed the front door/hook budget. Node timers require a
+// progressing event loop; closing a socket does not prove remote cancellation or noncommit.
 const POOL_MAX = 4;
 const CONNECTION_TIMEOUT_MS = 2000;
 const STATEMENT_TIMEOUT_MS = 8000;
+const RESPONSE_TIMEOUT_MS = 8250;
+const RESPONSE_TIMEOUT_CODE = 'AIX_DB_RESPONSE_TIMEOUT';
+
+class DatabaseResponseTimeout extends Error {
+  constructor(timeoutMillis) {
+    super('Database response deadline exceeded; the result could not be confirmed');
+    this.name = 'DatabaseResponseTimeout';
+    this.code = RESPONSE_TIMEOUT_CODE;
+    this.timeoutMillis = timeoutMillis;
+  }
+}
+
+function isResponseTimeout(err) {
+  return Boolean(err && err.code === RESPONSE_TIMEOUT_CODE);
+}
+
+function responseBudget(...values) {
+  return Math.min(RESPONSE_TIMEOUT_MS, ...values.map(Number).filter((n) => Number.isFinite(n) && n > 0));
+}
+
+// Lazy and injected: no pg globals change, and memory-only apps never load the driver. Pass the
+// resulting class as Pool's Client option, BEFORE any connect listener can enqueue a SET, or use
+// it for a standalone LISTEN client. Own only timers/settlement, never pg's active query or queue.
+// Supports the string/values/config (including callback, rowMode and prepared statement) forms
+// used by the apps. Custom submit/streaming Query objects need their own terminal-event contract.
+function createBoundedClient(Client) {
+  if (!Client) {
+    // A fake Pool may accept the constructor without ever instantiating it. Keep that seam and
+    // memory fallback dependency-free; the real driver is resolved only when a client is needed.
+    return function LazyBoundedClient(config) {
+      const Bound = createBoundedClient(require('pg').Client);
+      return new Bound(config);
+    };
+  }
+  return class BoundedClient extends Client {
+    #pending = new Set();
+    #connecting = new Set();
+    #failure;
+    #budget;
+    #readTimeout;
+    #Promise;
+
+    constructor(config) {
+      super(config);
+      this.#budget = responseBudget(config?.query_timeout, this.connectionParameters.query_timeout);
+      this.#Promise = config?.Promise || Promise;
+      this.#readTimeout = this.connectionParameters.query_timeout;
+      // pg's query_timeout rejects without destroying an active transport. Replace this instance's
+      // resolved timer (URL values included) with our own, retaining any supported shorter bound.
+      this.connectionParameters.query_timeout = 0;
+    }
+
+    get responseTimeoutError() { return this.#failure; }
+
+    connect(callback) {
+      const connecting = this.#connecting;
+      const open = (done) => {
+        const attempt = {};
+        connecting.add(attempt);
+        try {
+          return super.connect(function (...args) {
+            connecting.delete(attempt);
+            done.apply(this, args);
+          });
+        } catch (err) {
+          connecting.delete(attempt);
+          throw err;
+        }
+      };
+      return callback ? open(callback) : new this.#Promise((resolve, reject) => {
+        open((err) => err ? reject(err) : resolve(this));
+      });
+    }
+
+    end(callback) {
+      // pg gracefully sends Terminate when idle, but then waits for the peer's FIN. A query
+      // already answered with ErrorResponse has no timer left to bound that wait. Give normal
+      // close the existing client budget, then destroy locally; never expire an idle subscription.
+      const close = (done) => {
+        const timer = setTimeout(() => this.connection.stream.destroy(), this.#budget);
+        // The socket, not this fallback, owns process liveness. A referenced socket keeps the
+        // deadline runnable; public ref/unref (including allowExitOnIdle) must retain control.
+        timer.unref();
+        try {
+          const result = super.end(function (...args) {
+            clearTimeout(timer);
+            done.apply(this, args);
+          });
+          // pg suppresses its connect callback on an intentional end. An error on the still
+          // connecting transport settles that callback/Promise via pg's normal error handler.
+          if (this.#connecting.size) this.connection.stream.destroy(new Error('Connection terminated'));
+          return result;
+        } catch (err) {
+          clearTimeout(timer);
+          throw err;
+        }
+      };
+      return callback ? close(callback) : new this.#Promise((resolve) => close(resolve));
+    }
+
+    #expire(milliseconds) {
+      if (this.#failure) return;
+      this.#failure = new DatabaseResponseTimeout(milliseconds);
+      // Quarantine and shutdown BEFORE any timeout callback runs (it may release/reborrow).
+      // Client.end destroys an active query, but can gracefully wait when only queued work remains
+      // after an ErrorResponse. Destroy the transport too so that case cannot await a peer's FIN.
+      this.end(() => {});
+      this.connection.stream.destroy();
+      for (const finish of [...this.#pending]) {
+        try {
+          finish(this.#failure);
+        } catch (err) {
+          // A caller's callback must remain observable as an exception, but cannot prevent
+          // other queued operations receiving their timeout. Match pg's deferred throw on
+          // successful callback delivery without changing callback receivers or query queues.
+          process.nextTick(() => { throw err; });
+        }
+      }
+    }
+
+    query(config, values, callback) {
+      if (config == null) throw new TypeError('Client was passed a null or undefined query');
+      if (typeof config.submit === 'function') {
+        throw new TypeError('Bounded clients require a query string or config, not a streaming Query object');
+      }
+      const source = typeof config === 'string' ? { text: config } : config;
+      // Forward only supported fields, with the original getter receiver and argument precedence.
+      // Let pg's Query choose/read the callback and bind its domain itself: conditional getter
+      // reads (including those after rowMode) can select a different callback or throw.
+      const normalized = {
+        get text() { return source.text; },
+        get values() { return values && typeof values !== 'function' ? values : source.values; },
+        get rows() { return source.rows; },
+        get types() { return source.types; },
+        get name() { return source.name; },
+        get queryMode() { return source.queryMode; },
+        get binary() { return source.binary; },
+        get portal() { return source.portal; },
+        get callback() { return callback || (typeof values === 'function' ? values : source.callback); },
+        get rowMode() { return source.rowMode; },
+      };
+      // pg exposes its own Query constructor. Injected driver-free clients retain their plain
+      // config seam; externally supplied submit/streaming objects remain unsupported above.
+      const query = Client.Query ? new Client.Query(normalized)
+        : Object.fromEntries(Object.keys(normalized).map((key) => [key, normalized[key]]));
+      const cb = query.callback;
+      if (cb && typeof cb !== 'function') throw new TypeError('callback is not a function');
+      const queryTimeout = config.query_timeout;
+      const milliseconds = responseBudget(this.#budget, queryTimeout);
+      // Preserve pg's original wrapper intent (a per-query zero falls back to the constructor).
+      // This only controls callback forwarding; the destructive local deadline remains ours.
+      const readTimeout = queryTimeout || this.#readTimeout;
+      // Disable pg's per-query timer too: it must never deliver an earlier, non-destructive timeout.
+      query.query_timeout = 0;
+      let resolve;
+      let reject;
+      const result = cb ? undefined : new this.#Promise((yes, no) => { resolve = yes; reject = no; }).catch((err) => {
+        // Match pg's returned Promise chain, including species and the application await stack.
+        Error.captureStackTrace(err);
+        throw err;
+      });
+      let timer;
+      let settled = false;
+      const pending = this.#pending;
+      const finish = function (...args) {
+        const [err, value] = args;
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        pending.delete(finish);
+        if (cb) {
+          // pg's read-timeout wrapper calls without a receiver and always forwards two args.
+          // Otherwise retain Query's receiver and actual arity (one arg for ordinary SQL errors).
+          if (readTimeout) cb(err, value);
+          else cb.apply(this, args);
+        } else if (err) reject(err);
+        else resolve(value);
+      };
+      if (this.#failure) {
+        process.nextTick(() => finish(this.#failure));
+        return result;
+      }
+      pending.add(finish);
+      timer = setTimeout(() => this.#expire(milliseconds), milliseconds);
+      query.callback = finish;
+      try {
+        super.query(query);
+      } catch (err) {
+        clearTimeout(timer);
+        pending.delete(finish);
+        throw err;
+      }
+      return result;
+    }
+  };
+}
 
 function normalizeHostname(host) {
   return host.toLowerCase().replace(/\.$/, '');
@@ -260,7 +446,7 @@ function appDbSecretId() {
 // secret) or undefined when no DB is configured.
 async function resolveDatabaseUrl() {
   if (process.env.DATABASE_URL) {
-    return { url: process.env.DATABASE_URL, scoped: false, source: 'direct' };
+    return { url: process.env.DATABASE_URL, scoped: process.env.AIX_DB_DELIVERY === 'tenant-v1', source: 'direct' };
   }
   const ownSecretId = appDbSecretId();
   const secretId = ownSecretId || process.env.RDS_SECRET_ARN;
@@ -346,6 +532,10 @@ function postgresConnectionConfig(connectionString, options = {}) {
   const normalized = new URL(connectionString).toString();
   const ssl = rdsSslOptions(normalized, options);
   const url = parsePostgresUrl(ssl ? normalized : connectionString);
+  // pg decodes the database pathname after its initial percent repair. Validate at that same
+  // boundary BEFORE adding options: a trailing incomplete escape would otherwise meet our new
+  // '?' delimiter and trigger a second whole-string repair of credentials and startup defaults.
+  decodeURI(url.pathname);
   if (options.schema !== undefined) {
     // Keep benign URL settings, then apply our session defaults LAST, inside the URL itself:
     // node-postgres merges URL options OVER an explicit Pool.options string. Startup defaults
@@ -364,17 +554,27 @@ function postgresConnectionConfig(connectionString, options = {}) {
   return { connectionString: url.toString(), ssl };
 }
 
-// Returns a pg Pool scoped (own role + search_path) to this app's own schema, or null if no DB is
-// configured/reachable. Callers fall back to memory on null.
-async function getPool() {
+// Returns a pg Pool scoped (own role + search_path) to this app's own schema. Unavailable DBs
+// reject in tenant mode; otherwise return null. Callers requiring persistence must refuse null.
+// beforeSchemaInit may inspect metadata and refuse an incompatible store before any schema DDL.
+// It runs for both provisioned and local schemas and must not inspect or mutate legacy row data.
+async function getPool({ beforeSchemaInit } = {}) {
+  if (beforeSchemaInit !== undefined && typeof beforeSchemaInit !== 'function') {
+    // A value-free programming-error diagnostic: never the callback, never an outage message.
+    if (process.env.AIX_DB_DELIVERY === 'tenant-v1') throw new Error('aix-db: invalid database preflight');
+    console.error('aix-db: invalid database preflight -> no persistence');
+    return null;
+  }
   let resolved;
   try {
     resolved = await resolveDatabaseUrl();
   } catch (err) {
+    if (process.env.AIX_DB_DELIVERY === 'tenant-v1') throw new Error('aix-db: tenant database unavailable');
     console.error('aix-db: resolving the DB secret failed -> no persistence:', err.message);
     return null;
   }
   if (!resolved) {
+    if (process.env.AIX_DB_DELIVERY === 'tenant-v1') throw new Error('aix-db: tenant database unavailable');
     console.log('aix-db: no database configured -> in-memory only');
     return null;
   }
@@ -387,12 +587,14 @@ async function getPool() {
       schema,
     });
   } catch (err) {
+    if (process.env.AIX_DB_DELIVERY === 'tenant-v1') throw new Error('aix-db: tenant database unavailable');
     console.error('aix-db: connection setup failed -> no persistence:', err.message);
     return null;
   }
   try {
-    const { Pool } = require('pg');
+    const { Pool, Client } = require('pg');
     const pool = new Pool({
+      Client: createBoundedClient(Client),
       // RDS: trust only the packaged Amazon CA bundle and verify the endpoint hostname. Local
       // development URLs keep their existing plaintext/custom behavior.
       ...connectionConfig,
@@ -408,27 +610,42 @@ async function getPool() {
     pool.on('error', (err) => {
       console.error('aix-db: idle client error (pool recovers):', err.message);
     });
-    // With a per-app credential the platform already created the schema (and your role could not
-    // create one anyway - least privilege); only the local/legacy paths self-provision it.
-    if (!resolved.scoped) {
-      try {
-        await pool.query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
-      } catch (err) {
-        // The pool is already running: end it before falling back to memory, or its idle
-        // connections and timers leak for the process lifetime.
-        await pool.end().catch(() => {});
-        throw err;
+    try {
+      if (beforeSchemaInit) {
+        try {
+          await beforeSchemaInit(pool, schema);
+        } catch {
+          // A refusal must not leak caller-supplied database metadata or exception contents.
+          throw new Error('Database preflight refused');
+        }
       }
+      // With a per-app credential the platform already created the schema (and your role could
+      // not create one anyway); only the local/legacy paths self-provision it after preflight.
+      if (!resolved.scoped) {
+        await pool.query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
+      }
+    } catch (err) {
+      // The pool is already running: refusal must close its connections and timers.
+      await pool.end().catch(() => {});
+      throw err;
+    }
+    if (process.env.AIX_DB_DELIVERY === 'tenant-v1') {
+      try { await pool.query('SELECT 1'); }
+      catch { await pool.end().catch(() => {}); throw new Error('aix-db: tenant database unavailable'); }
     }
     console.log(`aix-db: persistent (schema "${schema}"${resolved.scoped ? ', own role' : ''})`);
     return pool;
   } catch (err) {
+    if (process.env.AIX_DB_DELIVERY === 'tenant-v1') throw new Error('aix-db: tenant database unavailable');
     console.error('aix-db: connect/init failed -> no persistence:', err.message);
     return null;
   }
 }
 
 module.exports = {
+  createBoundedClient,
+  DatabaseResponseTimeout,
+  isResponseTimeout,
   getPool,
   appSchema,
   appSlug,
@@ -442,5 +659,6 @@ module.exports = {
     max: POOL_MAX,
     connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
     statementTimeoutMillis: STATEMENT_TIMEOUT_MS,
+    responseTimeoutMillis: RESPONSE_TIMEOUT_MS,
   }),
 };
