@@ -564,7 +564,8 @@
     'The longer the commitment, the deeper the discount.',
   ];
   // "Did you know?" stats shown on the song-select screen (between runs)
-  const DYK = [
+  // not shown anywhere yet — kept for the song-select screen
+  const _DYK = [
     'Idle resources are roughly 30% of typical cloud spend.',
     'Untagged spend is spend you can’t optimize.',
     'Non-prod rarely needs to run nights or weekends.',

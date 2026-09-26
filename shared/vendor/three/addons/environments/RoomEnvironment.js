@@ -1,3 +1,4 @@
+// biome-ignore-all lint: vendored third-party code — do not hand-edit
 /**
  * https://github.com/google/model-viewer/blob/master/packages/model-viewer/src/three-components/EnvironmentScene.ts
  */
