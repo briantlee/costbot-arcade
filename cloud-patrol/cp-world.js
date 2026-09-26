@@ -289,7 +289,7 @@ export function makeVoice(getNodes) {
     src.onended = () => { if (current === src) current = null; };
   }
 
-  let browserVoice = null;
+  let browserVoice = VOICE.browserVoice || null;   // the default preset's voices, even before setPreset()
   // Chrome fills the voice list lazily: ask early so it's there by the first line
   if (synth) { synth.getVoices(); synth.addEventListener?.('voiceschanged', () => synth.getVoices()); }
   // first of the named voices (a name or a list) this browser has
