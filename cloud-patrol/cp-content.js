@@ -77,6 +77,10 @@ export const QUIPS = {
   start: ['Up, up and away! ☁️', 'Cost patrol, rolling out!', 'Nobody pays list price on my watch.'],
   hurt: ['Ouch — that one was on-demand.', 'Unbudgeted!', 'Bill shock!'],
   idle: ['…is this thing billed by the hour?', 'Checking the numbers…', '*yawn*'],
+  // title screen: tap him, or spin him too hard
+  poke: ['Hey, that tickles!', 'Reporting for duty!', 'Want to save some money?', 'Every cent counts!', 'Beep boop!'],
+  pester: ['Stop poking the budget!', 'Okay, okay, I am awake!', 'That is a lot of API calls.'],
+  dizzy: ['Whoa, the room is spinning.', 'Too much spin-up!', 'I think I autoscaled my lunch.'],
 };
 
 // Typed anywhere. Each unlocks something once and says so.

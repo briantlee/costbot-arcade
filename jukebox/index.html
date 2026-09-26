@@ -42,8 +42,8 @@
 <body>
   <img class="bot" src="../shared/assets/costbot.png" alt="">
   <h1>CostBot Arcade Jukebox</h1>
-  <p class="sub">Shared soundtrack engine for every game in the arcade. Synthesized live in WebAudio —
-     no audio files. Every track is an original composition.</p>
+  <p class="sub">Shared soundtrack engine for every game in the arcade, synthesized live in WebAudio —
+     no recorded audio. Game soundtracks that play a MIDI arrangement are marked on their card.</p>
   <a class="back" href="../index.html">← Back to the Arcade</a>
 
   <div class="tracks" id="tracks"></div>
@@ -55,14 +55,15 @@
 
   <div class="meter" id="meter">click a track to start</div>
   <p class="hint">Click any two in sequence to hear the transition — swaps are quantized to a musical
-     boundary, exactly as they are in game.<br>
+     boundary, exactly as they are in game (MIDI soundtracks switch straight away).<br>
      Any arcade game can use these:
      <code>&lt;script src="../shared/arcade-music.js"&gt;</code> then
      <code>ArcadeMusic.create(...)</code>. Each theme also names a biome, so picking a soundtrack
      picks the arena's look too.</p>
 
   <script src="../shared/arcade-music.js"></script>
-  <script>
+  <script type="module">
+    import { createMidiMusic } from '../cloud-patrol/cp-midi.js';
     // minimal audio bus, same shape wh-game.js hands the sequencer
     let ctx = null, master = null;
     function nodes() {
@@ -76,6 +77,14 @@
       return { ctx, master };
     }
     const music = ArcadeMusic.create(nodes);
+    // game soundtracks that play a MIDI arrangement through the same kind of synth voices
+    const MIDI = {
+      'cloud-patrol': { ic: '☁️', meta: 'MIDI · Cloud Patrol', title: 'Space Harrier Theme',
+        desc: 'Cloud Patrol\'s soundtrack: a MIDI arrangement of the Space Harrier main theme (Sega, 1985, composed by Hiroshi Kawaguchi), played on the arcade\'s synth voices.',
+        player: createMidiMusic(nodes, new URL('../cloud-patrol/assets/space-harrier.mid', location.href).href) },
+    };
+    let midiOn = null;
+    const stopMidi = () => { if (midiOn) { MIDI[midiOn].player.stop(); midiOn = null; } };
 
     // build a card per arrangement straight from the content in wh-music.js
     const ICONS = { menu:'🌙', stage:'🎯', boss:'💀', airbuster:'⚙️',
@@ -90,7 +99,26 @@
         <h3>${t.title}</h3>
         <p>${t.desc}</p>`;
       el.onclick = () => {
+        stopMidi();
         music.playTrack(id);
+        document.querySelectorAll('.track').forEach((x) => { x.classList.remove('on'); });
+        el.classList.add('on');
+      };
+      box.appendChild(el);
+    });
+    Object.entries(MIDI).forEach(([id, m]) => {
+      const el = document.createElement('div');
+      el.className = 'track';
+      el.dataset.t = id;
+      el.innerHTML = `<div class="ic">${m.ic}</div>
+        <div class="bpm">${m.meta}</div>
+        <h3>${m.title}</h3>
+        <p>${m.desc}</p>`;
+      el.onclick = () => {
+        music.stop();
+        stopMidi();
+        m.player.setState('stage');
+        midiOn = id;
         document.querySelectorAll('.track').forEach((x) => { x.classList.remove('on'); });
         el.classList.add('on');
       };
@@ -98,11 +126,21 @@
     });
     document.getElementById('stop').onclick = () => {
       music.stop();
+      stopMidi();
       document.querySelectorAll('.track').forEach((t) => { t.classList.remove('on'); });
     };
-    document.getElementById('vol').oninput = (e) => music.setVolume(e.target.value / 100);
+    document.getElementById('vol').oninput = (e) => {
+      music.setVolume(e.target.value / 100);
+      Object.values(MIDI).forEach((m) => m.player.setVolume(e.target.value / 100));
+    };
 
     setInterval(() => {
+      if (midiOn) {
+        const m = MIDI[midiOn].player.debug;
+        document.getElementById('meter').textContent =
+          `playing:${m.playing}  midi:${midiOn}  loaded:${m.loaded}  note:${m.cursor}/${m.notes}  ctx:${ctx ? ctx.state : '—'}`;
+        return;
+      }
       const d = music.debug();
       document.getElementById('meter').textContent =
         `playing:${d.playing}  track:${d.track}  queued:${d.pending || '—'}  ` +

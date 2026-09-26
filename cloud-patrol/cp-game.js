@@ -839,6 +839,11 @@ export function mount(target, opts = {}) {
   let run = null;
   let t = 0;
   let idleFor = 0, nextAntic = 7;
+  // title screen: drag to spin CostBot (with momentum), tap him to poke
+  const spin = { id: null, yaw: 0, vel: 0, lastX: 0, lastT: 0, downX: 0, downY: 0, downT: 0, onBot: false, dizzy: false, pokes: [] };
+  const TAU = Math.PI * 2;
+  const wrapAngle = (a) => a - Math.round(a / TAU) * TAU;
+  const spinnable = () => screen === 'title' || screen === 'locker';
   let bubbleT = 0, toastT = 0, bannerT = 0;
   const keys = new Set();
   let mouseFire = false;
@@ -850,6 +855,7 @@ export function mount(target, opts = {}) {
     screen = name;
     root.classList.toggle('playing', name === 'play');
     if (name !== 'play') drag.id = null;
+    if (name === 'play') { spin.id = null; spin.yaw = 0; spin.vel = 0; spin.dizzy = false; bot.root.rotation.y = wrapAngle(bot.root.rotation.y); renderer.domElement.style.cursor = ''; }
     for (const [n, node] of [['title', scrTitle], ['locker', scrLocker], ['howto', scrHow], ['voicelab', scrVoice], ['paused', scrPause], ['over', scrOver], ['continue', scrContinue], ['initials', scrInitials]]) {
       node.classList.toggle('on', n === name);
     }
@@ -926,7 +932,8 @@ export function mount(target, opts = {}) {
       <button data-a="vtry" data-id="${p.id}">▶ Try</button><button data-a="vuse" data-id="${p.id}">✓ Use</button></div>`).join('');
     const sel = scrVoice.querySelector('[data-t="browserVoice"]');
     const vs = (window.speechSynthesis ? speechSynthesis.getVoices() : []).filter((v) => /^en/i.test(v.lang));
-    sel.innerHTML = '<option value="">(default)</option>' + vs.map((v) => `<option ${v.name === (vlab.tweak || {}).browserVoice ? 'selected' : ''}>${v.name}</option>`).join('');
+    const want = (vlab.tweak || {}).browserVoice || [].concat((VOICE_PRESETS.find((p) => p.id === vlab.id) || {}).browserVoice || []).find((n) => vs.some((v) => v.name === n));
+    sel.innerHTML = '<option value="">(default)</option>' + vs.map((v) => `<option ${v.name === want ? 'selected' : ''}>${v.name}</option>`).join('');
     if (!voice.ready) toastMsg('Loading the voice engine…', 1.5);
     syncSliders();
   }
@@ -1020,6 +1027,56 @@ export function mount(target, opts = {}) {
     drag.tx = clamp(drag.px + (e.clientX - drag.sx) * (2 * FIELD.x) / (0.5 * w), -FIELD.x, FIELD.x);
     drag.ty = clamp(drag.py - (e.clientY - drag.sy) * (FIELD.yMax - FIELD.yMin) / (0.5 * h), FIELD.yMin, FIELD.yMax);
   });
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  function hitsBot(e) {
+    const r = renderer.domElement.getBoundingClientRect();
+    ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    return ray.intersectObject(bot.root, true).length > 0;
+  }
+  function poke() {
+    const now = performance.now();
+    spin.pokes = spin.pokes.filter((x) => now - x < 3000).concat(now);
+    let line;
+    if (spin.pokes.length >= 5) { spin.pokes = []; bot.antic('dizzy'); line = pick(QUIPS.pester); }
+    else {
+      const move = pick(['cheer', 'wave', 'loop']);
+      if (move === 'cheer') bot.cheer(); else bot.antic(move);
+      line = pick(QUIPS.poke);
+    }
+    say(line, 2); voice.say(line, { urgent: true });
+    idleFor = 0;
+  }
+  renderer.domElement.addEventListener('pointerdown', (e) => {
+    if (!spinnable()) return;
+    try { renderer.domElement.setPointerCapture(e.pointerId); } catch { /* pointer already gone: spin without capture */ }
+    const now = performance.now();
+    Object.assign(spin, { id: e.pointerId, vel: 0, lastX: e.clientX, lastT: now, downX: e.clientX, downY: e.clientY, downT: now, onBot: hitsBot(e), dizzy: false });
+    renderer.domElement.style.cursor = 'grabbing';
+  });
+  renderer.domElement.addEventListener('pointermove', (e) => {
+    if (!spinnable()) return;
+    if (e.pointerId !== spin.id) {
+      if (e.pointerType === 'mouse') renderer.domElement.style.cursor = hitsBot(e) ? 'grab' : '';
+      return;
+    }
+    const now = performance.now(), dx = e.clientX - spin.lastX, dtS = Math.max(1, now - spin.lastT) / 1000;
+    const dyaw = dx * 0.012;
+    spin.yaw += dyaw;
+    spin.vel = lerp(spin.vel, dyaw / dtS, 0.5);
+    spin.lastX = e.clientX; spin.lastT = now;
+  });
+  const endSpin = (e) => {
+    if (e.pointerId !== spin.id) return;
+    spin.id = null;
+    renderer.domElement.style.cursor = e.pointerType === 'mouse' && hitsBot(e) ? 'grab' : '';
+    const moved = Math.hypot(e.clientX - spin.downX, e.clientY - spin.downY);
+    if (moved < 8 && performance.now() - spin.downT < 350) { spin.vel = 0; if (spin.onBot) poke(); return; }
+    if (performance.now() - spin.lastT > 80) spin.vel = 0;   // held still before letting go: no fling
+    if (Math.abs(spin.vel) > 14) spin.dizzy = true;
+  };
+  renderer.domElement.addEventListener('pointerup', endSpin);
+  renderer.domElement.addEventListener('pointercancel', endSpin);
   addEventListener('blur', () => { keys.clear(); mouseFire = false; drag.id = null; if (screen === 'play') pause(); });
 
   ui.addEventListener('click', (e) => {
@@ -1880,7 +1937,22 @@ export function mount(target, opts = {}) {
       bot.root.visible = true;
       shieldBubble.visible = false;
       piggy.visible = false;
-      bot.root.rotation.y = lerp(bot.root.rotation.y, -0.35, 0.08);
+      if (spin.id === null) {
+        spin.yaw += spin.vel * dt;
+        spin.vel *= Math.exp(-2.2 * dt);
+        if (spin.dizzy && Math.abs(spin.vel) < 2) {
+          spin.dizzy = false; bot.antic('dizzy');
+          const line = pick(QUIPS.dizzy); say(line, 2.4); voice.say(line, { urgent: true });
+        }
+        if (Math.abs(spin.vel) < 0.6) {
+          // settle back to face the camera the short way round
+          const w = Math.round(spin.yaw / TAU) * TAU;
+          if (w) { spin.yaw -= w; bot.root.rotation.y -= w; }
+          spin.yaw = lerp(spin.yaw, 0, 0.04);
+        }
+      }
+      const spinning = spin.id !== null || Math.abs(spin.vel) > 0.05;
+      bot.root.rotation.y = lerp(bot.root.rotation.y, -0.35 + spin.yaw, spinning ? 0.4 : 0.08);
       bot.update(t, dt, { baseY: 0.6 });
       bot.root.position.x = lerp(bot.root.position.x, 1.9, 0.08);
       bot.root.position.z = 0;
@@ -1936,6 +2008,7 @@ export function mount(target, opts = {}) {
     start: startRun,
     secret: (id) => SECRETS[id] && triggerSecret(id, SECRETS[id]),
     // test hooks
+    get _spin() { return { yaw: spin.yaw, vel: spin.vel, dizzy: spin.dizzy, dragging: spin.id !== null }; },
     _hurt: () => { if (run) { run.invuln = 0; hurt(); } },
     _killBoss: () => { if (run && run.boss) killBoss(); },
     _coins: (n) => { if (run) { run.coins = n - 1; grab({ kind: 'coin', mesh: bot.root }); } },
