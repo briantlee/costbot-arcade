@@ -506,6 +506,36 @@ const CSS = `
 .cp-flash{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,40,70,.55));opacity:0;transition:opacity .35s}
 .cp-flash.on{opacity:1;transition:none}
 .cp-mute{position:absolute;right:18px;top:78px;pointer-events:auto;font-size:13px !important;padding:6px 10px !important}
+/* touch: drag the sky to fly, so the canvas must not scroll or zoom; lists in cards still scroll */
+.cp-root canvas{touch-action:none}
+.cp-root{-webkit-tap-highlight-color:transparent}
+.cp-ui button{touch-action:manipulation}
+.cp-card,.cp-panel{touch-action:pan-y}
+.cp-pausebtn{position:absolute;right:66px;top:78px;display:none;font-size:13px !important;padding:6px 10px !important}
+.cp-root.touch.playing .cp-pausebtn{display:block}
+.cp-rotate{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);display:none;gap:8px;align-items:center;white-space:nowrap;
+  background:rgba(10,16,32,.8);border:1px solid var(--line);border-radius:20px;padding:7px 14px;font-size:13px;color:var(--muted)}
+.cp-root.touch .cp-keys{right:auto;left:50%;bottom:auto;top:14px;transform:translateX(-50%);text-align:center;white-space:nowrap}
+@media (orientation:portrait){ .cp-root.touch.playing .cp-rotate{display:flex} }
+/* phones: short landscape screens and narrow portrait ones */
+@media (max-height:500px){
+  .cp-panel{top:50%;max-height:94vh;overflow:auto;width:min(440px,52vw)}
+  .cp-logo b{font-size:34px}
+  .cp-tag{font-size:13px;margin:6px 0 12px}
+  .cp-stats{margin-top:12px}.cp-hs{margin-top:10px}
+  .cp-ui button{padding:8px 14px}.cp-ui button.primary{font-size:16px;padding:9px 20px}
+  .cp-card{padding:14px 16px;max-height:94vh}.cp-card h2{font-size:20px}
+  .cp-cont .n{font-size:72px;margin:2px 0 10px}
+  .cp-slot b{width:50px;height:58px;line-height:58px;font-size:36px}.cp-ini{margin:10px 0 12px}
+}
+@media (max-width:640px){
+  .cp-screen.menu.on{background:rgba(4,7,18,.7)}
+  .cp-panel{left:5%;width:90vw;max-height:92vh;overflow:auto}
+  .cp-panel[style]{width:90vw !important}
+  .cp-keys,.cp-root.touch .cp-keys{display:none}
+  .cp-hud .cp-stage{white-space:nowrap;font-size:11px;bottom:74px}
+  .cp-rotate{bottom:104px}
+}
 .cp-score em{display:block;font-style:normal;font-size:12px;letter-spacing:.14em;color:#ffd23a;margin-bottom:2px}
 .cp-stage{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-weight:800;font-size:13px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--muted);text-shadow:0 2px 6px #000}
@@ -554,6 +584,8 @@ function el(html) {
 export function mount(target, opts = {}) {
   const container = typeof target === 'string' ? document.querySelector(target) : target;
   const params = new URLSearchParams(location.search);
+  // phones and tablets: drag to fly, hold to fire, a lighter renderer (?touch=1 forces it, for testing)
+  const TOUCH = params.get('touch') === '1' || matchMedia('(pointer: coarse)').matches;
   const onEvent = opts.onEvent || (() => {});
   const onComplete = opts.onComplete || (() => {});
   let profile = mergeProfiles(loadProfile(), opts.profile);
@@ -568,7 +600,7 @@ export function mount(target, opts = {}) {
   if (!document.getElementById('cp-style')) {
     const st = document.createElement('style'); st.id = 'cp-style'; st.textContent = CSS; document.head.appendChild(st);
   }
-  const root = el('<div class="cp-root"></div>');
+  const root = el(`<div class="cp-root${TOUCH ? ' touch' : ''}"></div>`);
   container.innerHTML = '';
   container.appendChild(root);
   const ui = el('<div class="cp-ui"></div>');
@@ -596,6 +628,11 @@ export function mount(target, opts = {}) {
     <h2>❓ How to play</h2>
     <div class="cp-howto">
       <div class="h">Controls</div>
+      ${TOUCH ? `<span>Drag anywhere</span><span class="d">Fly — he moves with your finger, so it never hides him</span>
+      <span>Keep your finger down</span><span class="d">Savings laser, firing the whole time</span>
+      <span>Double-tap / second finger</span><span class="d">Dash</span>
+      <span>⏸ / 🔊</span><span class="d">Pause / mute, top right</span>
+      <div class="h">Keyboard</div>` : ''}
       <span><kbd>WASD</kbd> / <kbd>←↑↓→</kbd></span><span class="d">Fly</span>
       <span><kbd>Space</kbd> / hold mouse</span><span class="d">Savings laser</span>
       <span><kbd>Shift</kbd></span><span class="d">Dash — a burst of speed you can't be hit during</span>
@@ -657,7 +694,7 @@ export function mount(target, opts = {}) {
     <div class="sub">Your score and stage carry on. Up to ${B.maxContinues} continues a run.</div>
   </div></div>`);
   const scrInitials = el(`<div class="cp-screen dim"><div class="cp-center cp-card">
-    <h2>🏆 New high score!</h2><div class="sub">Score <b data-v="iniScore">0</b> — enter your initials. Type, or use ▲▼ ◀▶, then Enter.</div>
+    <h2>🏆 New high score!</h2><div class="sub">Score <b data-v="iniScore">0</b> — enter your initials. ${TOUCH ? 'Tap ▲▼ to pick letters, then Save.' : 'Type, or use ▲▼ ◀▶, then Enter.'}</div>
     <div class="cp-ini"></div>
     <div class="cp-btns" style="justify-content:center"><button class="primary" data-a="ini-ok">✓ Save</button></div>
   </div></div>`);
@@ -667,21 +704,24 @@ export function mount(target, opts = {}) {
     <div class="cp-right"><div class="cp-hearts" data-v="hearts"></div><div class="cp-tok" data-v="runTok">+0 tokens</div></div>
     <div class="cp-boss"><div class="nm" data-v="bossName"></div><div class="bar"><div class="fill" data-v="bossFill"></div></div></div>
     <div class="cp-pups" data-v="pups"></div>
-    <div class="cp-keys"><kbd>WASD</kbd> fly · <kbd>Space</kbd> laser · <kbd>Shift</kbd> dash · <kbd>Esc</kbd> pause · <kbd>M</kbd> mute</div>
+    <div class="cp-keys">${TOUCH ? 'Drag to fly · hold to fire · double-tap to dash'
+      : '<kbd>WASD</kbd> fly · <kbd>Space</kbd> laser · <kbd>Shift</kbd> dash · <kbd>Esc</kbd> pause · <kbd>M</kbd> mute'}</div>
   </div>`);
   const flash = el('<div class="cp-flash"></div>');
   const banner = el('<div class="cp-banner"></div>');
   const toast = el('<div class="cp-toast"></div>');
   const bubble = el('<div class="cp-bubble"></div>');
   const muteBtn = el('<button class="cp-mute" title="Mute (M)">🔊</button>');
+  const pauseBtn = el('<button class="cp-pausebtn" data-a="pause" title="Pause">⏸</button>');
+  const rotateHint = el('<div class="cp-rotate">📱 Turn your phone sideways for the full sky</div>');
   const pops = el('<div></div>');
-  [flash, pops, hud, scrTitle, scrLocker, scrHow, scrVoice, scrPause, scrOver, scrContinue, scrInitials, banner, toast, bubble, muteBtn].forEach((n) => ui.appendChild(n));
+  [flash, pops, hud, scrTitle, scrLocker, scrHow, scrVoice, scrPause, scrOver, scrContinue, scrInitials, banner, toast, bubble, muteBtn, pauseBtn, rotateHint].forEach((n) => ui.appendChild(n));
   const V = (name) => ui.querySelectorAll(`[data-v="${name}"]`);
   const setV = (name, txt) => V(name).forEach((n) => { if (n.textContent !== String(txt)) n.textContent = txt; });
 
   // ---- renderer + scene ----
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+  const renderer = new THREE.WebGLRenderer({ antialias: !TOUCH });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, TOUCH ? 1.25 : 1.75));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   root.appendChild(renderer.domElement);
   root.appendChild(ui);
@@ -712,6 +752,8 @@ export function mount(target, opts = {}) {
     renderer.setSize(w, h);
     composer.setSize(w, h);
     camera.aspect = w / h;
+    // portrait phones: open the lens so the whole field still fits across
+    camera.fov = camera.aspect < 1 ? Math.min(88, 62 / Math.sqrt(camera.aspect)) : 62;
     camera.updateProjectionMatrix();
   }
   resize();
@@ -800,11 +842,14 @@ export function mount(target, opts = {}) {
   let bubbleT = 0, toastT = 0, bannerT = 0;
   const keys = new Set();
   let mouseFire = false;
+  const drag = { id: null, sx: 0, sy: 0, px: 0, py: 0, tx: 0, ty: 0, lastTap: 0 };
   const secretBuf = [];
   let rainT = 0;
 
   function show(name) {
     screen = name;
+    root.classList.toggle('playing', name === 'play');
+    if (name !== 'play') drag.id = null;
     for (const [n, node] of [['title', scrTitle], ['locker', scrLocker], ['howto', scrHow], ['voicelab', scrVoice], ['paused', scrPause], ['over', scrOver], ['continue', scrContinue], ['initials', scrInitials]]) {
       node.classList.toggle('on', n === name);
     }
@@ -949,10 +994,33 @@ export function mount(target, opts = {}) {
   function onKeyUp(e) { keys.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key); }
   addEventListener('keydown', onKeyDown);
   addEventListener('keyup', onKeyUp);
-  renderer.domElement.addEventListener('pointerdown', () => { audio.resume(); idleFor = 0; if (screen === 'play') mouseFire = true; });
-  addEventListener('pointerup', () => { mouseFire = false; });
-  addEventListener('pointermove', () => { idleFor = 0; });
-  addEventListener('blur', () => { keys.clear(); mouseFire = false; if (screen === 'play') pause(); });
+  // touch: relative drag — he moves by how far your finger moves, not to where it is, so it never
+  // covers him. Holding the finger down fires; a quick second tap (or a second finger) dashes.
+  renderer.domElement.addEventListener('pointerdown', (e) => {
+    audio.resume(); idleFor = 0;
+    if (screen !== 'play') return;
+    mouseFire = true;
+    if (e.pointerType !== 'touch' || !run) return;
+    if (drag.id !== null) { dash(); return; }
+    const now = performance.now();
+    if (now - drag.lastTap < 300) dash();
+    Object.assign(drag, { id: e.pointerId, sx: e.clientX, sy: e.clientY, px: run.px, py: run.py, tx: run.px, ty: run.py, lastTap: now });
+  });
+  const endDrag = (e) => {
+    if (e.pointerId === drag.id) { drag.id = null; mouseFire = false; }
+    else if (e.pointerType !== 'touch') mouseFire = false;
+  };
+  addEventListener('pointerup', endDrag);
+  addEventListener('pointercancel', endDrag);
+  addEventListener('pointermove', (e) => {
+    idleFor = 0;
+    if (e.pointerId !== drag.id) return;
+    const w = root.clientWidth || innerWidth, h = root.clientHeight || innerHeight;
+    // half the screen's width crosses the whole field; same for height
+    drag.tx = clamp(drag.px + (e.clientX - drag.sx) * (2 * FIELD.x) / (0.5 * w), -FIELD.x, FIELD.x);
+    drag.ty = clamp(drag.py - (e.clientY - drag.sy) * (FIELD.yMax - FIELD.yMin) / (0.5 * h), FIELD.yMin, FIELD.yMax);
+  });
+  addEventListener('blur', () => { keys.clear(); mouseFire = false; drag.id = null; if (screen === 'play') pause(); });
 
   ui.addEventListener('click', (e) => {
     const b = e.target.closest('button[data-a]');
@@ -968,6 +1036,7 @@ export function mount(target, opts = {}) {
     else if (a === 'vsay') sayLine();
     else if (a === 'vreset') { vlab = { id: DEFAULT_VOICE, tweak: {} }; profile.voice = vlab; save(); voice.setPreset(DEFAULT_VOICE); syncSliders(); renderVoiceLab(); sayLine(); }
     else if (a === 'back' || a === 'menu') { bot.setOutfit(profile.outfit); show('title'); }
+    else if (a === 'pause') pause();
     else if (a === 'resume') resume();
     else if (a === 'quit') endRun('quit');
     else if (a === 'continue') doContinue();
@@ -1482,8 +1551,13 @@ export function mount(target, opts = {}) {
     const bonus = r.phase === 'bonus';
     r.speed = Math.min(B.maxSpeed, B.startSpeed + r.stage * 2.5 + B.speedRamp * r.stageTime) * (r.dashT > 0 ? 1.8 : 1) * (bonus ? 1.25 : 1);
     const gravi = bot.outfit === 'graviton';
-    const ix = (keys.has('ArrowRight') || keys.has('d') ? 1 : 0) - (keys.has('ArrowLeft') || keys.has('a') ? 1 : 0);
-    const iy = (keys.has('ArrowUp') || keys.has('w') ? 1 : 0) - (keys.has('ArrowDown') || keys.has('s') ? 1 : 0);
+    let ix = (keys.has('ArrowRight') || keys.has('d') ? 1 : 0) - (keys.has('ArrowLeft') || keys.has('a') ? 1 : 0);
+    let iy = (keys.has('ArrowUp') || keys.has('w') ? 1 : 0) - (keys.has('ArrowDown') || keys.has('s') ? 1 : 0);
+    if (drag.id !== null && !ix && !iy) {         // touch: steer toward where the drag has put him
+      const dx = drag.tx - r.px, dy = drag.ty - r.py;
+      ix = Math.abs(dx) < 0.05 ? 0 : clamp(dx * 1.2, -1, 1);
+      iy = Math.abs(dy) < 0.05 ? 0 : clamp(dy * 1.2, -1, 1);
+    }
     if (ix || iy) idleFor = 0;
     const agility = (gravi ? 1.2 : 1) * (r.dashT > 0 ? 1.5 : 1);
     r.vx = lerp(r.vx, ix * 10 * agility, 0.18);
