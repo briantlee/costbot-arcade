@@ -3,9 +3,10 @@
  *
  *   cd arcade/cloud-patrol && node smoketest.js      # ~40s
  *
- * Boots the title screen, walks the locker and how-to, flies a run (moving and
- * firing), forces a boss, fires every secret code, then dies on purpose and
- * checks a result came out with a score and tokens. Fails on any console error.
+ * Boots the title screen, walks the locker and how-to, fires every secret code, flies
+ * a run (obstacles, formations), calls in the Megabill serpent, the piggy-bank bonus
+ * and the disc boss, then dies on purpose through continue → initials → results.
+ * Fails on any console error.
  * Screenshots land in ./shots/ (gitignored).
  */
 const { chromium } = require('/home/briant/node_modules/playwright');
@@ -84,14 +85,31 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await page.screenshot({ path: path.join(SHOTS, '05-flight.png') });
   const s1 = await page.evaluate(() => window.cloudPatrol.state.run);
   check(s1 && s1.things > 0, `waste and coins are spawning (${s1 && s1.things} on screen)`);
+  check(s1 && s1.stage === 1 && ['card', 'waves'].includes(s1.phase), `stage 1 is running (${s1 && s1.phase})`);
+  await page.waitForFunction(() => { const r = window.cloudPatrol.state.run; return r && r.obstacles > 0 && r.formations > 0; }, null, { timeout: 20000 }).catch(() => {});
+  const s1c = await page.evaluate(() => window.cloudPatrol.state.run);
+  check(s1c && s1c.obstacles > 0, `obstacles rise out of the ground (${s1c && s1c.obstacles})`);
+  check(s1c && s1c.formations > 0, `formations fly in (${s1c && s1c.formations})`);
   // things take a few seconds to reach him, and headless frames are slow
   await page.waitForFunction(() => window.cloudPatrol.state.run && window.cloudPatrol.state.run.score > 0, null, { timeout: 15000 }).catch(() => {});
   const s1b = await page.evaluate(() => window.cloudPatrol.state.run);
   check(s1b && s1b.score > 0, `score is counting (${s1b && Math.round(s1b.score)})`);
   check((await page.evaluate(() => window.cloudPatrol.state.screen)) === 'play', 'typing a secret mid-run does not pause');
 
-  // boss: reload straight into a run with the boss due in 2s
+  // the Megabill serpent: reload straight into a run with it due in ~5s
   await page.keyboard.up(' ');
+  await page.goto(`${base}?play=1&boss=1&serpent=1&god=1`);
+  await page.waitForFunction(() => window.cloudPatrol && window.cloudPatrol.state.run && window.cloudPatrol.state.run.bossKind === 'serpent', null, { timeout: 25000 }).catch(() => {});
+  const sp = await page.evaluate(() => window.cloudPatrol.state.run);
+  check(sp && sp.bossKind === 'serpent' && sp.segs > 0, `the Megabill serpent arrives with its invoices (${sp && sp.segs} segments)`);
+  await page.waitForTimeout(4000);
+  await page.screenshot({ path: path.join(SHOTS, '06a-serpent.png') });
+  await page.evaluate(() => window.cloudPatrol._phase('bonus'));
+  await page.waitForTimeout(2500);
+  await page.screenshot({ path: path.join(SHOTS, '06b-bonus.png') });
+  check((await page.evaluate(() => window.cloudPatrol.state.run.phase)) === 'bonus', 'the piggy-bank bonus stage runs');
+
+  // disc boss
   await page.goto(`${base}?play=1&boss=1`);
   await page.waitForFunction(() => window.cloudPatrol && window.cloudPatrol.state.screen === 'play', null, { timeout: 20000 });
   await page.keyboard.down(' ');
@@ -108,10 +126,20 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await page.screenshot({ path: path.join(SHOTS, '07-paused.png') });
   await page.keyboard.press('Escape');
 
-  // die on purpose: stop dodging and wait for the bill to land (or quit after 40s)
+  // die on purpose: three hits → the continue countdown; take one, then give up
   await page.keyboard.up(' ');
-  const died = await page.waitForFunction(() => window.cloudPatrol.state.screen === 'over', null, { timeout: 40000 }).then(() => true).catch(() => false);
-  if (!died) { await page.keyboard.press('Escape'); await page.click('button[data-a="quit"]'); }
+  for (let i = 0; i < 3; i++) { await page.evaluate(() => window.cloudPatrol._hurt()); await sleep(250); }
+  check((await page.evaluate(() => window.cloudPatrol.state.screen)) === 'continue', 'losing the last life offers a continue');
+  await page.screenshot({ path: path.join(SHOTS, '07b-continue.png') });
+  await page.keyboard.press('Enter'); await sleep(400);
+  check((await page.evaluate(() => window.cloudPatrol.state.run && window.cloudPatrol.state.run.lives)) === 3, 'continuing restores lives and keeps the run');
+  for (let i = 0; i < 3; i++) { await page.evaluate(() => window.cloudPatrol._hurt()); await sleep(250); }
+  await page.click('button[data-a="giveup"]'); await sleep(600);
+  const died = true;
+  if ((await page.evaluate(() => window.cloudPatrol.state.screen)) === 'initials') {
+    await page.keyboard.type('bot'); await page.keyboard.press('Enter'); await sleep(400);
+    check((await page.evaluate(() => (window.cloudPatrol.profile.table || []).some((e) => e.i === 'BOT'))), 'initials land in the high-score table');
+  }
   await sleep(800);
   await page.screenshot({ path: path.join(SHOTS, '08-results.png') });
   check((await page.evaluate(() => window.cloudPatrol.state.screen)) === 'over', `run ends on the results screen (${died ? 'died' : 'quit'})`);

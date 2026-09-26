@@ -31,13 +31,15 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { createCostBot, OUTFITS, makeCoinFactory } from '../shared/costbot-3d.js';
-import { VENDORS, ENEMIES, POWERUPS, BALANCE as B, BOSS_LINES, QUIPS, SECRETS } from './cp-content.js';
+import { VENDORS, ENEMIES, POWERUPS, BALANCE as B, QUIPS, SECRETS } from './cp-content.js';
+import { STAGES, stageFor, BONUS_EVERY, makeGround, buildObstacles, makeSerpentSegment, makePiggy, makeVoice } from './cp-world.js';
 
 const GAME_ID = 'cloud-patrol';
 const KEY = 'costbot.cloudpatrol.v1';
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 const BOT_SCALE = 0.6;
-const FIELD = { x: 7, yMin: 0.2, yMax: 6 };
+const FIELD = { x: 7, yMin: 0.3, yMax: 6 };
+const GROUND_Y = 0;         // the checkerboard; at yMin his feet skim it and he runs
 const HIT_Y = 0.8;          // player hitbox sits this far above the root
 const HIT_R = 0.75;
 const SPAWN_Z = -140;
@@ -347,6 +349,9 @@ const CSS = `
 .cp-ui button:disabled{opacity:.45;cursor:default;transform:none}
 .cp-screen{position:absolute;inset:0;display:none;pointer-events:none}
 .cp-screen.on{display:block}
+/* menus sit over a bright checkerboard now: a soft fade behind the text keeps it readable */
+.cp-screen.menu.on{background:linear-gradient(90deg,rgba(4,7,18,.82),rgba(4,7,18,.45) 42%,transparent 62%)}
+.cp-screen.dim.on{background:rgba(4,7,18,.55)}
 .cp-panel{position:absolute;left:6%;top:50%;transform:translateY(-50%);width:min(440px,44vw);pointer-events:auto}
 .cp-logo{font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--cyan);font-weight:800}
 .cp-logo b{display:block;font-size:clamp(38px,5.4vw,64px);letter-spacing:.02em;color:#fff;line-height:1.02;text-transform:none;
@@ -407,6 +412,25 @@ const CSS = `
 .cp-flash{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,40,70,.55));opacity:0;transition:opacity .35s}
 .cp-flash.on{opacity:1;transition:none}
 .cp-mute{position:absolute;right:18px;top:78px;pointer-events:auto;font-size:13px !important;padding:6px 10px !important}
+.cp-score em{display:block;font-style:normal;font-size:12px;letter-spacing:.14em;color:#ffd23a;margin-bottom:2px}
+.cp-stage{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-weight:800;font-size:13px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);text-shadow:0 2px 6px #000}
+.cp-hs{margin-top:18px}
+.cp-center .cp-hs{margin:4px auto 16px;max-width:300px;text-align:left}
+.cp-hs .t{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
+.cp-scores div{display:grid;grid-template-columns:28px 56px 1fr 40px;gap:6px;font:600 14px ui-monospace,monospace;padding:2px 0;color:#cfdcf5}
+.cp-scores div.me{color:#ffd23a}
+.cp-scores .empty{display:block;color:var(--muted);font-family:inherit}
+.cp-cont{text-align:center;pointer-events:auto}
+.cp-cont .q{font-size:clamp(34px,5vw,58px);font-weight:900;letter-spacing:.08em;text-shadow:0 0 24px rgba(255,80,110,.6)}
+.cp-cont .n{font-size:clamp(90px,14vw,170px);font-weight:900;line-height:1;color:#ffd23a;text-shadow:0 0 30px rgba(255,210,58,.5);margin:6px 0 18px}
+.cp-cont .sub{color:var(--muted);font-size:13px;margin-top:12px}
+.cp-ini{display:flex;gap:14px;justify-content:center;margin:18px 0 20px}
+.cp-slot{display:flex;flex-direction:column;align-items:center;gap:6px}
+.cp-slot b{display:block;width:62px;height:74px;line-height:74px;text-align:center;font:900 46px ui-monospace,monospace;
+  border:2px solid var(--line);border-radius:12px;background:rgba(20,32,60,.6)}
+.cp-slot.on b{border-color:#ffd23a;color:#ffd23a;box-shadow:0 0 18px rgba(255,210,58,.35)}
+.cp-slot button{padding:4px 12px !important;font-size:12px !important}
 `;
 
 function el(html) {
@@ -440,7 +464,7 @@ export function mount(target, opts = {}) {
   container.appendChild(root);
   const ui = el('<div class="cp-ui"></div>');
 
-  const scrTitle = el(`<div class="cp-screen"><div class="cp-panel">
+  const scrTitle = el(`<div class="cp-screen menu"><div class="cp-panel">
     <div class="cp-logo">CostBot<b>Cloud Patrol</b></div>
     <div class="cp-tag">Fly the cloud. Shoot down the waste, grab the coins, and shrink every megabill vendor's bill
       before it shrinks your budget.</div>
@@ -448,8 +472,9 @@ export function mount(target, opts = {}) {
       <button data-a="howto">❓ How to play</button></div>
     <div class="cp-stats"><div>Best score<b data-v="best">0</b></div><div>Bosses beaten<b data-v="bosses">0</b></div>
       <div class="tok">Tokens on hand<b data-v="tokens">0</b></div></div>
+    <div class="cp-hs"><div class="t">🏆 High scores</div><div class="cp-scores"></div></div>
   </div></div>`);
-  const scrLocker = el(`<div class="cp-screen"><div class="cp-panel"><div class="cp-card">
+  const scrLocker = el(`<div class="cp-screen menu"><div class="cp-panel"><div class="cp-card">
     <h2>👕 Locker</h2><div class="sub">Hover to try one on. Outfits cost arcade tokens — and a couple are secret.</div>
     <div class="cp-lockers"></div>
     <div class="cp-btns"><button data-a="back">← Back</button></div>
@@ -457,7 +482,7 @@ export function mount(target, opts = {}) {
   </div></div></div>`);
   const enemyRows = Object.values(ENEMIES).map((e) => `<span>${e.name}</span><span class="d">${e.blurb}</span>`).join('');
   const pupRows = Object.values(POWERUPS).map((p) => `<span>${p.icon} ${p.name}</span><span class="d">${p.blurb}</span>`).join('');
-  const scrHow = el(`<div class="cp-screen"><div class="cp-panel" style="width:min(560px,56vw)"><div class="cp-card">
+  const scrHow = el(`<div class="cp-screen menu"><div class="cp-panel" style="width:min(560px,56vw)"><div class="cp-card">
     <h2>❓ How to play</h2>
     <div class="cp-howto">
       <div class="h">Controls</div>
@@ -468,8 +493,14 @@ export function mount(target, opts = {}) {
       <span><kbd>M</kbd></span><span class="d">Mute</span>
       <div class="h">Waste</div>${enemyRows}
       <div class="h">Power-ups</div>${pupRows}
-      <div class="h">Bosses</div>
-      <span>Vendor bills</span><span class="d">Every ${B.bossEvery}s a megabill vendor flies in. Its bill is its health bar — every hit shrinks it. Dodge the spend spikes.</span>
+      <div class="h">Obstacles</div>
+      <span>Racks, spikes, invoice stacks</span><span class="d">They rise out of the ground and can't be shot down — fly around or over them, or you tumble.</span>
+      <div class="h">Formations</div>
+      <span>Squadrons</span><span class="d">Ghost conga lines, NAT gateway V's, circling EBS rings. Clear a whole squadron for +1,000.</span>
+      <div class="h">Stages &amp; bosses</div>
+      <span>Vendor bills</span><span class="d">Every stage ends in a boss: a megabill vendor's badge, or the Megabill itself — a serpent of overdue invoices. Shoot the pages off, then hit the head.</span>
+      <span>🐷 Bonus stage</span><span class="d">Every third stage, ride the piggy bank: invincible for ${B.bonusSeconds}s, smash everything for tokens.</span>
+      <span>Skimming</span><span class="d">Fly low and CostBot runs along the ground.</span>
       <div class="h">Combo</div>
       <span>×${B.comboMaxMult} max</span><span class="d">Every ${B.comboStep} coins or kills in a row adds ×0.5. Getting hit resets it.</span>
       <div class="h">Psst</div>
@@ -477,21 +508,33 @@ export function mount(target, opts = {}) {
     </div>
     <div class="cp-btns"><button data-a="back">← Back</button></div>
   </div></div></div>`);
-  const scrPause = el(`<div class="cp-screen"><div class="cp-center cp-card"><h2>Paused</h2>
+  const scrPause = el(`<div class="cp-screen dim"><div class="cp-center cp-card"><h2>Paused</h2>
     <div class="sub">The cloud will wait. It always bills by the hour anyway.</div>
     <div class="cp-btns" style="justify-content:center"><button class="primary" data-a="resume">▶ Resume</button><button data-a="quit">Quit run</button></div>
   </div></div>`);
-  const scrOver = el(`<div class="cp-screen"><div class="cp-center cp-card">
+  const scrOver = el(`<div class="cp-screen dim"><div class="cp-center cp-card">
     <h2 data-v="overTitle">Run over</h2><div class="sub" data-v="overSub"></div>
     <div class="cp-results">
       <div class="big">Score<b data-v="rScore">0</b></div>
       <div>Coins<b data-v="rCoins">0</b></div><div>Waste cleared<b data-v="rKills">0</b></div><div>Bosses<b data-v="rBosses">0</b></div>
       <div>Best combo<b data-v="rCombo">0</b></div><div>Time<b data-v="rTime">0</b></div><div>Tokens<b data-v="rTokens" style="color:var(--gold)">0</b></div>
     </div>
+    <div class="cp-hs"><div class="t">🏆 High scores</div><div class="cp-scores"></div></div>
     <div class="cp-btns" style="justify-content:center"><button class="primary" data-a="play">↻ Fly again</button><button data-a="menu">Menu</button></div>
   </div></div>`);
+  const scrContinue = el(`<div class="cp-screen dim"><div class="cp-center cp-cont">
+    <div class="q">CONTINUE?</div><div class="n" data-v="contN">9</div>
+    <div class="cp-btns" style="justify-content:center"><button class="primary" data-a="continue">▶ Continue (Enter)</button><button data-a="giveup">Give up</button></div>
+    <div class="sub">Your score and stage carry on. Up to ${B.maxContinues} continues a run.</div>
+  </div></div>`);
+  const scrInitials = el(`<div class="cp-screen dim"><div class="cp-center cp-card">
+    <h2>🏆 New high score!</h2><div class="sub">Score <b data-v="iniScore">0</b> — enter your initials. Type, or use ▲▼ ◀▶, then Enter.</div>
+    <div class="cp-ini"></div>
+    <div class="cp-btns" style="justify-content:center"><button class="primary" data-a="ini-ok">✓ Save</button></div>
+  </div></div>`);
   const hud = el(`<div class="cp-hud">
-    <div class="cp-score"><span data-v="score">0</span><small data-v="mult">×1</small></div>
+    <div class="cp-score"><em data-v="top">TOP 0</em><span data-v="score">0</span><small data-v="mult">×1</small></div>
+    <div class="cp-stage" data-v="stage"></div>
     <div class="cp-right"><div class="cp-hearts" data-v="hearts"></div><div class="cp-tok" data-v="runTok">+0 tokens</div></div>
     <div class="cp-boss"><div class="nm" data-v="bossName"></div><div class="bar"><div class="fill" data-v="bossFill"></div></div></div>
     <div class="cp-pups" data-v="pups"></div>
@@ -503,7 +546,7 @@ export function mount(target, opts = {}) {
   const bubble = el('<div class="cp-bubble"></div>');
   const muteBtn = el('<button class="cp-mute" title="Mute (M)">🔊</button>');
   const pops = el('<div></div>');
-  [flash, pops, hud, scrTitle, scrLocker, scrHow, scrPause, scrOver, banner, toast, bubble, muteBtn].forEach((n) => ui.appendChild(n));
+  [flash, pops, hud, scrTitle, scrLocker, scrHow, scrPause, scrOver, scrContinue, scrInitials, banner, toast, bubble, muteBtn].forEach((n) => ui.appendChild(n));
   const V = (name) => ui.querySelectorAll(`[data-v="${name}"]`);
   const setV = (name, txt) => V(name).forEach((n) => { if (n.textContent !== String(txt)) n.textContent = txt; });
 
@@ -525,7 +568,7 @@ export function mount(target, opts = {}) {
   const key = new THREE.DirectionalLight(0xffffff, 1.35); key.position.set(4, 8, 6); scene.add(key);
   const rim = new THREE.DirectionalLight(0x4fb3ff, 1.1); rim.position.set(-5, 3, -6); scene.add(rim);
 
-  const camera = new THREE.PerspectiveCamera(55, 16 / 9, 0.1, 400);
+  const camera = new THREE.PerspectiveCamera(62, 16 / 9, 0.1, 420);
   const camPos = new THREE.Vector3(0, 1.9, 7), camLook = new THREE.Vector3(0, 1.5, 0);
   camera.position.copy(camPos);
 
@@ -575,6 +618,17 @@ export function mount(target, opts = {}) {
     n.position.set(x, y, -260); n.scale.setScalar(sc); scene.add(n);
   }
 
+  // ---- the ground, and what rises out of it ----
+  const ground = makeGround();
+  scene.add(ground.mesh);
+  let stageTarget = STAGES[0];
+  const tmpColor = new THREE.Color();
+  const OB = buildObstacles();
+  const piggy = makePiggy();
+  piggy.scale.setScalar(0.62);
+  piggy.visible = false;
+  scene.add(piggy);
+
   // ---- CostBot ----
   const bot = createCostBot({ style: 'glossy', shadows: false });
   bot.root.scale.setScalar(BOT_SCALE);
@@ -596,9 +650,12 @@ export function mount(target, opts = {}) {
   const music = window.ArcadeMusic ? window.ArcadeMusic.create(() => audio.nodes()) : null;
   if (music) { music.setTheme('synthwave'); music.setVolume(MUSIC_VOL); }
   const musicSlot = (slot) => { if (music) music.setState(slot); };
+  const voice = makeVoice();
+  voice.setMuted(!!profile.muted);
   function toggleMute() {
     profile.muted = !profile.muted; save();
     audio.setMuted(profile.muted);
+    voice.setMuted(profile.muted);
     muteBtn.textContent = profile.muted ? '🔇' : '🔊';
   }
   muteBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMute(); });
@@ -616,10 +673,10 @@ export function mount(target, opts = {}) {
 
   function show(name) {
     screen = name;
-    for (const [n, node] of [['title', scrTitle], ['locker', scrLocker], ['howto', scrHow], ['paused', scrPause], ['over', scrOver]]) {
+    for (const [n, node] of [['title', scrTitle], ['locker', scrLocker], ['howto', scrHow], ['paused', scrPause], ['over', scrOver], ['continue', scrContinue], ['initials', scrInitials]]) {
       node.classList.toggle('on', n === name);
     }
-    hud.classList.toggle('on', name === 'play' || name === 'paused');
+    hud.classList.toggle('on', name === 'play' || name === 'paused' || name === 'continue');
     if (name === 'title' || name === 'locker' || name === 'howto') {
       setV('best', fmt(profile.best)); setV('bosses', fmt(profile.bosses)); setV('tokens', fmt(wallet().tokens));
       musicSlot('menu');
@@ -704,9 +761,11 @@ export function mount(target, opts = {}) {
     idleFor = 0;
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     if (MOVE[k] && screen === 'play') e.preventDefault();
+    if (screen === 'initials') { e.preventDefault(); iniKey(e); return; }
     if (!e.repeat) secretKey(e.key);
     keys.add(k);
     if (k === 'm') toggleMute();
+    if (screen === 'continue' && (k === 'Enter' || k === ' ')) { e.preventDefault(); doContinue(); return; }
     if (screen === 'play') {
       if (k === 'Escape') pause();
       if (k === 'Shift') dash();
@@ -737,27 +796,48 @@ export function mount(target, opts = {}) {
     else if (a === 'back' || a === 'menu') { bot.setOutfit(profile.outfit); show('title'); }
     else if (a === 'resume') resume();
     else if (a === 'quit') endRun('quit');
+    else if (a === 'continue') doContinue();
+    else if (a === 'giveup') endRun('death');
+    else if (a === 'ini-up') iniStep(+b.dataset.i, 1);
+    else if (a === 'ini-down') iniStep(+b.dataset.i, -1);
+    else if (a === 'ini-ok') iniConfirm();
   });
+  function iniKey(e) {
+    if (!ini) return;
+    if (e.key === 'Enter') { iniConfirm(); return; }
+    if (e.key === 'ArrowUp') iniStep(ini.at, 1);
+    else if (e.key === 'ArrowDown') iniStep(ini.at, -1);
+    else if (e.key === 'ArrowLeft') { ini.at = Math.max(0, ini.at - 1); renderInitials(); }
+    else if (e.key === 'ArrowRight') { ini.at = Math.min(2, ini.at + 1); renderInitials(); }
+    else if (e.key === 'Backspace') { ini.slots[ini.at] = ' '; ini.at = Math.max(0, ini.at - 1); renderInitials(); }
+    else if (e.key.length === 1 && /[a-z0-9]/i.test(e.key)) {
+      ini.slots[ini.at] = e.key.toUpperCase(); ini.at = Math.min(2, ini.at + 1); audio.beep(); renderInitials();
+    }
+  }
   ui.addEventListener('mouseover', (e) => { if (e.target.closest && e.target.closest('button') && !e.target.closest('button').contains(e.relatedTarget)) audio.beep(); });
 
   // ---- run ----
   const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3();
   const godMode = params.get('god') === '1';     // test hook: nothing can hurt him
   const pickedVendor = VENDORS.findIndex((v) => v.name === params.get('vendor'));
+  const startStage = Math.max(0, (+params.get('stage') || 1) - 1);   // test hook: ?stage=N
+  let formSeq = 0;
   function newRun() {
     return {
-      time: 0, speed: B.startSpeed, score: 0, coins: 0, kills: 0, bosses: 0, combo: 0, bestCombo: 0,
-      lives: B.lives, invuln: 0, px: 0, py: 2.4, vx: 0, vy: 0,
-      fireCd: 0, dashCd: 0, dashT: 0, spawnT: 1.2, coinT: 0.4, pupT: B.powerupEvery * 0.6,
-      bossT: params.get('boss') ? 2 : B.bossEvery, boss: null, bossIndex: pickedVendor >= 0 ? pickedVendor : Math.floor(Math.random() * VENDORS.length),
-      pups: { shield: 0, magnet: 0, spot: 0 },
-      things: [], lasers: [], spikes: [], shake: 0, bonusTokens: 0,
+      time: 0, stageTime: 0, speed: B.startSpeed, score: 0, shownScore: 0, coins: 0, kills: 0, bosses: 0, combo: 0, bestCombo: 0,
+      lives: B.lives, invuln: 0, px: 0, py: 2.4, vx: 0, vy: 0, continues: 0,
+      fireCd: 0, dashCd: 0, dashT: 0, spawnT: 1.2, coinT: 0.4, pupT: B.powerupEvery * 0.6, obstT: 1.5, formT: 4,
+      stage: startStage, phase: 'card', phaseT: 0, st: null, smashed: 0,
+      boss: null, bossIndex: pickedVendor >= 0 ? pickedVendor : Math.floor(Math.random() * VENDORS.length),
+      pups: { shield: 0, magnet: 0, spot: 0 }, forms: new Map(),
+      things: [], lasers: [], spikes: [], obst: [], shake: 0, bonusTokens: 0,
     };
   }
   function clearRun() {
     if (!run) return;
-    for (const x of [...run.things, ...run.lasers, ...run.spikes]) scene.remove(x.mesh);
-    if (run.boss) scene.remove(run.boss.mesh);
+    for (const x of [...run.things, ...run.lasers, ...run.spikes, ...run.obst]) scene.remove(x.mesh);
+    if (run.boss) removeBoss(run.boss);
+    piggy.visible = false;
     run = null;
   }
   function startRun() {
@@ -768,11 +848,57 @@ export function mount(target, opts = {}) {
     show('play');
     musicSlot('stage');
     if (music) music.setVolume(MUSIC_VOL);
-    say(pick(QUIPS.start));
+    enterStage(run.stage);
     onEvent('run:start', { outfit: profile.outfit });
   }
-  function pause() { if (screen !== 'play') return; show('paused'); if (music) music.setVolume(MUSIC_VOL * 0.4); }
+  function pause() { if (screen !== 'play') return; show('paused'); if (music) music.setVolume(MUSIC_VOL * 0.4); voice.stop(); }
   function resume() { if (screen !== 'paused') return; show('play'); if (music) music.setVolume(MUSIC_VOL); }
+
+  // ---- stages: card → waves → boss → clear → (bonus every third) → next card ----
+  function setPhase(phase, secs) { run.phase = phase; run.phaseT = secs; }
+  function enterStage(i) {
+    run.stage = i; run.stageTime = 0;
+    run.st = { kills: 0, coins: 0, forms: 0 };
+    setPhase('card', 2.6);
+    stageTarget = stageFor(i);
+    const st = stageFor(i);
+    bannerMsg(`STAGE ${i + 1}<small>${st.name}</small>`, 2.5);
+    voice.say(i === startStage ? 'Welcome to the Cloud Zone!' : 'Get ready!', { urgent: true });
+    if (i === startStage) say(pick(QUIPS.start));
+    musicSlot('stage');
+  }
+  function stageClear() {
+    const s = run.st;
+    const bonus = 500 + s.forms * 300;
+    run.score += bonus;
+    bannerMsg(`STAGE CLEAR<small>waste ×${s.kills} · coins ×${s.coins} · formations ×${s.forms} · +${fmt(bonus)}</small>`, 3.1);
+    voice.say('Stage clear!', { urgent: true });
+    setPhase('clear', 3.3);
+  }
+  function enterBonus() {
+    run.smashed = 0;
+    setPhase('bonus', B.bonusSeconds);
+    piggy.visible = true;
+    bannerMsg('🐷 BONUS STAGE<small>Ride the Piggy Bank — smash everything!</small>', 2.6);
+    voice.say('Ride the piggy bank!', { urgent: true });
+    audio.fanfare();
+  }
+  function bonusClear() {
+    piggy.visible = false;
+    const tok = Math.min(B.bonusTokenCap, run.smashed);
+    run.bonusTokens += tok;
+    bannerMsg(`🐷 BONUS CLEAR<small>smashed ×${run.smashed} · +${fmt(tok)} tokens</small>`, 2.8);
+    voice.say('Jackpot!', { urgent: true });
+    setPhase('bonusClear', 3);
+  }
+  function advancePhase() {
+    const r = run;
+    if (r.phase === 'card') setPhase('waves', params.get('boss') ? 2 : B.stageSeconds);
+    else if (r.phase === 'waves') { setPhase('boss', 0); spawnBoss(); }
+    else if (r.phase === 'clear') { if ((r.stage + 1) % BONUS_EVERY === 0) enterBonus(); else enterStage(r.stage + 1); }
+    else if (r.phase === 'bonus') bonusClear();
+    else if (r.phase === 'bonusClear') enterStage(r.stage + 1);
+  }
 
   const mult = () => Math.min(B.comboMaxMult, 1 + Math.floor(run.combo / B.comboStep) * 0.5);
   function addScore(n, at, color) {
@@ -785,10 +911,34 @@ export function mount(target, opts = {}) {
     run.bestCombo = Math.max(run.bestCombo, run.combo);
     if (run.combo % B.comboStep === 0 && mult() <= B.comboMaxMult) pop(playerCenter(tmp2), `COMBO ×${mult()}`, '#4fe3ff');
   }
-  const playerCenter = (out) => out.set(run.px, run.py + HIT_Y, 0);
+  const playerCenter = (out) => out.set(run.px, run.py + HIT_Y + (run.phase === 'bonus' ? 0.55 : 0), 0);
+  // hit-stop: a few frames of near-freeze sells every impact
+  let freezeT = 0;
+  const hitStop = (secs, shake = 0) => { freezeT = Math.max(freezeT, secs); if (run) run.shake = Math.max(run.shake, shake); };
 
   function tokensFor(r) {
     return Math.floor(r.coins * B.tokensPerCoin + r.bonusTokens + r.score / B.scorePerToken);
+  }
+
+  // ---- losing: continue countdown, then initials, then results ----
+  let contT = 0, lastResult = null;
+  function outOfLives() {
+    if (run.continues >= B.maxContinues) { endRun('death'); return; }
+    contT = 9.99;
+    banner.classList.remove('on'); bubble.classList.remove('on'); bannerT = 0; bubbleT = 0;
+    setV('hearts', '🖤'.repeat(B.lives));
+    show('continue');
+    voice.say('Continue?', { urgent: true });
+    if (music) music.setVolume(MUSIC_VOL * 0.35);
+  }
+  function doContinue() {
+    if (screen !== 'continue' || !run) return;
+    run.continues += 1;
+    run.lives = B.lives; run.invuln = 2.5; run.combo = 0;
+    show('play');
+    if (music) music.setVolume(MUSIC_VOL);
+    voice.say('Back in the fight!', { urgent: true });
+    bot.cheer();
   }
 
   function endRun(outcome) {
@@ -805,21 +955,64 @@ export function mount(target, opts = {}) {
     const result = {
       game: GAME_ID, version: VERSION, outcome, stageId: 'endless', seed: 0, dollarsSaved: 0,
       tokensEarned: tokens, score: Math.round(r.score), combo: r.bestCombo, kills: r.kills, level: r.bosses,
-      coins: r.coins, quizCorrect: 0, quizWrong: 0, durationMs: Math.round(r.time * 1000), profile: { ...profile },
+      coins: r.coins, stage: r.stage + 1, continues: r.continues,
+      quizCorrect: 0, quizWrong: 0, durationMs: Math.round(r.time * 1000), profile: { ...profile },
     };
     setV('overTitle', outcome === 'quit' ? 'Run ended' : newBest ? '🏆 New best!' : 'Grounded!');
-    setV('overSub', outcome === 'quit' ? 'Tokens earned so far still count.' : `${pick(['The waste won this round.', 'Even heroes get invoiced.', 'Budget exceeded.'])}`);
+    setV('overSub', outcome === 'quit' ? 'Tokens earned so far still count.'
+      : `Reached stage ${r.stage + 1} — ${stageFor(r.stage).name}. ${pick(['The waste won this round.', 'Even heroes get invoiced.', 'Budget exceeded.'])}`);
     setV('rScore', fmt(r.score)); setV('rCoins', fmt(r.coins)); setV('rKills', fmt(r.kills)); setV('rBosses', fmt(r.bosses));
     setV('rCombo', fmt(r.bestCombo)); setV('rTime', `${Math.floor(r.time / 60)}:${String(Math.floor(r.time % 60)).padStart(2, '0')}`);
     setV('rTokens', `+${fmt(tokens)}`);
     clearRun();
-    show('over');
     musicSlot('menu');
     if (music) music.setVolume(MUSIC_VOL * 0.7);
-    if (outcome !== 'quit') audio.gameOver();
+    if (outcome !== 'quit') { audio.gameOver(); voice.say('Budget exceeded.', { urgent: true }); }
     ui.querySelector('.cp-boss').classList.remove('on');
+    lastResult = result;
     onEvent('run:end', result);
     onComplete(result);
+    if (qualifies(result.score)) openInitials(result.score, result.stage);
+    else { renderScores(); show('over'); }
+  }
+
+  // ---- high-score table with arcade initials (local; the server board uses real names) ----
+  const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ';
+  let ini = null;
+  const table = () => (profile.table || []).slice().sort((a, b) => b.s - a.s).slice(0, 10);
+  const qualifies = (score) => score > 0 && (table().length < 10 || score > table()[table().length - 1].s);
+  function openInitials(score, stage) {
+    const prev = (profile.initials || 'CBT').padEnd(3).slice(0, 3);
+    ini = { score, stage, slots: prev.split(''), at: 0 };
+    renderInitials();
+    show('initials');
+  }
+  function renderInitials() {
+    const box = scrInitials.querySelector('.cp-ini');
+    box.innerHTML = ini.slots.map((c, i) => `<div class="cp-slot ${i === ini.at ? 'on' : ''}" data-i="${i}">
+      <button data-a="ini-up" data-i="${i}">▲</button><b>${c === ' ' ? '_' : c}</b><button data-a="ini-down" data-i="${i}">▼</button></div>`).join('');
+    setV('iniScore', fmt(ini.score));
+  }
+  function iniStep(i, d) {
+    const k = LETTERS.indexOf(ini.slots[i]);
+    ini.slots[i] = LETTERS[(k + d + LETTERS.length) % LETTERS.length];
+    ini.at = i; audio.beep(); renderInitials();
+  }
+  function iniConfirm() {
+    const tag = ini.slots.join('').trim() || 'CBT';
+    profile.initials = ini.slots.join('');
+    profile.table = [...table(), { i: tag, s: Math.round(ini.score), st: ini.stage, at: Date.now() }].sort((a, b) => b.s - a.s).slice(0, 10);
+    save();
+    audio.fanfare();
+    const mine = profile.table.findIndex((e) => e.s === Math.round(ini.score) && e.i === tag);
+    ini = null;
+    renderScores(mine);
+    show('over');
+  }
+  function renderScores(highlight = -1) {
+    const rows = table().slice(0, 5).map((e, i) => `<div class="${i === highlight ? 'me' : ''}"><span>${i + 1}.</span><span>${e.i}</span><span>${fmt(e.s)}</span><span>S${e.st || 1}</span></div>`).join('')
+      || '<div class="empty">No scores yet — be the first.</div>';
+    ui.querySelectorAll('.cp-scores').forEach((n) => { n.innerHTML = rows; });
   }
 
   // ---- spawning ----
@@ -845,46 +1038,119 @@ export function mount(target, opts = {}) {
     }
   }
   function spawnWaste() {
-    const lvl = run.time / 60;
+    const lvl = run.stage * 0.4 + run.stageTime / 60;
     const roll = Math.random();
-    const kind = roll < 0.45 - lvl * 0.08 ? 'ebs' : roll < 0.8 - lvl * 0.05 ? 'ghost' : 'nat';
+    const kind = roll < 0.45 - lvl * 0.06 ? 'ebs' : roll < 0.8 - lvl * 0.04 ? 'ghost' : 'nat';
     spawnThing(kind, rand(-FIELD.x, FIELD.x), rand(1, 6.8));
   }
+  function spawnObstacle(x = rand(-FIELD.x - 4, FIELD.x + 4)) {
+    const kind = pick(stageFor(run.stage).obstacles);
+    const mesh = OB[kind]();
+    mesh.position.set(x, GROUND_Y, SPAWN_Z);
+    mesh.rotation.y = rand(-0.2, 0.2);
+    scene.add(mesh);
+    run.obst.push({ mesh, ...mesh.userData, hit: false });
+  }
+  // squadrons in choreographed paths; clear a whole one for a bonus
+  function spawnFormation() {
+    const type = pick(['conga', 'vee', 'ring']);
+    const id = ++formSeq;
+    const f = { id, type, total: 0, killed: 0, broken: false };
+    run.forms.set(id, f);
+    const cx = rand(-3, 3), cy = rand(2.2, 5.2);
+    const add = (kind, i, z, path) => { const th = spawnThing(kind, cx, cy, z); th.form = id; th.path = path; f.total += 1; return th; };
+    if (type === 'conga') {
+      const amp = rand(3, 4.5);
+      for (let i = 0; i < 7; i++) add('ghost', i, SPAWN_Z - i * 4, (th, tt) => {
+        th.mesh.position.x = cx + Math.sin(tt * 1.5 + i * 0.55) * amp; th.mesh.position.y = cy + Math.cos(tt * 1.1 + i * 0.55) * 1.1;
+      });
+    } else if (type === 'vee') {
+      [[0, 0, 0], [-1.7, 0.7, 3], [1.7, 0.7, 3], [-3.4, 1.4, 6], [3.4, 1.4, 6]].forEach(([ox, oy, dz], i) => add('nat', i, SPAWN_Z - dz, (th) => {
+        if (th.mesh.position.z > -45) return false;             // peel off and home in
+        th.mesh.position.x = cx + ox; th.mesh.position.y = cy + oy;
+      }));
+    } else {
+      for (let i = 0; i < 6; i++) add('ebs', i, SPAWN_Z, (th, tt) => {
+        const a = i / 6 * Math.PI * 2 + tt * 2;
+        th.mesh.position.x = cx + Math.cos(a) * 2.4; th.mesh.position.y = cy + Math.sin(a) * 2.4;
+      });
+    }
+  }
+  function formationHit(th, killed) {
+    const f = th.form && run.forms.get(th.form);
+    if (!f) return;
+    if (!killed) { f.broken = true; return; }
+    f.killed += 1;
+    if (f.killed === f.total && !f.broken) {
+      run.st.forms += 1;
+      addScore(1000, th.mesh.position, '#ffd23a');
+      bannerMsg('FORMATION CLEAR<small>+1,000</small>', 1.4);
+      voice.say('Formation clear!');
+      hitStop(0.08, 0.2);
+      audio.power();
+    }
+  }
+
+  // ---- bosses: the vendor-badge disc, or the Megabill serpent ----
   function spawnBoss() {
     const v = VENDORS[run.bossIndex % VENDORS.length];
     run.bossIndex += 1;
     const level = run.bosses;
+    const kind = params.get('serpent') ? 'serpent' : stageFor(run.stage).boss;
     const mesh = F.boss(v);
-    mesh.position.set(0, 3.5, -180);
+    mesh.position.set(0, 3.5, -190);
     scene.add(mesh);
-    const max = B.bossHp + B.bossHpStep * level;
-    run.boss = { v, mesh, hp: max, max, t: 0, fireT: 2.2, level, hitFlash: 0 };
+    const max = Math.round((B.bossHp + B.bossHpStep * level) * (kind === 'serpent' ? 0.8 : 1));
+    const b = { kind, v, mesh, hp: max, max, t: 0, fireT: 2.4, level, hitFlash: 0, segs: [], trail: [] };
+    if (kind === 'serpent') {
+      mesh.scale.setScalar(0.72);
+      const n = Math.min(20, 12 + level * 2);
+      for (let i = 0; i < n; i++) { const m = makeSerpentSegment(); m.position.copy(mesh.position); scene.add(m); b.segs.push({ mesh: m, hp: 3 }); }
+    }
+    run.boss = b;
     ui.querySelector('.cp-boss').classList.add('on');
-    setV('bossName', `⚠️ ${v.name} — the bill`);
-    bannerMsg(`⚠️ INCOMING BILL<small>${v.name}</small>`, 2.4);
+    setV('bossName', kind === 'serpent' ? `🐉 THE MEGABILL — ${v.name}` : `⚠️ ${v.name} — the bill`);
+    bannerMsg(kind === 'serpent' ? `🐉 THE MEGABILL<small>${v.name}'s invoices, all at once</small>` : `⚠️ INCOMING BILL<small>${v.name}</small>`, 2.4);
+    voice.say('Here comes the bill!', { urgent: true });
     audio.alarm();
     musicSlot('boss');
+  }
+  function removeBoss(b) {
+    scene.remove(b.mesh);
+    for (const sgm of b.segs) scene.remove(sgm.mesh);
   }
   function killBoss() {
     const b = run.boss;
     sparks.burst(b.mesh.position, b.v.color, 120, 16);
     sparks.burst(b.mesh.position, '#ffd23a', 80, 12);
+    b.segs.forEach((sgm) => sparks.burst(sgm.mesh.position, '#f6f3ea', 24, 8));
     for (let i = 0; i < 14; i++) {
       const c = spawnThing('coin', b.mesh.position.x + rand(-2, 2), b.mesh.position.y + rand(-1.5, 1.5), b.mesh.position.z + rand(-3, 3));
       c.vx = rand(-3, 3); c.vy = rand(-1, 1);
     }
-    addScore(1000 * (b.level + 1), b.mesh.position, '#ffd23a');
+    addScore(1000 * (b.level + 1) * (b.kind === 'serpent' ? 1.5 : 1), b.mesh.position, '#ffd23a');
     run.bosses += 1;
     run.bonusTokens += B.bossTokens;
-    bannerMsg(`💥 ${b.v.name}<small>${pick(BOSS_LINES)}</small>`, 2.6);
     audio.boom();
+    hitStop(0.35, 0.8);
     bot.cheer();
     say('Bill: shrunk. ✅');
-    scene.remove(b.mesh);
+    removeBoss(b);
     run.boss = null;
-    run.bossT = B.bossEvery;
     ui.querySelector('.cp-boss').classList.remove('on');
     musicSlot('stage');
+    stageClear();
+  }
+  function bossFire(b, from, pc) {
+    b.fireT = Math.max(0.45, 1.25 - b.level * 0.1) * rand(0.8, 1.2);
+    const volley = 1 + Math.min(2, Math.floor(b.level / 2));
+    for (let k = 0; k < volley; k++) {
+      const sp = F.spike();
+      sp.position.copy(from);
+      scene.add(sp);
+      const aim = tmp2.copy(pc).add(new THREE.Vector3(rand(-1.5, 1.5) * k, rand(-1, 1) * k, 0)).sub(from).normalize().multiplyScalar(30 + b.level * 2.5);
+      run.spikes.push({ mesh: sp, v: aim.clone() });
+    }
   }
 
   function fire() {
@@ -909,9 +1175,9 @@ export function mount(target, opts = {}) {
     run.dashT = B.dashTime; run.dashCd = B.dashCooldown;
     audio.whoosh();
   }
-  function hurt() {
+  function hurt(tumble = false) {
     const r = run;
-    if (r.invuln > 0 || r.dashT > 0 || godMode) return;
+    if (r.invuln > 0 || r.dashT > 0 || godMode || r.phase === 'bonus') return;
     if (r.pups.shield > 0) {
       r.pups.shield = 0; r.invuln = 0.8;
       audio.shieldBreak();
@@ -919,17 +1185,20 @@ export function mount(target, opts = {}) {
       toastMsg('🛡️ Savings Plan absorbed it', 1.6);
       return;
     }
-    r.lives -= 1; r.invuln = B.invulnTime; r.combo = 0; r.shake = 0.5;
+    r.lives -= 1; r.invuln = B.invulnTime; r.combo = 0;
+    hitStop(0.12, 0.6);
     audio.hurt();
+    voice.say(pick(['Ouch! Unbudgeted!', 'Bill shock!', 'Ow! On-demand pricing!']));
+    if (tumble) bot.antic('loop');
     flash.classList.add('on'); setTimeout(() => flash.classList.remove('on'), 60);
     sparks.burst(playerCenter(tmp), '#ff4466', 40, 9);
-    if (r.lives <= 0) { endRun('death'); return; }
+    if (r.lives <= 0) { outOfLives(); return; }
     say(pick(QUIPS.hurt), 1.6);
   }
   function grab(th) {
     const r = run;
     if (th.kind === 'coin') {
-      r.coins += 1; bumpCombo(); addScore(B.coinPoints);
+      r.coins += 1; r.st.coins += 1; bumpCombo(); addScore(B.coinPoints);
       sparks.burst(th.mesh.position, '#ffd23a', 10, 4);
       audio.coin();
     } else {
@@ -940,12 +1209,34 @@ export function mount(target, opts = {}) {
       audio.power();
     }
   }
+  function smash(pos, color) {             // bonus stage: everything you touch breaks, for points
+    run.smashed += 1;
+    addScore(100, pos, '#ff8fb3');
+    sparks.burst(pos, color, 34, 10);
+    audio.pop();
+    hitStop(0.03, 0.12);
+  }
+  function killThing(th, j) {
+    const def = ENEMIES[th.kind];
+    run.kills += 1; run.st.kills += 1; bumpCombo(); addScore(def.points, th.mesh.position, '#7ff6ff');
+    sparks.burst(th.mesh.position, th.kind === 'nat' ? '#ff4455' : th.kind === 'ghost' ? '#a9c4ff' : '#c0c8d8', 46, 10);
+    sparks.burst(th.mesh.position, '#ffd23a', 10, 6);
+    audio.pop();
+    hitStop(0.04, 0.12);
+    formationHit(th, true);
+    scene.remove(th.mesh); run.things.splice(j, 1);
+    // waste bursts into a coin now and then
+    if (Math.random() < 0.35) { const c = spawnThing('coin', th.mesh.position.x, th.mesh.position.y, th.mesh.position.z); c.vy = rand(0.5, 2); }
+  }
 
   // ---- per-frame run update ----
   function updateRun(dt) {
     const r = run;
-    r.time += dt;
-    r.speed = Math.min(B.maxSpeed, B.startSpeed + B.speedRamp * r.time) * (r.dashT > 0 ? 1.8 : 1);
+    r.time += dt; r.stageTime += dt;
+    if (r.phaseT > 0) { r.phaseT -= dt; if (r.phaseT <= 0) advancePhase(); }
+    if (!run) return;
+    const bonus = r.phase === 'bonus';
+    r.speed = Math.min(B.maxSpeed, B.startSpeed + r.stage * 2.5 + B.speedRamp * r.stageTime) * (r.dashT > 0 ? 1.8 : 1) * (bonus ? 1.25 : 1);
     const gravi = bot.outfit === 'graviton';
     const ix = (keys.has('ArrowRight') || keys.has('d') ? 1 : 0) - (keys.has('ArrowLeft') || keys.has('a') ? 1 : 0);
     const iy = (keys.has('ArrowUp') || keys.has('w') ? 1 : 0) - (keys.has('ArrowDown') || keys.has('s') ? 1 : 0);
@@ -960,23 +1251,44 @@ export function mount(target, opts = {}) {
     r.dashCd = Math.max(0, r.dashCd - dt);
     r.fireCd = Math.max(0, r.fireCd - dt);
     for (const k of Object.keys(r.pups)) r.pups[k] = Math.max(0, r.pups[k] - dt);
-    if ((keys.has(' ') || mouseFire) && r.fireCd <= 0) fire();
+    if (keys.has(' ') || mouseFire) { idleFor = 0; if (r.fireCd <= 0) fire(); }
 
-    // spawns
-    const bossUp = !!r.boss;
-    r.spawnT -= dt * (bossUp ? 0.35 : 1);
-    if (r.spawnT <= 0) { spawnWaste(); r.spawnT = Math.max(B.spawnFloor, B.spawnEvery - r.time * 0.004) * rand(0.7, 1.3); }
-    r.coinT -= dt;
+    // spawns — the waves phase is the stage proper; the card, clear and boss phases thin it out
+    const heat = 1 + r.stage * 0.08;
+    const rate = r.phase === 'waves' ? 1 : r.phase === 'boss' ? 0.35 : bonus ? 1.6 : 0.15;
+    r.spawnT -= dt * rate * heat;
+    if (r.spawnT <= 0) { spawnWaste(); r.spawnT = Math.max(B.spawnFloor, B.spawnEvery - r.stageTime * 0.004) * rand(0.7, 1.3); }
+    r.obstT -= dt * (r.phase === 'waves' || bonus ? 1 : r.phase === 'boss' ? 0.5 : 0.2) * heat;
+    if (r.obstT <= 0) { spawnObstacle(); r.obstT = B.obstacleEvery * rand(0.6, 1.4); }
+    if (r.phase === 'waves') {
+      r.formT -= dt;
+      if (r.formT <= 0) { spawnFormation(); r.formT = B.formationEvery * rand(0.8, 1.3); }
+    }
+    r.coinT -= dt * (bonus ? 3 : 1);
     if (r.coinT <= 0) { spawnCoinRow(); r.coinT = B.coinEvery * rand(3, 6); }
     r.pupT -= dt;
-    if (r.pupT <= 0) { spawnThing(pick(Object.keys(POWERUPS)), rand(-FIELD.x + 1, FIELD.x - 1), rand(1.5, 6)); r.pupT = B.powerupEvery * rand(0.8, 1.3); }
-    if (!bossUp) { r.bossT -= dt; if (r.bossT <= 0) spawnBoss(); }
+    if (r.pupT <= 0 && !bonus) { spawnThing(pick(Object.keys(POWERUPS)), rand(-FIELD.x + 1, FIELD.x - 1), rand(1.5, 6)); r.pupT = B.powerupEvery * rand(0.8, 1.3); }
     if (rainT > 0) {
       rainT -= dt;
       if (Math.random() < dt * 14) spawnThing('coin', clamp(r.px + rand(-3, 3), -FIELD.x, FIELD.x), clamp(r.py + HIT_Y + rand(-2, 2), 1, 6.8), -60);
     }
 
     const pc = playerCenter(tmp);
+    // obstacles rise out of the ground: dodge, or tumble
+    for (let i = r.obst.length - 1; i >= 0; i--) {
+      const o = r.obst[i];
+      o.mesh.position.z += r.speed * dt;
+      const oz = o.mesh.position.z, ox = o.mesh.position.x;
+      if (!o.hit && Math.abs(pc.z - oz) < o.depth + 0.5 && Math.abs(pc.x - ox) < o.half + HIT_R * 0.8 && pc.y - HIT_R * 0.6 < GROUND_Y + o.height) {
+        o.hit = true;
+        if (bonus) { smash(pc.clone(), '#c0c8d8'); scene.remove(o.mesh); r.obst.splice(i, 1); continue; }
+        sparks.burst(pc, '#ffb080', 30, 8);
+        hurt(true);
+        if (!run) return;
+      }
+      if (oz > 16) { scene.remove(o.mesh); r.obst.splice(i, 1); }
+    }
+
     // things
     for (let i = r.things.length - 1; i >= 0; i--) {
       const th = r.things[i];
@@ -984,21 +1296,24 @@ export function mount(target, opts = {}) {
       m.position.z += (r.speed + th.vz) * dt;
       m.position.x += th.vx * dt; m.position.y += th.vy * dt;
       th.vx *= 0.97; th.vy *= 0.97;
+      const pathed = th.path ? th.path(th, t) !== false : false;
       if (th.kind === 'coin') {
         m.rotation.y += dt * 4;
-        if (r.pups.magnet > 0 && m.position.distanceTo(pc) < 11) {
+        if ((r.pups.magnet > 0 || bonus) && m.position.distanceTo(pc) < 11) {
           m.position.x = lerp(m.position.x, pc.x, 0.08); m.position.y = lerp(m.position.y, pc.y, 0.08);
           m.position.z = lerp(m.position.z, 0, 0.04);
         }
       } else if (th.kind === 'ebs') {
         m.rotation.x += dt * 1.2; m.rotation.z += dt * 0.7;
       } else if (th.kind === 'ghost') {
-        m.position.x = th.baseX + Math.sin(t * 2 + th.phase) * 2.4;
-        m.position.y = th.baseY + Math.sin(t * 3 + th.phase) * 0.35;
+        if (!pathed) {
+          m.position.x = th.baseX + Math.sin(t * 2 + th.phase) * 2.4;
+          m.position.y = th.baseY + Math.sin(t * 3 + th.phase) * 0.35;
+        }
         m.rotation.y = Math.sin(t * 2 + th.phase) * 0.4;
       } else if (th.kind === 'nat') {
         m.rotation.x += dt * 2; m.rotation.y += dt * 2.6;
-        if (m.position.z > -70 && m.position.z < -4) {
+        if (!pathed && m.position.z > -70 && m.position.z < -4) {
           m.position.x = lerp(m.position.x, pc.x, dt * 0.9); m.position.y = lerp(m.position.y, pc.y, dt * 0.9);
         }
       } else {
@@ -1007,13 +1322,15 @@ export function mount(target, opts = {}) {
       }
       const dz = Math.abs(m.position.z - pc.z);
       if (dz < 1.6 && m.position.distanceTo(pc) < th.r + HIT_R) {
-        if (th.kind in ENEMIES) { sparks.burst(m.position, '#ff8a5a', 26, 7); hurt(); }
-        else grab(th);
+        if (th.kind in ENEMIES) {
+          if (bonus) { r.kills += 1; smash(m.position.clone(), '#ff8fb3'); }
+          else { sparks.burst(m.position, '#ff8a5a', 26, 7); formationHit(th, false); hurt(); }
+        } else grab(th);
         scene.remove(m); r.things.splice(i, 1);
         if (!run) return;
         continue;
       }
-      if (m.position.z > 14) { scene.remove(m); r.things.splice(i, 1); }
+      if (m.position.z > 14) { if (th.form) formationHit(th, false); scene.remove(m); r.things.splice(i, 1); }
     }
 
     // lasers
@@ -1022,62 +1339,89 @@ export function mount(target, opts = {}) {
       L.life -= dt;
       L.mesh.position.z -= 95 * dt;
       L.mesh.position.x += L.vx * dt;
+      const lp = L.mesh.position;
       let hit = false;
       for (let j = r.things.length - 1; j >= 0 && !hit; j--) {
         const th = r.things[j];
         if (!(th.kind in ENEMIES)) continue;
-        if (L.mesh.position.distanceTo(th.mesh.position) < th.r + 0.4) {
+        if (lp.distanceTo(th.mesh.position) < th.r + 0.4) {
           hit = true;
           th.hp -= 1;
-          if (th.hp <= 0) {
-            const def = ENEMIES[th.kind];
-            r.kills += 1; bumpCombo(); addScore(def.points, th.mesh.position, '#7ff6ff');
-            sparks.burst(th.mesh.position, th.kind === 'nat' ? '#ff4455' : th.kind === 'ghost' ? '#a9c4ff' : '#c0c8d8', 40, 9);
-            audio.pop();
-            scene.remove(th.mesh); r.things.splice(j, 1);
-          } else { sparks.burst(th.mesh.position, '#ffffff', 8, 4); audio.bossHit(); }
+          if (th.hp <= 0) killThing(th, j);
+          else { sparks.burst(th.mesh.position, '#ffffff', 8, 4); audio.bossHit(); }
+        }
+      }
+      // obstacles soak up shots
+      for (const o of r.obst) {
+        if (hit) break;
+        if (Math.abs(lp.z - o.mesh.position.z) < o.depth && Math.abs(lp.x - o.mesh.position.x) < o.half && lp.y < GROUND_Y + o.height) {
+          hit = true; sparks.burst(lp, '#9fdcff', 6, 4);
         }
       }
       const b = r.boss;
-      if (!hit && b && L.mesh.position.distanceTo(b.mesh.position) < (BOSS_R + 0.2) * b.mesh.scale.x) {
-        hit = true;
-        b.hp -= 1; b.hitFlash = 0.08;
-        sparks.burst(L.mesh.position, '#ffd23a', 6, 5);
-        audio.bossHit();
-        if (b.hp <= 0) killBoss();
+      if (!hit && b) {
+        if (b.kind === 'serpent') {
+          for (let k = 0; k < b.segs.length && !hit; k++) {
+            const sgm = b.segs[k];
+            if (lp.distanceTo(sgm.mesh.position) < 1.5) {
+              hit = true; sgm.hp -= 1; sparks.burst(lp, '#f6f3ea', 8, 5); audio.bossHit();
+              if (sgm.hp <= 0) {
+                addScore(150, sgm.mesh.position, '#f6f3ea'); sparks.burst(sgm.mesh.position, '#f6f3ea', 30, 10);
+                scene.remove(sgm.mesh); b.segs.splice(k, 1); hitStop(0.03, 0.1);
+              }
+            }
+          }
+        }
+        if (!hit && lp.distanceTo(b.mesh.position) < (BOSS_R + 0.2) * b.mesh.scale.x) {
+          hit = true;
+          b.hp -= 1; b.hitFlash = 0.08;
+          sparks.burst(lp, '#ffd23a', 6, 5);
+          audio.bossHit();
+          hitStop(0.012, 0.05);
+          if (b.hp <= 0) killBoss();
+        }
       }
       if (hit || L.life <= 0) { scene.remove(L.mesh); r.lasers.splice(i, 1); }
     }
+    if (!run) return;
 
     // boss
     const b = r.boss;
     if (b) {
       b.t += dt;
       const m = b.mesh;
-      const targetZ = -27;
-      m.position.z = lerp(m.position.z, targetZ, dt * 0.9);
-      m.position.x = Math.sin(b.t * 0.7) * 5;
-      m.position.y = 3.6 + Math.sin(b.t * 1.1) * 1.8;
-      m.rotation.y = Math.sin(b.t * 1.3) * 0.5;
-      m.rotation.z = Math.sin(b.t * 0.8) * 0.15;
-      m.scale.setScalar(0.45 + 0.55 * b.hp / b.max);
       b.hitFlash = Math.max(0, b.hitFlash - dt);
       m.userData.faceMat.color.setRGB(1, b.hitFlash > 0 ? 0.55 : 1, b.hitFlash > 0 ? 0.55 : 1);   // flash red on a hit
       m.userData.aura.rotation.z += dt * 2;
-      b.fireT -= dt;
-      if (b.fireT <= 0 && m.position.z > -60) {
-        b.fireT = Math.max(0.45, 1.25 - b.level * 0.1) * rand(0.8, 1.2);
-        const volley = 1 + Math.min(2, Math.floor(b.level / 2));
-        for (let k = 0; k < volley; k++) {
-          const s = F.spike();
-          s.position.copy(m.position);
-          scene.add(s);
-          const aim = tmp2.copy(pc).add(new THREE.Vector3(rand(-1.5, 1.5) * k, rand(-1, 1) * k, 0)).sub(m.position).normalize().multiplyScalar(30 + b.level * 2.5);
-          r.spikes.push({ mesh: s, v: aim.clone() });
-        }
+      if (b.kind === 'serpent') {
+        // the head swims a lissajous; the invoices follow its trail like vertebrae
+        tmp2.set(Math.sin(b.t * 0.8) * 6.5, 3.8 + Math.sin(b.t * 1.3) * 2.4, -30 + Math.sin(b.t * 0.5) * 7);
+        m.position.lerp(tmp2, Math.min(1, dt * 1.4));
+        m.rotation.y = Math.sin(b.t * 1.1) * 0.4;
+        b.trail.unshift(m.position.clone());
+        if (b.trail.length > 900) b.trail.pop();
+        let d = 0, ti = 0;
+        b.segs.forEach((sgm, k) => {
+          const want = (k + 1) * 2.3;
+          while (ti < b.trail.length - 1 && d < want) { d += b.trail[ti].distanceTo(b.trail[ti + 1]); ti += 1; }
+          sgm.mesh.position.copy(b.trail[Math.min(ti, b.trail.length - 1)]);
+          const ahead = b.trail[Math.max(0, ti - 3)];
+          if (ahead.distanceToSquared(sgm.mesh.position) > 1e-4) sgm.mesh.lookAt(ahead);
+          sgm.mesh.rotateZ(Math.sin(b.t * 4 + k) * 0.25);
+          if (sgm.mesh.position.distanceTo(pc) < 1.3 + HIT_R) hurt();
+        });
+        if (!run) return;
+      } else {
+        m.position.z = lerp(m.position.z, -27, dt * 0.9);
+        m.position.x = Math.sin(b.t * 0.7) * 5;
+        m.position.y = 3.6 + Math.sin(b.t * 1.1) * 1.8;
+        m.rotation.y = Math.sin(b.t * 1.3) * 0.5;
+        m.rotation.z = Math.sin(b.t * 0.8) * 0.15;
+        m.scale.setScalar(0.45 + 0.55 * b.hp / b.max);
       }
-      const pct = Math.max(0, b.hp / b.max * 100);
-      V('bossFill').forEach((n) => { n.style.width = `${pct}%`; });
+      b.fireT -= dt;
+      if (b.fireT <= 0 && m.position.z > -60) bossFire(b, m.position, pc);
+      V('bossFill').forEach((n) => { n.style.width = `${Math.max(0, b.hp / b.max * 100)}%`; });
     }
     for (let i = r.spikes.length - 1; i >= 0; i--) {
       const S = r.spikes[i];
@@ -1090,13 +1434,16 @@ export function mount(target, opts = {}) {
       if (S.mesh.position.z > 14) { scene.remove(S.mesh); r.spikes.splice(i, 1); }
     }
 
-    // HUD
-    setV('score', fmt(r.score));
+    // HUD — the score rolls up like an arcade counter
+    r.shownScore = r.score - r.shownScore < 1 ? r.score : lerp(r.shownScore, r.score, 0.15);
+    setV('score', fmt(r.shownScore));
+    setV('top', `TOP ${fmt(Math.max(profile.best, table()[0] ? table()[0].s : 0, r.score))}`);
     setV('mult', `×${mult()} · combo ${r.combo}`);
+    setV('stage', bonus ? `🐷 BONUS · ${Math.ceil(r.phaseT)}s` : `STAGE ${r.stage + 1} · ${stageFor(r.stage).name}`);
     setV('hearts', '❤️'.repeat(Math.max(0, r.lives)) + '🖤'.repeat(Math.max(0, B.lives - r.lives)));
     setV('runTok', `+${fmt(tokensFor(r))} tokens`);
-    const pupHtml = Object.entries(r.pups).filter(([, s]) => s > 0)
-      .map(([k, s]) => `<div class="cp-pup">${POWERUPS[k].icon} ${POWERUPS[k].name} ${Math.ceil(s)}s</div>`).join('')
+    const pupHtml = Object.entries(r.pups).filter(([, sec]) => sec > 0)
+      .map(([k, sec]) => `<div class="cp-pup">${POWERUPS[k].icon} ${POWERUPS[k].name} ${Math.ceil(sec)}s</div>`).join('')
       + (r.dashCd > 0 ? '' : '<div class="cp-pup">💨 Dash ready</div>');
     const pupsEl = V('pups')[0];
     if (pupsEl.innerHTML !== pupHtml) pupsEl.innerHTML = pupHtml;
@@ -1111,47 +1458,70 @@ export function mount(target, opts = {}) {
     if (!alive) return;
     requestAnimationFrame(frame);
     const dt = Math.min(clock.getDelta(), 0.05);
-    t += dt;
+    let gdt = dt;                                    // game time: slows to a crawl during a hit-stop
+    if (freezeT > 0) { freezeT -= dt; gdt = dt * 0.05; }
+    t += gdt;
     idleFor += dt;
+    if (screen === 'continue') {
+      contT -= dt;
+      setV('contN', Math.max(0, Math.floor(contT)));
+      if (contT <= 0) endRun('death');
+    }
     const playing = screen === 'play' && run;
-    if (playing) updateRun(dt);
+    if (playing) updateRun(gdt);
     const r = run;
-    const flySpeed = r && (screen === 'play' || screen === 'paused') ? (screen === 'play' ? r.speed : 0) : 7;
+    const inRun = r && (screen === 'play' || screen === 'paused' || screen === 'continue');
+    const flySpeed = inRun ? (screen === 'play' ? r.speed : 0) : 7;
 
-    // flythrough
+    // flythrough: stars, clouds and the ground all move at flight speed
     const sp = starGeo.attributes.position.array;
     const len = 0.3 + flySpeed * 0.07;
     for (let i = 0; i < STARS; i++) {
-      let z = sp[i * 6 + 2] + flySpeed * dt;
+      let z = sp[i * 6 + 2] + flySpeed * gdt;
       if (z > 12) { starSeed(i, -220); z = -220; }
       sp[i * 6 + 2] = z; sp[i * 6 + 5] = z - len;
     }
     starGeo.attributes.position.needsUpdate = true;
-    for (const c of clouds) { c.position.z += flySpeed * 0.8 * dt; if (c.position.z > 20) c.position.z -= 230; }
-    sparks.update(dt, screen === 'play' ? flySpeed * 0.5 : 0);
+    for (const c of clouds) { c.position.z += flySpeed * 0.8 * gdt; if (c.position.z > 20) c.position.z -= 230; }
+    ground.scroll(flySpeed * gdt);
+    // ease the ground, sky and fog toward the current stage's palette
+    ground.paint(stageTarget, Math.min(1, dt * 1.5));
+    scene.background.lerp(tmpColor.set(stageTarget.sky), Math.min(1, dt * 1.5));
+    scene.fog.color.copy(scene.background);
+    sparks.update(gdt, screen === 'play' ? flySpeed * 0.5 : 0);
 
     // CostBot + camera
-    const inRun = r && (screen === 'play' || screen === 'paused');
     if (inRun) {
+      const bonus = r.phase === 'bonus';
+      const skimming = !bonus && r.py < FIELD.yMin + 0.35;
       bot.root.rotation.y = lerp(bot.root.rotation.y, Math.PI, 0.1);
-      bot.update(t, dt, { baseY: r.py, leanX: 0.7, leanZ: r.vx * 0.035, lookX: -r.vx * 0.05, billow: 1 + r.speed / 40 });
+      bot.update(t, gdt, { baseY: r.py + (bonus ? 0.55 : 0), leanX: skimming ? 0.25 : 0.7, leanZ: r.vx * 0.035, lookX: -r.vx * 0.05,
+        billow: 1 + r.speed / 40, run: skimming });
       bot.root.position.x = r.px; bot.root.position.z = 0;
       bot.root.visible = r.invuln <= 0 || Math.floor(t * 12) % 2 === 0;
-      camPos.set(r.px * 0.45, 4.8 + r.py * 0.35, 11.5);
-      camLook.set(r.px * 0.55, 2.9 + r.py * 0.45, -22);
-      if (r.shake > 0) { r.shake = Math.max(0, r.shake - dt); camPos.x += rand(-1, 1) * r.shake; camPos.y += rand(-1, 1) * r.shake; }
+      if (skimming && Math.random() < 0.5) sparks.burst(tmp.set(r.px + rand(-0.3, 0.3), GROUND_Y + 0.05, 0.3), '#8fb3d9', 2, 2);
+      piggy.visible = bonus;
+      if (bonus) {
+        piggy.position.set(r.px, r.py - 0.05, 0.1);
+        piggy.rotation.set(0.1, 0, -r.vx * 0.04);
+        piggy.userData.flap(t);
+      }
+      camPos.set(r.px * 0.45, 3.4 + r.py * 0.42, 10.5);
+      camLook.set(r.px * 0.55, 2.3 + r.py * 0.4, -30);
+      if (r.shake > 0) { r.shake = Math.max(0, r.shake - dt * 1.6); camPos.x += rand(-1, 1) * r.shake; camPos.y += rand(-1, 1) * r.shake; }
       shieldBubble.visible = r.pups.shield > 0;
       if (shieldBubble.visible) { playerCenter(shieldBubble.position); shieldBubble.scale.setScalar(1 + Math.sin(t * 6) * 0.04); }
     } else {
       // menus: face the camera, standing off to the right of the panel
       bot.root.visible = true;
       shieldBubble.visible = false;
+      piggy.visible = false;
       bot.root.rotation.y = lerp(bot.root.rotation.y, -0.35, 0.08);
-      bot.update(t, dt, { baseY: 0.2 });
+      bot.update(t, dt, { baseY: 0.6 });
       bot.root.position.x = lerp(bot.root.position.x, 1.9, 0.08);
       bot.root.position.z = 0;
-      camPos.set(0, 2.0, 7.2);
-      camLook.set(0, 1.4, 0);
+      camPos.set(0, 2.2, 7.2);
+      camLook.set(0, 1.6, 0);
       if (idleFor > nextAntic && !bot.busy) {
         bot.antic(pick(['yawn', 'tablet', 'loop']));
         if (Math.random() < 0.6) say(pick(QUIPS.idle), 2);
@@ -1183,6 +1553,7 @@ export function mount(target, opts = {}) {
     composer.render();
   }
 
+  renderScores();
   show('title');
   frame();
   onEvent('ready', { version: VERSION });
@@ -1190,13 +1561,23 @@ export function mount(target, opts = {}) {
 
   const api = {
     get profile() { return profile; },
-    get state() { return { screen, run: run && { score: run.score, lives: run.lives, time: run.time, boss: run.boss && run.boss.v.name, things: run.things.length } }; },
+    get state() {
+      return { screen, run: run && { score: run.score, lives: run.lives, time: run.time, stage: run.stage + 1, phase: run.phase,
+        boss: run.boss && run.boss.v.name, bossKind: run.boss && run.boss.kind, segs: run.boss ? run.boss.segs.length : 0,
+        things: run.things.length, obstacles: run.obst.length, formations: run.forms.size } };
+    },
+    get lastResult() { return lastResult; },
     start: startRun,
     secret: (id) => SECRETS[id] && triggerSecret(id, SECRETS[id]),
+    // test hooks
+    _hurt: () => { if (run) { run.invuln = 0; hurt(); } },
+    _killBoss: () => { if (run && run.boss) killBoss(); },
+    _phase: (p) => { if (run) { if (p === 'bonus') enterBonus(); else if (p === 'boss') { setPhase('boss', 0); spawnBoss(); } } },
     destroy() {
       alive = false;
       clearRun();
       if (music) music.stop();
+      voice.stop();
       removeEventListener('keydown', onKeyDown);
       removeEventListener('keyup', onKeyUp);
       removeEventListener('resize', resize);

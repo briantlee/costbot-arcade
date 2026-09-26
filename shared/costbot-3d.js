@@ -513,7 +513,7 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       return anticDur;
     },
     /* opts: lookX/lookY in -1..1 (head turn), billow multiplier (speed), still (no hover bob),
-     baseY (hover height), leanX/leanZ (extra pitch/bank in radians) */
+     baseY (hover height), leanX/leanZ (extra pitch/bank in radians), run (legs run, for ground skimming) */
     update(t, dt, opts = {}) {
       celebrate = Math.max(0, celebrate - dt);
       const party = celebrate > 0;
@@ -565,7 +565,8 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       armDown.elbow.rotation.x = lerp(armDown.elbow.rotation.x, ex, 0.12);
       tablet.visible = a === 'tablet' && env > 0.3;
       legs.forEach((leg, i) => {
-        leg.rotation.x = 0.4 + Math.sin(t * 2 + i * 1.3) * 0.1;
+        // opts.run: skimming the ground, the stubby legs actually run (Space Harrier style)
+        leg.rotation.x = opts.run ? Math.sin(t * 17 + i * Math.PI) * 0.95 - 0.1 : 0.4 + Math.sin(t * 2 + i * 1.3) * 0.1;
         leg.rotation.z = (i ? 1 : -1) * 0.08;
       });
 

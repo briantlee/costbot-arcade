@@ -44,7 +44,6 @@ export const BALANCE = {
   spawnEvery: 0.85, spawnFloor: 0.38,                 // seconds between waste spawns
   coinEvery: 0.55,
   powerupEvery: 14,
-  bossEvery: 40,                                      // seconds of play between bosses
   bossHp: 26, bossHpStep: 10,
   fireEvery: 0.14, dashCooldown: 1.8, dashTime: 0.35,
   invulnTime: 1.6,
@@ -52,6 +51,10 @@ export const BALANCE = {
   comboStep: 10, comboMaxMult: 4,                     // +0.5x per 10 in a row, capped
   // tokens: a coin is worth tokensPerCoin, a boss bossTokens, plus score/scorePerToken
   tokensPerCoin: 1, bossTokens: 25, scorePerToken: 400,
+  // stage structure (the Space Harrier half): each stage is stageSeconds of waves, then a boss
+  stageSeconds: 32, obstacleEvery: 1.2, formationEvery: 7,
+  bonusSeconds: 20, bonusTokenCap: 40,           // piggy-bank ride: a token per smash, capped
+  maxContinues: 3,
 };
 
 export const BOSS_LINES = [
