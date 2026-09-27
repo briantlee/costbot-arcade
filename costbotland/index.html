@@ -3,100 +3,186 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>CostBotLand</title>
+<title>CostBotLand Tycoon</title>
 <link rel="icon" href="../shared/assets/costbot.png">
 <style>
-  html,body{margin:0;padding:0;height:100%;background:#080510;overflow:hidden;
-    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
-    overscroll-behavior:none;touch-action:none;}
-  #game{position:absolute;inset:0;}
-  #boot{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    background:#080510;color:#c9b4e0;font-family:'Segoe UI',system-ui,sans-serif;gap:14px;z-index:5;}
+  html,body{margin:0;padding:0;height:100%;background:#080510;overflow:hidden;-webkit-user-select:none;user-select:none;
+    -webkit-touch-callout:none;overscroll-behavior:none;font-family:'Segoe UI',system-ui,sans-serif;color:#e9ddf5}
+  #game{position:absolute;inset:0}
+  #game canvas{display:block}
+  #boot{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#080510;
+    color:#c9b4e0;gap:14px;z-index:50}
   #boot img{width:96px;animation:b 2s ease-in-out infinite}
   @keyframes b{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-  #back{position:fixed;top:12px;left:14px;z-index:6;display:flex;gap:7px;align-items:center;
-    background:rgba(16,10,26,.78);border:1px solid #4a3a66;color:#d9c2e6;text-decoration:none;
-    padding:7px 14px;border-radius:20px;font:600 13px 'Segoe UI',system-ui,sans-serif;
-    backdrop-filter:blur(4px);transition:opacity .3s,background .14s,color .14s;}
-  #back:hover{background:#2f1f45;color:#fff;border-color:#8a5aa0;opacity:1 !important;}
-  #back img{width:18px;height:18px;object-fit:contain}
-  #back.dim{opacity:0;pointer-events:none}
-  #mute{position:fixed;bottom:14px;left:14px;z-index:6;display:flex;align-items:center;justify-content:center;
-    width:38px;height:34px;background:rgba(16,10,26,.78);border:1px solid #4a3a66;color:#d9c2e6;
-    border-radius:20px;font-size:16px;cursor:pointer;backdrop-filter:blur(4px);
-    transition:background .14s,color .14s,border-color .14s;}
-  #mute:hover{background:#2f1f45;color:#fff;border-color:#8a5aa0;}
-  /* Visible-during-play quit-to-menu button. Unlike #back (which dims to avoid
-     misclicks during real-time movement) this one must stay up and clickable
-     the whole run — it's the only discoverable way out besides the Esc key —
-     so it's hidden by default and only shown between run:start and run:end. */
-  #quit{position:fixed;top:14px;right:14px;z-index:6;display:none;align-items:center;justify-content:center;
-    width:38px;height:34px;background:rgba(16,10,26,.78);border:1px solid #4a3a66;color:#d9c2e6;
-    border-radius:20px;font-size:16px;cursor:pointer;backdrop-filter:blur(4px);
-    transition:background .14s,color .14s,border-color .14s;}
-  #quit.show{display:flex;}
-  #quit:hover{background:#2f1f45;color:#fff;border-color:#8a5aa0;}
+
+  .ct-ui{position:absolute;inset:0;pointer-events:none;font-size:13px}
+  .ct-ui > *{pointer-events:auto}
+  .ct-ui .pill{display:inline-flex;gap:6px;align-items:center;background:rgba(16,10,26,.82);border:1px solid #4a3a66;color:#e9ddf5;
+    text-decoration:none;padding:6px 12px;border-radius:18px;font:600 13px 'Segoe UI',system-ui,sans-serif;backdrop-filter:blur(4px);
+    white-space:nowrap;cursor:pointer}
+  .ct-ui .pill img{width:18px;height:18px}
+  .ct-ui .pill small{opacity:.6;font-weight:500}
+  .ct-ui button{font:inherit;color:inherit;cursor:pointer}
+  .good{color:#5cf2a0 !important}.bad{color:#ff7a8a !important}.warn{color:#ffd166}.dim{opacity:.62}
+
+  .ct-top{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;pointer-events:none}
+  .ct-top > *{pointer-events:auto}
+  .ct-top .sp{flex:1;pointer-events:none}
+  .ct-top .stat b{font-variant-numeric:tabular-nums}
+  .ct-top .mbar{display:inline-block;width:46px;height:5px;border-radius:3px;background:#2a1f3d;overflow:hidden}
+  .ct-top .mbar i{display:block;height:100%;background:linear-gradient(90deg,#a855f7,#f4b41a)}
+  .ct-top .goal b{font-weight:700}
+  .ct-top .speed{display:flex;gap:3px}
+  .ct-top .speed .pill{padding:6px 10px}
+  .ct-top .speed .pill.on{background:#5b2f8a;border-color:#c79af0}
+  .ct-ui:not(.playing) .ct-top .stat,.ct-ui:not(.playing) .ct-top .speed,.ct-ui:not(.playing) .ct-bar,
+  .ct-ui:not(.playing) .ct-feed{display:none}
+
+  .ct-bar{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:4px;padding:5px;border-radius:16px;
+    background:rgba(16,10,26,.86);border:1px solid #4a3a66;backdrop-filter:blur(5px);max-width:calc(100vw - 20px);overflow-x:auto}
+  .ct-bar button{background:none;border:1px solid transparent;border-radius:11px;padding:4px 9px;display:flex;flex-direction:column;
+    align-items:center;font-size:20px;min-width:54px}
+  .ct-bar button span{font-size:10.5px;font-weight:600;opacity:.8;margin-top:1px}
+  .ct-bar button:hover{background:#2a1d40}
+  .ct-bar button.on{background:#4a2a70;border-color:#b58ad0}
+  .ct-bar .gap{width:1px;background:#4a3a66;margin:4px 3px}
+
+  .ct-palette{position:absolute;bottom:78px;left:50%;transform:translateX(-50%) translateY(10px);opacity:0;pointer-events:none;
+    transition:opacity .15s,transform .15s;width:min(940px,calc(100vw - 20px));background:rgba(16,10,26,.92);border:1px solid #4a3a66;
+    border-radius:16px;padding:10px;backdrop-filter:blur(6px);box-sizing:border-box}
+  .ct-palette.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
+  .ct-palette .cards{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px}
+  .ct-palette .card{flex:0 0 132px;text-align:left;background:#1d1430;border:1px solid #3d2e58;border-radius:12px;padding:8px;
+    display:flex;flex-direction:column;gap:2px;position:relative}
+  .ct-palette .card:hover{border-color:#8a5aa0;background:#26193d}
+  .ct-palette .card.on{border-color:#f4b41a;box-shadow:0 0 0 1px #f4b41a inset}
+  .ct-palette .card.poor{opacity:.5}
+  .ct-palette .card .e{font-size:26px}
+  .ct-palette .card b{font-size:12.5px}
+  .ct-palette .card .c{color:#f4c430;font-weight:700;font-size:12px}
+  .ct-palette .card em{font-style:normal;font-size:10.5px;opacity:.72}
+  .ct-palette .chip{font-size:10px;padding:1px 6px;border-radius:8px;border:1px solid var(--c);color:#fff;align-self:flex-start;margin-top:2px}
+  .ct-palette .hint{font-size:11px;opacity:.7;margin-top:6px;text-align:center}
+
+  .ct-side{position:absolute;top:56px;right:10px;width:300px;max-height:calc(100vh - 150px);overflow:auto;background:rgba(16,10,26,.93);
+    border:1px solid #4a3a66;border-radius:16px;padding:14px;box-sizing:border-box;backdrop-filter:blur(6px);display:none}
+  .ct-side.show{display:block}
+  .ct-side .x{position:absolute;top:8px;right:8px;background:none;border:none;font-size:15px;opacity:.7}
+  .ct-side h3{margin:0 24px 6px 0;font-size:16px}
+  .ct-side h4{margin:14px 0 6px;font-size:12.5px;opacity:.85}
+  .ct-side p{margin:6px 0;line-height:1.4}
+  .ct-side .doing{color:#f4c430;font-weight:600}
+  .ct-side table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+  .ct-side td,.ct-side th{padding:3px 2px;vertical-align:middle}
+  .ct-side th{text-align:left;opacity:.6;font-weight:600;font-size:11px}
+  .ct-side td:first-child{opacity:.8}
+  .ct-side tr.tot td{border-top:1px solid #4a3a66;font-weight:700}
+  .ct-side .chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:9px;background:#2a1f3d;margin:2px 0}
+  .ct-side .chip.good{background:#123a2a;color:#5cf2a0}.ct-side .chip.bad{background:#4a1522;color:#ff9aa8}
+  .ct-side .chip.warn{background:#3d3212;color:#ffd166}.ct-side .chip.theme{background:#2a1d4a;color:#d9b8ff}
+  .ct-side .row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .ct-side .row button,.ct-end button,.ct-end .btn{background:#2a1d40;border:1px solid #5a4680;border-radius:10px;padding:7px 10px;font-weight:600;font-size:12px;text-decoration:none;color:#e9ddf5}
+  .ct-side .row button:hover{background:#3a2858}
+  .ct-side .row button.big{background:#5b2f8a;border-color:#c79af0;width:100%}
+  .ct-side .row button.warn{color:#ffb0b8}
+  .ct-side .row button:disabled{opacity:.45;cursor:default}
+  .ct-side .mini{background:#2a1d40;border:1px solid #5a4680;border-radius:8px;padding:2px 6px;font-size:10.5px}
+  .ct-side .price{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .ct-side .price span{opacity:.8;min-width:60px}
+  .ct-side .price button{width:26px;height:26px;border-radius:8px;background:#2a1d40;border:1px solid #5a4680;font-weight:800}
+  .ct-side .price b{min-width:40px;text-align:center;font-size:15px}
+  .ct-side .price small{width:100%;opacity:.6;font-size:10.5px}
+  .ct-side .note{font-size:11px;opacity:.65}
+  .ct-side .big-num{font-size:26px;font-weight:800}
+  .ct-side ul{margin:4px 0;padding-left:18px}
+  .ct-side .thoughts li{margin:3px 0;font-style:italic}
+  .ct-side .tlist{list-style:none;padding:0}
+  .ct-side .tlist li{padding:6px 0;border-bottom:1px solid #2a1f3d}
+  .ct-side .tlist b{display:inline-block;min-width:28px;color:#f4c430}
+  .ct-side .tlist small{display:block;opacity:.65;margin-left:28px;font-size:11px}
+  .bar{display:inline-block;width:110px;height:7px;border-radius:4px;background:#2a1f3d;overflow:hidden;vertical-align:middle}
+  .bar i{display:block;height:100%;background:#8a7aa8}
+  .bar.g i{background:#5cf2a0}.bar.e i{background:#f4b41a}.bar.i i{background:#ff8a3a}.bar.n i{background:#ff5a7a}
+
+  .ct-feed{position:absolute;left:10px;top:56px;width:min(340px,calc(100vw - 20px));display:flex;flex-direction:column;gap:5px;pointer-events:none}
+  .ct-feed .msg{background:rgba(16,10,26,.86);border:1px solid #4a3a66;border-left:3px solid #8a5aa0;border-radius:10px;padding:6px 10px;
+    font-size:12px;line-height:1.35;transition:opacity .6s;pointer-events:auto}
+  .ct-feed .msg.good{border-left-color:#5cf2a0}.ct-feed .msg.bad{border-left-color:#ff5a7a}
+  .ct-feed .msg.link{cursor:pointer}.ct-feed .msg.link:hover{background:#26193d}
+  .ct-feed .msg.fade{opacity:0}
+
+  .ct-toast{position:absolute;top:56px;left:50%;transform:translateX(-50%) translateY(-12px);opacity:0;pointer-events:none;transition:.25s;
+    background:rgba(20,12,34,.95);border:1px solid #f4b41a;border-radius:14px;padding:10px 16px;min-width:250px;max-width:min(460px,calc(100vw - 20px));
+    cursor:pointer;display:flex;flex-direction:column;gap:5px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+  .ct-toast.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
+  .ct-toast .bill{display:grid;grid-template-columns:auto auto;gap:2px 16px;font-size:13px}
+  .ct-toast small{opacity:.75;font-size:11px}
+
+  .ct-tip{position:fixed;z-index:20;background:rgba(10,6,18,.92);border:1px solid #5a4680;border-radius:8px;padding:4px 8px;font-size:12px;
+    pointer-events:none;display:none;white-space:nowrap}
+  .ct-tip.show{display:block}
+
+  .ct-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(8,5,16,.35),rgba(8,5,16,.75));z-index:10}
+  .ct-overlay.show{display:flex}
+  .ct-overlay .card{background:rgba(18,11,30,.94);border:1px solid #6a4a90;border-radius:20px;padding:24px 28px;width:min(520px,calc(100vw - 30px));
+    box-sizing:border-box;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:calc(100vh - 40px);overflow:auto}
+  .ct-title .logo{width:78px;animation:b 2.4s ease-in-out infinite}
+  .ct-title h1{margin:6px 0 2px;font-size:34px;letter-spacing:.3px}
+  .ct-title h1 span{color:#f4c430}
+  .ct-title .tag{opacity:.75;margin:0 0 16px}
+  .ct-overlay .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+  .ct-overlay .row.col{flex-direction:column}
+  .ct-overlay .row.col button{text-align:left;background:#22163a;border:1px solid #5a4680;border-radius:14px;padding:12px 14px;font-weight:700;font-size:15px}
+  .ct-overlay .row.col button small{display:block;font-weight:500;font-size:12px;opacity:.7;margin-top:3px}
+  .ct-overlay button.big{background:linear-gradient(135deg,#6d35a8,#a64fd6) !important;border-color:#d7a8ff !important}
+  .ct-overlay button:hover{filter:brightness(1.15)}
+  .ct-overlay details{text-align:left;margin-top:16px;font-size:13px;line-height:1.45}
+  .ct-overlay summary{cursor:pointer;font-weight:700;opacity:.85}
+  .ct-overlay .best{font-size:12px;opacity:.65;margin-top:12px}
+  .ct-end h2{margin:0 0 8px}
+  .ct-end .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+  .ct-end .grid div{background:#22163a;border-radius:12px;padding:8px}
+  .ct-end .grid small{display:block;opacity:.65;font-size:11px}
+  .ct-end .grid b{font-size:17px}
+  @media (max-width:720px){
+    .ct-side{top:auto;bottom:84px;left:10px;right:10px;width:auto;max-height:45vh}
+    .ct-top .goal,.ct-feed{display:none}
+    .ct-bar button{min-width:44px;font-size:18px;padding:3px 5px}
+    .ct-palette .card{flex-basis:118px}
+  }
 </style>
+<script type="importmap">
+{ "imports": {
+    "three": "../shared/vendor/three/three.module.min.js",
+    "three/addons/": "../shared/vendor/three/addons/"
+} }
+</script>
 </head>
 <body>
-  <a id="back" href="../index.html" title="Back to the CostBot Arcade">
-    <img src="../shared/assets/costbot.png" alt="">← Arcade</a>
-  <button id="mute" type="button" title="Mute (M)">🔊</button>
-  <button id="quit" type="button" title="Quit to menu (Esc)">✕</button>
   <div id="game"></div>
   <div id="boot"><img src="../shared/assets/costbot.png" alt=""><div>Opening the gates…</div></div>
 
   <script src="../shared/arcade-sync.js"></script>
   <script src="../shared/arcade-wallet.js"></script>
-  <script src="../shared/arcade-music.js"></script>
-  <script src="../shared/arcade-biomes.js"></script>
   <script src="cl-content.js?v=6"></script>
-  <script src="cl-game.js?v=10"></script>
-  <script>
-    let game;
-    (async () => {
-      const session = window.ArcadeSync ? await window.ArcadeSync.init() : { enabled: false };
-      game = CostBotLand.mount('#game', {
-        showShell: true,
-        persist: true,
-        meta: session.enabled && window.ArcadeSync.gameProfile
-          ? window.ArcadeSync.gameProfile('costbotland') || undefined
-          : undefined,
-        onEvent(type, payload) {
-          if (type !== 'ready') console.log('[CostBotLand]', type, payload);
-          const back = document.getElementById('back');
-          if (back && type === 'run:start') back.classList.add('dim');
-          if (back && type === 'run:end') back.classList.remove('dim');
-          // #quit is the opposite of #back: hidden at the menu (nothing to quit),
-          // shown for the whole run so there's a discoverable way out besides Esc.
-          const quit = document.getElementById('quit');
-          if (quit && type === 'run:start') quit.classList.add('show');
-          if (quit && type === 'run:end') quit.classList.remove('show');
-          if (type === 'mute') { const mb = document.getElementById('mute');
-            if (mb) mb.textContent = payload.muted ? '🔇' : '🔊'; }
-        },
-        onComplete(result) {
-          console.log('[CostBotLand] day complete', result);
-          if (window.ArcadeSync && window.ArcadeSync.enabled) {
-            window.ArcadeSync.saveGame('costbotland', game.meta);
-            window.ArcadeSync.submit(result, null);
-          }
-        },
-      });
-      window.game = game;
-      const mb = document.getElementById('mute');
-      if (mb) { mb.textContent = game.muted ? '🔇' : '🔊'; mb.onclick = () => game.toggleMute(); }
-      const qb = document.getElementById('quit');
-      if (qb) qb.onclick = () => game.quit();
-      if (session.enabled) {
-        setInterval(() => window.ArcadeSync.saveGame('costbotland', game.meta), 20000);
-      }
-    })();
-    window.addEventListener('load', () => {
-      const b = document.getElementById('boot');
-      setTimeout(() => { b.style.transition = 'opacity .4s'; b.style.opacity = 0;
-        setTimeout(() => b.remove(), 420); }, 300);
+  <script type="module">
+    import { mount } from './ct-game.js';
+    // Standalone shell. On the aix-proto app ArcadeSync also carries a server
+    // profile and the leaderboard; on static hosting it finds no API and stays quiet.
+    const sync = window.ArcadeSync;
+    const session = sync ? await sync.init() : { enabled: false };
+    if (window.ArcadeWallet) window.ArcadeWallet.init();
+    const game = mount('#game', {
+      meta: session.enabled && sync.gameProfile ? sync.gameProfile('costbotland') || undefined : undefined,
+      onMeta(meta) { if (session.enabled) sync.saveGame('costbotland', meta); },
+      onEvent(type, payload) { if (type !== 'ready') console.log('[CostBotLand]', type, payload); },
+      onComplete(result) {
+        if (sync && sync.enabled) { sync.saveGame('costbotland', game.meta); sync.submit(result, null); }
+      },
     });
+    window.game = game;
+    const b = document.getElementById('boot');
+    requestAnimationFrame(() => { b.style.transition = 'opacity .5s'; b.style.opacity = 0; setTimeout(() => b.remove(), 520); });
   </script>
 </body>
 </html>

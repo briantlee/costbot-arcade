@@ -112,6 +112,7 @@ APP_FILES=(
 EXCLUDES=(
   --exclude 'shots/'          # generated test screenshots
   --exclude 'smoketest.js'    # dev-only harness, needs playwright
+  --exclude '*-smoketest.mjs' # dev-only headless sim checks (CostBotLand Tycoon)
   --exclude '.gitignore'
   --exclude '.git/'           # repo metadata — this dir IS the repo root now
                               # (it wasn't, back when arcade/ was a subdir of CostBot),

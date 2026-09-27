@@ -24,6 +24,17 @@ arcade/
   cloud-patrol/         the 3D rail shooter (three.js) — a Space Harrier homage: checkerboard
                         stages, obstacles, formations, the Megabill serpent, a piggy-bank bonus
                         (cp-world.js builds the world, cp-game.js runs it)
+  costbotland/          CostBotLand Tycoon (three.js) — a RollerCoaster Tycoon-style park
+                        builder: paths, rides, stalls, staff, guests with needs and thoughts,
+                        and a monthly "cloud bill" (idle rides still cost; reserve to prepay).
+                        Still hidden from the landing page. Split like Cloud Patrol:
+                          ct-content.js  catalog + balance (every tunable number)
+                          ct-sim.js      the rules — no DOM, no three.js, runs in Node
+                          ct-world.js    the 3D park, drawn from the sim's state
+                          ct-game.js     camera, build tools, HUD, panels, saving, results
+                        `node ct-smoketest.mjs` plays a scripted season headless.
+                        3d.html + cl-3d.js are a fixed showcase diorama of the map;
+                        classic.html is the original 2D park-triage game
   shared/
     assets/             art used by the landing page itself (CostBot, CostBotLand)
                         the token coin ships in three sizes — pick the one that
