@@ -7,9 +7,15 @@
  *   import { createCostBot, OUTFITS } from '../shared/costbot-3d.js';
  *   const bot = createCostBot({ style: 'glossy' });   // or 'cartoon'
  *   scene.add(bot.root);
- *   bot.setOutfit('detective');
+ *   bot.setOutfit('detective');   // or any OUTFITS id; `season` marks the holiday ones
+ *   bot.setMood('zen');           // face + body language, see MOODS ('happy' is the default)
+ *   bot.setScreen('$19.3M');      // what the tablet shows during the 'tablet' antic
+ *   bot.showGear('magnifier', true);   // hold a prop on top of whatever the outfit wears
  *   bot.cheer();                  // hop, spin, fist pumps (~1.6s)
  *   bot.antic('yawn');            // idle bits: 'yawn' | 'tablet' | 'loop' | 'wave' | 'dizzy'
+ *   bot.antic('boogie');          // dances (~4s): boogie, robot, disco, ymca, twist, sprinkler, floss,
+ *                                 // moonwalk, pirouette, dab, chicken — see DANCES
+ *   bot.setInspect(true);         // magnifier out and up to his visor (inspecting something)
  *   // every frame:
  *   bot.update(t, dt, { lookX, lookY });
  *
@@ -32,17 +38,64 @@ export const OUTFITS = [
   { id: 'classic', label: 'Classic', unlock: { tokens: 0 } },
   { id: 'detective', label: 'Anomaly Detective', unlock: { tokens: 150 },
     colors: { cape: 0xa8844f, capeIn: 0x6e5431 }, gear: ['fedora', 'magnifier'] },
-  { id: 'halloween', label: 'Spooky Spend', unlock: { tokens: 250 },
+  { id: 'halloween', label: 'Spooky Spend', unlock: { tokens: 250 }, season: 'halloween',
     colors: { cape: 0xf07a12, capeIn: 0x1a1024, eye: 0xffa53a, antenna: 0x6b2fa0 }, gear: ['witchhat'] },
-  { id: 'holiday', label: 'Holiday Freeze', unlock: { tokens: 250 },
+  { id: 'holiday', label: 'Santa (Holiday Freeze)', unlock: { tokens: 250 }, season: 'xmas',
     colors: { cape: 0xc8202c, capeIn: 0x7e1119, antenna: 0xe8f4ff }, gear: ['santahat', 'scarf'] },
   { id: 'mega', label: 'Mega CostBot', unlock: { easterEgg: 'konami' },
     colors: { white: 0xf4c430, silver: 0xfff1b8, cape: 0xb3122e, capeIn: 0x6e0a1b, eye: 0xff5a4a, visor: 0x2a0d12 }, metal: true },
   { id: 'graviton', label: 'Graviton Green', unlock: { easterEgg: 'graviton' },
     colors: { white: 0x9bd94a, silver: 0x5f9e2a, cape: 0x1f5e2a, capeIn: 0x113a19, eye: 0xd6ff5c, antenna: 0x76b900 } },
+  // ---- the holiday wardrobe: `season` is a calendar key the host maps to dates (the Hub mascot
+  // wears them automatically in season); here they are simply more outfits to buy ----
+  { id: 'reindeer', label: 'Rudolph Mode', unlock: { tokens: 250 }, season: 'xmas',
+    colors: { white: 0x9a6a3f, silver: 0x6e4a2a, cape: 0xc8202c, capeIn: 0x7e1119, antenna: 0xe0202c }, gear: ['antlers', 'rednose'] },
+  { id: 'snowman', label: 'Frosty Forecast', unlock: { tokens: 250 }, season: 'xmas',
+    colors: { white: 0xf7fbff, silver: 0xdfe9f3, cape: 0x7fc6ea, capeIn: 0x3f8fc0, antenna: 0x1d1a24 }, gear: ['tophat', 'carrot', 'scarfRed'] },
+  { id: 'elf', label: 'Budget Elf', unlock: { tokens: 250 }, season: 'xmas',
+    colors: { cape: 0x1f7a3a, capeIn: 0xc8202c, antenna: 0xf4c430 }, gear: ['elfhat'] },
+  { id: 'gingerbread', label: 'Gingerbread Bot', unlock: { tokens: 250 }, season: 'xmas',
+    colors: { white: 0xb8733a, silver: 0xf2ead8, cape: 0xc8202c, capeIn: 0x2f8a3a, antenna: 0xff4f7a }, gear: ['gumdrops'] },
+  { id: 'hanukkah', label: 'Hanukkah Glow', unlock: { tokens: 250 }, season: 'hanukkah',
+    colors: { cape: 0x1f4fbf, capeIn: 0xdfe8f7, antenna: 0x9fc4ff, eye: 0xbfe3ff }, gear: ['scarfBlue'] },
+  { id: 'newyear', label: 'New Year’s Eve', unlock: { tokens: 250 }, season: 'newyear',
+    colors: { cape: 0x1b1b3a, capeIn: 0xd4af37, antenna: 0xf4c430 }, gear: ['partyhat'] },
+  { id: 'lunar', label: 'Lunar New Year', unlock: { tokens: 250 }, season: 'lunar',
+    colors: { white: 0xd8262e, silver: 0xf4c430, cape: 0xf4b41a, capeIn: 0xa3161c, antenna: 0xf4c430 }, gear: ['lantern'] },
+  { id: 'valentine', label: 'Be Mine', unlock: { tokens: 250 }, season: 'valentine',
+    colors: { cape: 0xff5c8a, capeIn: 0xc2185b, antenna: 0xff4f7a, eye: 0xff9ab8 }, gear: ['heartband'] },
+  { id: 'stpatrick', label: 'Lucky Leprechaun', unlock: { tokens: 250 }, season: 'stpatrick',
+    colors: { cape: 0x1f8a3a, capeIn: 0x0f5a24, antenna: 0x3ccf5a }, gear: ['leprechaun'] },
+  { id: 'easter', label: 'Egg Hunter', unlock: { tokens: 250 }, season: 'easter',
+    colors: { cape: 0xb9a6f0, capeIn: 0x8fd6c6, antenna: 0xffb3d6 }, gear: ['bunnyears'] },
+  { id: 'july4', label: 'Stars & Stripes', unlock: { tokens: 250 }, season: 'july4',
+    colors: { cape: 0x2548a8, capeIn: 0xc8202c, antenna: 0xc8202c }, gear: ['unclesam'] },
+  { id: 'vampire', label: 'Count Costula', unlock: { tokens: 250 }, season: 'halloween',
+    colors: { white: 0xdfe3ea, cape: 0x121016, capeIn: 0xb3122e, eye: 0xff3b3b, antenna: 0xb3122e }, gear: ['collar'] },
+  { id: 'pumpkin', label: 'Pumpkin Patch', unlock: { tokens: 250 }, season: 'halloween',
+    colors: { white: 0xf07a12, silver: 0x3f8f2a, cape: 0x3b2a1a, capeIn: 0xf4a53a, eye: 0xffd24a, antenna: 0x3f8f2a } },
+  { id: 'diwali', label: 'Festival of Lights', unlock: { tokens: 250 }, season: 'diwali',
+    colors: { cape: 0xd81b60, capeIn: 0xf4b41a, antenna: 0xffb300, eye: 0xffd54f }, gear: ['diya'] },
+  { id: 'thanksgiving', label: 'Pilgrim Saver', unlock: { tokens: 250 }, season: 'thanksgiving',
+    colors: { cape: 0x8a4b1f, capeIn: 0xd9822b, antenna: 0xd9822b }, gear: ['pilgrim'] },
 ];
 
-const NO_OUTLINE = new Set(['line', 'visor', 'eye', 'cape', 'capeIn', 'screen', 'hilite', 'visorHi', 'capeLine']);
+/* Moods change the face and the body language, never the outfit. 'happy' is how he ships; the
+ * rest are for fun. `eyes`: open | half | joy (^ ^) | closed (◡ ◡) | heart; `mouth`: smile | grin |
+ * small | flat | frown | wobble; `brows`: angry | worried; bob/float/billow/pulse scale the idle motion. */
+export const DANCES = ['boogie', 'robot', 'disco', 'ymca', 'twist', 'sprinkler', 'floss', 'moonwalk', 'pirouette', 'dab', 'chicken'];
+
+export const MOODS = [
+  { id: 'happy', label: 'Happy & helpful', icon: '😊', eyes: 'open', mouth: 'smile' },
+  { id: 'excited', label: 'Excited', icon: '🤩', eyes: 'joy', mouth: 'grin', bob: 1.8, float: 1.4, billow: 1.4, pulse: 2.2 },
+  { id: 'zen', label: 'Zen', icon: '😌', eyes: 'closed', mouth: 'small', bob: 0.55, float: 1.6, billow: 0.6, lookY: 0.12 },
+  { id: 'smitten', label: 'Smitten', icon: '😍', eyes: 'heart', mouth: 'grin', bob: 0.8, sway: 0.12, pulse: 1.6 },
+  { id: 'sleepy', label: 'Sleepy', icon: '😴', eyes: 'half', mouth: 'small', bob: 0.45, sag: 0.12, billow: 0.5, lookY: -0.22, tilt: 0.12, pulse: 0.4 },
+  { id: 'grumpy', label: 'Grumpy', icon: '😤', eyes: 'open', mouth: 'frown', brows: 'angry', lookY: -0.12, armUp: 1.1 },
+  { id: 'worried', label: 'Worried', icon: '😟', eyes: 'open', mouth: 'wobble', brows: 'worried', tremble: 0.025 },
+];
+
+const NO_OUTLINE = new Set(['line', 'visor', 'eye', 'cape', 'capeIn', 'screen', 'hilite', 'visorHi', 'capeLine', 'heart', 'flame']);
 // OutlineEffect takes LINEAR rgb and does not convert it, so the icon's #0d1b3a navy has to be
 // given pre-linearised — as sRGB numbers it renders a washed-out slate instead.
 const INK = new THREE.Color(0x0d1b3a);
@@ -70,9 +123,15 @@ const tintedBands = (m) => {
 };
 
 function screenTexture() {
-  // the tablet CostBot checks when he is bored: a tiny cost chart, trending down
   const c = document.createElement('canvas');
   c.width = 256; c.height = 176;
+  drawScreen(c);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+// the tablet CostBot checks when he is bored: a tiny cost chart, trending down, and a headline figure
+function drawScreen(c, headline = '-18%') {
   const g = c.getContext('2d');
   g.fillStyle = '#0b1733'; g.fillRect(0, 0, 256, 176);
   g.strokeStyle = '#2f4d80'; g.lineWidth = 2;
@@ -81,10 +140,10 @@ function screenTexture() {
   g.beginPath();
   [[16, 40], [60, 58], [100, 50], [140, 96], [180, 110], [240, 146]].forEach(([x, y], i) => { if (i) g.lineTo(x, y); else g.moveTo(x, y); });
   g.stroke();
-  g.fillStyle = '#f4b41a'; g.font = 'bold 34px system-ui, sans-serif'; g.fillText('-18%', 150, 44);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  return t;
+  let px = 34;
+  g.font = `bold ${px}px system-ui, sans-serif`;
+  while (px > 16 && g.measureText(headline).width > 150) { px -= 2; g.font = `bold ${px}px system-ui, sans-serif`; }
+  g.fillStyle = '#f4b41a'; g.textAlign = 'right'; g.fillText(headline, 240, 44); g.textAlign = 'left';
 }
 
 function materialSets() {
@@ -101,6 +160,8 @@ function materialSets() {
     teal: toon(PAL.teal), cape: toon(PAL.cape, { side: THREE.BackSide }), capeIn: toon(PAL.capeIn, { side: THREE.FrontSide }),
     felt: toon(0x5a3a22), black: toon(0x1d1a24), red: toon(0xc8202c), fluff: toon(0xffffff), band: toon(0x6b2fa0),
     green: toon(0x1f7a3a), glass: flat(0xbfefff, { transparent: true, opacity: 0.45 }), screen: flat(0xffffff, { map: screen }),
+    blue: toon(0x2548a8), pink: toon(0xff6f9c), orange: toon(0xf07a12), brown: toon(0x7a4a26),
+    redIn: toon(0xb3122e, { side: THREE.BackSide }), heart: flat(0xff4f7a), flame: flat(0xffc233),
     // icon-style shine and ink: flat white glints, a lighter band across the visor, the cape's edge line
     hilite: flat(0xffffff, { transparent: true, opacity: 0.92 }), visorHi: flat(0x2b5391), capeLine: flat(0x0d1b3a),
   };
@@ -119,6 +180,10 @@ function materialSets() {
     felt: phys(0x5a3a22, { roughness: 0.8, clearcoat: 0 }), black: phys(0x1d1a24, { roughness: 0.6 }),
     red: phys(0xc8202c, { roughness: 0.7, clearcoat: 0.2 }), fluff: phys(0xffffff, { roughness: 0.9, clearcoat: 0 }),
     band: phys(0x6b2fa0), green: phys(0x1f7a3a, { roughness: 0.7 }),
+    blue: phys(0x2548a8, { roughness: 0.6 }), pink: phys(0xff6f9c, { roughness: 0.5 }), orange: phys(0xf07a12, { roughness: 0.5 }),
+    brown: phys(0x7a4a26, { roughness: 0.8, clearcoat: 0 }), redIn: phys(0xb3122e, { roughness: 0.6, side: THREE.BackSide }),
+    heart: new THREE.MeshStandardMaterial({ color: 0xff4f7a, emissive: 0xff2d6a, emissiveIntensity: 1.1 }),
+    flame: new THREE.MeshBasicMaterial({ color: 0xffc233, toneMapped: false }),
     glass: phys(0xbfefff, { transparent: true, opacity: 0.35, roughness: 0.05 }),
     screen: new THREE.MeshBasicMaterial({ map: screen, toneMapped: false }),
     // glossy gets real specular instead, so the painted-on bits hide
@@ -277,6 +342,54 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   const yawnO = part(new THREE.TorusGeometry(0.075, 0.026, 8, 24), 'eye', head, S(0, -0.24, 1.03).toArray());
   yawnO.rotation.x = 0.24;
   yawnO.visible = false;
+
+  // ---- mood faces: the other mouths, eye shapes and brows, all hidden until a mood asks ----
+  const faceLine = (pts, parent = head) => {
+    const at = pts[Math.floor(pts.length / 2)].clone();
+    const g = new THREE.Group();
+    g.position.copy(at);
+    parent.add(g);
+    part(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map((p) => p.clone().sub(at))), 48, 0.026, 8), 'eye', g);
+    for (const p of [pts[0], pts[pts.length - 1]]) part(new THREE.SphereGeometry(0.026, 12, 8), 'eye', g, p.clone().sub(at).toArray());
+    g.visible = false;
+    return g;
+  };
+  const curve = (w, f, n = 24) => Array.from({ length: n + 1 }, (_, i) => { const u = -1 + 2 * i / n; return S(u * w, f(u), 1.03); });
+  const mouths = {
+    smile,
+    grin: faceLine(curve(0.23, (u) => -0.28 + 0.12 * u * u)),
+    small: faceLine(curve(0.1, (u) => -0.235 + 0.022 * u * u)),
+    flat: faceLine(curve(0.12, () => -0.23)),
+    frown: faceLine(curve(0.14, (u) => -0.2 - 0.035 * u * u)),
+    wobble: faceLine(curve(0.15, (u) => -0.225 + 0.016 * Math.sin(u * Math.PI * 2.5))),
+  };
+  const arcs = (f) => eyes.map((e, i) => faceLine(Array.from({ length: 17 }, (_, k) => {
+    const u = -1 + k / 8; return S((i ? 0.3 : -0.3) + u * 0.075, f(u), 1.03);
+  })));
+  const joyEyes = arcs((u) => 0.05 + 0.06 * (1 - u * u));      // ^ ^
+  const closedEyes = arcs((u) => 0.09 - 0.05 * (1 - u * u));   // ◡ ◡
+  const heartShape = new THREE.Shape();
+  heartShape.moveTo(0, -0.5);
+  heartShape.bezierCurveTo(-0.15, -0.3, -0.62, -0.05, -0.5, 0.25);
+  heartShape.bezierCurveTo(-0.4, 0.55, -0.05, 0.55, 0, 0.25);
+  heartShape.bezierCurveTo(0.05, 0.55, 0.4, 0.55, 0.5, 0.25);
+  heartShape.bezierCurveTo(0.62, -0.05, 0.15, -0.3, 0, -0.5);
+  const heartGeo = new THREE.ShapeGeometry(heartShape, 12);
+  const onFace = (m, lon, lat, lift = 1.035) => {
+    m.position.copy(S(lon, lat, lift));
+    const n = S(lon, lat, 1).divide(HEAD).divide(HEAD).normalize();    // the ellipsoid's surface normal
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), n);
+    return m;
+  };
+  const heartEyes = [-0.3, 0.3].map((lon) => {
+    const m = onFace(part(heartGeo, 'heart', head), lon, 0.07);
+    m.scale.setScalar(0.26); m.visible = false;
+    return m;
+  });
+  const brow = (inner, outer) => [-1, 1].map((s) => faceLine([0, 1, 2, 3, 4].map((k) => {
+    const u = k / 4; return S(s * (0.19 + u * 0.2), inner + (outer - inner) * u, 1.03);
+  })));
+  const brows = { angry: brow(0.17, 0.235), worried: brow(0.235, 0.18) };
 
   for (const d of [-0.33, 0.33]) {
     const rho = Math.sqrt(1 - d * d), pts = [];
@@ -437,6 +550,112 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   const lens = part(new THREE.CircleGeometry(0.22, 32), 'glass', gear.magnifier, [0, 0.6, 0]);
   lens.rotation.y = Math.PI / 2;
 
+  // ---- holiday gear ----
+  const onHead = (pos = [0, 0, 0]) => { const g = new THREE.Group(); g.position.set(...pos); head.add(g); g.visible = false; return g; };
+  const inHand = () => { const g = new THREE.Group(); armDown.fist.add(g); g.visible = false; return g; };
+  const makeScarf = (slot) => {
+    const g = new THREE.Group(); pose.add(g); g.visible = false;
+    part(new THREE.TorusGeometry(0.5, 0.13, 12, 40), slot, g, [0, 1.8, 0.02]).rotation.x = Math.PI / 2 + 0.1;
+    part(new THREE.BoxGeometry(0.22, 0.6, 0.08), slot, g, [0.28, 1.5, 0.52]).rotation.z = 0.15;
+    return g;
+  };
+  const topHat = (brim, crown, band, h = 0.9, taper = 0) => {
+    const g = hatAt(new THREE.Group());
+    part(new THREE.CylinderGeometry(1.05, 1.05, 0.05, 40), brim, g);
+    part(new THREE.CylinderGeometry(0.62 - taper, 0.66, h, 32), crown, g, [0, h / 2, 0]);
+    part(new THREE.CylinderGeometry(0.67, 0.67, 0.16, 32), band, g, [0, 0.12, 0]);
+    return g;
+  };
+  const star = (r = 0.12) => {
+    const sh = new THREE.Shape();
+    for (let i = 0; i < 10; i++) {
+      const a = i / 10 * Math.PI * 2 + Math.PI / 2, rr = i % 2 ? r * 0.42 : r;
+      if (i) sh.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); else sh.moveTo(Math.cos(a) * rr, Math.sin(a) * rr);
+    }
+    return new THREE.ExtrudeGeometry(sh, { depth: 0.03, bevelEnabled: false });
+  };
+
+  gear.scarfRed = makeScarf('red');
+  gear.scarfBlue = makeScarf('blue');
+
+  // Christmas: antlers + a glowing nose (the antenna slot, so it glows red in 'glossy'), a snowman's
+  // top hat and carrot, an elf hat with a bell, gumdrop buttons
+  gear.antlers = onHead([0, 0.72, -0.05]);
+  for (const s of [-1, 1]) {
+    const beam = part(new THREE.CylinderGeometry(0.05, 0.075, 1.15, 8), 'brown', gear.antlers, [s * 0.5, 0.42, 0]);
+    beam.rotation.z = -s * 0.6;
+    for (const [y, len, rz] of [[0.1, 0.5, 0.35], [0.45, 0.42, 0.1], [0.8, 0.3, -0.2]]) {
+      const tine = part(new THREE.CylinderGeometry(0.035, 0.05, len, 8), 'brown', gear.antlers, [s * (0.3 + y * 0.55 + 0.05), 0.2 + y * 0.4 + len * 0.45, 0]);
+      tine.rotation.z = s * rz;
+    }
+  }
+  gear.rednose = onHead();
+  part(new THREE.SphereGeometry(0.11, 20, 14), 'antenna', gear.rednose, S(0, -0.08, 1.06).toArray());
+  gear.tophat = topHat('black', 'black', 'red');
+  gear.carrot = onHead();
+  const carrotDir = new THREE.Vector3(0.75, -0.1, 1).normalize();
+  const carrot = part(new THREE.ConeGeometry(0.09, 0.7, 16), 'orange', gear.carrot, S(0, -0.07, 1.02).addScaledVector(carrotDir, 0.35).toArray());
+  carrot.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), carrotDir);
+  gear.elfhat = hatAt(new THREE.Group());
+  part(new THREE.TorusGeometry(0.8, 0.12, 12, 40), 'red', gear.elfhat).rotation.x = Math.PI / 2;
+  const elfCone = part(new THREE.ConeGeometry(0.8, 1.6, 32), 'green', gear.elfhat, [0.35, 0.55, -0.1]);
+  elfCone.rotation.z = -0.9;
+  part(new THREE.SphereGeometry(0.13, 16, 12), 'gold', gear.elfhat, [0.98, 1.05, -0.1]);
+  gear.gumdrops = new THREE.Group(); pose.add(gear.gumdrops); gear.gumdrops.visible = false;
+  [['red', 0.86], ['green', 0.64]].forEach(([slot, y]) => {     // down the belly, under the shield
+    part(new THREE.SphereGeometry(0.1, 14, 10), slot, gear.gumdrops, [0.05, y, bodyR(y - BODY_Y) * BODY_Z + 0.02]);
+  });
+
+  // New Year's party hat, a lunar-new-year lantern, Valentine's heart boppers
+  gear.partyhat = hatAt(new THREE.Group());
+  const ph = part(new THREE.ConeGeometry(0.55, 1.35, 32), 'gold', gear.partyhat, [0.18, 0.62, 0]);
+  ph.rotation.z = -0.22;
+  part(new THREE.TorusGeometry(0.55, 0.07, 8, 32), 'pink', gear.partyhat, [0.03, 0.02, 0]).rotation.set(Math.PI / 2, 0.22, 0);
+  for (const y of [0.35, 0.7]) part(new THREE.TorusGeometry(0.55 * (1 - y / 1.35) + 0.01, 0.035, 6, 32), 'pink', gear.partyhat, [0.18 + (y - 0.675) * 0.22 * -1, 0.62 + (y - 0.675), 0]).rotation.set(Math.PI / 2, 0.22, 0);
+  part(new THREE.SphereGeometry(0.16, 14, 10), 'fluff', gear.partyhat, [0.33, 1.28, 0]);
+  gear.lantern = inHand();
+  part(new THREE.CylinderGeometry(0.012, 0.012, 0.3, 6), 'gold', gear.lantern, [0, -0.2, 0.2]);
+  part(new THREE.SphereGeometry(0.3, 20, 14), 'red', gear.lantern, [0, -0.6, 0.2]).scale.y = 0.85;
+  for (const y of [-0.36, -0.84]) part(new THREE.CylinderGeometry(0.14, 0.14, 0.06, 16), 'gold', gear.lantern, [0, y, 0.2]);
+  part(new THREE.CylinderGeometry(0.02, 0.06, 0.26, 8), 'gold', gear.lantern, [0, -1.0, 0.2]);
+  gear.heartband = onHead([0, 0.9, 0]);
+  for (const s of [-1, 1]) {
+    const spring = part(new THREE.CylinderGeometry(0.02, 0.02, 0.55, 6), 'black', gear.heartband, [s * 0.36, 0.22, 0]);
+    spring.rotation.z = -s * 0.35;
+    const h = part(new THREE.ExtrudeGeometry(heartShape, { depth: 0.08, bevelEnabled: false }), 'pink', gear.heartband, [s * 0.46, 0.52, -0.04]);
+    h.scale.setScalar(0.34);
+  }
+
+  // St Patrick's top hat, Easter ears, a Fourth of July hat
+  gear.leprechaun = topHat('green', 'green', 'black', 0.8);
+  part(new THREE.BoxGeometry(0.26, 0.2, 0.04), 'gold', gear.leprechaun, [0, 0.12, 0.67]);
+  part(new THREE.BoxGeometry(0.15, 0.1, 0.05), 'green', gear.leprechaun, [0, 0.12, 0.68]);
+  gear.bunnyears = onHead([0, 0.85, -0.05]);
+  for (const s of [-1, 1]) {
+    const ear = part(new THREE.SphereGeometry(1, 20, 14), 'fluff', gear.bunnyears, [s * 0.3, 0.5, 0]);
+    ear.scale.set(0.15, 0.52, 0.08); ear.rotation.z = -s * 0.18;
+    const inner = part(new THREE.SphereGeometry(1, 16, 12), 'pink', gear.bunnyears, [s * 0.3, 0.48, 0.05]);
+    inner.scale.set(0.08, 0.4, 0.05); inner.rotation.z = -s * 0.18;
+  }
+  gear.unclesam = topHat('blue', 'fluff', 'blue', 1.0, 0.04);
+  for (const y of [0.4, 0.62, 0.84]) part(new THREE.CylinderGeometry(0.63, 0.635, 0.08, 32), 'red', gear.unclesam, [0, y, 0]);
+  part(star(0.1), 'gold', gear.unclesam, [0, 0.07, 0.67]);
+
+  // Halloween vampire collar, a Diwali diya, a pilgrim hat
+  gear.collar = new THREE.Group(); pose.add(gear.collar); gear.collar.visible = false;
+  for (const [slot, r] of [['black', 0.02], ['redIn', 0]]) {
+    // tall and flared wider than the helmet, so it frames his head from behind
+    const c = part(new THREE.CylinderGeometry(1.8 + r, 0.7 + r, 1.7, 40, 1, true, Math.PI * 0.28, Math.PI * 1.44), slot, gear.collar, [0, 2.55, -0.15]);
+    c.rotation.x = -0.12;
+  }
+  gear.diya = inHand();
+  gear.diya.position.set(0.22, 0.1, 0.25);
+  part(new THREE.SphereGeometry(0.24, 20, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), 'orange', gear.diya);
+  part(new THREE.ConeGeometry(0.08, 0.26, 12), 'flame', gear.diya, [0, 0.15, 0]);
+  gear.pilgrim = topHat('black', 'black', 'brown', 0.95, 0.08);
+  part(new THREE.BoxGeometry(0.26, 0.2, 0.04), 'gold', gear.pilgrim, [0, 0.12, 0.67]);
+  part(new THREE.BoxGeometry(0.15, 0.1, 0.05), 'brown', gear.pilgrim, [0, 0.12, 0.68]);
+
   // the tablet for the idle "checking the numbers" bit
   const tablet = new THREE.Group();
   armDown.fist.add(tablet);
@@ -471,11 +690,17 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   const FALL_PIVOT = 1.5;                   // he topples about his middle, not his feet
 
   // ---- behaviour ----
-  let outfit = 'classic';
+  let outfit = 'classic', mood = MOODS[0];
+  const held = new Set();             // props shown on top of the outfit (showGear)
+  let inspecting = false, inspectK = 0;   // magnifier raised to the visor
+  const MAG_REST = gear.magnifier.quaternion.clone();                 // how the detective carries it, lens down
+  const MAG_POS = gear.magnifier.position.clone(), _up = new THREE.Vector3();
+  const MAG_UP = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.1, -Math.PI / 2 + 0.45, 0.12));   // handle up, lens toward us
+  const _fq = new THREE.Quaternion(), _rq = new THREE.Quaternion(), _mq = new THREE.Quaternion();
   let celebrate = 0, anticName = null, anticT = 0, anticDur = 0;
   let nextBlink = 2, blinkT = 0, billow = 1;
   const lerp = THREE.MathUtils.lerp;
-  const ANTICS = { yawn: 2.6, tablet: 3.2, loop: 1.3, wave: 2.2, dizzy: 3.6 };
+  const ANTICS = { yawn: 2.6, tablet: 3.2, loop: 1.3, wave: 2.2, dizzy: 3.6, ...Object.fromEntries(DANCES.map((d) => [d, 4])) };
 
   function applyOutfit() {
     const o = OUTFITS.find((x) => x.id === outfit) || OUTFITS[0];
@@ -492,7 +717,7 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
         m.roughness = o.metal ? 0.22 : 0.3;
       }
     }
-    for (const [name, g] of Object.entries(gear)) g.visible = !!(o.gear && o.gear.includes(name));
+    for (const [name, g] of Object.entries(gear)) g.visible = !!(o.gear && o.gear.includes(name)) || held.has(name);
   }
 
   const api = {
@@ -506,6 +731,16 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       root.traverse((o) => { if (o.userData.slot) o.material = SETS[s][o.userData.slot]; });
     },
     setOutfit(id) { outfit = OUTFITS.some((o) => o.id === id) ? id : 'classic'; applyOutfit(); },
+    get mood() { return mood.id; },
+    setMood(id) { mood = MOODS.find((m) => m.id === id) || MOODS[0]; },
+    setInspect(on) { inspecting = !!on; if (on) held.add('magnifier'); else held.delete('magnifier'); applyOutfit(); },
+    showGear(name, on = true) { if (!gear[name]) return; if (on) held.add(name); else held.delete(name); applyOutfit(); },
+    setScreen(headline) {
+      for (const set of Object.values(SETS)) {
+        const tex = set.screen.map;
+        if (tex && tex.image) { drawScreen(tex.image, String(headline)); tex.needsUpdate = true; }
+      }
+    },
     cheer() { celebrate = 1.6; anticName = null; tablet.visible = false; yawnO.visible = false; smile.visible = true; },
     antic(name) {
       if (!ANTICS[name] || celebrate > 0) return 0;
@@ -523,7 +758,8 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       const env = a ? Math.min(1, p * 5, (1 - p) * 5) : 0;     // ease in / out of the bit
 
       const hop = party && since < 0.6 ? Math.sin(since / 0.6 * Math.PI) * 0.6 : 0;
-      root.position.y = (opts.baseY || 0) + (opts.still ? 0 : Math.sin(t * 1.6) * 0.1) + hop;
+      const md = mood;
+      root.position.y = (opts.baseY || 0) - (md.sag || 0) + (opts.still ? 0 : Math.sin(t * 1.6 * (md.bob || 1)) * 0.1 * (md.float || 1)) + hop;
       pose.rotation.set(REST.x, (party && since < 0.6 ? since / 0.6 * Math.PI * 2 : 0), REST.z);
       if (a === 'loop') pose.rotation.x = REST.x - (1 - Math.cos(p * Math.PI)) * Math.PI;
       pose.rotation.x += opts.leanX || 0;     // cabinets lean him into the flight
@@ -543,26 +779,28 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       stars.visible = dizzy && p > 0.36 && p < 0.86;
       if (stars.visible) stars.rotation.y = t * 4;
 
-      let lookX = opts.lookX || 0, lookY = opts.lookY || 0;
+      let lookX = opts.lookX || 0, lookY = (opts.lookY || 0) + (a ? 0 : md.lookY || 0);
       if (a === 'tablet') { lookX = 0.25; lookY = -0.55 * env; }
       if (a === 'yawn') lookY = 0.35 * env;
       if (a === 'wave') { lookX = -0.2; lookY = 0.1; }
       head.rotation.y = lerp(head.rotation.y, lookX * 0.45, 0.08);
       head.rotation.x = lerp(head.rotation.x, -lookY * 0.3, 0.08);
-      head.rotation.z = lerp(head.rotation.z, a === 'yawn' ? 0.12 * env : a === 'dizzy' ? Math.sin(t * 7) * 0.2 : 0, 0.12);
+      const moodTilt = opts.still ? (md.tilt || 0) : (md.tilt || 0) + (md.sway ? Math.sin(t * 1.2) * md.sway : 0) + (md.tremble ? Math.sin(t * 31) * md.tremble : 0);
+      head.rotation.z = lerp(head.rotation.z, a === 'yawn' ? 0.12 * env : a === 'dizzy' ? Math.sin(t * 7) * 0.2 : party ? 0 : moodTilt, 0.12);
 
       const waving = a === 'wave';
+      const bf = DANCES.includes(a) ? 1 - env : 1;    // a dance owns the arms: the resting pose lets go of them
       armUp.shoulder.rotation.z = lerp(armUp.shoulder.rotation.z,
         waving ? 2.55 + Math.sin(anticT * 11) * 0.38 * env
-          : (a === 'yawn' ? 2.9 : 2.0) + Math.sin(t * (party ? 12 : 2)) * (party ? 0.2 : 0.05), 0.2);
-      armUp.elbow.rotation.z = lerp(armUp.elbow.rotation.z, a === 'yawn' ? 0.2 : waving ? 0.35 : 0.8, 0.1);
+          : (a === 'yawn' ? 2.9 : party ? 2.0 : md.armUp || 2.0) + Math.sin(t * (party ? 12 : 2)) * (party ? 0.2 : 0.05), 0.2 * bf);
+      armUp.elbow.rotation.z = lerp(armUp.elbow.rotation.z, a === 'yawn' ? 0.2 : waving ? 0.35 : 0.8, 0.1 * bf);
       armUp.shoulder.rotation.x = -0.35;
       let dz = party ? -2.2 : -0.45, dx = party ? 0 : -0.25, ex = party ? 0 : -1.0 + Math.sin(t * 1.6) * 0.08;
       if (a === 'tablet') { dz = -0.35; dx = -0.9 * env; ex = -1.25; }
       if (a === 'yawn') { dz = -0.2; dx = -1.6 * env; ex = -2.0 * env - 1.0 * (1 - env); }   // hand to mouth
-      armDown.shoulder.rotation.z = lerp(armDown.shoulder.rotation.z, dz, 0.12);
-      armDown.shoulder.rotation.x = lerp(armDown.shoulder.rotation.x, dx, 0.12);
-      armDown.elbow.rotation.x = lerp(armDown.elbow.rotation.x, ex, 0.12);
+      armDown.shoulder.rotation.z = lerp(armDown.shoulder.rotation.z, dz, 0.12 * bf);
+      armDown.shoulder.rotation.x = lerp(armDown.shoulder.rotation.x, dx, 0.12 * bf);
+      armDown.elbow.rotation.x = lerp(armDown.elbow.rotation.x, ex, 0.12 * bf);
       tablet.visible = a === 'tablet' && env > 0.3;
       legs.forEach((leg, i) => {
         // opts.run: skimming the ground, the stubby legs actually run (Space Harrier style)
@@ -570,18 +808,159 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
         leg.rotation.z = (i ? 1 : -1) * 0.08;
       });
 
+      // ---- inspecting: the magnifier comes up to his visor and he leans in ----
+      inspectK = lerp(inspectK, inspecting && !a && !party ? 1 : 0, 0.15);
+      if (inspectK > 0.01) {
+        // hand held low and out to his side, so the big lens stands beside his head
+        armDown.shoulder.rotation.z = lerp(armDown.shoulder.rotation.z, -0.75, inspectK * 0.4);
+        armDown.shoulder.rotation.x = lerp(armDown.shoulder.rotation.x, -0.5, inspectK * 0.4);
+        armDown.elbow.rotation.x = lerp(armDown.elbow.rotation.x, -0.55, inspectK * 0.4);
+        head.rotation.x = lerp(head.rotation.x, 0.12, inspectK * 0.2);
+        // whatever the arm is doing, the handle points up out of his fist and the lens faces the viewer
+        root.updateMatrixWorld(true);
+        armDown.fist.getWorldQuaternion(_fq).invert();
+        root.getWorldQuaternion(_rq).multiply(MAG_UP);
+        _mq.copy(_fq).multiply(_rq);
+        gear.magnifier.quaternion.copy(MAG_REST).slerp(_mq, inspectK);
+        const sc = 1.2 + 3.0 * inspectK;                          // a comically big lens (4.2x) — it reads at mascot size
+        gear.magnifier.scale.setScalar(sc);
+        // grip it up near the lens, not at the end of the handle, so the lens sits beside his head
+        _up.set(0, 1, 0).applyQuaternion(gear.magnifier.quaternion);
+        gear.magnifier.position.copy(MAG_POS).addScaledVector(_up, -0.34 * sc * inspectK);
+        // …a touch toward the viewer, so it's clearly in front of the helmet rather than behind it
+        _up.set(0.17, -0.04, 0.3).applyQuaternion(root.getWorldQuaternion(_rq)).applyQuaternion(_fq);
+        gear.magnifier.position.addScaledVector(_up, sc * inspectK);
+      } else { gear.magnifier.quaternion.copy(MAG_REST); gear.magnifier.scale.setScalar(1.2); gear.magnifier.position.copy(MAG_POS); }
+
+      // ---- dances: two beats a second, eased in and out by env ----
+      const isDance = DANCES.includes(a);
+      if (!isDance) armDown.elbow.rotation.z = lerp(armDown.elbow.rotation.z, 0, 0.2);   // only dances bend it in-plane
+      const AU = armUp, AD = armDown;
+      const arms = (uz, ue, dz, de, k = 0.3) => {        // [up arm: shoulder z, elbow], [down arm: shoulder z, in-plane elbow]
+        AU.shoulder.rotation.z = lerp(AU.shoulder.rotation.z, uz, k * env);
+        AU.elbow.rotation.z = lerp(AU.elbow.rotation.z, ue, k * env);
+        AD.shoulder.rotation.z = lerp(AD.shoulder.rotation.z, dz, k * env);
+        AD.shoulder.rotation.x = lerp(AD.shoulder.rotation.x, 0, k * env);
+        AD.elbow.rotation.x = lerp(AD.elbow.rotation.x, 0, k * env);
+        AD.elbow.rotation.z = lerp(AD.elbow.rotation.z, de, k * env);
+      };
+      if (a === 'ymca') {
+        // Y, M, C, A — a letter every 0.9s, a little bounce on each
+        const k = Math.min(3, Math.floor(anticT / 0.9));
+        // (his arms are short next to that helmet: much past 2.4 rad and they vanish behind it)
+        arms(...[[2.15, 0.05, -2.15, 0], [2.45, -0.6, -2.45, 0.6], [2.3, 0.9, -0.9, -0.9], [2.45, 0.75, -2.45, -0.75]][k], 0.35);
+        pose.rotation.y += 0.3 * env;
+        if (k === 2) pose.rotation.z += 0.25 * env;        // lean into the C
+        root.position.y += Math.abs(Math.sin(anticT * Math.PI / 0.9)) * 0.15 * env;
+      } else if (a === 'twist') {
+        const beat = anticT * Math.PI * 4;
+        pose.rotation.y += Math.sin(beat) * 0.55 * env;
+        head.rotation.y = lerp(head.rotation.y, -Math.sin(beat) * 0.4, 0.3);
+        root.position.y += (-0.12 + Math.sin(beat * 2) * 0.03) * env;       // low and bouncy
+        arms(1.1 + Math.sin(beat) * 0.3, 1.6, -1.1 + Math.sin(beat) * 0.3, -1.6);
+        legs.forEach((leg, i) => { leg.rotation.x = 0.4 + 0.5 * env; leg.rotation.z = (i ? 1 : -1) * 0.08 + Math.sin(beat) * 0.3 * env; });
+      } else if (a === 'sprinkler') {
+        // hand behind the head, arm out front: tick-tick-tick across, whoosh back
+        const k = anticT % 2, sweep = k < 1.6 ? -0.6 + Math.floor(k / 0.2) * 0.15 : 0.6 - (k - 1.6) / 0.4 * 1.2;
+        pose.rotation.y += sweep * env;
+        AU.shoulder.rotation.z = lerp(AU.shoulder.rotation.z, 2.9, 0.3 * env);
+        AU.elbow.rotation.z = lerp(AU.elbow.rotation.z, 2.0, 0.3 * env);
+        AD.shoulder.rotation.z = lerp(AD.shoulder.rotation.z, -1.5, 0.3 * env);
+        AD.shoulder.rotation.x = lerp(AD.shoulder.rotation.x, -0.9, 0.3 * env);
+        AD.elbow.rotation.x = lerp(AD.elbow.rotation.x, -0.1, 0.3 * env);
+      } else if (a === 'floss') {
+        const s = Math.sin(anticT * Math.PI * 4);
+        pose.position.x += -s * 0.22 * env; pose.rotation.z += s * 0.12 * env;
+        arms(0.45, 0.1, -0.45, 0);
+        AU.shoulder.rotation.x = -0.35 + s * 0.9 * env;
+        AD.shoulder.rotation.x = s * 0.9 * env;
+      } else if (a === 'moonwalk') {
+        // turn to the side and glide backwards, looking back at the audience
+        pose.rotation.y += 1.1 * env;
+        pose.position.x += (0.6 - 1.2 * p) * env;
+        legs.forEach((leg, i) => { leg.rotation.x = 0.4 + Math.sin(anticT * Math.PI * 4 + i * Math.PI) * 0.6 * env; });
+        arms(0.7, 0.5, -0.7, 0, 0.2);
+        head.rotation.y = lerp(head.rotation.y, -0.8, 0.15);
+      } else if (a === 'pirouette') {
+        const e = p * p * (3 - 2 * p);
+        pose.rotation.y += e * Math.PI * 4;                 // two full turns (4π lands back where it started)
+        root.position.y += Math.sin(p * Math.PI) * 0.35;
+        arms(2.85, 0.9, -2.85, -0.9, 0.2);                  // arms in a ring overhead
+        legs.forEach((leg, i) => { leg.rotation.x = i ? 0.2 : 0.4 + 0.9 * env; });   // one foot tucked
+      } else if (a === 'dab') {
+        const k = anticT % 2, hit = k > 0.35 && k < 1.5, s = hit ? 0.45 : 0.2;
+        AU.shoulder.rotation.z = lerp(AU.shoulder.rotation.z, hit ? 2.2 : 2.0, s * env);
+        AU.elbow.rotation.z = lerp(AU.elbow.rotation.z, hit ? 2.3 : 0.8, s * env);
+        if (hit) AU.shoulder.rotation.x = -0.35 - 0.8 * env;    // forearm across the face
+        AD.shoulder.rotation.z = lerp(AD.shoulder.rotation.z, hit ? -2.4 : -0.45, s * env);
+        AD.elbow.rotation.x = lerp(AD.elbow.rotation.x, hit ? -0.05 : -1.0, s * env);
+        head.rotation.x = lerp(head.rotation.x, hit ? 0.35 : 0, s);
+        head.rotation.y = lerp(head.rotation.y, hit ? 0.5 : 0, s);
+      } else if (a === 'chicken') {
+        const beat = anticT * Math.PI * 4, flap = Math.max(0, Math.sin(beat * 2)), peck = Math.max(0, Math.sin(beat));
+        arms(1.0 + flap * 0.6, 2.4, -1.0 - flap * 0.6, -2.4, 0.4);   // hands in the armpits, elbows flapping
+        pose.position.z += peck * 0.35 * env;
+        head.rotation.x = lerp(head.rotation.x, peck * 0.4, 0.4);
+        legs.forEach((leg, i) => { leg.rotation.x = 0.4 + Math.max(0, Math.sin(beat + i * Math.PI)) * 0.6 * env; });
+      }
+      if (a === 'boogie') {
+        const beat = anticT * Math.PI * 4;
+        pose.position.x += Math.sin(beat / 2) * 0.28 * env;
+        pose.rotation.z += Math.sin(beat / 2) * 0.16 * env;
+        root.position.y += Math.abs(Math.sin(beat)) * 0.2 * env;
+        head.rotation.x += Math.sin(beat) * 0.08 * env;
+        armUp.shoulder.rotation.z = lerp(armUp.shoulder.rotation.z, 1.9 + Math.sin(beat) * 0.7, 0.3);
+        armDown.shoulder.rotation.z = lerp(armDown.shoulder.rotation.z, -1.4 - Math.sin(beat) * 0.7, 0.3);
+        armDown.elbow.rotation.x = lerp(armDown.elbow.rotation.x, -0.6, 0.2);
+        legs.forEach((leg, i) => { leg.rotation.x = 0.4 + Math.max(0, Math.sin(beat + i * Math.PI)) * 0.7 * env; });
+      } else if (a === 'robot') {
+        // the robot: eight snapped poses, four a second — [up shoulder, down shoulder, head turn]
+        const k = Math.floor(anticT * 4) % 8;
+        const R = [[1.6, -1.6, 0.4], [2.4, -0.4, -0.4], [1.6, -1.6, 0], [0.8, -2.4, 0.4],
+          [1.6, -1.6, -0.4], [2.4, -2.4, 0], [1.6, -0.8, 0.4], [0.8, -1.6, -0.4]][k];
+        const snap = 0.55 * env;
+        armUp.shoulder.rotation.z = lerp(armUp.shoulder.rotation.z, R[0], snap);
+        armUp.elbow.rotation.z = lerp(armUp.elbow.rotation.z, k % 2 ? 1.5 : 0.2, snap);
+        armDown.shoulder.rotation.z = lerp(armDown.shoulder.rotation.z, R[1], snap);
+        armDown.shoulder.rotation.x = lerp(armDown.shoulder.rotation.x, 0, snap);
+        armDown.elbow.rotation.x = lerp(armDown.elbow.rotation.x, k % 2 ? -1.5 : -0.2, snap);
+        head.rotation.y = lerp(head.rotation.y, R[2], snap);
+        pose.rotation.y += (k % 4 < 2 ? 0.25 : -0.25) * env;
+        root.position.y += (k % 2 ? 0.06 : 0) * env;
+      } else if (a === 'disco') {
+        // point up to one side, then down across, hips swaying — Saturday night at the data center
+        const beat = anticT * Math.PI * 4, up = Math.sin(beat / 2) > 0;
+        armUp.shoulder.rotation.z = lerp(armUp.shoulder.rotation.z, up ? 2.9 : 1.2, 0.25 * env);
+        armUp.elbow.rotation.z = lerp(armUp.elbow.rotation.z, 0.1, 0.2 * env);
+        armDown.shoulder.rotation.z = lerp(armDown.shoulder.rotation.z, up ? -0.4 : -1.2, 0.2 * env);
+        pose.rotation.z += Math.sin(beat) * 0.1 * env;
+        pose.position.x += Math.sin(beat) * 0.12 * env;
+        head.rotation.y = lerp(head.rotation.y, up ? 0.35 : -0.25, 0.2 * env);
+        head.rotation.z = lerp(head.rotation.z, up ? -0.12 : 0.1, 0.2 * env);
+        legs.forEach((leg, i) => { leg.rotation.z = (i ? 1 : -1) * (0.08 + Math.max(0, Math.sin(beat + i * Math.PI)) * 0.35 * env); });
+      }
+
       nextBlink -= dt;
       if (nextBlink < 0) { blinkT = 0.14; nextBlink = 2 + Math.random() * 3; }
       blinkT = Math.max(0, blinkT - dt);
-      let eyeY = party ? 0.4 : blinkT > 0 ? 0.1 : 1;
+      // a cheer always reads as delight, whatever the mood; the yawn and the dizzy bit own the face
+      const dancing = DANCES.includes(a);
+      const eyeKind = a === 'dizzy' ? 'none' : party || dancing ? 'joy' : a === 'yawn' || a === 'tablet' ? 'open' : md.eyes;
+      let eyeY = blinkT > 0 ? 0.1 : eyeKind === 'half' ? 0.42 : 1;
       if (a === 'yawn') eyeY = 1 - 0.8 * env;
       if (a === 'tablet') eyeY = 0.8;
-      for (const e of eyes) { e.scale.y = lerp(e.scale.y, eyeY, 0.35); e.visible = a !== 'dizzy'; }
+      for (const e of eyes) { e.scale.y = lerp(e.scale.y, eyeY, 0.35); e.visible = eyeKind === 'open' || eyeKind === 'half'; }
+      joyEyes.forEach((g) => { g.visible = eyeKind === 'joy'; });
+      closedEyes.forEach((g) => { g.visible = eyeKind === 'closed'; });
+      const beat = 1 + Math.max(0, Math.sin(t * 7)) ** 8 * 0.25;
+      heartEyes.forEach((h) => { h.visible = eyeKind === 'heart'; h.scale.setScalar(0.26 * beat); });
       yawnO.visible = a === 'yawn' && env > 0.4;
-      smile.visible = !yawnO.visible;
+      const mouthKind = yawnO.visible ? null : party || dancing ? 'grin' : a ? 'smile' : md.mouth;
+      for (const [k, g] of Object.entries(mouths)) g.visible = k === mouthKind;
+      for (const [k, pair] of Object.entries(brows)) pair.forEach((g) => { g.visible = !a && !party && md.brows === k; });
 
-      antenna.scale.setScalar(1 + Math.sin(t * 4) * 0.06 + (party ? 0.15 : 0));
-      billow = lerp(billow, (party ? 1.8 : 1) * (opts.billow || 1), 0.05);
+      antenna.scale.setScalar(1 + Math.sin(t * 4 * (md.pulse || 1)) * 0.06 + (party ? 0.15 : 0));
+      billow = lerp(billow, (party ? 1.8 : md.billow || 1) * (opts.billow || 1), 0.05);
       updateCape(t, billow);
     },
   };
