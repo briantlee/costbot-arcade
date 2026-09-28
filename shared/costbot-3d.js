@@ -16,6 +16,7 @@
  *   bot.antic('boogie');          // dances (~4s): boogie, robot, disco, ymca, twist, sprinkler, floss,
  *                                 // moonwalk, pirouette, dab, chicken — see DANCES
  *   bot.setInspect(true);         // magnifier out and up to his visor (inspecting something)
+ *   bot.lens, bot.inspectK        // the lens mesh and how far it's up (0–1), e.g. to magnify what's behind it
  *   // every frame:
  *   bot.update(t, dt, { lookX, lookY });
  *
@@ -725,6 +726,8 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
     get outfit() { return outfit; },
     get style() { return current; },
     get busy() { return celebrate > 0 || !!anticName; },
+    lens,                                          // the magnifier's glass (a Mesh): project it to find the lens on screen
+    get inspectK() { return inspectK; },           // how far the magnifier is raised, 0–1
     setStyle(s) {
       if (!SETS[s]) return;
       current = s;
