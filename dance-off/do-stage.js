@@ -346,3 +346,67 @@ export function makeSquad() {
     return { bot, i, s: 0, frozenT: 0, moving: false };
   });
 }
+
+/* The crowd: a row of silhouettes along the front edge of the floor, between you and
+ * the dancers. They bob on the beat — harder the hotter your combo — wave glow sticks
+ * once it is hot, jump on a cheer and sag on a groan.
+ *   const crowd = makeCrowd(scene);
+ *   crowd.update(t, dt, { hype, beat });   // hype 0..1, beat 0..1 (1 on the downbeat, decaying)
+ *   crowd.cheer(); crowd.groan();
+ */
+export function makeCrowd(scene) {
+  const group = new THREE.Group();
+  scene.add(group);
+  const skin = new THREE.MeshStandardMaterial({ color: 0x0b0714, roughness: 0.9, metalness: 0 });
+  const rim = new THREE.MeshBasicMaterial({ color: 0x2a1650, transparent: true, opacity: 0.6 });
+  const bodyGeo = new THREE.CapsuleGeometry(0.42, 0.7, 4, 10), headGeo = new THREE.SphereGeometry(0.34, 14, 10);
+  const armGeo = new THREE.CapsuleGeometry(0.1, 0.62, 3, 6), stickGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.55, 6);
+  const fans = [];
+  const N = 26;
+  for (let i = 0; i < N; i++) {
+    const f = new THREE.Group();
+    const x = -13 + (i / (N - 1)) * 26 + (Math.random() - 0.5) * 0.5;
+    const row = i % 2, z = 9.4 + row * 0.9 + Math.random() * 0.3;
+    f.position.set(x, -0.35 - row * 0.15 - Math.random() * 0.25, z);
+    const body = new THREE.Mesh(bodyGeo, skin); body.position.y = 0.6;
+    const head = new THREE.Mesh(headGeo, skin); head.position.y = 1.45;
+    const halo = new THREE.Mesh(new THREE.RingGeometry(0.34, 0.39, 20), rim); halo.position.set(0, 1.45, -0.02);
+    const arms = [-1, 1].map((s) => {
+      const pivot = new THREE.Group(); pivot.position.set(s * 0.4, 1.0, 0);
+      const arm = new THREE.Mesh(armGeo, skin); arm.position.y = 0.36; pivot.add(arm);
+      pivot.rotation.z = s * 2.6;              // arms down by default
+      f.add(pivot);
+      return pivot;
+    });
+    const stick = new THREE.Mesh(stickGeo, new THREE.MeshBasicMaterial({ color: PALETTE[i % PALETTE.length], toneMapped: false }));
+    stick.position.y = 0.78; stick.visible = false;
+    arms[i % 2].add(stick);
+    f.add(body, head, halo);
+    group.add(f);
+    fans.push({ f, arms, stick, side: i % 2, phase: Math.random() * Math.PI * 2, baseY: f.position.y, jump: 0, sag: 0, eager: 0.6 + Math.random() * 0.4 });
+  }
+  let cheer = 0, groan = 0;
+  return {
+    group,
+    cheer() { cheer = 1; for (const x of fans) x.jump = 0.4 + Math.random() * 0.35; },
+    groan() { groan = 1; },
+    update(t, dt, { hype = 0, beat = 0 } = {}) {
+      cheer = Math.max(0, cheer - dt * 0.8);
+      groan = Math.max(0, groan - dt * 1.4);
+      for (const x of fans) {
+        const h = Math.min(1, hype * x.eager + cheer);
+        x.jump = Math.max(0, x.jump - dt);
+        const hop = x.jump > 0 ? Math.sin((x.jump / 0.75) * Math.PI) * 0.7 : 0;
+        x.f.position.y = x.baseY + beat * (0.06 + h * 0.2) + hop - groan * 0.25;
+        x.f.rotation.z = Math.sin(t * 2 + x.phase) * 0.05 * (0.5 + h);
+        // hands go up with the hype — both on a cheer — and wave glow sticks when it is hot
+        const up = Math.max(h, cheer) * (1 - groan);
+        x.arms.forEach((a, k) => {
+          const s = k ? 1 : -1, raised = (k === x.side ? up : up * cheer);
+          a.rotation.z = s * (2.6 - raised * 2.2) + (raised > 0.5 ? Math.sin(t * 6 + x.phase + k) * 0.35 : 0);
+        });
+        x.stick.visible = h > 0.55;
+      }
+    },
+  };
+}

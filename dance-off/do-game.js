@@ -36,7 +36,7 @@ import {
   MOVES, MOVE_ORDER, KEYS, GROOVE_KEY, ROUND_BEATS, SONGS, VILLAIN, DIFFS, DIFF_ORDER,
   buildChart, buildMedley, MEDLEY, BALANCE as B, GRADES, LINES,
 } from './do-content.js';
-import { buildStage, makeVillain, makeSquad, dressSquad, SPOTS } from './do-stage.js';
+import { buildStage, makeVillain, makeSquad, dressSquad, makeCrowd, SPOTS } from './do-stage.js';
 import { makeFloorLane } from './do-floorlane.js';
 
 const GAME_ID = 'dance-off';
@@ -85,14 +85,25 @@ const CSS = `
 .do-lane{position:relative;height:64px;border-radius:14px;background:rgba(12,8,28,.42);border:1px solid rgba(90,70,160,.55);backdrop-filter:blur(4px);overflow:hidden;transition:box-shadow .3s,border-color .3s}
 /* floor mode: the notes are on the dance floor, so the bar goes (its label and captions stay) */
 .do-root.floor .do-lane{display:none}
+/* a glance: the room holds its breath — colour drains, the edges go red */
+.do-root::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;box-shadow:inset 0 0 160px 40px rgba(255,30,70,.55)}
+.do-root.tense::after{opacity:1}
+.do-root.tense canvas.do-gl{filter:saturate(.35) brightness(.85);transition:filter .25s}
+.do-root canvas.do-gl{transition:filter .4s}
+.do-root.paused canvas.do-gl{filter:blur(3px) brightness(.6)}
+.do-calib{display:flex;align-items:center;gap:4px;font:700 12px system-ui;color:#cfc4f3}
+.do-calib button{pointer-events:auto;cursor:pointer;border:1px solid #4a3a80;background:rgba(18,12,40,.85);color:#e6ddff;border-radius:10px;width:26px;height:26px;font:900 14px system-ui}
+.do-calib b{min-width:54px;text-align:center;color:#fff}
+.do-sugg{margin:6px 0 !important}
+.do-sugg button{pointer-events:auto;cursor:pointer;border:0;border-radius:10px;padding:5px 10px;margin-left:6px;font:800 12px system-ui;color:#12071f;background:#6ff5c1}
 .do-hud.free .do-lane{box-shadow:0 0 34px rgba(255,194,51,.7);border-color:#ffc233}
 .do-hit{position:absolute;top:5px;bottom:5px;left:14%;width:62px;margin-left:-31px;border-radius:16px;border:3px solid rgba(255,255,255,.5);
   box-shadow:0 0 14px rgba(255,255,255,.3),inset 0 0 14px rgba(255,255,255,.12);transition:transform .08s,border-color .1s;z-index:4;pointer-events:none}
 .do-hit.beat{transform:scale(1.08);border-color:#fff}
-.do-time{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:min(420px,52vw);display:flex;align-items:center;gap:10px;font:800 12px system-ui;color:#cfc4f3;font-variant-numeric:tabular-nums}
-.do-time .bar{flex:1;height:5px;border-radius:3px;background:rgba(20,14,40,.8);overflow:hidden}
-.do-time .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#39d5ff,#b77bff,#ff4fa3)}
-.do-now{position:absolute;top:40px;left:50%;transform:translateX(-50%);font:800 13px system-ui;color:#ffe066;letter-spacing:.06em;opacity:0;white-space:nowrap;text-shadow:0 0 10px rgba(255,224,102,.6)}
+.do-time{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:min(720px,60vw);display:flex;align-items:center;gap:14px;font:900 20px system-ui;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 1px 4px #000}
+.do-time .bar{flex:1;height:16px;border-radius:9px;background:rgba(20,14,40,.85);border:1px solid rgba(183,123,255,.5);overflow:hidden;box-shadow:0 0 14px rgba(0,0,0,.5)}
+.do-time .bar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#39d5ff,#b77bff,#ff4fa3);box-shadow:0 0 12px rgba(183,123,255,.8)}
+.do-now{position:absolute;top:48px;left:50%;transform:translateX(-50%);font:800 13px system-ui;color:#ffe066;letter-spacing:.06em;opacity:0;white-space:nowrap;text-shadow:0 0 10px rgba(255,224,102,.6)}
 .do-now.on{animation:donow 3.2s ease-out}
 @keyframes donow{0%{opacity:0;transform:translate(-50%,6px)}12%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
 .do-mark{position:absolute;top:0;bottom:0;border-left:2px dashed rgba(255,255,255,.2)}
@@ -208,10 +219,11 @@ const CSS = `
 @media (max-width:640px){
   .do-top{bottom:88px}
   .do-who{font-size:10px;letter-spacing:.1em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .do-time{top:62px;width:70vw}
-  .do-now{top:82px;font-size:11px}
+  .do-time{top:62px;width:78vw;gap:8px}
+  .do-time .bar{height:12px}
+  .do-now{top:86px;font-size:11px}
   .do-lane{height:60px}
-  .do-time{font-size:10px}
+  .do-time{font-size:14px}
   .do-hit{width:48px;margin-left:-24px}
   .do-note{width:38px;height:38px;margin:-19px 0 0 -19px;font-size:20px;border-radius:11px}
   .do-meter{top:88px;width:42vw;font-size:10px}
@@ -238,7 +250,7 @@ export function mount(target, opts = {}) {
   // ---- profile ----
   const blank = {
     best: 0, bestCombo: 0, bestAcc: 0, runs: 0, wins: 0, songs: {}, top: null,
-    song: SONGS[0].key, diff: 'normal', experimental: false, noteView: null, outfit: 'classic', outfits: ['classic'],
+    song: SONGS[0].key, diff: 'normal', experimental: false, noteView: null, calibMs: 0, outfit: 'classic', outfits: ['classic'],
   };
   let profile = { ...blank };
   try { profile = { ...blank, ...JSON.parse(localStorage.getItem(STORE) || '{}') }; } catch { /* private mode */ }
@@ -296,6 +308,7 @@ export function mount(target, opts = {}) {
         <div class="do-diffs">${DIFF_ORDER.map((d) => `<button class="do-diff" data-diff="${d}" style="--c:${DIFFS[d].color}">${DIFFS[d].label}</button>`).join('')}</div>
         <label class="do-exp"><input type="checkbox" class="do-expbox"> 🧪 Experimental songs</label>
         <button class="do-btn do-view" title="Where the notes go: on the dance floor, or in a bar along the bottom">🎯 Notes: on the floor</button>
+        <span class="do-calib" title="Timing offset. If your hits feel late, go +; early, go −. Keys [ and ] work too.">⏱ Timing <button data-calib="-5">−</button><b class="do-calibv"></b><button data-calib="5">+</button></span>
         <button class="do-btn" data-act="scores">🏅 My scores</button>
         <button class="do-btn" data-act="shop">👕 Wardrobe</button>
         <div class="do-songbest do-fine"></div>
@@ -318,6 +331,12 @@ export function mount(target, opts = {}) {
       <div class="do-shopgrid"></div>
       <button class="do-go alt" data-act="menu">← Back</button>
     </div></div>
+    <div class="do-panel do-pause"><div class="do-box">
+      <h2>⏸ Paused</h2>
+      <p class="do-fine">Esc or Enter to carry on — there's a 3-2-1 before the music comes back.</p>
+      <button class="do-go" data-act="resume">▶ Resume</button>
+      <button class="do-go alt" data-act="quit">✖ End the dance</button>
+    </div></div>
     <div class="do-panel do-over"><div class="do-box">
       <h2 class="do-otitle"></h2>
       <div class="do-otag"></div>
@@ -326,6 +345,7 @@ export function mount(target, opts = {}) {
       <p class="do-oline"></p>
       <div class="do-stats"></div>
       <div class="do-tokens"></div>
+      <p class="do-fine do-sugg"></p>
       <p class="do-fine do-purse"></p>
       <button class="do-go" data-act="again">🔁 Dance again</button>
       <button class="do-go alt" data-act="menu">🎵 Change song</button>
@@ -362,6 +382,8 @@ export function mount(target, opts = {}) {
   composer.addPass(new OutputPass());
 
   const stage = buildStage(scene);
+  const crowd = makeCrowd(scene);
+  let crowdBeat = 0;
   // the notes on the dance floor: one row across the front of it, right to left into a ring
   const floor = makeFloorLane(scene);
   floor.setVisible(false);
@@ -409,6 +431,7 @@ export function mount(target, opts = {}) {
     finale: [[3, 6.5, 17], [3.5, 1.4, -5]],
     party: [[0, 5, 16], [0, 1.3, 0.5]],
     freestyle: [[0, 5.5, 15], [0, 1.5, -1]],
+    hero: [[-1.6, 2.6, 12.5], [-3, 2.3, 0.8]],        // the flawless-verse money shot, low on CostBot
   };
   let shot = 'title';
   const camPos = new THREE.Vector3(...SHOTS.title[0]), camLook = new THREE.Vector3(...SHOTS.title[1]);
@@ -453,7 +476,8 @@ export function mount(target, opts = {}) {
     audioClock = true;
     lastBeat = null;           // a new clock: count beats from here, don't replay (or wait out) the old one
   }
-  const songTime = () => (audioClock && actx ? actx.currentTime - latency() : performance.now() / 1000);
+  // calibMs: the player's own offset on top of the device latency (+ = they hear it later)
+  const songTime = () => (audioClock && actx ? actx.currentTime - latency() - (profile.calibMs || 0) / 1000 : performance.now() / 1000);
   let BEAT = LOBBY_BEAT;       // seconds per dance beat: the lobby's, or the song's (x2 in half-time)
   const beatNow = () => (songTime() - clockT0) / BEAT;
   function playLobby() { BEAT = LOBBY_BEAT; if (music) anchor('do_lobby'); else lastBeat = null; }
@@ -491,6 +515,9 @@ export function mount(target, opts = {}) {
     alarm: () => { tone(880, 0.18, { type: 'square', gain: 0.1 }); tone(660, 0.3, { type: 'square', gain: 0.1, at: 0.18 }); },
     win: () => [523, 659, 784, 1047, 1319].forEach((f, i) => { tone(f, 0.3, { type: 'triangle', gain: 0.16, at: i * 0.09 }); }),
     lose: () => [392, 330, 262, 196].forEach((f, i) => { tone(f, 0.35, { type: 'triangle', gain: 0.14, at: i * 0.16 }); }),
+    overclock: () => { tone(110, 0.9, { type: 'sawtooth', gain: 0.12, to: 880 }); tone(55, 0.9, { type: 'square', gain: 0.06, to: 440 }); },
+    crowd: () => { noise(0.9, { freq: 900, q: 0.5, gain: 0.35, sweep: [1400, 700] }); noise(0.6, { freq: 2200, q: 1.2, gain: 0.18 }); },
+    thump: () => tone(58, 0.16, { gain: 0.3, to: 40 }),
     groove: () => [659, 784, 988, 1175, 1319, 1568].forEach((f, i) => { tone(f, 0.22, { type: 'sawtooth', gain: 0.07, at: i * 0.05 }); }),
   };
   function setMuted(m) {
@@ -570,6 +597,9 @@ export function mount(target, opts = {}) {
     hud.classList.remove('off');
     floor.setVisible(floorMode());
     stage.reset();
+    root.classList.remove('tense', 'paused');
+    $('.do-pause').classList.remove('on');
+    paused = false; resuming = false;
     stage.dimSign(true);
     for (const c of coins) scene.remove(c.mesh);
     coins.length = 0;
@@ -586,8 +616,8 @@ export function mount(target, opts = {}) {
     run = {
       ...built, song: track, diff, medley: medley && medley.map((g) => ({ ...g, beat: (g.bar * 4) / chart.unit, shown: false })), intro: chart.intro, nRounds: chart.rounds.length,
       win: (DIFFS[diff] || DIFFS.normal).win, missCost: (DIFFS[diff] || DIFFS.normal).missCost, step: 100 / (nSneak * B.stepShare),
-      p: { p1: newStats() }, steps: 0, holds: [], groove: 0, free: null,
-      suspicion: 0, heist: 0, glance: null, suspicious: false, alarmed: false,
+      p: { p1: newStats() }, overclocks: chart.rounds.map((x) => !!x.overclock), steps: 0, holds: [], groove: 0, free: null,
+      suspicion: 0, heist: 0, glance: null, suspicious: false, alarmed: false, offsets: [], heroUntil: -Infinity, overclock: false, pending: [],
       round: -1, fin: null, started: performance.now(),
     };
     attLbl.textContent = `🚨 ${V.short}'S SUSPICION`;
@@ -627,7 +657,7 @@ export function mount(target, opts = {}) {
     const glanceBy = run.glance ? run.glance.start + B.glanceBeats : -Infinity;
     // his notes that land while he is looking back turn to hands, and stay hands once they have —
     // the judging reads n.frozen, so a ✋ can never turn back into an arrow and be scored a miss
-    if (run.glance) for (const n of run.notes) if (n.kind === 'sneak' && !n.judged && n.beat >= run.glance.start && n.beat <= glanceBy) n.frozen = true;
+    if (run.glance) for (const n of run.notes) if (n.kind === 'sneak' && !n.judged && !n.frozen && n.beat >= run.glance.start && n.beat <= glanceBy) { n.frozen = true; n.glanceAt = run.glance.start; }
     if (floorMode()) {
       floor.sync(run.notes, run.marks, b, { ahead: B.floorAhead, free: !!run.free, dt });
       return;
@@ -695,7 +725,9 @@ export function mount(target, opts = {}) {
 
   // integer beats: the floor, the calls, the phase changes
   function onBeat(bi) {
-    stage.pulse(((bi % 64) + 64) % 64, !!(run && run.free));
+    stage.pulse(((bi % 64) + 64) % 64, !!(run && (run.free || run.overclock)));
+    crowdBeat = 1;
+    if (run && run.glance && phase === 'play') SFX.thump();
     hitEl.classList.add('beat'); setTimeout(() => hitEl.classList.remove('beat'), 90);
     floor.pulse();
     if (phase === 'title' || phase === 'over') {
@@ -720,8 +752,16 @@ export function mount(target, opts = {}) {
       run.round = r;
       who.className = 'do-who call';
       who.textContent = `ROUND ${r + 1}/${run.nRounds} · HIS VERSE — SHADOW HIM 👣`;
-      if (!run.free) shot = 'villain';
-      if (r > 0 && Math.random() < 0.45) say('villain', pick(V.lines.round));
+      if (!run.free && bi >= run.heroUntil) shot = 'villain';
+      if (run.overclocks[r]) {
+        // the final round: Max overclocks — busier verses, the floor goes wild, the halo screams
+        run.overclock = true;
+        who.textContent = `⚡ FINAL ROUND · MAX OVERCLOCKS — SHADOW HIM 👣`;
+        pop(bigEl, '⚡ MAX OVERCLOCKS!', '#ff5c7a');
+        say('villain', pick(V.lines.overclock), 2.4);
+        SFX.overclock();
+        villainWobble = 0.5;
+      } else if (r > 0 && Math.random() < 0.45) say('villain', pick(V.lines.round));
     }
     // the handoff: two claps and a countdown, and the camera gets there first
     if (inR === HALF - 2 || inR === HALF - 1) {
@@ -734,7 +774,7 @@ export function mount(target, opts = {}) {
       villain.antic('pointright', 1.2 * MODEL_BEAT);
       if (Math.random() < 0.35) say('villain', pick(LINES.yourTurn), 1.4);
     }
-    if (inR === 0 && r > 0 && r < run.nRounds) {
+    if (inR === 0 && r > 0 && r < run.nRounds && bi >= run.heroUntil) {
       costbot.antic('point', 1.2 * MODEL_BEAT);
       if (Math.random() < 0.35) say('costbot', `${pick(LINES.yourTurn)} 👉`, 1.4);
     }
@@ -758,7 +798,11 @@ export function mount(target, opts = {}) {
       if (d < bestD) { bestD = d; best = n; }
     }
     const [wp, wg, wok] = run.win;
-    if (best && bestD <= wok) { hitNote(best, moveId, bestD <= wp ? 'perfect' : bestD <= wg ? 'great' : 'good'); return; }
+    if (best && bestD <= wok) {
+      if (moveId === best.move || run.free) run.offsets.push((b - best.beat) * BEAT);   // + = late, for the timing hint
+      hitNote(best, moveId, bestD <= wp ? 'perfect' : bestD <= wg ? 'great' : 'good');
+      return;
+    }
     stray(moveId, ((rel % ROUND_BEATS) + ROUND_BEATS) % ROUND_BEATS);
   }
   function release(moveId) {
@@ -798,6 +842,7 @@ export function mount(target, opts = {}) {
   }
   function breakCombo(pl) {
     const st = run.p[pl];
+    if (st.combo >= 8) crowd.groan();
     st.combo = 0;
     st.counts.miss += 1;
     run.groove = Math.max(0, run.groove + B.groove.miss);
@@ -884,6 +929,12 @@ export function mount(target, opts = {}) {
     pop(bigEl, 'FLAWLESS!', '#6ff5c1');
     SFX.win();
     villainWobble = 0.7;
+    // the show: a backflip into a pose, a low hero shot, and the crowd loses it
+    costbot.antic('backflip', 2 * MODEL_BEAT);
+    run.pending.push({ at: beatNow() + 1.6, fn: () => { costbot.antic('dab', 2 * MODEL_BEAT); } });
+    run.heroUntil = Math.ceil(beatNow()) + 2;
+    if (!run.free) shot = 'hero';
+    crowd.cheer(); SFX.crowd();
     say('villain', pick(V.lines.flawless), 1.8);
     suspect(-B.suspicion.flawless);
   }
@@ -965,7 +1016,24 @@ export function mount(target, opts = {}) {
     scratch();
     say('villain', pick(V.lines.glance), 1.8);
     shot = 'glance';
-    squad.forEach((m) => { m.bot.setMood('worried'); });
+    root.classList.add('tense');
+    // everybody freezes into a pose of their own — the worse the hiding place, the funnier
+    const POSES = [{ rz: 0.45, dy: 0, sy: 1, ry: 0 }, { rz: 0, dy: 0, sy: 0.72, ry: 0 }, { rz: -0.3, dy: 0, sy: 1, ry: Math.PI / 2 },
+      { rz: 0, dy: 0.25, sy: 1.08, ry: -0.2 }, { rz: 0.15, dy: 0, sy: 0.85, ry: 0.9 }];
+    const order = [...POSES].sort(() => Math.random() - 0.5);
+    squad.forEach((m, i) => { m.bot.setMood('worried'); m.pose = order[i]; });
+  }
+  function closeOne(hands) {
+    if (!run || phase !== 'play' || !hands.every((x) => x.judged === 'held')) return;
+    const C = B.closeOne;
+    run.p.p1.score += C.score;
+    suspect(-C.suspicion);
+    if (!run.free) run.groove = Math.min(100, run.groove + C.groove);
+    pop(bigEl, '😅 CLOSE ONE!', '#8fc9ff');
+    say('costbot', pick(LINES.closeOne), 1.8);
+    squad.forEach((m) => { m.hop = 0.22; m.bot.setMood('excited'); });
+    crowd.cheer(); SFX.crowd();
+    updateMeters();
   }
   // Suspicion never goes up during a Freestyle; at the top he has them
   function suspect(n) {
@@ -983,6 +1051,9 @@ export function mount(target, opts = {}) {
     for (const h of run.holds) if (!h.over) endHold(h, kind !== 'busted');
     if (run.free) endFreestyle();
     grooveEl.classList.remove('ready');
+    root.classList.remove('tense');
+    squad.forEach((m) => { m.pose = null; });
+    if (kind === 'win') crowd.cheer(); else crowd.groan();
     phase = 'finale';
     run.fin = { at: Math.ceil(beatNow()), kind };
     run.glance = null;
@@ -1093,6 +1164,14 @@ export function mount(target, opts = {}) {
     ].map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join('');
     $('.do-tokens').innerHTML = `+${fmt(tokens)} ${TOK} tokens`;
     $('.do-purse').textContent = `${fmt(wallet().tokens)} in your arcade purse`;
+    // the timing hint: if the hits landed consistently early or late, offer to fix the offset
+    const off = r.offsets.length >= 12 ? [...r.offsets].sort((a, x) => a - x)[Math.floor(r.offsets.length / 2)] : 0;   // median, seconds
+    const suggEl = $('.do-sugg');
+    if (Math.abs(off) >= 0.018) {
+      const ms = Math.round((off * 1000) / 5) * 5;
+      suggEl.innerHTML = `⏱ Your hits landed about ${Math.abs(ms)} ms ${ms > 0 ? 'late' : 'early'}.<button>Adjust timing ${ms > 0 ? '+' : ''}${ms} ms</button>`;
+      suggEl.querySelector('button').addEventListener('click', () => { nudgeCalib(ms); suggEl.textContent = `⏱ Timing set to ${profile.calibMs > 0 ? '+' : ''}${profile.calibMs} ms.`; }, { once: true });
+    } else suggEl.textContent = r.offsets.length >= 12 ? '⏱ Your timing is dead on.' : '';
     hud.classList.add('off');
     floor.setVisible(false);
     stage.dimSign(false);
@@ -1126,7 +1205,15 @@ export function mount(target, opts = {}) {
   expBox.checked = !!profile.experimental;
   fillSongs();
   expBox.addEventListener('change', () => { profile.experimental = expBox.checked; save(); fillSongs(); paintSetup(); });
+  function nudgeCalib(ms) {
+    profile.calibMs = clamp(Math.round((profile.calibMs || 0) + ms), -200, 200);
+    save();
+    paintCalib();
+  }
+  const paintCalib = () => { const v = profile.calibMs || 0; $('.do-calibv').textContent = `${v > 0 ? '+' : ''}${v} ms`; };
+  root.querySelectorAll('[data-calib]').forEach((b) => { b.addEventListener('click', () => { nudgeCalib(+b.dataset.calib); }); });
   function paintSetup() {
+    paintCalib();
     applyView();
     songSel.value = profile.song;
     if (songSel.value !== profile.song) profile.song = songSel.value || SONGS[0].key;
@@ -1136,7 +1223,7 @@ export function mount(target, opts = {}) {
     const rec = profile.songs[`${profile.song}:${profile.diff}`];
     $('.do-songbest').textContent = `${V.icon} vs ${V.name}. ${rec ? `Your best here: ${fmt(rec.best)}${rec.wins ? ` · ${rec.wins} heist${rec.wins > 1 ? 's' : ''}` : ''}` : 'Not danced yet on this difficulty.'}`;
     $('.do-story').innerHTML = `<b>${V.name}</b> has the <b>Infinity Invoice</b> — the one bill that holds all the waste. CostBot can't out-fight him. So he's going to <i>out-dance</i> him.`;
-    $('.do-keys').textContent = 'Arrow keys or WASD, Space to slide (hold it) — or tap the pads. Enter spends a full Groove. Esc ends the dance.';
+    $('.do-keys').textContent = 'Arrow keys or WASD, Space to slide (hold it) — or tap the pads. Enter spends a full Groove. Esc pauses.';
     $('.do-bests').innerHTML = `🏅 Best —${DIFF_ORDER.map((d) => { const t = profile.top[d][0]; return ` <span style="--c:${DIFFS[d].color}">${DIFFS[d].label} <b>${t ? fmt(t.score) : '—'}</b></span>`; }).join(' ·')}`;
     $('.do-best').textContent = profile.runs ? `${profile.wins}/${profile.runs} heists pulled off · best combo ${profile.bestCombo}` : '';
   }
@@ -1207,11 +1294,49 @@ export function mount(target, opts = {}) {
     b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 110);
   }
   const typing = (e) => e.target && (e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON');
+  // ---- pause: the AudioContext is suspended, so the music, the beat clock and the notes all stop
+  // together; resuming counts 3-2-1 before the music starts again ----
+  let paused = false, resuming = false;
+  function pause() {
+    if (!run || phase !== 'play' || paused) return;
+    paused = true;
+    for (const h of run.holds) if (!h.over) endHold(h, true);    // a slide held into a pause is paid
+    if (actx) actx.suspend();
+    root.classList.add('paused');
+    $('.do-pause').classList.add('on');
+  }
+  function resume() {
+    if (!paused || resuming) return;
+    resuming = true;
+    $('.do-pause').classList.remove('on');
+    let n = 3;
+    const step = () => {
+      if (!paused) return;
+      if (n > 0) { pop(bigEl, String(n), '#ffe066'); n -= 1; setTimeout(step, 600); return; }
+      paused = false; resuming = false;
+      root.classList.remove('paused');
+      pop(bigEl, 'GO!', '#6ff5c1');
+      if (actx) actx.resume();
+    };
+    step();
+  }
+  function quitFromPause() {
+    paused = false; resuming = false;
+    root.classList.remove('paused');
+    $('.do-pause').classList.remove('on');
+    if (actx) actx.resume();
+    endDance('quit');
+  }
   function onKey(e) {
     if (e.repeat) return;
     const k = keyOf(e);
     if (k === 'm') { setMuted(!muted); return; }
-    if (k === 'Escape') { if (run) endDance('quit'); return; }
+    if (paused) {
+      if ((k === 'Escape' || k === 'Enter') && !resuming) { e.preventDefault(); resume(); }
+      return;
+    }
+    if (k === 'Escape') { if (run && phase === 'play') pause(); else if (run) endDance('quit'); return; }
+    if ((phase === 'title' || phase === 'over') && (k === '[' || k === ']')) { nudgeCalib(k === ']' ? 5 : -5); return; }
     if (phase === 'title' || phase === 'over') {
       if ((k === 'Enter' || k === ' ') && !typing(e) && !$('.do-shop').classList.contains('on') && !$('.do-scores').classList.contains('on')) { e.preventDefault(); start(); }
       return;
@@ -1221,7 +1346,7 @@ export function mount(target, opts = {}) {
     if (KEYS[k]) { e.preventDefault(); press(KEYS[k]); }
   }
   function onKeyUp(e) {
-    if (!run) return;
+    if (!run || paused) return;
     const k = keyOf(e);
     const id = KEYS[k];
     if (id) release(id);
@@ -1229,7 +1354,7 @@ export function mount(target, opts = {}) {
   window.addEventListener('keydown', onKey);
   window.addEventListener('keyup', onKeyUp);
   root.querySelectorAll('.do-pad').forEach((b) => {
-    b.addEventListener('pointerdown', (e) => { e.preventDefault(); press(b.dataset.move); });
+    b.addEventListener('pointerdown', (e) => { e.preventDefault(); if (!paused) press(b.dataset.move); });
     for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) b.addEventListener(ev, () => { release(b.dataset.move); });
   });
   $('.do-groovebtn').addEventListener('click', () => { freestyle(); });
@@ -1242,7 +1367,10 @@ export function mount(target, opts = {}) {
   root.querySelectorAll('[data-act="board"]').forEach((b) => { b.addEventListener('click', () => { location.href = `../leaderboard/index.html#${GAME_ID}`; }); });
   muteBtn.addEventListener('click', () => { audioInit(); setMuted(!muted); });
   root.addEventListener('pointerdown', () => audioInit(), { once: true });
-  const onVis = () => { if (document.hidden && run) endDance('quit'); };
+  root.querySelectorAll('[data-act="resume"]').forEach((b) => { b.addEventListener('click', () => { resume(); }); });
+  root.querySelectorAll('[data-act="quit"]').forEach((b) => { b.addEventListener('click', () => { quitFromPause(); }); });
+  // switching away pauses a dance (and still ends a finale, which is already decided)
+  const onVis = () => { if (!document.hidden || !run) return; if (phase === 'play') pause(); else endDance('quit'); };
   document.addEventListener('visibilitychange', onVis);
   paintSetup();
 
@@ -1252,7 +1380,9 @@ export function mount(target, opts = {}) {
   function frame() {
     raf = requestAnimationFrame(frame);
     const now = performance.now() / 1000, dt = Math.min(0.05, now - last);
-    last = now; t += dt;
+    last = now;
+    if (paused) { composer.render(); return; }      // everything holds still, the scene stays on screen
+    t += dt;
     const b = beatNow();
     const bi = Math.floor(b);
     if (lastBeat === null) lastBeat = bi;
@@ -1283,8 +1413,12 @@ export function mount(target, opts = {}) {
       if (run.glance) {
         const gp = (b - run.glance.start) / B.glanceBeats;
         if (run && run.glance && gp >= 1) {
+          // once every ✋ of this glance has been judged, a clean freeze earns a Close One
+          const g = run.glance, hands = run.notes.filter((x) => x.frozen && x.glanceAt === g.start);
+          if (hands.length) run.pending.push({ at: b + run.win[2] / BEAT + 0.05, fn: () => closeOne(hands) });
           run.glance = null;
-          squad.forEach((m) => { m.bot.setMood('happy'); });
+          root.classList.remove('tense');
+          squad.forEach((m) => { m.bot.setMood('happy'); m.pose = null; });
           shot = inR >= HALF - 1 ? 'costbot' : 'villain';
         }
       }
@@ -1305,6 +1439,14 @@ export function mount(target, opts = {}) {
         const total = (run.intro + run.nRounds * ROUND_BEATS) * BEAT, el = clamp(b * BEAT, 0, total);
         timeEl.textContent = clock(el); timeRem.textContent = `-${clock(total - el)}`; timeBar.style.width = `${(el / total) * 100}%`;
       }
+      // little scheduled moments (the pose after a flip, a Close One once its ✋ are judged)
+      if (run && run.pending.length) {
+        const due = run.pending.filter((x) => b >= x.at);
+        run.pending = run.pending.filter((x) => b < x.at);
+        for (const x of due) x.fn();
+      }
+      // the hero shot hands the camera back when it is done
+      if (run && shot === 'hero' && b >= run.heroUntil) { const inR2 = (((b - run.intro) % ROUND_BEATS) + ROUND_BEATS) % ROUND_BEATS; shot = inR2 < HALF ? 'villain' : 'costbot'; }
     }
 
     // the villain turns his back to look at the squad during a glance, and at the end of a won heist
@@ -1354,6 +1496,14 @@ export function mount(target, opts = {}) {
       m.hop = Math.max(0, (m.hop || 0) - dt);
       const hopY = m.hop > 0 ? Math.sin((1 - m.hop / 0.22) * Math.PI) * 0.45 : 0;
       m.bot.update(squadT[i], frozen ? 0 : dt, { run: moving && !frozen, leanX: moving ? 0.25 : 0, still: frozen, baseY: hopY });
+      // a freeze pose: lean, crouch, turn — eased in, and eased back out when he looks away
+      const pz = m.pose || { rz: 0, dy: 0, sy: 1, ry: 0 }, ke = 1 - Math.exp(-dt * 14);
+      m.fz = m.fz || { rz: 0, dy: 0, sy: 1, ry: 0 };
+      for (const key of ['rz', 'dy', 'sy', 'ry']) m.fz[key] += (pz[key] - m.fz[key]) * ke;
+      m.bot.root.rotation.z = m.fz.rz;
+      m.bot.root.rotation.y += m.fz.ry;
+      m.bot.root.scale.set(0.42, 0.42 * m.fz.sy, 0.42);
+      p.y += m.fz.dy;
       standOnFloor(m.bot);
     });
 
@@ -1369,6 +1519,11 @@ export function mount(target, opts = {}) {
     }
 
     stage.update(t, dt);
+    crowdBeat = Math.max(0, crowdBeat - dt * 3);
+    const hype = !run ? 0.25 : run.free ? 1 : run.fin ? (run.fin.kind === 'win' ? 1 : 0) : Math.min(1, run.p.p1.combo / 30);
+    crowd.update(t, dt, { hype, beat: crowdBeat });
+    // portrait sits the camera further back, so the front rows would fill the screen: shrink them there
+    crowd.group.scale.setScalar(camera.aspect < 1 ? 0.6 : 1);
 
     // camera: ease toward the current shot, with a slow drift so it never sits dead still
     const [sp, sl] = SHOTS[shot];

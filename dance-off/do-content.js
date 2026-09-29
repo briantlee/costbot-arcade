@@ -46,6 +46,7 @@ export const VILLAIN = {
     busted: 'Busted! Your squad has been rate-limited.',
     songOver: 'Context window closed. The invoice stays in my weights.',
     loses: '…Error 404: invoice not found.',
+    overclock: ['OVERCLOCKING. Keep up, little bot.', 'Maximum compute. Final verse.', 'Turbo mode: ENGAGED.'],
   },
 };
 
@@ -148,12 +149,15 @@ export const DIFFS = {
 export const DIFF_ORDER = ['normal', 'hard', 'expert'];
 
 /* Chart a song for a difficulty. Returns everything the engine needs, in dance beats:
- *   { unit, beatSec, intro, rounds: [{ call: [{at,len,move,hold?}], resp: [...] }] }
+ *   { unit, beatSec, intro, rounds: [{ call: [{at,len,move,hold?}], resp: [...], overclock }] }
  * A verse is the melody's onsets inside its eight beats, snapped to the grid and
  * thinned; each note's move follows the tune's contour (low notes duck, high notes
- * reach up), and the longest note of a verse becomes a held Lifecycle Slide. */
+ * reach up), and the longest note of a verse becomes a held Lifecycle Slide. The final round
+ * is overclocked: denser verses on both sides, so every song ends on a climb. */
 export function buildChart(track, diffId) {
-  const D = DIFFS[diffId] || DIFFS.normal;
+  const DIFF = DIFFS[diffId] || DIFFS.normal;
+  // the last round is Max overclocking: 8ths allowed, and a verse as busy as the next level up
+  const OVER = { ...DIFF, grid: 0.5, minGap: 0.5, max: DIFF.max + 4, min: DIFF.min + 3 };
   const unit = track.bpm > 150 ? 2 : 1;
   const beatSec = (60 / track.bpm) * unit;
   const stepsPerBeat = 4 * unit;                    // the lead line is written in 16ths
@@ -162,10 +166,10 @@ export function buildChart(track, diffId) {
   const songSec = (track.bars || 4) * 16 * (60 / track.bpm / 4);
   const target = Math.min(90, Math.max(60, songSec));
   const nRounds = Math.min(10, Math.max(4, Math.floor((target - intro * beatSec) / (ROUND_BEATS * beatSec))));
-  const set = D.moves === 3 ? ['L', 'R', 'U'] : ['D', 'L', 'R', 'U'];
+  const set = DIFF.moves === 3 ? ['L', 'R', 'U'] : ['D', 'L', 'R', 'U'];
   const noteAt = (st) => (lead.length ? lead[((st % lead.length) + lead.length) % lead.length] : null);
 
-  function verse(b0) {
+  function verse(b0, D = DIFF) {
     const cand = [];
     for (let at = 0; at < HALF_BEATS - 1e-9; at += D.grid) {
       const s0 = Math.round((b0 + at) * stepsPerBeat), s1 = Math.round((b0 + at + D.grid) * stepsPerBeat);
@@ -202,7 +206,8 @@ export function buildChart(track, diffId) {
   const rounds = [];
   for (let r = 0; r < nRounds; r++) {
     const r0 = intro + r * ROUND_BEATS;
-    rounds.push({ call: verse(r0), resp: verse(r0 + HALF_BEATS) });
+    const last = r === nRounds - 1;
+    rounds.push({ call: verse(r0, last ? OVER : DIFF), resp: verse(r0 + HALF_BEATS, last ? OVER : DIFF), overclock: last });
   }
   return { unit, beatSec, intro, rounds };
 }
@@ -225,6 +230,8 @@ export const BALANCE = {
   stepShare: 0.6, moveShare: 0.15,
   sneak: { perfect: 1.15, great: 1, good: 0.7 },
   flawless: { score: 1000 },       // a whole verse of yours at Great or better (and suspicion.flawless off the meter)
+  // a glance survived without moving a muscle — every ✋ in it left alone
+  closeOne: { score: 600, suspicion: 8, groove: 12 },
   // holds: points per beat held, a bonus for holding to the end, and how early (in beats)
   // you may let go and still count as held; a held sneak slide is worth half a step more
   hold: { tickPerBeat: 80, bonus: 250, grace: 0.35, heist: 0.5 },
@@ -251,5 +258,6 @@ export const LINES = {
   costbotIntro: ['Dance-off, bro. You and me. 🕺', 'Put down the invoice. Let’s settle this on the floor.'],
   costbotHype: ['Hooked on a savings feeling! 🎶', 'Can’t stop this feeling! 💃', 'Right-sized and ready! ✨', 'Come and get your spend! 🎵'],
   groove: ['Freestyle! 🌈', 'Let’s groove tonight! ✨', 'Feel the savings! 💃'],
+  closeOne: ['😅 Close one!', 'He didn’t see a thing.', 'Statues. Perfect statues.'],
   yourTurn: ['Your turn!', 'Top that!', 'Beat THAT.', 'Go on, then.'],
 };
