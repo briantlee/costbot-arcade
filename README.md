@@ -38,7 +38,7 @@ arcade/
   dance-off/            the 3D dance-battle rhythm game (three.js), after the Guardians of the
                         Galaxy dance-off: shadow Max Tokens' verse to sneak the squad forward, dance
                         yours to keep his suspicion down, and finish the song to grab the Infinity
-                        Invoice. A random 🎲 Awesome Medley, Footloose, and CostBot Hero's songs
+                        Invoice. A random 🎲 Awesome Medley, Foot the Bill (Footloose), and CostBot Hero's songs
                         (charted from each lead line, Normal→Expert); held slides, a Groove/Freestyle
                         meter and CostBot's wardrobe (do-content.js = songs, medley, charts, balance;
                         do-stage.js = the disco and the cast; do-game.js runs it)

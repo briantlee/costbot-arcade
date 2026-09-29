@@ -3284,7 +3284,7 @@
       bars: 8, arpEvery: 0, gain: 0.6, bassGain: 0.4,
     },
     do_footloose: {
-      title: 'Footloose', influence: 'Kenny Loggins · Footloose (from MIDI)', bpm: 165, key: 'A',
+      title: 'Foot the Bill', influence: 'Kenny Loggins · Footloose (from MIDI)', bpm: 165, key: 'A',
       desc: 'Dance Off! track. Verse, chorus, verse of the 1984 anthem — generated from footloose.mid '
           + 'by tools/mid2chart.js. Danced in half-time.',
       prog: P.footloose, lead: L.footloose, drums: 'rock', pad: 'power', bars: 64,
