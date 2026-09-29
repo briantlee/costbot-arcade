@@ -8,7 +8,7 @@
  * spacing (runways pointing into the screen crushed them together).
  *
  *   const floor = makeFloorLane(scene);
- *   floor.sync(notes, marks, beat, { ahead, glanceEnd, free, dt });   // every frame
+ *   floor.sync(notes, marks, beat, { ahead, free, dt });   // every frame (a note's ✋ is n.frozen)
  *   floor.mark(note, grade);                                         // a note was judged
  *   floor.ringAt(out);                                               // where to pop a judgement
  *   floor.pulse(); floor.clear(); floor.setVisible(on);
@@ -140,10 +140,15 @@ export function makeFloorLane(scene) {
     mk.mesh = g;
     live.add(mk);
   }
+  // everything a note or mark made is its own, except the shared textures and the shared note/tail materials
   function drop(o) {
     if (o.sprite) { group.remove(o.sprite); o.sprite.material.dispose(); o.sprite = null; }
-    if (o.tail) { group.remove(o.tail); o.tail = null; }
-    if (o.mesh) { group.remove(o.mesh); o.mesh = null; }
+    if (o.tail) { group.remove(o.tail); o.tail.geometry.dispose(); o.tail = null; }
+    if (o.mesh) {
+      group.remove(o.mesh);
+      o.mesh.traverse((c) => { if (c.isMesh) { c.geometry.dispose(); c.material.dispose(); } });
+      o.mesh = null;
+    }
     live.delete(o);
   }
 
@@ -154,7 +159,7 @@ export function makeFloorLane(scene) {
     pulse() { pulse = 1; },
     ringAt(out) { return out.set(ROW.ringX, NOTE_Y + 1.2, ROW.z); },
     mark(n, grade) { n.fx = { grade, t: 0 }; },
-    sync(notes, marks, b, { ahead, glanceEnd = -Infinity, free = false, dt = 0 }) {
+    sync(notes, marks, b, { ahead, free = false, dt = 0 }) {
       const unit = RUN / ahead;
       const x = (beat) => ROW.ringX + (beat - b) * unit;
       pulse = Math.max(0, pulse - dt * 4);
@@ -194,7 +199,7 @@ export function makeFloorLane(scene) {
           continue;
         }
         // an unjudged note of his verse turns into a hand while he is looking back
-        const frozen = n.kind === 'sneak' && n.beat <= glanceEnd;
+        const frozen = n.kind === 'sneak' && !!n.frozen;
         const want = frozen ? freezeTex() : n.kind === 'move' ? moveTex(n.move) : sneakTex(n.move);
         if (m.material.map !== want) { m.material.map = want; m.material.needsUpdate = true; }
         const near = 1 - Math.min(1, Math.abs(dx) / 0.5);

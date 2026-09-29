@@ -58,13 +58,14 @@ async function dance(browser, port, mode, setup = null) {
   // the bot: press each note's move as its beat arrives (every other one, to lose) —
   // sneak notes take any key, so the move's own key does for both
   await page.evaluate((m) => {
-    let n = 0;
+    let n = 0, first = null;
     const tick = () => {
       const g = window.game, run = g.run;
+      if (run && !first) first = run.notes.reduce((a, x) => (a.beat <= x.beat ? a : x));
       if (run) {
         const b = g.beat();
         for (const note of run.notes) {
-          if (note.judged || note._sent || b < note.beat - 0.02) continue;
+          if (note.judged || note._sent || b < note.beat - (note === first ? 0.2 : 0.02)) continue;
           note._sent = true; n += 1;
           if (m === 'win' || n % 2 === 0) g.hit(note.move);
         }
@@ -79,9 +80,15 @@ async function dance(browser, port, mode, setup = null) {
     const iv = setInterval(() => { if (window.game.phase === 'over') { clearInterval(iv); resolve(window.game.profile); } }, 250);
   }));
   const title = await page.textContent('.do-otitle');
+  // after a song ends on its own, the lobby's beat must keep firing (it once stalled ~90s)
+  const lobbyBeats = await page.evaluate(() => new Promise((ok) => {
+    let n = 0; const el = document.querySelector('.do-hit');
+    new MutationObserver(() => { if (el.classList.contains('beat')) n += 1; }).observe(el, { attributes: true });
+    setTimeout(() => ok(n), 2500);
+  }));
   await page.screenshot({ path: path.join(SHOTS, `${mode}-over.png`) });
   await page.close();
-  return { result, errors, title };
+  return { result, errors, title, lobbyBeats };
 }
 
 server.listen(0, async () => {
@@ -94,6 +101,7 @@ server.listen(0, async () => {
     const win = await dance(browser, port, 'win');
     check(win.result.wins === 1, `perfect bot pulls off the heist (wins=${win.result.wins}, best=${win.result.best})`);
     check(win.result.best > 0 && win.result.bestCombo >= 8, `perfect bot scores and combos (combo ${win.result.bestCombo})`);
+    check(win.lobbyBeats >= 3, `the lobby keeps its beat after the song (${win.lobbyBeats} beats in 2.5s)`);
     check(win.errors.length === 0, `no console errors on the win run ${win.errors.slice(0, 3).join(' | ')}`);
     const lose = await dance(browser, port, 'lose');
     check(lose.result.wins === 0 && lose.result.runs === 1, `half-right bot is caught or runs out of song (runs=${lose.result.runs}, wins=${lose.result.wins})`);

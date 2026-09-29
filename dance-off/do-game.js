@@ -444,12 +444,12 @@ export function mount(target, opts = {}) {
   // beat 0 of the current anchor, in AudioContext seconds (or performance seconds with no audio)
   let clockT0 = 0, audioClock = false;
   function anchor(track) {
-    if (!music || !actx) { clockT0 = performance.now() / 1000; audioClock = false; return; }
+    if (!music || !actx) { clockT0 = performance.now() / 1000; audioClock = false; lastBeat = null; return; }
     music.stop();
     music.playTrack(track);
     const d = music.debug();
     const T = window.ArcadeMusic.TRACKS[track];
-    clockT0 = (d.nextTime || actx.currentTime + 0.08) - (d.step || 0) * (60 / T.bpm / 4);
+    clockT0 = (d.nextTimeRaw || d.nextTime || actx.currentTime + 0.08) - (d.step || 0) * (60 / T.bpm / 4);
     audioClock = true;
     lastBeat = null;           // a new clock: count beats from here, don't replay (or wait out) the old one
   }
@@ -625,16 +625,16 @@ export function mount(target, opts = {}) {
   }
   function laneFrame(b, dt) {
     const glanceBy = run.glance ? run.glance.start + B.glanceBeats : -Infinity;
+    // his notes that land while he is looking back turn to hands, and stay hands once they have —
+    // the judging reads n.frozen, so a ✋ can never turn back into an arrow and be scored a miss
+    if (run.glance) for (const n of run.notes) if (n.kind === 'sneak' && !n.judged && n.beat >= run.glance.start && n.beat <= glanceBy) n.frozen = true;
     if (floorMode()) {
-      // his notes turn to hands while he looks back — the judging reads n.frozen, so it is set here too
-      for (const n of run.notes) if (n.kind === 'sneak' && !n.judged && n.beat - b < B.laneAhead + 1) n.frozen = n.beat <= glanceBy;
-      floor.sync(run.notes, run.marks, b, { ahead: B.floorAhead, glanceEnd: glanceBy, free: !!run.free, dt });
+      floor.sync(run.notes, run.marks, b, { ahead: B.floorAhead, free: !!run.free, dt });
       return;
     }
     // fewer beats on screen when it is narrow, so 8th notes never pile on top of each other
     const w = lane.clientWidth, hitX = w * 0.14, ahead = clamp(w / 150, 3.5, B.laneAhead), ppb = (w - hitX - 24) / ahead;
     const x = (beat) => hitX + (beat - b) * ppb;
-    const glanceEnd = run.glance ? run.glance.start + B.glanceBeats : -Infinity;
     for (const n of run.notes) {
       const dx = n.beat - b, end = n.hold ? n.len : 0;
       if (dx > ahead + 0.6 || dx + end < -1.4) {
@@ -651,9 +651,9 @@ export function mount(target, opts = {}) {
       n.el.classList.toggle('free', !!run.free);
       if (n.kind === 'sneak') {
         // while he is looking back, his notes are hands: do not move
-        const frozen = n.beat <= glanceEnd;
-        if (frozen !== !!n.frozen) {
-          n.frozen = frozen;
+        const frozen = !!n.frozen;
+        if (frozen !== !!n.shownFrozen) {
+          n.shownFrozen = frozen;
           n.el.classList.toggle('freeze', frozen);
           n.el.firstChild.nodeValue = frozen ? '✋' : MOVES[n.move].glyph;
         }
@@ -750,7 +750,7 @@ export function mount(target, opts = {}) {
     if (phase !== 'play' || !run) return;
     const b = beatNow();
     const rel = b - run.intro;
-    if (rel < 0) return;
+    if (rel < -run.win[2] / BEAT) return;          // (early presses on the first note still count)
     let best = null, bestD = Infinity;
     for (const n of run.notes) {
       if (n.judged) continue;
@@ -826,7 +826,7 @@ export function mount(target, opts = {}) {
 
   // a shadow step on his verse: his own move, on his beat — the squad steps under the noise of it
   function sneakNote(n, right, grade, moveId) {
-    if (run.glance) {
+    if (n.frozen) {
       // he is looking straight at them
       n.judged = 'miss';
       breakCombo('p1');
@@ -932,6 +932,7 @@ export function mount(target, opts = {}) {
     run.groove = 0;
     run.free = { until: beatNow() + B.groove.beats };
     run.glance = null;
+    squad.forEach((m) => { m.bot.setMood('happy'); });
     hud.classList.add('free');
     pop(bigEl, 'FREESTYLE!', '#ffc233');
     say('costbot', pick(LINES.groove), 2.2);
@@ -959,7 +960,7 @@ export function mount(target, opts = {}) {
     }
   }
   function startGlance() {
-    if (!run || run.glance || run.free) return;
+    if (!run || run.glance || run.free || phase !== 'play') return;
     run.glance = { start: beatNow() };
     scratch();
     say('villain', pick(V.lines.glance), 1.8);
@@ -979,7 +980,7 @@ export function mount(target, opts = {}) {
   // kind: 'win' (in position on the last beat) | 'songOver' | 'busted'
   function beginFinale(kind) {
     if (!run || run.fin) return;
-    for (const h of run.holds) if (!h.over) endHold(h, true);
+    for (const h of run.holds) if (!h.over) endHold(h, kind !== 'busted');
     if (run.free) endFreestyle();
     grooveEl.classList.remove('ready');
     phase = 'finale';
@@ -1035,6 +1036,8 @@ export function mount(target, opts = {}) {
   const accuracy = (st, total) => (total ? (st.counts.perfect + st.counts.hands + st.counts.great * 0.8 + st.counts.good * 0.5) / total : 0);
   function endDance(outcome) {
     if (!run) return;
+    // the result is already decided once the finale starts: leaving early doesn't turn it into a quit
+    if (outcome === 'quit' && run.fin) outcome = run.fin.kind === 'win' ? 'clear' : 'fail';
     const r = run;
     run = null;
     phase = 'over';
@@ -1254,7 +1257,8 @@ export function mount(target, opts = {}) {
     const bi = Math.floor(b);
     if (lastBeat === null) lastBeat = bi;
     // every whole beat since the last frame, in order — a slow frame must not skip one
-    while (lastBeat < bi) { lastBeat += 1; onBeat(lastBeat); }
+    // (a handler that re-anchors the clock — endDance → playLobby — nulls lastBeat: stop there)
+    while (lastBeat !== null && lastBeat < bi) { lastBeat += 1; onBeat(lastBeat); }
 
     if (run && phase === 'play') {
       // anything that sailed past its window

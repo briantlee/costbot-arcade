@@ -4462,6 +4462,7 @@
       debug() {
         return { state, track: trackName, pending, playing, step, timer: !!timer,
                  nextTime: +nextTime.toFixed(2),
+                 nextTimeRaw: nextTime,   // unrounded, for games that anchor a beat clock to it
                  ctxTime: ctx ? +ctx.currentTime.toFixed(2) : null,
                  ctxState: ctx ? ctx.state : null };
       },
