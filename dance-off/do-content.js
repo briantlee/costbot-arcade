@@ -50,14 +50,14 @@ export const VILLAIN = {
   },
 };
 
-// The playlist: the random medley first, Footloose, then CostBot Hero's main roster (the
+// The playlist: the random medley first, Foot the Bill (Footloose), then CostBot Hero's main roster (the
 // same ArcadeMusic tracks Hero plays). Charts come from each song's own lead line,
 // so the notes you dance are the tune. Past 150bpm a song is danced in half-time —
 // one dance beat per two of the song's — so a 200bpm banger stays dance-able.
 // art: the song's CostBot Hero artwork (in shared/assets/), hung faintly on the back wall.
 export const SONGS = [
   { key: 'do_medley', name: '🎲 Awesome Medley', sub: 'five random songs, a new mix every dance', medley: true },
-  { key: 'do_footloose', name: 'Footloose', sub: 'from footloose.mid', art: 'footloose.jpg' },
+  { key: 'do_footloose', name: 'Foot the Bill', sub: 'Footloose', art: 'footloose.jpg' },
   { key: 'ch_small', name: "It's a Small Cost", art: 'cb_smallworld.jpg' },
   { key: 'ch_xmen', name: 'X-pense Men', art: 'cb_logan.jpg' },
   { key: 'ch_howfarowe', name: "How Far I'll Owe", art: 'cb_moana.jpg' },
