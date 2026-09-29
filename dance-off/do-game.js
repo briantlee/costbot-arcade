@@ -80,7 +80,7 @@ const CSS = `
 .do-hud.off>*{opacity:0;transition:opacity .3s}
 /* the notes sit in a band right under the dancers' feet, just above the pads, so your eyes never leave the floor */
 .do-top{position:absolute;bottom:92px;left:50%;transform:translateX(-50%);width:min(760px,92vw);text-align:center}
-.do-who{font:900 14px system-ui;letter-spacing:.24em;margin-bottom:6px;text-shadow:0 0 12px currentColor;transition:color .2s}
+.do-who{font:900 19px system-ui;letter-spacing:.2em;margin-bottom:6px;text-shadow:0 0 12px currentColor;transition:color .2s}
 .do-who.call{color:#ff6b8b}.do-who.resp{color:#6ff5c1}.do-who.intro{color:#ffe066}
 .do-lane{position:relative;height:64px;border-radius:14px;background:rgba(12,8,28,.42);border:1px solid rgba(90,70,160,.55);backdrop-filter:blur(4px);overflow:hidden;transition:box-shadow .3s,border-color .3s}
 /* floor mode: the notes are on the dance floor, so the bar goes (its label and captions stay) */
@@ -135,10 +135,10 @@ const CSS = `
 .do-groove.ready{animation:doready .5s infinite alternate}
 .do-groove.ready button{display:block}
 @keyframes doready{from{text-shadow:0 0 4px #ffc233}to{text-shadow:0 0 18px #ffc233}}
-.do-score{position:absolute;left:18px;bottom:18px;font:800 13px system-ui;letter-spacing:.06em;color:#cfc4f3}
-.do-score big{display:block;font:900 30px system-ui;color:#fff;letter-spacing:0}
-.do-combo{position:absolute;right:18px;bottom:18px;text-align:right;font:800 13px system-ui;color:#cfc4f3}
-.do-combo big{display:block;font:900 30px system-ui;color:#ffe066}
+.do-score{position:absolute;left:18px;bottom:18px;font:800 15px system-ui;letter-spacing:.06em;color:#cfc4f3}
+.do-score big{display:block;font:900 38px system-ui;color:#fff;letter-spacing:0}
+.do-combo{position:absolute;right:18px;bottom:18px;text-align:right;font:800 15px system-ui;color:#cfc4f3}
+.do-combo big{display:block;font:900 38px system-ui;color:#ffe066}
 .do-judge{position:absolute;z-index:5;font:900 22px system-ui;letter-spacing:.04em;transform:translate(-50%,-50%);text-shadow:0 0 16px currentColor,0 2px 0 #000;opacity:0}
 .do-judge.pop{animation:dopop .7s ease-out}
 .do-big{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font:italic 900 64px system-ui;letter-spacing:.02em;text-shadow:0 0 30px currentColor,0 4px 0 #000;opacity:0;white-space:nowrap}
@@ -146,10 +146,11 @@ const CSS = `
 @keyframes dopop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-90%) scale(1)}}
 @keyframes dobig{0%{opacity:0;transform:translate(-50%,-50%) scale(2)}15%{opacity:1;transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.9)}}
 /* speech is subtitled just above the lane, where your eyes already are */
-.do-caps{height:44px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;margin-bottom:4px}
-.do-cap{font:700 14px system-ui;line-height:1.35;color:#f1ecff;opacity:0;transition:opacity .25s;text-shadow:0 1px 3px #000,0 0 8px rgba(0,0,0,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.do-diffbadge{position:absolute;top:14px;right:18px;font:900 15px system-ui;letter-spacing:.16em;padding:7px 14px;border-radius:12px;background:var(--c);color:#12071f;box-shadow:0 0 18px var(--c)}
+.do-caps{height:60px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;margin-bottom:4px}
+.do-cap{font:700 19px system-ui;line-height:1.35;color:#f1ecff;opacity:0;transition:opacity .25s;text-shadow:0 1px 3px #000,0 0 8px rgba(0,0,0,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .do-cap.on{opacity:1}
-.do-cap b{font:900 11px system-ui;letter-spacing:.14em;margin-right:8px}
+.do-cap b{font:900 14px system-ui;letter-spacing:.14em;margin-right:8px}
 .do-cap.villain b{color:#ff6b8b}.do-cap.costbot b{color:#39d5ff}
 /* a keyboard player never touches the pads: hide them and drop the lane to the very bottom */
 .do-root:not(.touch) .do-pads{display:none}
@@ -218,7 +219,7 @@ const CSS = `
 
 @media (max-width:640px){
   .do-top{bottom:88px}
-  .do-who{font-size:10px;letter-spacing:.1em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .do-who{font-size:13px;letter-spacing:.1em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .do-time{top:62px;width:78vw;gap:8px}
   .do-time .bar{height:12px}
   .do-now{top:86px;font-size:11px}
@@ -231,7 +232,8 @@ const CSS = `
   .do-score,.do-combo{top:196px;bottom:auto;font-size:10px}.do-score big,.do-combo big{font-size:22px}
   .do-groove{top:150px;left:18px;width:42vw}
   .do-pad{width:17vw;max-width:70px;height:64px}
-  .do-cap{font-size:12px}.do-caps{height:36px}
+  .do-cap{font-size:14px}.do-cap b{font-size:11px}.do-caps{height:44px}
+  .do-diffbadge{top:14px;right:14px;font-size:12px;padding:5px 10px}
   .do-box h1{font-size:34px}.do-big{font-size:36px}.do-judge{font-size:18px}
   .do-shopgrid{grid-template-columns:repeat(2,1fr)}
   .do-table{font-size:11px}.do-table .hideS{display:none}
@@ -288,6 +290,7 @@ export function mount(target, opts = {}) {
       <div class="do-meter att"><span class="lbl"></span><div class="bar"><i></i></div><div class="sub"></div></div>
       <div class="do-meter heist">💼 THE HEIST<div class="bar"><i></i></div><div class="sub"></div></div>
       <div class="do-groove">✨ GROOVE<div class="bar"><i></i></div><button class="do-groovebtn">✨ FREESTYLE (Enter)</button></div>
+      <div class="do-diffbadge"></div>
       <div class="do-score"><span class="lbl">SCORE</span><big>0</big></div>
       <div class="do-combo"><span class="lbl">COMBO</span><big>0</big></div>
       <div class="do-judge"></div><div class="do-big"></div>
@@ -621,6 +624,9 @@ export function mount(target, opts = {}) {
       round: -1, fin: null, started: performance.now(),
     };
     attLbl.textContent = `🚨 ${V.short}'S SUSPICION`;
+    const DB = $('.do-diffbadge');
+    DB.textContent = (DIFFS[diff] || DIFFS.normal).label.toUpperCase();
+    DB.style.setProperty('--c', (DIFFS[diff] || DIFFS.normal).color);
     phase = 'play';
     anchor(track);
     who.className = 'do-who intro'; who.textContent = 'GET READY';
