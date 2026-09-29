@@ -205,8 +205,11 @@ const CSS = `
 .do-tabs{display:flex;gap:6px;justify-content:center;margin:10px 0 12px}
 .do-tab{pointer-events:auto;cursor:pointer;border:1px solid var(--c);background:transparent;color:var(--c);border-radius:12px;padding:7px 14px;font:800 12px system-ui}
 .do-tab.on{background:var(--c);color:#12071f}
+.do-toplist{max-height:min(52vh,460px);overflow-y:auto;margin:0 -6px;padding:0 6px;scrollbar-width:thin;scrollbar-color:#4a3a80 transparent}
+.do-toplist::-webkit-scrollbar{width:8px}.do-toplist::-webkit-scrollbar-thumb{background:#4a3a80;border-radius:4px}
+.do-tabn{opacity:.7;font-weight:700}
 .do-table{width:100%;border-collapse:collapse;font:600 13px system-ui;color:#e6ddff;font-variant-numeric:tabular-nums}
-.do-table th{font:800 10px system-ui;letter-spacing:.1em;color:#8f82b8;text-align:left;padding:6px 6px;border-bottom:1px solid #3a2d66}
+.do-table th{font:800 10px system-ui;letter-spacing:.1em;color:#8f82b8;text-align:left;padding:6px 6px;border-bottom:1px solid #3a2d66;position:sticky;top:0;background:#140c2c;z-index:1}
 .do-table td{padding:7px 6px;border-bottom:1px solid rgba(58,45,102,.5);text-align:left}
 .do-table td.n,.do-table th.n{text-align:right}
 .do-table tr.me1 td{color:#ffe066}
@@ -259,7 +262,7 @@ export function mount(target, opts = {}) {
   if (opts.profile) profile = { ...profile, ...opts.profile };
   if (!DIFFS[profile.diff]) profile.diff = 'normal';
   // your top runs per difficulty; a save from before this existed is seeded from its per-song bests
-  const TOP_N = 10;
+  const TOP_N = 200;          // every run is kept (ranked by score); the cap only stops the save growing forever
   if (!profile.top) {
     profile.top = Object.fromEntries(DIFF_ORDER.map((d) => [d, []]));
     for (const [k, v] of Object.entries(profile.songs || {})) {
@@ -322,8 +325,8 @@ export function mount(target, opts = {}) {
       <p class="do-fine do-best"></p>
     </div></div>
     <div class="do-panel do-scores"><div class="do-box">
-      <h2>🏅 Your top scores</h2>
-      <div class="do-tabs">${DIFF_ORDER.map((d) => `<button class="do-tab" data-tab="${d}" style="--c:${DIFFS[d].color}">${DIFFS[d].label}</button>`).join('')}</div>
+      <h2>🏅 All your scores</h2>
+      <div class="do-tabs">${DIFF_ORDER.map((d) => `<button class="do-tab" data-tab="${d}" style="--c:${DIFFS[d].color}">${DIFFS[d].label} <span class="do-tabn"></span></button>`).join('')}</div>
       <div class="do-toplist"></div>
       <button class="do-go do-scoreplay">🕺 Dance</button>
       <button class="do-go alt" data-act="menu">← Back</button>
@@ -1155,7 +1158,7 @@ export function mount(target, opts = {}) {
     const songName = (SONGS.find((x) => x.key === r.song) || {}).name || r.song;
     const D = DIFFS[r.diff];
     $('.do-otag').innerHTML = `<span class="do-dbadge" style="--c:${D.color}">${D.label.toUpperCase()}</span><span>${songName}</span>`;
-    const ranked = rank === 0 ? ` 🏆 New best on ${D.label}!` : rank > 0 ? ` 🏅 #${rank + 1} on your ${D.label} list.` : '';
+    const ranked = rank === 0 ? ` 🏆 New best on ${D.label}!` : rank > 0 && rank < 10 ? ` 🏅 #${rank + 1} on your ${D.label} list.` : '';
     const gradeEl = $('.do-grade');
     $('.do-otitle').textContent = outcome === 'clear' ? '💼 Invoice liberated!' : outcome === 'quit' ? 'Dance-off called off' : r.suspicion >= B.suspicion.max ? '🚨 Busted!' : '🎵 Out of song';
     $('.do-osub').textContent = outcome === 'clear' ? 'Last beat, last step — the squad walked out with the Infinity Invoice.'
@@ -1236,21 +1239,26 @@ export function mount(target, opts = {}) {
   songSel.addEventListener('change', () => { profile.song = songSel.value; save(); paintSetup(); });
   root.querySelectorAll('.do-diff').forEach((b) => { b.addEventListener('click', () => { profile.diff = b.dataset.diff; save(); paintSetup(); }); });
 
-  // your top scores, a tab per difficulty
+  // every run you've danced, best first, a tab per difficulty
   let scoresTab = null;
   function paintScores(tab = scoresTab || profile.diff) {
     scoresTab = tab;
-    root.querySelectorAll('.do-tab').forEach((b) => { b.classList.toggle('on', b.dataset.tab === tab); });
+    root.querySelectorAll('.do-tab').forEach((b) => {
+      b.classList.toggle('on', b.dataset.tab === tab);
+      const n = (profile.top[b.dataset.tab] || []).length;
+      b.querySelector('.do-tabn').textContent = n ? `· ${n}` : '';
+    });
     const list = profile.top[tab] || [];
     const songName = (k) => { const sg = SONGS.find((x) => x.key === k); return sg ? sg.name : k; };
     const gradeColor = { S: '#ffe066', A: '#6ff5c1', B: '#8fc9ff', C: '#d9b3ff', D: '#ff8aa0' };
     $('.do-toplist').innerHTML = !list.length ? `<p class="do-empty">No ${DIFFS[tab].label} runs yet — go dance one.</p>`
-      : `<table class="do-table"><tr><th>#</th><th>Song</th><th class="n">Score</th><th>Grade</th><th class="n hideS">Acc</th><th class="n hideS">Combo</th><th>💼</th><th class="hideS">Date</th><th></th></tr>${list.map((e, i) => `
+      : `<table class="do-table"><thead><tr><th>#</th><th>Song</th><th class="n">Score</th><th>Grade</th><th class="n hideS">Acc</th><th class="n hideS">Combo</th><th>💼</th><th class="hideS">Date</th><th></th></tr></thead><tbody>${list.map((e, i) => `
         <tr class="${i === 0 ? 'me1' : ''}"><td>${i + 1}</td><td>${songName(e.song)}</td><td class="n">${fmt(e.score)}</td>
         <td class="gr" style="color:${gradeColor[e.grade] || '#a99bd6'}">${e.grade || '—'}</td><td class="n hideS">${e.acc != null ? `${e.acc}%` : '—'}</td>
         <td class="n hideS">${e.combo != null ? e.combo : '—'}</td><td>${e.won ? '✓' : ''}</td><td class="hideS">${e.at || '—'}</td>
-        <td>${SONGS.some((x) => x.key === e.song) ? `<button class="do-play" data-play="${e.song}" title="Play ${songName(e.song)} on ${DIFFS[tab].label}">▶ Play</button>` : ''}</td></tr>`).join('')}</table>`;
+        <td>${SONGS.some((x) => x.key === e.song) ? `<button class="do-play" data-play="${e.song}" title="Play ${songName(e.song)} on ${DIFFS[tab].label}">▶ Play</button>` : ''}</td></tr>`).join('')}</tbody></table>`;
     $('.do-toplist').querySelectorAll('[data-play]').forEach((b) => { b.addEventListener('click', () => { playFromScores(b.dataset.play, tab); }); });
+    $('.do-toplist').scrollTop = 0;
     const cur = SONGS.find((x) => x.key === profile.song);
     $('.do-scoreplay').textContent = `🕺 Dance ${cur ? cur.name : ''} on ${DIFFS[tab].label}`;
   }
