@@ -1542,20 +1542,8 @@
       66, _, _, _, _, _, 64, _, _, _, _, _, _, _, _, _,  // bar 62 (source bar 85)
       67, _, _, _, _, _, 64, _, _, _, 64, _, 64, _, 66, _,  // bar 63 (source bar 86)
     ],
-    // Dance Off! — "Awesome Mixup". Horn stabs that start on the and-of-one, the
-    // disco habit that leaves every downbeat to the kick (and to the player).
-    doAwesome: [
-      _, _, 76, _, 76, _, 74, _, 72, _, _, 69, _, 72, _, _,       // Am7
-      _, _, 74, _, 74, _, 72, _, 69, _, _, 66, _, 69, _, _,       // D7
-      _, _, 76, _, 76, _, 79, _, 81, _, 79, _, 76, _, 74, _,      // Am7 — up to the high A
-      72, _, _, 74, _, 72, _, 69, _, _, _, _, _, _, _, _,         // D7 — and breathe
-      _, _, 77, _, 76, _, 72, _, 69, _, 72, _, 76, _, _, _,       // Fmaj7
-      _, _, 79, _, 77, _, 74, _, 71, _, 74, _, 79, _, _, _,       // G
-      81, _, _, 79, _, 76, _, 72, _, 76, _, 79, _, 81, _, _,      // Am7
-      80, _, _, _, 76, _, _, _, 74, _, 71, _, 68, _, 71, _,       // E7 — the G# pulls home
-    ],
-    // octave-jumping disco bass, a 16th per step: low, rest, high, rest — with a
-    // flat-seven pickup at the end of every bar
+    // Dance Off! lobby — octave-jumping disco bass, a 16th per step: low, rest, high,
+    // rest — with a flat-seven pickup at the end of every bar
     doAwesomeBass: [33, 38, 33, 38, 41, 43, 33, 40].flatMap((r) => [
       r, _, r + 12, _, r, _, r + 12, _, r, _, r + 12, _, r, _, r + 12, r + 10,
     ]),
@@ -3302,13 +3290,6 @@
       prog: P.footloose, lead: L.footloose, drums: 'rock', pad: 'power', bars: 64,
       arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
       drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
-    },
-    do_awesome: {
-      title: 'Awesome Mixup', influence: '70s disco-funk mixtape', bpm: 120, key: 'A dorian',
-      desc: 'Dance Off! battle track. Horn stabs on the and-of-one over Am7–D7, an '
-          + 'octave-jumping bass, disco strings and open hats on every off-beat.',
-      prog: P.disco, lead: L.doAwesome, bassLine: L.doAwesomeBass, drums: 'disco', pad: 'strings',
-      bars: 8, arpEvery: 0, gain: 0.85, bassGain: 0.42, voices: { lead: 'brass' },
     },
 
     // ---- CostBot Hero — the rhythm cabinet ----------------------------------

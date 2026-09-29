@@ -50,14 +50,13 @@ export const VILLAIN = {
   },
 };
 
-// The playlist: our own disco track first, then CostBot Hero's main roster (the
+// The playlist: the random medley first, Footloose, then CostBot Hero's main roster (the
 // same ArcadeMusic tracks Hero plays). Charts come from each song's own lead line,
 // so the notes you dance are the tune. Past 150bpm a song is danced in half-time —
 // one dance beat per two of the song's — so a 200bpm banger stays dance-able.
 // art: the song's CostBot Hero artwork (in shared/assets/), hung faintly on the back wall.
 export const SONGS = [
   { key: 'do_medley', name: '🎲 Awesome Medley', sub: 'five random songs, a new mix every dance', medley: true },
-  { key: 'do_awesome', name: 'Awesome Mixup', sub: '70s disco-funk · the house track' },
   { key: 'do_footloose', name: 'Footloose', sub: 'from footloose.mid', art: 'footloose.jpg' },
   { key: 'ch_small', name: "It's a Small Cost", art: 'cb_smallworld.jpg' },
   { key: 'ch_xmen', name: 'X-pense Men', art: 'cb_logan.jpg' },
@@ -111,7 +110,7 @@ export function buildMedley(TRACKS, keys, rnd = Math.random) {
   const pool = keys.filter((k) => TRACKS[k] && TRACKS[k].lead && TRACKS[k].lead.length >= 16 && TRACKS[k].prog);
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
   const lead = [], prog = [], crashBars = [], segs = [];
-  const groove = (TRACKS.do_lobby || TRACKS.do_awesome).prog;
+  const groove = (TRACKS.do_lobby || TRACKS[keys[0]]).prog;
   for (let b = 0; b < MEDLEY.introBars; b++) { prog.push(groove[b % groove.length]); for (let st = 0; st < 16; st++) lead.push(null); }
   for (const key of pool.slice(0, MEDLEY.songs)) {
     const T = TRACKS[key], bars = Math.floor(T.lead.length / 16);

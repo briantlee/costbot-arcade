@@ -34,6 +34,17 @@
   <div id="game"></div>
   <div id="boot"><img src="../shared/assets/costbot.png" alt=""><div>Polishing the mirror ball…</div></div>
 
+  <script>
+    // If the game fails to load — a stale cached file after an update is the usual culprit, and
+    // a module that fails to link throws nowhere a listener can catch — say so on the boot screen
+    // instead of polishing the mirror ball forever.
+    setTimeout(function () {
+      var b = document.getElementById('boot');
+      if (!b || (window.game && window.game.start)) return;   // (window.game alone is the #game div)
+      b.querySelector('div').innerHTML = '💥 The dance floor didn\u2019t load.<br>'
+        + '<small style="opacity:.8">Try a hard refresh — ⌘⇧R on a Mac, Ctrl+Shift+R elsewhere.</small>';
+    }, 6000);
+  </script>
   <script src="../shared/arcade-sync.js"></script>
   <script src="../shared/arcade-wallet.js"></script>
   <script src="../shared/arcade-music.js"></script>
