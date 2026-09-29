@@ -81,6 +81,82 @@
     // think-cue leans on, resolving home on the last bar. Am F E Am.
     dojoThink:[{ root: 45, tones: [0, 3, 7] }, { root: 41, tones: [0, 4, 7] },
                { root: 40, tones: [0, 4, 7] }, { root: 45, tones: [0, 3, 7] }],   // Am F E Am
+    // Dance Off! — the dorian disco vamp, i7 to IV7, twice, then a turnaround that
+    // lifts through F and G and hangs on the E7 so the loop falls back into the top.
+    // Eight bars is two rounds of the dance-off (call + response is four bars).
+    // Dance Off! — "Footloose", source bars 23-86 of footloose.mid via tools/mid2chart.js
+    // (the first verse, the chorus, the second verse). Roots are from the MIDI's bass track; the
+    // major/minor of each is the tool's guess from the sounding third.
+    footloose: [
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 23)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 24)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 25)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 26)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 27)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 28)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 29)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 30)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 31)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 32)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 33)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 34)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 35)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 36)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 37)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 38)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 39)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 40)
+      { root: 39, tones: [0, 4, 7] },  // D#2 maj  (source bar 41)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 42)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 43)
+      { root: 30, tones: [0, 3, 7] },  // F#1 min  (source bar 44)
+      { root: 31, tones: [0, 3, 7] },  // G1 min  (source bar 45)
+      { root: 32, tones: [0, 3, 7] },  // G#1 min  (source bar 46)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 47)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 48)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 49)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 50)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 51)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 52)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 53)
+      { root: 35, tones: [0, 4, 7] },  // B1 maj  (source bar 54)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 55)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 56)
+      { root: 34, tones: [0, 4, 7] },  // A#1 maj  (source bar 57)
+      { root: 28, tones: [0, 3, 7] },  // E1 min  (source bar 58)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 59)
+      { root: 36, tones: [0, 4, 7] },  // C2 maj  (source bar 60)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 61)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 62)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 63)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 64)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 65)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 66)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 67)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 68)
+      { root: 28, tones: [0, 4, 7] },  // E1 maj  (source bar 69)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 70)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 71)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 72)
+      { root: 45, tones: [0, 4, 7] },  // A2 maj  (source bar 73)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 74)
+      { root: 50, tones: [0, 3, 7] },  // D3 min  (source bar 75)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 76)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 77)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 78)
+      { root: 33, tones: [0, 3, 7] },  // A1 min  (source bar 79)
+      { root: 38, tones: [0, 4, 7] },  // D2 maj  (source bar 80)
+      { root: 50, tones: [0, 4, 7] },  // D3 maj  (source bar 81)
+      { root: 33, tones: [0, 4, 7] },  // A1 maj  (source bar 82)
+      { root: 39, tones: [0, 3, 7] },  // D#2 min  (source bar 83)
+      { root: 28, tones: [0, 3, 7] },  // E1 min  (source bar 84)
+      { root: 30, tones: [0, 4, 7] },  // F#1 maj  (source bar 85)
+      { root: 31, tones: [0, 4, 7] },  // G1 maj  (source bar 86)
+    ],
+    disco:    [{ root: 45, tones: [0, 3, 7, 10] }, { root: 38, tones: [0, 4, 7, 10] },   // Am7 D7
+               { root: 45, tones: [0, 3, 7, 10] }, { root: 38, tones: [0, 4, 7, 10] },   // Am7 D7
+               { root: 41, tones: [0, 4, 7, 11] }, { root: 43, tones: [0, 4, 7] },       // Fmaj7 G
+               { root: 45, tones: [0, 3, 7, 10] }, { root: 40, tones: [0, 4, 7, 10] }],  // Am7 E7
     // CostBot Hero — Graviton Groove. A driving E-minor loop, brighter than the
     // industrial boss: Em C G D lifts on the G and turns on the D. Gives the
     // rhythm chart a wide contour so the melody sweeps across all five lanes.
@@ -1398,6 +1474,79 @@
       76, _, _, _, 77, _, _, _, 81, _, 77, _, 76, _, _, _,
       74, _, 70, _, 69, _, _, _, _, _, _, _, _, _, _, _,
     ],
+    // Dance Off! — "Footloose" lead, the top line of the MIDI's guitar/synth arrangement
+    // above middle C (--min-pitch 60 isolates the tune from the chords under it).
+    footloose: [
+      73, _, _, _, 66, _, _, _, 64, _, _, _, 61, _, _, _,  // bar 0 (source bar 23)
+      _, _, _, _, 61, _, _, _, 61, _, _, _, 74, _, _, _,  // bar 1 (source bar 24)
+      73, _, _, _, 66, _, _, _, 64, _, _, _, 61, _, _, _,  // bar 2 (source bar 25)
+      _, _, _, _, _, _, _, _, _, _, _, _, 74, _, _, _,  // bar 3 (source bar 26)
+      73, _, _, _, 64, _, _, _, 64, _, _, _, _, _, _, _,  // bar 4 (source bar 27)
+      _, _, _, _, 61, _, _, _, 64, _, _, _, 74, _, _, _,  // bar 5 (source bar 28)
+      73, _, _, _, 66, _, _, _, 64, _, _, _, 61, _, _, _,  // bar 6 (source bar 29)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 7 (source bar 30)
+      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 8 (source bar 31)
+      _, _, _, _, _, _, _, _, 61, _, _, _, _, _, _, _,  // bar 9 (source bar 32)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 10 (source bar 33)
+      61, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 11 (source bar 34)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 12 (source bar 35)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 13 (source bar 36)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 14 (source bar 37)
+      60, _, 60, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 15 (source bar 38)
+      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 16 (source bar 39)
+      _, _, _, _, _, _, _, _, 61, _, _, _, _, _, _, _,  // bar 17 (source bar 40)
+      69, _, _, _, _, _, _, _, 61, _, _, _, _, _, _, _,  // bar 18 (source bar 41)
+      61, _, _, _, 64, _, _, _, 64, _, _, _, 64, _, _, _,  // bar 19 (source bar 42)
+      68, _, _, _, _, _, 64, _, _, _, _, _, _, _, _, _,  // bar 20 (source bar 43)
+      69, _, _, _, _, _, 64, _, _, _, _, _, _, _, _, _,  // bar 21 (source bar 44)
+      70, _, _, _, _, _, 64, _, _, _, _, _, _, _, _, _,  // bar 22 (source bar 45)
+      71, _, _, _, 64, _, 64, _, 64, _, 64, _, 64, _, _, _,  // bar 23 (source bar 46)
+      73, _, _, _, _, _, 73, _, _, _, _, _, 69, _, _, _,  // bar 24 (source bar 47)
+      69, _, 73, _, _, _, _, _, 73, _, _, _, _, _, 74, _,  // bar 25 (source bar 48)
+      _, _, 74, _, _, _, 74, _, 74, _, _, _, 69, _, _, _,  // bar 26 (source bar 49)
+      73, _, _, _, _, _, 73, _, _, _, _, _, _, _, _, _,  // bar 27 (source bar 50)
+      73, _, _, _, _, _, 73, _, _, _, _, _, 69, _, _, _,  // bar 28 (source bar 51)
+      69, _, 73, _, _, _, _, _, 73, _, _, _, _, _, _, _,  // bar 29 (source bar 52)
+      74, _, _, _, 69, _, 69, _, _, _, 69, _, 69, _, _, _,  // bar 30 (source bar 53)
+      76, _, 76, _, 78, _, 76, _, 81, _, _, _, 78, _, _, _,  // bar 31 (source bar 54)
+      73, _, _, _, _, _, 73, _, _, _, _, _, 69, _, _, _,  // bar 32 (source bar 55)
+      69, _, 73, _, _, _, _, _, 73, _, _, _, _, _, 74, _,  // bar 33 (source bar 56)
+      _, _, 74, _, _, _, 74, _, 73, _, _, _, 69, _, _, _,  // bar 34 (source bar 57)
+      73, _, _, _, _, _, 73, _, _, _, _, _, _, _, _, _,  // bar 35 (source bar 58)
+      73, _, _, _, _, _, 73, _, _, _, _, _, 69, _, _, _,  // bar 36 (source bar 59)
+      69, _, 73, _, _, _, _, _, 73, _, _, _, _, _, _, _,  // bar 37 (source bar 60)
+      74, _, 71, _, 71, _, 71, _, 74, _, _, _, 74, _, _, _,  // bar 38 (source bar 61)
+      73, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 39 (source bar 62)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 40 (source bar 63)
+      _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 41 (source bar 64)
+      _, _, _, _, _, _, _, _, _, _, _, _, 74, _, _, _,  // bar 42 (source bar 65)
+      73, _, _, _, 66, _, _, _, 64, _, _, _, 61, _, _, _,  // bar 43 (source bar 66)
+      _, _, _, _, 64, _, _, _, 64, _, _, _, 74, _, _, _,  // bar 44 (source bar 67)
+      73, _, _, _, 66, _, _, _, 64, _, _, _, 61, _, _, _,  // bar 45 (source bar 68)
+      _, _, _, _, _, _, _, _, _, _, _, _, 74, _, _, _,  // bar 46 (source bar 69)
+      73, _, _, _, 69, _, _, _, 69, _, _, _, 61, _, _, _,  // bar 47 (source bar 70)
+      62, _, _, _, 64, _, _, _, 64, _, _, _, 74, _, _, _,  // bar 48 (source bar 71)
+      73, _, _, _, 66, _, _, _, 64, _, _, _, 66, _, 64, _,  // bar 49 (source bar 72)
+      64, _, _, _, 66, _, 64, _, 64, _, _, _, 61, _, _, _,  // bar 50 (source bar 73)
+      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 51 (source bar 74)
+      _, _, _, _, _, _, _, _, 61, _, _, _, _, _, _, _,  // bar 52 (source bar 75)
+      _, _, _, _, _, _, 74, _, 74, _, 74, _, 74, _, 74, _,  // bar 53 (source bar 76)
+      74, _, 74, _, 74, _, 74, _, 74, _, 74, _, 74, _, _, _,  // bar 54 (source bar 77)
+      76, _, 76, _, 76, _, 76, _, 76, _, 76, _, 76, _, 76, _,  // bar 55 (source bar 78)
+      76, _, 76, _, 76, _, 76, _, 69, _, _, _, _, _, _, _,  // bar 56 (source bar 79)
+      69, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,  // bar 57 (source bar 80)
+      _, _, _, _, _, _, _, _, 61, _, _, _, _, _, _, _,  // bar 58 (source bar 81)
+      69, _, _, _, 66, _, _, _, 66, _, _, _, 66, _, _, _,  // bar 59 (source bar 82)
+      69, _, _, _, 66, _, _, _, 66, _, _, _, 66, _, _, _,  // bar 60 (source bar 83)
+      66, _, _, _, _, _, 64, _, _, _, _, _, _, _, 67, 66,  // bar 61 (source bar 84)
+      66, _, _, _, _, _, 64, _, _, _, _, _, _, _, _, _,  // bar 62 (source bar 85)
+      67, _, _, _, _, _, 64, _, _, _, 64, _, 64, _, 66, _,  // bar 63 (source bar 86)
+    ],
+    // Dance Off! lobby — octave-jumping disco bass, a 16th per step: low, rest, high,
+    // rest — with a flat-seven pickup at the end of every bar
+    doAwesomeBass: [33, 38, 33, 38, 41, 43, 33, 40].flatMap((r) => [
+      r, _, r + 12, _, r, _, r + 12, _, r, _, r + 12, _, r, _, r + 12, r + 10,
+    ]),
     // CostBot Hero — "Megabill Mash". A funky A-minor head over Am F C G: stabby,
     // syncopated, and it ranges 65->79 so the falling-note chart derived from it
     // sweeps the whole highway. Verse (bars 1-2) then a climbing turnaround.
@@ -3124,6 +3273,25 @@
       arpEvery: 2, bassEvery: 8, gain: 0.54, voices: { lead: 'chip', arp: 'square' },
     },
 
+    // ---- CostBot: Dance Off! ------------------------------------------------
+    // 120bpm on purpose: every dance in costbot-3d.js moves at two beats a second,
+    // so at this tempo the bots are on the beat without being told where it is.
+    do_lobby: {
+      title: 'Dance Off! (lobby)', influence: '70s disco', bpm: 120, key: 'A dorian',
+      desc: 'Title screen. The kit, the octave bass and the strings — the horns are '
+          + 'waiting for the dance-off to start.',
+      prog: P.disco, lead: null, bassLine: L.doAwesomeBass, drums: 'disco', pad: 'strings',
+      bars: 8, arpEvery: 0, gain: 0.6, bassGain: 0.4,
+    },
+    do_footloose: {
+      title: 'Footloose', influence: 'Kenny Loggins · Footloose (from MIDI)', bpm: 165, key: 'A',
+      desc: 'Dance Off! track. Verse, chorus, verse of the 1984 anthem — generated from footloose.mid '
+          + 'by tools/mid2chart.js. Danced in half-time.',
+      prog: P.footloose, lead: L.footloose, drums: 'rock', pad: 'power', bars: 64,
+      arpEvery: 0, bassEvery: 1, gain: 0.42, voices: { lead: 'dist' },
+      drumGain: 1.2, bassGain: 0.5, bassSubGain: 1.0,
+    },
+
     // ---- CostBot Hero — the rhythm cabinet ----------------------------------
     // The title track. Funky four-on-the-floor synthwave; the falling-note chart
     // is generated from this song's own lead line, so the player plays the tune.
@@ -4166,6 +4334,15 @@
           if (inBar % 2 === 0) hat(t, inBar === 14, inBar % 4 === 0);
           if (bar === 0 && inBar === 0) crash(t);
           break;
+        case 'disco':
+          // four on the floor, the snare on 2 and 4, an open hat on every "and"
+          // and a soft closed 16th in between — the hat pattern is the whole genre
+          if (inBar % 4 === 0) kick(t, inBar === 0);
+          if (inBar === 4 || inBar === 12) snare(t);
+          if (inBar % 4 === 2) hat(t, true, false);
+          else if (inBar % 2 === 1) hat(t, false, false);
+          if (bar === 0 && inBar === 0) crash(t);
+          break;
         case 'heartbeat':
           // A literal lub-dub pulse, once per beat, every beat of every bar —
           // the dominant, unmistakable element of the cue. "Lub" is a hard low
@@ -4266,6 +4443,7 @@
       debug() {
         return { state, track: trackName, pending, playing, step, timer: !!timer,
                  nextTime: +nextTime.toFixed(2),
+                 nextTimeRaw: nextTime,   // unrounded, for games that anchor a beat clock to it
                  ctxTime: ctx ? +ctx.currentTime.toFixed(2) : null,
                  ctxState: ctx ? ctx.state : null };
       },
