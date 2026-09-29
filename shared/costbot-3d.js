@@ -15,6 +15,9 @@
  *   bot.antic('yawn');            // idle bits: 'yawn' | 'tablet' | 'loop' | 'wave' | 'dizzy'
  *   bot.antic('boogie');          // dances (~4s): boogie, robot, disco, ymca, twist, sprinkler, floss,
  *                                 // moonwalk, pirouette, dab, chicken — see DANCES
+ *   bot.antic('robot', 1);        // any bit, cut to a set length in seconds (Dance Off! plays them to the beat)
+ *   bot.antic('backflip');        // the big ones: backflip, spin, hipthrust, kick, jumpsplit
+ *   bot.antic('point', 0.8);      // gestures: 'point' (left hand) / 'pointright' — "your turn!"
  *   bot.setInspect(true);         // magnifier out and up to his visor (inspecting something)
  *   bot.lens, bot.inspectK        // the lens mesh and how far it's up (0–1), e.g. to magnify what's behind it
  *   // every frame:
@@ -84,7 +87,11 @@ export const OUTFITS = [
 /* Moods change the face and the body language, never the outfit. 'happy' is how he ships; the
  * rest are for fun. `eyes`: open | half | joy (^ ^) | closed (◡ ◡) | heart; `mouth`: smile | grin |
  * small | flat | frown | wobble; `brows`: angry | worried; bob/float/billow/pulse scale the idle motion. */
-export const DANCES = ['boogie', 'robot', 'disco', 'ymca', 'twist', 'sprinkler', 'floss', 'moonwalk', 'pirouette', 'dab', 'chicken'];
+export const DANCES = ['boogie', 'robot', 'disco', 'ymca', 'twist', 'sprinkler', 'floss', 'moonwalk', 'pirouette', 'dab', 'chicken',
+  'backflip', 'spin', 'hipthrust', 'kick', 'jumpsplit'];
+// Gestures, not dances: they own the arms like a dance does, but nobody buys them or
+// picks them at random. 'point' aims the up (left) hand straight out; 'pointright' the down one.
+export const GESTURES = ['point', 'pointright'];
 
 export const MOODS = [
   { id: 'happy', label: 'Happy & helpful', icon: '😊', eyes: 'open', mouth: 'smile' },
@@ -701,7 +708,8 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
   let celebrate = 0, anticName = null, anticT = 0, anticDur = 0;
   let nextBlink = 2, blinkT = 0, billow = 1;
   const lerp = THREE.MathUtils.lerp;
-  const ANTICS = { yawn: 2.6, tablet: 3.2, loop: 1.3, wave: 2.2, dizzy: 3.6, ...Object.fromEntries(DANCES.map((d) => [d, 4])) };
+  const ANTICS = { yawn: 2.6, tablet: 3.2, loop: 1.3, wave: 2.2, dizzy: 3.6, ...Object.fromEntries(DANCES.map((d) => [d, 4])), point: 1.2, pointright: 1.2 };
+  const OWNS_ARMS = new Set([...DANCES, ...GESTURES]);
 
   function applyOutfit() {
     const o = OUTFITS.find((x) => x.id === outfit) || OUTFITS[0];
@@ -745,13 +753,15 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       }
     },
     cheer() { celebrate = 1.6; anticName = null; tablet.visible = false; yawnO.visible = false; smile.visible = true; },
-    antic(name) {
+    // secs: optional override of the bit's length — a rhythm cabinet cuts a dance to the beat
+    antic(name, secs) {
       if (!ANTICS[name] || celebrate > 0) return 0;
-      anticName = name; anticT = 0; anticDur = ANTICS[name];
+      anticName = name; anticT = 0; anticDur = secs > 0 ? secs : ANTICS[name];
       return anticDur;
     },
     /* opts: lookX/lookY in -1..1 (head turn), billow multiplier (speed), still (no hover bob),
-     baseY (hover height), leanX/leanZ (extra pitch/bank in radians), run (legs run, for ground skimming) */
+     baseY (hover height), leanX/leanZ (extra pitch/bank in radians), run (legs run, for ground skimming),
+     keepMood (dances keep the mood's face instead of the party grin — a villain dances angry) */
     update(t, dt, opts = {}) {
       celebrate = Math.max(0, celebrate - dt);
       const party = celebrate > 0;
@@ -792,7 +802,7 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       head.rotation.z = lerp(head.rotation.z, a === 'yawn' ? 0.12 * env : a === 'dizzy' ? Math.sin(t * 7) * 0.2 : party ? 0 : moodTilt, 0.12);
 
       const waving = a === 'wave';
-      const bf = DANCES.includes(a) ? 1 - env : 1;    // a dance owns the arms: the resting pose lets go of them
+      const bf = OWNS_ARMS.has(a) ? 1 - env : 1;    // a dance owns the arms: the resting pose lets go of them
       armUp.shoulder.rotation.z = lerp(armUp.shoulder.rotation.z,
         waving ? 2.55 + Math.sin(anticT * 11) * 0.38 * env
           : (a === 'yawn' ? 2.9 : party ? 2.0 : md.armUp || 2.0) + Math.sin(t * (party ? 12 : 2)) * (party ? 0.2 : 0.05), 0.2 * bf);
@@ -836,7 +846,7 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       } else { gear.magnifier.quaternion.copy(MAG_REST); gear.magnifier.scale.setScalar(1.2); gear.magnifier.position.copy(MAG_POS); }
 
       // ---- dances: two beats a second, eased in and out by env ----
-      const isDance = DANCES.includes(a);
+      const isDance = OWNS_ARMS.has(a);
       if (!isDance) armDown.elbow.rotation.z = lerp(armDown.elbow.rotation.z, 0, 0.2);   // only dances bend it in-plane
       const AU = armUp, AD = armDown;
       const arms = (uz, ue, dz, de, k = 0.3) => {        // [up arm: shoulder z, elbow], [down arm: shoulder z, in-plane elbow]
@@ -847,7 +857,64 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
         AD.elbow.rotation.x = lerp(AD.elbow.rotation.x, 0, k * env);
         AD.elbow.rotation.z = lerp(AD.elbow.rotation.z, de, k * env);
       };
-      if (a === 'ymca') {
+      // flips turn about his middle, not his feet (the pose's origin is at his feet)
+      const flip = (ang) => {
+        pose.rotation.x += ang;
+        pose.position.y += FALL_PIVOT * (1 - Math.cos(ang));
+        pose.position.z -= FALL_PIVOT * Math.sin(ang);
+      };
+      const smooth = (x) => { const c = Math.min(1, Math.max(0, x)); return c * c * (3 - 2 * c); };
+      if (a === 'backflip') {
+        // crouch, spring, a full back somersault with the knees tucked, stick the landing
+        const air = (p - 0.2) / 0.6, flying = air > 0 && air < 1;
+        const crouch = p < 0.2 ? Math.sin((p / 0.2) * Math.PI) : p > 0.8 ? Math.sin(((p - 0.8) / 0.2) * Math.PI) * 0.7 : 0;
+        root.position.y += (flying ? Math.sin(air * Math.PI) * 2.1 : 0) - crouch * 0.35;
+        flip(-smooth(air) * Math.PI * 2);
+        arms(flying ? 2.8 : 1.3, flying ? 0.3 : 1.2, flying ? -2.8 : -1.3, flying ? -0.3 : -1.2, 0.5);
+        legs.forEach((leg) => { leg.rotation.x = 0.4 - (flying ? Math.sin(air * Math.PI) * 1.3 : -crouch * 0.5); });
+      } else if (a === 'spin') {
+        // three fast turns on one foot, arms flung wide, a little lift at the top
+        pose.rotation.y += smooth(p) * Math.PI * 6;
+        pose.rotation.z += Math.sin(p * Math.PI) * 0.18;
+        root.position.y += Math.sin(p * Math.PI) * 0.55;
+        arms(1.6, 0.05, -1.6, 0, 0.45);
+        AU.shoulder.rotation.x = -0.35;
+        legs.forEach((leg, i) => { leg.rotation.x = i ? 0.35 : 0.4 - 1.0 * Math.sin(p * Math.PI); leg.rotation.z = (i ? 1 : -1) * 0.1; });
+      } else if (a === 'hipthrust') {
+        // hands on hips, and thrust on every beat
+        const th = Math.max(0, Math.sin(anticT * Math.PI * 4)) ** 2;
+        pose.position.z += th * 0.42 * env;
+        pose.rotation.x -= th * 0.4 * env;               // shoulders go back as the hips go forward
+        root.position.y += (-0.1 + th * 0.12) * env;
+        arms(1.0, 2.3, -1.0, -2.3, 0.4);
+        head.rotation.x = lerp(head.rotation.x, -0.35 * th, 0.4);
+        legs.forEach((leg, i) => { leg.rotation.x = 0.4 - th * 0.7 * env; leg.rotation.z = (i ? 1 : -1) * (0.08 + th * 0.2 * env); });
+      } else if (a === 'kick') {
+        // high kicks, a leg a beat, the opposite fist punching out
+        const ph = (anticT * 2) % 1, side = Math.floor(anticT * 2) % 2, lift = Math.sin(ph * Math.PI);
+        root.position.y += lift * 0.25 * env;
+        pose.rotation.x -= lift * 0.2 * env;             // lean back into it
+        legs.forEach((leg, i) => { leg.rotation.x = i === side ? 0.4 - lift * 2.1 * env : 0.45; });
+        arms(side ? 1.5 + lift * 0.9 : 1.1, 0.2, side ? -1.1 : -1.5 - lift * 0.9, 0, 0.45);
+      } else if (a === 'jumpsplit') {
+        // spring up, legs out sideways into the splits at the top, arms in a V
+        const air = Math.sin(p * Math.PI);
+        root.position.y += air * 1.6 - (p < 0.12 || p > 0.88 ? 0.25 : 0);
+        arms(2.6 * air + 1.2 * (1 - air), 0.1, -2.6 * air - 1.2 * (1 - air), 0, 0.5);
+        legs.forEach((leg, i) => { leg.rotation.x = 0.2; leg.rotation.z = (i ? 1 : -1) * (0.08 + 1.35 * air); });
+        head.rotation.x = lerp(head.rotation.x, -0.25 * air, 0.3);
+      } else if (a === 'point' || a === 'pointright') {
+        // "your turn": one arm straight out to his side, a nod that way, a little lean
+        const left = a === 'point';
+        if (left) { AU.shoulder.rotation.z = lerp(AU.shoulder.rotation.z, 1.5, 0.45 * env); AU.elbow.rotation.z = lerp(AU.elbow.rotation.z, 0.02, 0.45 * env); AU.shoulder.rotation.x = -0.55; }
+        else {
+          AD.shoulder.rotation.z = lerp(AD.shoulder.rotation.z, -1.5, 0.45 * env); AD.shoulder.rotation.x = lerp(AD.shoulder.rotation.x, -0.5, 0.45 * env);
+          AD.elbow.rotation.x = lerp(AD.elbow.rotation.x, 0, 0.45 * env); AD.elbow.rotation.z = lerp(AD.elbow.rotation.z, 0, 0.45 * env);
+        }
+        pose.rotation.z += (left ? -0.12 : 0.12) * env;
+        head.rotation.y = lerp(head.rotation.y, left ? 0.5 : -0.5, 0.3);
+        root.position.y += Math.sin(Math.min(1, p * 3) * Math.PI) * 0.12;
+      } else if (a === 'ymca') {
         // Y, M, C, A — a letter every 0.9s, a little bounce on each
         const k = Math.min(3, Math.floor(anticT / 0.9));
         // (his arms are short next to that helmet: much past 2.4 rad and they vanish behind it)
@@ -947,7 +1014,8 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       if (nextBlink < 0) { blinkT = 0.14; nextBlink = 2 + Math.random() * 3; }
       blinkT = Math.max(0, blinkT - dt);
       // a cheer always reads as delight, whatever the mood; the yawn and the dizzy bit own the face
-      const dancing = DANCES.includes(a);
+      const moodFace = !!opts.keepMood && OWNS_ARMS.has(a);
+      const dancing = OWNS_ARMS.has(a) && !moodFace;
       const eyeKind = a === 'dizzy' ? 'none' : party || dancing ? 'joy' : a === 'yawn' || a === 'tablet' ? 'open' : md.eyes;
       let eyeY = blinkT > 0 ? 0.1 : eyeKind === 'half' ? 0.42 : 1;
       if (a === 'yawn') eyeY = 1 - 0.8 * env;
@@ -958,9 +1026,10 @@ export function createCostBot({ style = 'glossy', shadows = true } = {}) {
       const beat = 1 + Math.max(0, Math.sin(t * 7)) ** 8 * 0.25;
       heartEyes.forEach((h) => { h.visible = eyeKind === 'heart'; h.scale.setScalar(0.26 * beat); });
       yawnO.visible = a === 'yawn' && env > 0.4;
-      const mouthKind = yawnO.visible ? null : party || dancing ? 'grin' : a ? 'smile' : md.mouth;
+      const mouthKind = yawnO.visible ? null : party || dancing ? 'grin' : a && !moodFace ? 'smile' : md.mouth;
       for (const [k, g] of Object.entries(mouths)) g.visible = k === mouthKind;
-      for (const [k, pair] of Object.entries(brows)) pair.forEach((g) => { g.visible = !a && !party && md.brows === k; });
+      const browsOn = (!a || moodFace) && !party;
+      for (const [k, pair] of Object.entries(brows)) pair.forEach((g) => { g.visible = browsOn && md.brows === k; });
 
       antenna.scale.setScalar(1 + Math.sin(t * 4 * (md.pulse || 1)) * 0.06 + (party ? 0.15 : 0));
       billow = lerp(billow, (party ? 1.8 : md.billow || 1) * (opts.billow || 1), 0.05);

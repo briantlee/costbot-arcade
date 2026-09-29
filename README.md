@@ -35,6 +35,13 @@ arcade/
                         `node ct-smoketest.mjs` plays a scripted season headless.
                         3d.html + cl-3d.js are a fixed showcase diorama of the map;
                         classic.html is the original 2D park-triage game
+  dance-off/            the 3D dance-battle rhythm game (three.js), after the Guardians of the
+                        Galaxy dance-off: shadow Max Tokens' verse to sneak the squad forward, dance
+                        yours to keep his suspicion down, and finish the song to grab the Infinity
+                        Invoice. A random 🎲 Awesome Medley, the house tracks, and CostBot Hero's songs
+                        (charted from each lead line, Normal→Expert); held slides, a Groove/Freestyle
+                        meter and CostBot's wardrobe (do-content.js = songs, medley, charts, balance;
+                        do-stage.js = the disco and the cast; do-game.js runs it)
   shared/
     assets/             art used by the landing page itself (CostBot, CostBotLand)
                         the token coin ships in three sizes — pick the one that
@@ -149,6 +156,7 @@ cd arcade/waste-hunter && node smoketest.js      # ~90s: full game suite
 FULL=1 node smoketest.js                         # plays a whole stage; use for pacing work
 cd arcade/mudslides && node smoketest.js         # ~15s: runner suite
 cd arcade/cloud-patrol && node smoketest.js      # ~90s: menus, secrets, obstacles, formations, both bosses, bonus, continue, initials
+cd arcade/dance-off && node smoketest.js         # ~4min: perfect bot heists a medley, half-right bot busted, a half-time Hero song on Hard
 cd ~/aix-proto/examples/costbot-arcade && npm test
 ```
 
@@ -172,6 +180,7 @@ from. Both now report `dollarsSaved: 0` and are ranked on their own metrics inst
 | Mudslides | distance, top speed, near misses, tokens | distance |
 | Holiday in Colombia | longest streak, heaviest, fish landed, tokens | longest streak |
 | Cloud Patrol | best score, best combo, tokens | best score |
+| Dance Off! | best score, best combo, accuracy, tokens | best score |
 
 Those metrics live in `runs` as their own columns (`distance`, `near_misses`,
 `top_speed`, `streak`, `heaviest_g`, `fish` — all additive migrations, existing rows
